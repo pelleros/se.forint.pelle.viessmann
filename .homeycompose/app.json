@@ -1,0 +1,28 @@
+{
+  "id": "se.forint.pelle.viessmann",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Viessmann"
+  },
+  "description": {
+    "en": "Adds support for Viessmann heat pumps"
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Pelle Rosengren",
+    "email": "pelle@forint.se"
+  }
+}

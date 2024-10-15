@@ -1,0 +1,53 @@
+{
+  "id": "vicare",
+  "name": {
+    "en": "ViCare"
+  },
+  "class": "heater",
+  "capabilities": [
+    "measure_temperature.hotwater",
+    "measure_temperature.outside",
+    "measure_power.dhw",
+    "measure_power.heating"
+  ],
+  "capabilitiesOptions": {
+    "measure_temperature.hotwater": { "title": { "en": "Hot Water" } },
+    "measure_temperature.outside": { "title": { "en": "Outside Temp" } },
+    "measure_power.dhw": { "title": { "en": "Power Hot Water" } },
+    "measure_power.heating": { "title": { "en": "Power Heating" } }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "cloud"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "repair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    }
+  ]
+}

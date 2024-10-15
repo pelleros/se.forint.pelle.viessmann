@@ -1,0 +1,18 @@
+{
+  "name": "se.forint.pelle.viessmann",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^16.1.1",
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.5",
+    "@types/node": "^20.11.19",
+    "eslint": "^7.32.0",
+    "eslint-config-athom": "^3.1.3"
+  },
+  "dependencies": {
+    "homey-oauth2app": "^3.5.7"
+  }
+}

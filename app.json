@@ -1,0 +1,110 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "se.forint.pelle.viessmann",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Viessmann"
+  },
+  "description": {
+    "en": "Adds support for Viessmann heat pumps"
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Pelle Rosengren",
+    "email": "pelle@forint.se"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "Outside temp changed"
+        },
+        "id": "outside-temp-changed"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "vicare",
+      "name": {
+        "en": "ViCare"
+      },
+      "class": "heater",
+      "capabilities": [
+        "measure_temperature.hotwater",
+        "measure_temperature.outside",
+        "measure_power.dhw",
+        "measure_power.heating"
+      ],
+      "capabilitiesOptions": {
+        "measure_temperature.hotwater": {
+          "title": {
+            "en": "Hot Water"
+          }
+        },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside Temp"
+          }
+        },
+        "measure_power.dhw": {
+          "title": {
+            "en": "Power Hot Water"
+          }
+        },
+        "measure_power.heating": {
+          "title": {
+            "en": "Power Heating"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/vicare/assets/images/small.png",
+        "large": "/drivers/vicare/assets/images/large.png",
+        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ]
+    }
+  ]
+}

@@ -96,9 +96,15 @@ module.exports = class MyBrandDevice extends OAuth2Device {
       .then((response) => {
         this.setAvailable();
 
-        // const jsonData = JSON.parse(res);
-        // this.log('device._sync::res:', JSON.stringify(res, null, 3));
-/*
+        //write response to log
+        // only log when debugging        
+        if (process.env.DEBUG) {
+          this.log('device._sync::res:', JSON.stringify(response, null, 3));
+        }
+
+        /*
+        const jsonData = JSON.parse(response);
+        this.log('device._sync::res:', JSON.stringify(jsonData, null, 3));
         const featuresToFind = [
           MyBrandDevice.TEMP_HOT_WATER,
           MyBrandDevice.TEMP_OUTSIDE,

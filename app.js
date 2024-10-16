@@ -1,11 +1,11 @@
 'use strict';
 
 const { OAuth2App } = require('homey-oauth2app');
-const MyBrandOAuth2Client = require('./lib/MyBrandOAuth2Client');
+const ViessmannOAuth2Client = require('./lib/ViessmannOAuth2Client');
 
 class MyApp extends OAuth2App {
 
-  static OAUTH2_CLIENT = MyBrandOAuth2Client; // Default: OAuth2Client
+  static OAUTH2_CLIENT = ViessmannOAuth2Client; // Default: OAuth2Client
   static OAUTH2_DEBUG = true; // Default: false
   // static OAUTH2_MULTI_SESSION = false; // Default: false
   // static OAUTH2_DRIVERS = [ 'vicare' ]; // Default: all drivers

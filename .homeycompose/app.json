@@ -7,7 +7,7 @@
     "local"
   ],
   "name": {
-    "en": "Viessmann"
+    "en": "Viessmann ViCare"
   },
   "description": {
     "en": "Adds support for Viessmann heat pumps"
@@ -24,5 +24,11 @@
   "author": {
     "name": "Pelle Rosengren",
     "email": "pelle@forint.se"
-  }
+  },
+  "source": "https://github.com/pelleros/se.forint.pelle.viessmann",
+  "support": "https://github.com/pelleros/se.forint.pelle.viessmann",
+  "bugs": {
+    "url": "https://github.com/pelleros/se.forint.pelle.viessmann"
+  },
+  "brandColor": "#ff0000"
 }

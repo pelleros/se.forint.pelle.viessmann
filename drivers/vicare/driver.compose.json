@@ -9,14 +9,14 @@
     "target_temperature.dhw",
     "measure_temperature.dhw",
     "target_temperature.heating",
-    "heater_operation_mode.heating"
+    "thermostat_mode.heating" 
   ],
   "capabilitiesOptions": {
     "measure_temperature.outside": { "title": { "en": "Outside temperature" } },
+    "target_temperature.heating": { "title": { "en": "Heating thermostat" }, "min": 10, "max": 30, "step": 1 },
     "target_temperature.dhw": { "title": { "en": "Hot water thermostat" }, "min": 10, "max": 60, "step": 1 },
     "measure_temperature.dhw": { "title": { "en": "Hot water temperature" } },
-    "target_temperature.heating": { "title": { "en": "Heating thermostat" }, "min": 10, "max": 30, "step": 1 },
-    "heater_operation_mode.heating": { "title": { "en": "Heating mode" }, "enum": ["off", "auto", "manual"] }
+    "thermostat_mode.heating": { "title": { "en": "Heating mode" }, "values": [{"id":"dhw", "title": {"en": "Hot water"}}, {"id":"dhwAndHeating", "title": {"en": "Hot water and Heating"}}, {"id":"standby", "title": {"en": "Standby"}}] }
   },
   "platforms": [
     "local"

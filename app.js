@@ -17,6 +17,7 @@
  *  along with se.forint.pelle.viessmann project.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+
 'use strict';
 
 const { OAuth2App } = require('homey-oauth2app');

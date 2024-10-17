@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "homey-oauth2app": "^3.5.7"
+  },
+  "engines": {
+        "node": ">=16.0.0"
   }
 }

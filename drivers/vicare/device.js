@@ -32,7 +32,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   static TEMP_OUTSIDE = 'heating.sensors.temperature.outside';
   static TARGET_TEMP_HEATING = 'heating.circuits.0.operating.programs.normal';
   static MAIN_OPERATING_MODE = 'heating.circuits.0.operating.modes.active';
-  static DHW_OPERATING_MODE = 'heating.dhw.operating.modes.active';
 
   async onInit() {
     this.log('ViessmannDevice::onInit');
@@ -49,6 +48,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
       await this.setHeatingTemp(value);
     });
+    this.registerCapabilityListener('thermostat_mode.heating', async (value) => {
+      if (process.env.DEBUG) {
+        this.log('thermostat_mode.heating:', value);
+      }
+      await this.setMainOperatingMode(value);
+    });
     super.onInit();
   }
 
@@ -61,41 +66,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._sync = this._sync.bind(this);
 
     this._sync();
-    this._syncInterval = setInterval(this._sync, POLL_INTERVAL);
-  }
-
-  async onOAuth2Deleted() {
-    // clean up
-    if (this._syncInterval) {
-      clearInterval(this._syncInterval);
-      this._syncInterval = null;
-    }
+    this._syncInterval = this.homey.setInterval(this._sync, POLL_INTERVAL);
   }
 
   /*
-    Debug function to log the current DHW mode
+    Set the hot water temperature
   */
-  async logDHWMode() {
-    const response = await this.oAuth2Client.getFeature({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      featureName: ViessmannDevice.DHW_OPERATING_MODE,
-    });
-    this.log('[ViessmannDevice::logDHWMode] DHW mode:', response.data.properties.value.value);
-  }
-
-  /*
-    Hot Water methods
-  */
-  async getHotWaterTemp() {
-    return this.oAuth2Client.getHotWaterTemp({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-    });
-  }
-
   async setDhwTemp(value) {
     return this.oAuth2Client.setDhwTemp({
       installationId: this._installationId,
@@ -105,6 +81,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
+  /*
+    Set the main/normal heating temperature
+  */
   async setHeatingTemp(value) {
     return this.oAuth2Client.setHeatingTemp({
       installationId: this._installationId,
@@ -114,11 +93,15 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
-  async getDhwPower() {
-    return this.oAuth2Client.getDhwPower({
+  /*
+    Set the operating mode of the heating system
+  */
+  async setMainOperatingMode(value) {
+    return this.oAuth2Client.setMainOperatingMode({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
+      value,
     });
   }
 
@@ -153,7 +136,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
         const hwTemp = response.data.find((item) => item.feature === ViessmannDevice.TEMP_HOT_WATER);
         this.setCapabilityValue('measure_temperature.dhw', hwTemp.properties.value.value);
-        
+
         const hwTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.TARGET_TEMP_HOT_WATER);
         this.setCapabilityValue('target_temperature.dhw', hwTargetTemp.properties.value.value);
 
@@ -162,6 +145,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
         const outsideTemp = response.data.find((item) => item.feature === ViessmannDevice.TEMP_OUTSIDE);
         this.setCapabilityValue('measure_temperature.outside', outsideTemp.properties.value.value);
+
+        const mainOpMode = response.data.find((item) => item.feature === ViessmannDevice.MAIN_OPERATING_MODE);
+        this.setCapabilityValue('thermostat_mode.heating', mainOpMode.properties.value.value);
       })
       .catch((err) => {
         this.error(err);

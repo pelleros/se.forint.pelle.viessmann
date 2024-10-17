@@ -17,6 +17,7 @@
  *  along with se.forint.pelle.viessmann project.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+
 'use strict';
 
 const { OAuth2Driver } = require('homey-oauth2app');
@@ -40,10 +41,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.log('gatewaySerial:', gateways.data[0].serial);
     }
     const devices = await oAuth2Client.getDeviceId({ installationId: installations.data[0].id, gatewaySerial: gateways.data[0].serial });
-    if (process.env.DEBUG) {
-      //this.log('onPairListDevices::installations:', JSON.stringify(devices, null, 3));
-      this.log('deviceId', devices.data[0].id);
-    }
     return [{
       name: 'Viessmann',
       data: {

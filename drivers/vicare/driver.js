@@ -41,7 +41,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
     const devices = await oAuth2Client.getDeviceId({ installationId: installations.data[0].id, gatewaySerial: gateways.data[0].serial });
     if (process.env.DEBUG) {
-      this.log('onPairListDevices::installations:', JSON.stringify(devices, null, 3));
+      //this.log('onPairListDevices::installations:', JSON.stringify(devices, null, 3));
       this.log('deviceId', devices.data[0].id);
     }
     return [{

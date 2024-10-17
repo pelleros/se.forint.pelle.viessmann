@@ -31,6 +31,7 @@
   "bugs": {
     "url": "https://github.com/pelleros/se.forint.pelle.viessmann"
   },
+  "brandColor": "#ff0000",
   "flow": {
     "triggers": [
       {
@@ -49,31 +50,37 @@
       },
       "class": "heater",
       "capabilities": [
-        "measure_temperature.hotwater",
         "measure_temperature.outside",
-        "measure_power.dhw",
-        "measure_power.heating"
+        "target_temperature.dhw",
+        "measure_temperature.dhw",
+        "target_temperature.heating"
       ],
       "capabilitiesOptions": {
-        "measure_temperature.hotwater": {
-          "title": {
-            "en": "Hot Water"
-          }
-        },
         "measure_temperature.outside": {
           "title": {
             "en": "Outside Temp"
           }
         },
-        "measure_power.dhw": {
+        "target_temperature.dhw": {
           "title": {
-            "en": "Power Hot Water"
+            "en": "Hot Water Thermostat"
+          },
+          "min": 10,
+          "max": 60,
+          "step": 1
+        },
+        "measure_temperature.dhw": {
+          "title": {
+            "en": "Current"
           }
         },
-        "measure_power.heating": {
+        "target_temperature.heating": {
           "title": {
-            "en": "Power Heating"
-          }
+            "en": "Heating"
+          },
+          "min": 10,
+          "max": 30,
+          "step": 1
         }
       },
       "platforms": [

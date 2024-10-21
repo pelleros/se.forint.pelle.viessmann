@@ -192,35 +192,51 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         }
 
         const hwTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TEMP_HOT_WATER);
-        this.setCapabilityValue('measure_temperature.hotWater', hwTemp.properties.value.value);
+        if (hwTemp) {
+          this.setCapabilityValue('measure_temperature.hotWater', hwTemp.properties.value.value);
+        }
 
         const hwTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TARGET_TEMP_HOT_WATER);
-        this.setCapabilityValue('target_temperature.hotWater', hwTargetTemp.properties.value.value);
+        if (hwTargetTemp) {
+          this.setCapabilityValue('target_temperature.hotWater', hwTargetTemp.properties.value.value);
+        }
 
         const heatingTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TARGET_TEMP_HEATING);
-        this.setCapabilityValue('target_temperature.heating', heatingTargetTemp.properties.temperature.value);
+        if (heatingTargetTemp) {
+          this.setCapabilityValue('target_temperature.heating', heatingTargetTemp.properties.temperature.value);
+        }
 
         const outsideTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TEMP_OUTSIDE);
-        this.setCapabilityValue('measure_temperature.outside', outsideTemp.properties.value.value);
+        if (outsideTemp) {
+          this.setCapabilityValue('measure_temperature.outside', outsideTemp.properties.value.value);
+        }
 
         const mainOpMode = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.MAIN_OPERATING_MODE);
-        this.setCapabilityValue('thermostat_mode.heating', mainOpMode.properties.value.value);
+        if (mainOpMode) {
+          this.setCapabilityValue('thermostat_mode.heating', mainOpMode.properties.value.value);
+        }
 
         const dhwOneTimeCharge = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.ONE_TIME_CHARGE_HOT_WATER);
-        this.setCapabilityValue('onoff.hotWaterOneTimeCharge', dhwOneTimeCharge.properties.active.value)
-          .catch((err) => {
-            this.error(err);
-          });
+        if (dhwOneTimeCharge) {
+          this.setCapabilityValue('onoff.hotWaterOneTimeCharge', dhwOneTimeCharge.properties.active.value)
+            .catch((err) => {
+              this.error(err);
+            });
+        }
 
         const compressorActive = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.COMPRESSOR_ACTIVE);
-        if (process.env.DEBUG) {
-          this.log('compressorActive.properties.active.value', compressorActive.properties.active.value);
+        if (compressorActive) {
+          if (process.env.DEBUG) {
+            this.log('compressorActive.properties.active.value', compressorActive.properties.active.value);
+          }
+          this.setCapabilityValue('measure_something_active.compressor', compressorActive.properties.active.value);
         }
-        this.setCapabilityValue('measure_something_active.compressor', compressorActive.properties.active.value);
 
         const compressorStat = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.COMPRESSOR_STATISTICS);
-        this.setCapabilityValue('measure_something_number.compressorHours', compressorStat.properties.hours.value);
-        this.setCapabilityValue('measure_something_number.compressorStarts', compressorStat.properties.starts.value);
+        if (compressorStat) {
+          this.setCapabilityValue('measure_something_number.compressorHours', compressorStat.properties.hours.value);
+          this.setCapabilityValue('measure_something_number.compressorStarts', compressorStat.properties.starts.value);
+        }
       })
       .catch((err) => {
         this.error(err);

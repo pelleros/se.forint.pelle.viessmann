@@ -1,3 +1,1 @@
-# Viessmann
-
-Adds support for Viessmann heat pumps
+Make your heat pump smarter. Control it with flows in Homey, check its status, and more…

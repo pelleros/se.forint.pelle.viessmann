@@ -11,7 +11,7 @@
     "en": "Viessmann ViCare"
   },
   "description": {
-    "en": "Adds support for Viessmann heat pumps"
+    "en": "Control Viessmann heat pumps"
   },
   "category": [
     "climate"

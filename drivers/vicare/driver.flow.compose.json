@@ -1,0 +1,111 @@
+{
+  "actions": [
+    {
+      "id": "set-hot-water-thermostat",
+      "title": {
+        "en": "Set hot water thermostat to [[temperature]] °C"
+      },
+      "titleFormatted": {
+        "en": "Set hot water thermostat to [[temperature]] °C"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "temperature",
+          "placeholder": {
+            "en": "50"
+          },
+          "min": 10,
+          "max": 60,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "set-heating-thermostat",
+      "title": {
+        "en": "Set heating thermostat to [[temperature]] °C"
+      },
+      "titleFormatted": {
+        "en": "Set heating thermostat to [[temperature]] °C"
+      },
+      "hint": {
+        "en": "Setting the target temperature of the heating thermostat."
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "temperature",
+          "placeholder": {
+            "en": "21"
+          },
+          "min": 10,
+          "max": 30,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "do-one-time-hot-water-charge",
+      "title": {
+        "en": "Do one time hot water charge"
+      },
+      "titleFormatted": {
+        "en": "One time hot water charge active [[active]]"
+      },
+      "args": [
+      {
+        "type": "checkbox",
+        "name": "active",
+        "title": { "en": "Active" }
+      }
+  ]
+    },
+    {
+      "id": "set-operating-mode",
+      "title": {
+        "en": "Set operating mode"
+      },
+      "titleFormatted": {
+        "en": "Set operating mode to [[mode]]"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "mode",
+          "values": [
+            {
+              "id": "dhw",
+              "label": {
+                "en": "Hot water"
+              }
+            },
+            {
+              "id": "dhwAndHeating",
+              "label": {
+                "en": "Hot water and heating"
+              }
+            },
+            {
+              "id": "standby",
+              "label": {
+                "en": "Standby"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "compressor-is-running",
+      "hint": {
+        "en": "Checking last known state, i.e could return incorrect value if not reacently synched."
+      },
+      "title": {
+        "en": "Compressor is!{{| not}} running"
+      }
+    }
+  ]
+}

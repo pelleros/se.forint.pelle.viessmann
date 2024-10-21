@@ -26,16 +26,13 @@ const ViessmannOAuth2Client = require('./lib/ViessmannOAuth2Client');
 class MyApp extends OAuth2App {
 
   static OAUTH2_CLIENT = ViessmannOAuth2Client; // Default: OAuth2Client
-  static OAUTH2_DEBUG = true; // Default: false
-  // static OAUTH2_MULTI_SESSION = false; // Default: false
-  // static OAUTH2_DRIVERS = [ 'vicare' ]; // Default: all drivers
+  static OAUTH2_DEBUG = process.env.DEBUG; // Default: false
 
   async onOAuth2Init() {
-    this.log('onOAuth2Init called');
-    this.enableOAuth2Debug();
-    // this.log('CLIENT_SECRET' + OAUTH2_CLIENT.CLIENT_SECRET);
-    // this.log('OAUTH2_CLIENT.authurl' + OAUTH2_CLIENT.getAuthorizationUrl());
-    // Do App logic here
+    if (process.env.DEBUG) {
+      this.log('onOAuth2Init');
+      this.enableOAuth2Debug();
+    }
   }
 
 }

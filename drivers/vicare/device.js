@@ -26,12 +26,12 @@ const POLL_INTERVAL = 1000 * 60 * 2; // 2 min
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
-  static TARGET_TEMP_HOT_WATER = 'heating.dhw.temperature.main';
-  static ONE_TIME_CHARGE_HOT_WATER = 'heating.dhw.oneTimeCharge';
-  static TEMP_HOT_WATER = 'heating.dhw.sensors.temperature.hotWaterStorage';
-  static TEMP_OUTSIDE = 'heating.sensors.temperature.outside';
-  static TARGET_TEMP_HEATING = 'heating.circuits.0.operating.programs.normal';
-  static MAIN_OPERATING_MODE = 'heating.circuits.0.operating.modes.active';
+  static FEATURES = {
+    TARGET_TEMP_HOT_WATER: 'heating.dhw.temperature.main',
+    ONE_TIME_CHARGE_HOT_WATER: 'heating.dhw.oneTimeCharge',
+    TEMP_HOT_WATER: 'heating.dhw.sensors.temperature.hotWaterStorage',
+    TEMP_OUTSIDE: 'heating.sensors.temperature.outside',
+  }
 
   async onInit() {
     this.log('ViessmannDevice::onInit');
@@ -54,6 +54,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
       await this.setMainOperatingMode(value);
     });
+    this.registerCapabilityListener('onoff.hotWaterOneTimeCharge', async (value) => {
+      if (process.env.DEBUG) {
+        this.log('onoff.hotWaterOneTimeCharge:', value);
+      }
+      await this.setDhwOneTimeCharge(value);
+    });
     super.onInit();
   }
 
@@ -63,8 +69,29 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._gatewaySerial = gatewaySerial;
     this._deviceId = deviceId;
 
-    this._sync = this._sync.bind(this);
+    // Get heating id and compressor id
+    // currently only taking the first heating circuit and the first compressor 
+    // (could be multiple in the returned array).
+    const compressorResponse = await this.oAuth2Client.getFeature({
+      installationId, gatewaySerial, deviceId, featureName: 'heating.compressors',
+    });
+    this._compressorId = compressorResponse.data.properties.enabled.value[0];
 
+    // Use compressorId in static strings
+    ViessmannDevice.FEATURES.COMPRESSOR_ACTIVE = `heating.compressors.${this._compressorId}`;
+    ViessmannDevice.FEATURES.COMPRESSOR_STATISTICS = `heating.compressors.${this._compressorId}.statistics`;
+
+    const heatingCircuitsResponse = await this.oAuth2Client.getFeature({
+      installationId, gatewaySerial, deviceId, featureName: 'heating.circuits',
+    });
+    this._heatingCircuitsId = heatingCircuitsResponse.data.properties.enabled.value[0];
+
+    // Use heatingCircuitsId in static strings
+    ViessmannDevice.FEATURES.TARGET_TEMP_HEATING = `heating.circuits.${this._heatingCircuitsId}.operating.programs.normal`;
+    ViessmannDevice.FEATURES.MAIN_OPERATING_MODE = `heating.circuits.${this._heatingCircuitsId}.operating.modes.active`;
+
+    // start the sync
+    this._sync = this._sync.bind(this);
     this._sync();
     this._syncInterval = this.homey.setInterval(this._sync, POLL_INTERVAL);
   }
@@ -105,6 +132,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
+  /*
+    Set the operating mode of the heating system
+  */
+  async setDhwOneTimeCharge(value) {
+    return this.oAuth2Client.setDhwOneTimeCharge({
+      installationId: this._installationId,
+      gatewaySerial: this._gatewaySerial,
+      deviceId: this._deviceId,
+      value: (value ? 'activate' : 'deactivate'),
+    });
+  }
+
   async getGatewayFeatures() {
     return this.oAuth2Client.getGatewayFeatures({
       installationId: this._installationId,
@@ -114,11 +153,29 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async getFeatures() {
-    return this.oAuth2Client.getFeatures({
+    const featuresFilter = Object.values(ViessmannDevice.FEATURES).join(',');
+    if (process.env.DEBUG) {
+      this.log('[ViessmannDevice::getFeatures] featuresFilter:', featuresFilter);
+    }
+    const response = await this.oAuth2Client.getFeatures({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
+      filter: featuresFilter,
     });
+    if (process.env.DEBUG) {
+      // this.log('[ViessmannDevice::getFeatures] response:', JSON.stringify(response, null, 3));
+    }
+    return response;
+  }
+
+  /*
+    Get the compressor status
+  */
+  async isCompressorRunning() {
+    // check the compressor status set in the capability measure_something_active.compressor
+    // keep down nof calls to the viessmann api
+    return this.getCapabilityValue('measure_something_active.compressor');
   }
 
   _sync() {
@@ -134,20 +191,36 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           // this.log('device._sync::res:', JSON.stringify(response, null, 3));
         }
 
-        const hwTemp = response.data.find((item) => item.feature === ViessmannDevice.TEMP_HOT_WATER);
-        this.setCapabilityValue('measure_temperature.dhw', hwTemp.properties.value.value);
+        const hwTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TEMP_HOT_WATER);
+        this.setCapabilityValue('measure_temperature.hotWater', hwTemp.properties.value.value);
 
-        const hwTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.TARGET_TEMP_HOT_WATER);
-        this.setCapabilityValue('target_temperature.dhw', hwTargetTemp.properties.value.value);
+        const hwTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TARGET_TEMP_HOT_WATER);
+        this.setCapabilityValue('target_temperature.hotWater', hwTargetTemp.properties.value.value);
 
-        const heatingTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.TARGET_TEMP_HEATING);
+        const heatingTargetTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TARGET_TEMP_HEATING);
         this.setCapabilityValue('target_temperature.heating', heatingTargetTemp.properties.temperature.value);
 
-        const outsideTemp = response.data.find((item) => item.feature === ViessmannDevice.TEMP_OUTSIDE);
+        const outsideTemp = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.TEMP_OUTSIDE);
         this.setCapabilityValue('measure_temperature.outside', outsideTemp.properties.value.value);
 
-        const mainOpMode = response.data.find((item) => item.feature === ViessmannDevice.MAIN_OPERATING_MODE);
+        const mainOpMode = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.MAIN_OPERATING_MODE);
         this.setCapabilityValue('thermostat_mode.heating', mainOpMode.properties.value.value);
+
+        const dhwOneTimeCharge = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.ONE_TIME_CHARGE_HOT_WATER);
+        this.setCapabilityValue('onoff.hotWaterOneTimeCharge', dhwOneTimeCharge.properties.active.value)
+          .catch((err) => {
+            this.error(err);
+          });
+
+        const compressorActive = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.COMPRESSOR_ACTIVE);
+        if (process.env.DEBUG) {
+          this.log('compressorActive.properties.active.value', compressorActive.properties.active.value);
+        }
+        this.setCapabilityValue('measure_something_active.compressor', compressorActive.properties.active.value);
+
+        const compressorStat = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.COMPRESSOR_STATISTICS);
+        this.setCapabilityValue('measure_something_number.compressorHours', compressorStat.properties.hours.value);
+        this.setCapabilityValue('measure_something_number.compressorStarts', compressorStat.properties.starts.value);
       })
       .catch((err) => {
         this.error(err);

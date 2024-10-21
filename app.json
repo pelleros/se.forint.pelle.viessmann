@@ -33,12 +33,142 @@
   },
   "brandColor": "#ff0000",
   "flow": {
-    "triggers": [
+    "conditions": [
       {
-        "title": {
-          "en": "Outside temp changed"
+        "id": "compressor-is-running",
+        "hint": {
+          "en": "Checking last known state, i.e could return incorrect value if not reacently synched."
         },
-        "id": "outside-temp-changed"
+        "title": {
+          "en": "Compressor is!{{| not}} running"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set-hot-water-thermostat",
+        "title": {
+          "en": "Set hot water thermostat to [[temperature]] °C"
+        },
+        "titleFormatted": {
+          "en": "Set hot water thermostat to [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "type": "number",
+            "name": "temperature",
+            "placeholder": {
+              "en": "50"
+            },
+            "min": 10,
+            "max": 60,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "set-heating-thermostat",
+        "title": {
+          "en": "Set heating thermostat to [[temperature]] °C"
+        },
+        "titleFormatted": {
+          "en": "Set heating thermostat to [[temperature]] °C"
+        },
+        "hint": {
+          "en": "Setting the target temperature of the heating thermostat."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "type": "number",
+            "name": "temperature",
+            "placeholder": {
+              "en": "21"
+            },
+            "min": 10,
+            "max": 30,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "do-one-time-hot-water-charge",
+        "title": {
+          "en": "Do one time hot water charge"
+        },
+        "titleFormatted": {
+          "en": "One time hot water charge active [[active]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "type": "checkbox",
+            "name": "active",
+            "title": {
+              "en": "Active"
+            }
+          }
+        ]
+      },
+      {
+        "id": "set-operating-mode",
+        "title": {
+          "en": "Set operating mode"
+        },
+        "titleFormatted": {
+          "en": "Set operating mode to [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+              {
+                "id": "dhw",
+                "label": {
+                  "en": "Hot water"
+                }
+              },
+              {
+                "id": "dhwAndHeating",
+                "label": {
+                  "en": "Hot water and heating"
+                }
+              },
+              {
+                "id": "standby",
+                "label": {
+                  "en": "Standby"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -50,30 +180,41 @@
       },
       "class": "heater",
       "capabilities": [
-        "measure_temperature.outside",
-        "target_temperature.dhw",
-        "measure_temperature.dhw",
+        "measure_something_active.compressor",
+        "measure_something_number.compressorHours",
+        "measure_something_number.compressorStarts",
+        "onoff.hotWaterOneTimeCharge",
         "target_temperature.heating",
-        "thermostat_mode.heating"
+        "thermostat_mode.heating",
+        "target_temperature.hotWater",
+        "measure_temperature.hotWater",
+        "measure_temperature.outside"
       ],
       "capabilitiesOptions": {
-        "measure_temperature.outside": {
+        "measure_something_active.compressor": {
           "title": {
-            "en": "Outside temperature"
-          }
-        },
-        "target_temperature.dhw": {
-          "title": {
-            "en": "Hot water thermostat"
+            "en": "Compressor running"
           },
-          "min": 10,
-          "max": 60,
-          "step": 1
+          "insights": true
         },
-        "measure_temperature.dhw": {
+        "measure_something_number.compressorHours": {
           "title": {
-            "en": "Hot water temperature"
-          }
+            "en": "Compressor runtime"
+          },
+          "units": "hours"
+        },
+        "measure_something_number.compressorStarts": {
+          "title": {
+            "en": "Compressor starts"
+          },
+          "units": "times"
+        },
+        "onoff.hotWaterOneTimeCharge": {
+          "title": {
+            "en": "One time charge hot water"
+          },
+          "uiQuickAction": false,
+          "setable": true
         },
         "target_temperature.heating": {
           "title": {
@@ -81,7 +222,9 @@
           },
           "min": 10,
           "max": 30,
-          "step": 1
+          "step": 1,
+          "insights": false,
+          "preventInsights": true
         },
         "thermostat_mode.heating": {
           "title": {
@@ -107,6 +250,26 @@
               }
             }
           ]
+        },
+        "target_temperature.hotWater": {
+          "title": {
+            "en": "Hot water thermostat"
+          },
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "insights": false,
+          "preventInsights": true
+        },
+        "measure_temperature.hotWater": {
+          "title": {
+            "en": "Hot water temperature"
+          }
+        },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside temperature"
+          }
         }
       },
       "platforms": [
@@ -144,5 +307,61 @@
         }
       ]
     }
-  ]
+  ],
+  "capabilities": {
+    "measure_something_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Something is active"
+      },
+      "titleTrue": {
+        "en": "Active",
+        "sv": "Aktiv"
+      },
+      "titleFalse": {
+        "en": "Inactive",
+        "sv": "Inaktiv"
+      },
+      "insightsTitle": {
+        "en": "Something is active"
+      },
+      "insightsTrue": {
+        "en": "Active"
+      },
+      "insightsFalse": {
+        "en": "Inactive"
+      },
+      "insightsTitleTrue": {
+        "en": "Active"
+      },
+      "insightsTitleFalse": {
+        "en": "Inactive"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "preventInsights": false,
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "icon": "/assets/compressor.svg"
+    },
+    "measure_something_number": {
+      "type": "number",
+      "title": {
+        "en": "Compressor runtime"
+      },
+      "units": {
+        "en": "hours"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "preventInsights": true,
+      "preventTag": true,
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "step": 1,
+      "icon": "/assets/compressor.svg"
+    }
+  }
 }

@@ -1,0 +1,14 @@
+{
+    "type": "number",
+    "title": { "en": "Compressor runtime" },
+    "units": { "en": "hours" },
+    "getable": true,
+    "setable": false,
+    "insights": false, 
+    "preventInsights": true,
+    "preventTag": true,
+    "uiComponent": "sensor",
+    "uiQuickAction": false,
+    "step": 1,
+    "icon": "/assets/compressor.svg"
+  }

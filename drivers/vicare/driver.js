@@ -29,24 +29,52 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.log('onOAuth2Init');
     }
     // Register Flow Cards etc.
+    const hotWaterCard = this.homey.flow.getActionCard('set-hot-water-thermostat');
+    hotWaterCard.registerRunListener(async (args) => {
+      const { temperature } = args;
+      await args.device.setDhwTemp(temperature);
+    });
+    const heaterThermostatCard = this.homey.flow.getActionCard('set-heating-thermostat');
+    heaterThermostatCard.registerRunListener(async (args) => {
+      const { temperature } = args;
+      await args.device.setHeatingTemp(temperature);
+    });
+    const hotWaterOneTimeChargeCard = this.homey.flow.getActionCard('do-one-time-hot-water-charge');
+    hotWaterOneTimeChargeCard.registerRunListener(async (args) => {
+      await args.device.setDhwOneTimeCharge(args.active);
+    });
+    const operatingModeCard = this.homey.flow.getActionCard('set-operating-mode');
+    operatingModeCard.registerRunListener(async (args) => {
+      const { mode } = args;
+      if (process.env.DEBUG) {
+        this.log('set-operating-mode:', mode);
+      }
+      await args.device.setMainOperatingMode(mode);
+    });
+    const compressorRunningConditionCard = this.homey.flow.getConditionCard('compressor-is-running');
+    compressorRunningConditionCard.registerRunListener(async (args) => {
+      return args.device.isCompressorRunning();
+    });
   }
 
   async onPairListDevices({ oAuth2Client }) {
     if (process.env.DEBUG) {
       this.log('onPairListDevices');
     }
-    const installations = await oAuth2Client.getInstallations();
-    const gateways = await oAuth2Client.getGatewaySerial();
+    const installationId = (await oAuth2Client.getInstallations()).data[0].id;
+    const gatewaySerial = (await oAuth2Client.getGateways()).data[0].serial;
     if (process.env.DEBUG) {
-      this.log('gatewaySerial:', gateways.data[0].serial);
+      this.log('gatewaySerial:', gatewaySerial);
     }
-    const devices = await oAuth2Client.getDeviceId({ installationId: installations.data[0].id, gatewaySerial: gateways.data[0].serial });
+
+    const deviceId = (await oAuth2Client.getDevices({ installationId, gatewaySerial })).data[0].id;
+
     return [{
       name: 'Viessmann',
       data: {
-        installationId: installations.data[0].id,
-        gatewaySerial: gateways.data[0].serial,
-        deviceId: devices.data[0].id,
+        installationId,
+        gatewaySerial,
+        deviceId,
       },
     }];
   }

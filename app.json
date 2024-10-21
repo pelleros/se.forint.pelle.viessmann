@@ -26,12 +26,12 @@
     "name": "Pelle Rosengren",
     "email": "pelle@forint.se"
   },
-  "source": "https://github.com/pelleros/se.forint.pelle.viessmann",
-  "support": "https://github.com/pelleros/se.forint.pelle.viessmann",
+  "support": "https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749",
   "bugs": {
-    "url": "https://github.com/pelleros/se.forint.pelle.viessmann"
+    "url": "https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749"
   },
   "brandColor": "#ff0000",
+  "homeyCommunityTopicId": 118749,
   "flow": {
     "conditions": [
       {

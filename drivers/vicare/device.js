@@ -36,9 +36,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async onInit() {
     this.log('ViessmannDevice::onInit');
     // Register Capabilities
-    this.registerCapabilityListener('target_temperature.dhw', async (value) => {
+    this.registerCapabilityListener('target_temperature.hotWater', async (value) => {
       if (process.env.DEBUG) {
-        this.log('target_temperature.dhw:', value);
+        this.log('target_temperature.hotWater:', value);
       }
       await this.setDhwTemp(value);
     });
@@ -54,9 +54,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
       await this.setMainOperatingMode(value);
     });
-    this.registerCapabilityListener('onoff.hotWaterOneTimeCharge', async (value) => {
+    this.registerCapabilityListener('thermostat_mode.hotWaterOneTimeCharge', async (value) => {
       if (process.env.DEBUG) {
-        this.log('onoff.hotWaterOneTimeCharge:', value);
+        this.log('thermostat_mode.hotWaterOneTimeCharge:', value);
       }
       await this.setDhwOneTimeCharge(value);
     });
@@ -116,6 +116,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
+      heatingCircuitsId: this._heatingCircuitsId,
       value,
     });
   }
@@ -128,6 +129,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
+      heatingCircuitsId: this._heatingCircuitsId,
       value,
     });
   }
@@ -140,7 +142,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
-      value: (value ? 'activate' : 'deactivate'),
+      value,
     });
   }
 
@@ -218,7 +220,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
         const dhwOneTimeCharge = response.data.find((item) => item.feature === ViessmannDevice.FEATURES.ONE_TIME_CHARGE_HOT_WATER);
         if (dhwOneTimeCharge) {
-          this.setCapabilityValue('onoff.hotWaterOneTimeCharge', dhwOneTimeCharge.properties.active.value)
+          this.setCapabilityValue('thermostat_mode.hotWaterOneTimeCharge', dhwOneTimeCharge.properties.active.value ? 'activate' : 'deactivate')
             .catch((err) => {
               this.error(err);
             });

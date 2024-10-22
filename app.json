@@ -110,10 +110,10 @@
       {
         "id": "do-one-time-hot-water-charge",
         "title": {
-          "en": "Do one time hot water charge"
+          "en": "Set one time hot water charge"
         },
         "titleFormatted": {
-          "en": "One time hot water charge active [[active]]"
+          "en": "Set one time hot water charge [[active]]"
         },
         "args": [
           {
@@ -122,11 +122,22 @@
             "filter": "driver_id=vicare"
           },
           {
-            "type": "checkbox",
+            "type": "dropdown",
             "name": "active",
-            "title": {
-              "en": "Active"
-            }
+            "values": [
+              {
+                "id": "activate",
+                "label": {
+                  "en": "Active"
+                }
+              },
+              {
+                "id": "deactivate",
+                "label": {
+                  "en": "Inactive"
+                }
+              }
+            ]
           }
         ]
       },
@@ -183,10 +194,10 @@
         "measure_something_active.compressor",
         "measure_something_number.compressorHours",
         "measure_something_number.compressorStarts",
-        "onoff.hotWaterOneTimeCharge",
-        "target_temperature.heating",
-        "thermostat_mode.heating",
+        "thermostat_mode.hotWaterOneTimeCharge",
         "target_temperature.hotWater",
+        "thermostat_mode.heating",
+        "target_temperature.heating",
         "measure_temperature.hotWater",
         "measure_temperature.outside"
       ],
@@ -209,19 +220,31 @@
           },
           "units": "times"
         },
-        "onoff.hotWaterOneTimeCharge": {
+        "thermostat_mode.hotWaterOneTimeCharge": {
           "title": {
-            "en": "One time charge hot water"
+            "en": "One time hot water charge"
           },
-          "uiQuickAction": false,
-          "setable": true
+          "values": [
+            {
+              "id": "activate",
+              "title": {
+                "en": "Active"
+              }
+            },
+            {
+              "id": "deactivate",
+              "title": {
+                "en": "Inactive"
+              }
+            }
+          ]
         },
-        "target_temperature.heating": {
+        "target_temperature.hotWater": {
           "title": {
-            "en": "Heating thermostat"
+            "en": "Hot water thermostat"
           },
           "min": 10,
-          "max": 30,
+          "max": 60,
           "step": 1,
           "insights": false,
           "preventInsights": true
@@ -251,12 +274,12 @@
             }
           ]
         },
-        "target_temperature.hotWater": {
+        "target_temperature.heating": {
           "title": {
-            "en": "Hot water thermostat"
+            "en": "Heating thermostat"
           },
           "min": 10,
-          "max": 60,
+          "max": 30,
           "step": 1,
           "insights": false,
           "preventInsights": true

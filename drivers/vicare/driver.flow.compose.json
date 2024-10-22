@@ -48,18 +48,31 @@
     {
       "id": "do-one-time-hot-water-charge",
       "title": {
-        "en": "Do one time hot water charge"
+        "en": "Set one time hot water charge"
       },
       "titleFormatted": {
-        "en": "One time hot water charge active [[active]]"
+        "en": "Set one time hot water charge [[active]]"
       },
       "args": [
-      {
-        "type": "checkbox",
-        "name": "active",
-        "title": { "en": "Active" }
-      }
-  ]
+        {
+          "type": "dropdown",
+          "name": "active",
+          "values": [
+            {
+              "id": "activate",
+              "label": {
+                "en": "Active"
+              }
+            },
+            {
+              "id": "deactivate",
+              "label": {
+                "en": "Inactive"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "set-operating-mode",

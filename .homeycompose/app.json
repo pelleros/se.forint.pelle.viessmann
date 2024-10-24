@@ -1,6 +1,6 @@
 {
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -10,7 +10,7 @@
     "en": "Viessmann ViCare"
   },
   "description": {
-    "en": "Control Viessmann heat pumps"
+    "en": "Save time and energy"
   },
   "category": [
     "climate"
@@ -27,8 +27,9 @@
   },
   "support": "https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749",
   "bugs": {
-    "url": "https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749"
+    "url": "https://github.com/pelleros/se.forint.pelle.viessmann/issues"
   },
   "brandColor": "#ff0000",
-  "homeyCommunityTopicId": 118749
+  "homeyCommunityTopicId": 118749,
+  "source": "https://github.com/pelleros/se.forint.pelle.viessmann"
 }

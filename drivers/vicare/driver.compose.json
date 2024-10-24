@@ -10,21 +10,104 @@
     "measure_something_number.compressorStarts",
     "thermostat_mode.hotWaterOneTimeCharge",
     "target_temperature.hotWater",
-    "thermostat_mode.heating", 
+    "thermostat_mode.heating",
     "target_temperature.heating",
     "measure_temperature.hotWater",
     "measure_temperature.outside"
   ],
   "capabilitiesOptions": {
-    "measure_something_active.compressor": { "title": { "en": "Compressor running" }, "insights": true },
-    "measure_something_number.compressorHours": { "title": { "en": "Compressor runtime" }, "units": "hours" },
-    "measure_something_number.compressorStarts": { "title": { "en": "Compressor starts" }, "units": "times" },
-    "thermostat_mode.hotWaterOneTimeCharge": { "title": { "en": "One time hot water charge" }, "values": [{"id":"activate", "title": {"en": "Active"}}, {"id":"deactivate", "title": {"en": "Inactive"}}] },
-    "target_temperature.hotWater": { "title": { "en": "Hot water thermostat" }, "min": 10, "max": 60, "step": 1, "insights": false, "preventInsights": true },
-    "thermostat_mode.heating": { "title": { "en": "Heating mode" }, "values": [{"id":"dhw", "title": {"en": "Hot water"}}, {"id":"dhwAndHeating", "title": {"en": "Hot water and Heating"}}, {"id":"standby", "title": {"en": "Standby"}}] },
-    "target_temperature.heating": { "title": { "en": "Heating thermostat" }, "min": 10, "max": 30, "step": 1, "insights": false, "preventInsights": true },
-    "measure_temperature.hotWater": { "title": { "en": "Hot water temperature" } },
-    "measure_temperature.outside": { "title": { "en": "Outside temperature" } }
+    "measure_something_active.compressor": {
+      "title": {
+        "en": "Compressor running"
+      },
+      "insights": true
+    },
+    "measure_something_number.compressorHours": {
+      "title": {
+        "en": "Compressor runtime"
+      },
+      "units": "hours"
+    },
+    "measure_something_number.compressorStarts": {
+      "title": {
+        "en": "Compressor starts"
+      },
+      "units": "times"
+    },
+    "thermostat_mode.hotWaterOneTimeCharge": {
+      "title": {
+        "en": "One time hot water charge"
+      },
+      "values": [
+        {
+          "id": "activate",
+          "title": {
+            "en": "Active"
+          }
+        },
+        {
+          "id": "deactivate",
+          "title": {
+            "en": "Inactive"
+          }
+        }
+      ]
+    },
+    "target_temperature.hotWater": {
+      "title": {
+        "en": "Hot water thermostat"
+      },
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "insights": false,
+      "preventInsights": true
+    },
+    "thermostat_mode.heating": {
+      "title": {
+        "en": "Heating mode"
+      },
+      "values": [
+        {
+          "id": "dhw",
+          "title": {
+            "en": "Hot water"
+          }
+        },
+        {
+          "id": "dhwAndHeating",
+          "title": {
+            "en": "Hot water and Heating"
+          }
+        },
+        {
+          "id": "standby",
+          "title": {
+            "en": "Standby"
+          }
+        }
+      ]
+    },
+    "target_temperature.heating": {
+      "title": {
+        "en": "Heating thermostat"
+      },
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "insights": false,
+      "preventInsights": true
+    },
+    "measure_temperature.hotWater": {
+      "title": {
+        "en": "Hot water temperature"
+      }
+    },
+    "measure_temperature.outside": {
+      "title": {
+        "en": "Outside temperature"
+      }
+    }
   },
   "platforms": [
     "local"

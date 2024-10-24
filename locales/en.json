@@ -1,8 +1,12 @@
 {
     "settings": {
       "title": "Viessmann developer account",
-      "subtitle": "Provide your client id",
+      "subtitle": "Provide your Client ID",
       "bodytext": "Go to https://app.developer.viessmann.com/ and add a new client. Ensure Google reCaptcha is turned off. Set redirect URI to https://callback.athom.com/oauth2/callback",
-      "saved": "Client id saved"
+      "save": "Save",
+      "saved": "Client ID saved",
+      "debugtitle": "Get debug information",
+      "debuginfo": "Get the debug information and provide to the developer if you have problem connecting your Viessmann device.",
+      "getfeatures": "Get features.json"
     }
 }

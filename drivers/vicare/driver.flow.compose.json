@@ -118,6 +118,9 @@
       },
       "title": {
         "en": "Compressor is!{{| not}} running"
+      },
+      "titleFormatted": {
+        "en": "Compressor is!{{| not}} running"
       }
     }
   ]

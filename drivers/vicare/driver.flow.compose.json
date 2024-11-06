@@ -76,6 +76,9 @@
     },
     {
       "id": "set-operating-mode",
+      "hint": {
+        "en": "Not all installations support all modes."
+      },
       "title": {
         "en": "Set operating mode"
       },
@@ -87,6 +90,12 @@
           "type": "dropdown",
           "name": "mode",
           "values": [
+            {
+              "id": "heating",
+              "label": {
+                "en": "Heating"
+              }
+            },
             {
               "id": "dhw",
               "label": {

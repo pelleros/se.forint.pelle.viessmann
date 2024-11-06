@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -147,6 +147,9 @@
       },
       {
         "id": "set-operating-mode",
+        "hint": {
+          "en": "Not all installations support all modes."
+        },
         "title": {
           "en": "Set operating mode"
         },
@@ -163,6 +166,12 @@
             "type": "dropdown",
             "name": "mode",
             "values": [
+              {
+                "id": "heating",
+                "label": {
+                  "en": "Heating"
+                }
+              },
               {
                 "id": "dhw",
                 "label": {
@@ -203,26 +212,47 @@
         "thermostat_mode.heating",
         "target_temperature.heating",
         "measure_temperature.hotWater",
-        "measure_temperature.outside"
+        "measure_temperature.outside",
+        "measure_burner_active",
+        "measure_burner_number.burnerHours",
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerModulation"
       ],
       "capabilitiesOptions": {
         "measure_something_active.compressor": {
           "title": {
             "en": "Compressor running"
           },
-          "insights": true
+          "titleTrue": {
+            "en": "Yes"
+          },
+          "titleFalse": {
+            "en": "No"
+          },
+          "insightsTitleTrue": {
+            "en": "Yes"
+          },
+          "insightsTitleFalse": {
+            "en": "No"
+          },
+          "preventInsights": false,
+          "preventTag": false
         },
         "measure_something_number.compressorHours": {
           "title": {
             "en": "Compressor runtime"
           },
-          "units": "hours"
+          "units": "hours",
+          "preventInsights": true,
+          "preventTag": true
         },
         "measure_something_number.compressorStarts": {
           "title": {
             "en": "Compressor starts"
           },
-          "units": "times"
+          "units": "times",
+          "preventInsights": true,
+          "preventTag": true
         },
         "thermostat_mode.hotWaterOneTimeCharge": {
           "title": {
@@ -250,7 +280,6 @@
           "min": 10,
           "max": 60,
           "step": 1,
-          "insights": false,
           "preventInsights": true
         },
         "thermostat_mode.heating": {
@@ -271,6 +300,12 @@
               }
             },
             {
+              "id": "heating",
+              "title": {
+                "en": "Heating"
+              }
+            },
+            {
               "id": "standby",
               "title": {
                 "en": "Standby"
@@ -285,7 +320,6 @@
           "min": 10,
           "max": 30,
           "step": 1,
-          "insights": false,
           "preventInsights": true
         },
         "measure_temperature.hotWater": {
@@ -297,6 +331,43 @@
           "title": {
             "en": "Outside temperature"
           }
+        },
+        "measure_burner_active": {
+          "title": {
+            "en": "Burner active"
+          },
+          "titleTrue": {
+            "en": "Yes"
+          },
+          "titleFalse": {
+            "en": "No"
+          },
+          "icon": "/assets/burner.svg",
+          "preventInsights": false
+        },
+        "measure_burner_number.burnerHours": {
+          "title": {
+            "en": "Burner runtime"
+          },
+          "units": "hours",
+          "preventInsights": true,
+          "preventTag": true
+        },
+        "measure_burner_number.burnerStarts": {
+          "title": {
+            "en": "Burner starts"
+          },
+          "units": "times",
+          "preventInsights": true,
+          "preventTag": true
+        },
+        "measure_burner_number.burnerModulation": {
+          "title": {
+            "en": "Burner modulation"
+          },
+          "units": "%",
+          "icon": "/assets/burner.svg",
+          "preventInsights": false
         }
       },
       "platforms": [
@@ -336,38 +407,53 @@
     }
   ],
   "capabilities": {
+    "measure_burner_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Something is active"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Yes"
+      },
+      "insightsTitleFalse": {
+        "en": "No"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "icon": "/assets/burner.svg"
+    },
+    "measure_burner_number": {
+      "type": "number",
+      "title": {
+        "en": "Compressor runtime"
+      },
+      "units": {
+        "en": "hours"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "step": 1,
+      "icon": "/assets/burner.svg"
+    },
     "measure_something_active": {
       "type": "boolean",
       "title": {
         "en": "Something is active"
       },
-      "titleTrue": {
-        "en": "Active",
-        "sv": "Aktiv"
-      },
-      "titleFalse": {
-        "en": "Inactive",
-        "sv": "Inaktiv"
-      },
-      "insightsTitle": {
-        "en": "Something is active"
-      },
-      "insightsTrue": {
-        "en": "Active"
-      },
-      "insightsFalse": {
-        "en": "Inactive"
-      },
-      "insightsTitleTrue": {
-        "en": "Active"
-      },
-      "insightsTitleFalse": {
-        "en": "Inactive"
-      },
       "getable": true,
       "setable": false,
       "insights": true,
-      "preventInsights": false,
+      "insightsTitleTrue": {
+        "en": "Yes"
+      },
+      "insightsTitleFalse": {
+        "en": "No"
+      },
       "uiComponent": "sensor",
       "uiQuickAction": false,
       "icon": "/assets/compressor.svg"
@@ -382,11 +468,8 @@
       },
       "getable": true,
       "setable": false,
-      "insights": false,
-      "preventInsights": true,
-      "preventTag": true,
+      "insights": true,
       "uiComponent": "sensor",
-      "uiQuickAction": false,
       "step": 1,
       "icon": "/assets/compressor.svg"
     }

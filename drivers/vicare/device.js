@@ -30,47 +30,173 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   static CAPABILITIES = CAPABILITIES;
 
   async onOAuth2Init() {
-    const { installationId, gatewaySerial, deviceId } = this.getData();
-    this._installationId = installationId;
-    this._gatewaySerial = gatewaySerial;
-    this._deviceId = deviceId;
+    this.checkUpgradeSpecifics();
+    this._installationId = this.getStoreValue('installationId');
+    this._gatewaySerial = this.getStoreValue('gatewaySerial');
+    this._deviceId = this.getStoreValue('deviceId');
+    this._roles = this.getStoreValue('roles');
+    this._operatingModes = this.getStoreValue('operatingModes');
+    if (process.env.DEBUG) {
+      this.log(
+        'ViessmannDevice::onOAuth2Init installationId:', this._installationId,
+        'gatewaySerial:', this._gatewaySerial,
+        'deviceId:', this._deviceId,
+        'roles:', this._roles,
+        'operatingModes:', this._operatingModes,
+      );
+    }
+  }
 
-    // this.log('ViessmannDevice::onOAuth2Init oAuth2Client:', this.oAuth2Client);
+  checkUpgradeSpecifics() {
+    if (!this.getStoreValue('installationId')) {
+      // 1.0.2 & 1.0.3 => 1.0.4, add roles and operatingModes and store them
+      const { 
+        installationId, gatewaySerial, deviceId, roles, operatingModes,
+      } = this.getData();
+      this.setStoreValue('installationId', installationId);
+      this.setStoreValue('gatewaySerial', gatewaySerial);
+      this.setStoreValue('deviceId', deviceId);
+      if (!roles) {
+        // 1.0.2 => 1.0.4
+        this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
+        this.setStoreValue('operatingModes', [
+          { id: 'dhw', title: { en: 'Hot water' } },
+          { id: 'dhwAndHeating', title: { en: 'Hot water and Heating' } },
+          { id: 'standby', title: { en: 'Standby' } },
+        ]);
+      } else {
+        // 1.0.3 => 1.0.4
+        this.setStoreValue('roles', roles);
+        this.setStoreValue('operatingModes', operatingModes);
+      }
+    }
+  }
 
-    // Register Capabilities
-    this.registerCapabilityListener(CAPABILITIES.HOT_WATER_TARGET_TEMP.capabilityName, async (value) => {
+  async onInit() {
+    await super.onInit();
+    if (process.env.DEBUG) {
+      this.log('[ViessmannDevice::onInit] called');
+    }
+    // check that only the capabilities as defined in config.js has been added to the device
+    for (const previouslyAddedCap of this.getCapabilities()) {
+      // cap is the capabilityName of the capability, use this to get the capability object from CAPABILITIES
+      const configCapObj = this.getConfigCapabilityByName(previouslyAddedCap);
+      if (!configCapObj
+        || (!this.hasRequiredRole(configCapObj))) { // also check if requireRole is set and if the role is not in the roles array
+        if (this.hasCapability(previouslyAddedCap)) {
+          try {
+            await this.removeCapability(previouslyAddedCap);
+            if (process.env.DEBUG) {
+              this.log('[ViessmannDevice::onInit] removed cap:', previouslyAddedCap);
+            }
+          } catch (err) {
+            this.log('Error removing capability:', err);
+          }
+        }
+      }
+    }
+
+    // check all capabilities as defined in config.js and check if added to the device
+    for (const capInConfig of Object.values(CAPABILITIES)) {
+      if (!this.hasCapability(capInConfig.capabilityName)) {
+        // also check if cap.requireRole is set and if the role is not in the roles array
+        if (capInConfig?.requireRole && !this._roles.some((role) => role.includes(capInConfig.requireRole))) {
+          continue;
+        }
+        if (!this.hasCapability(capInConfig.capabilityName)) {
+          try {
+            await this.addCapability(capInConfig.capabilityName);
+            if (process.env.DEBUG) {
+              this.log('[ViessmannDevice::onInit] added cap:', capInConfig);
+            }
+          } catch (err) {
+            this.log('Error adding capability:', err);
+          }
+        }
+      }
+    }
+
+    // clean up operating modes 
+    // operating modes
+    const operatingModesCapOpt = this.getCapabilityOptions(CAPABILITIES.HEATING_MODE.capabilityName);
+    const capabilityOperatingModes = operatingModesCapOpt.values;
+    // make sure all operatingModes in this._operatingModes 
+    // if not remove the property from the array
+    // also check if all properties of this._operatingModes (again id as key) are in operatingModes and add them if not
+    for (const opMode of capabilityOperatingModes) {
+      if (!this._operatingModes.some((mode) => mode.id === opMode.id)) {
+        capabilityOperatingModes.splice(capabilityOperatingModes.indexOf(opMode), 1);
+        if (process.env.DEBUG) {
+          this.log('[ViessmannDevice::onInit] Removed operating mode:', opMode);
+        }
+      }
+    }
+    for (const opMode of this._operatingModes) {
+      if (!capabilityOperatingModes.some((mode) => mode.id === opMode.id)) {
+        capabilityOperatingModes.push(opMode);
+        if (process.env.DEBUG) {
+          this.log('[ViessmannDevice::onInit] Added operating mode:', opMode);
+        }
+      }
+    }
+
+    operatingModesCapOpt.values = capabilityOperatingModes;
+    await this.setCapabilityOptions(CAPABILITIES.HEATING_MODE.capabilityName, operatingModesCapOpt);
+
+    // Register Capability Listeners
+    this.registerCapabilityListenerIfPossible(CAPABILITIES.HOT_WATER_TARGET_TEMP.capabilityName, async (value) => {
       if (process.env.DEBUG) {
         this.log('target_temperature.hotWater:', value);
       }
       await this.setDhwTemp(value);
     });
-    this.registerCapabilityListener(CAPABILITIES.HEATING_TARGET_TEMP.capabilityName, async (value) => {
+    this.registerCapabilityListenerIfPossible(CAPABILITIES.HEATING_TARGET_TEMP.capabilityName, async (value) => {
       if (process.env.DEBUG) {
         this.log('target_temperature.heating:', value);
       }
       await this.setHeatingTemp(value);
     });
-    this.registerCapabilityListener(CAPABILITIES.HEATING_MODE.capabilityName, async (value) => {
+    this.registerCapabilityListenerIfPossible(CAPABILITIES.HEATING_MODE.capabilityName, async (value) => {
       if (process.env.DEBUG) {
         this.log('thermostat_mode.heating:', value);
       }
       await this.setMainOperatingMode(value);
     });
-    this.registerCapabilityListener(CAPABILITIES.HOT_WATER_ONE_TIME_CHARGE.capabilityName, async (value) => {
+    this.registerCapabilityListenerIfPossible(CAPABILITIES.HOT_WATER_ONE_TIME_CHARGE.capabilityName, async (value) => {
       if (process.env.DEBUG) {
         this.log('thermostat_mode.hotWaterOneTimeCharge:', value);
       }
       await this.setDhwOneTimeCharge(value);
     });
 
-    // here we could get the installation specific ids by calling the currently not used function 
+    // TODO: here we could get the installation specific ids by calling the currently not used function 
     // getInstallationSpecificIds defined below (not fully implemented for all ids).
     // await this.getInstallationSpecificIds(installationId, gatewaySerial, deviceId);
 
-    // start the sync
+    // start the _sync at POLL_INTERVAL
     this._sync = this._sync.bind(this);
+    this._syncInterval = this.homey.setInterval(() => this._sync(), POLL_INTERVAL);
     this._sync();
-    this._syncInterval = this.homey.setInterval(this._sync, POLL_INTERVAL);
+  }
+
+  hasRequiredRole(configCapObj) {
+    return !configCapObj.requireRole || this._roles.some((role) => role.includes(configCapObj.requireRole));
+  }
+
+  getConfigCapabilityByName(cap) {
+    return Object.values(CAPABILITIES).find((c) => c.capabilityName === cap);
+  }
+
+  setCapabilityValueIfPossible(capabilityName, value) {
+    if (this.hasCapability(capabilityName)) {
+      this.setCapabilityValue(capabilityName, value);
+    }
+  }
+
+  registerCapabilityListenerIfPossible(capabilityName, listener) {
+    if (this.hasCapability(capabilityName)) {
+      this.registerCapabilityListener(capabilityName, listener);
+    }
   }
 
   /*
@@ -132,7 +258,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async getFeatures() {
     const featuresFilter = Object.values(CAPABILITIES).map((cap) => cap.featureName).join(',');
     if (process.env.DEBUG) {
-      this.log('[ViessmannDevice::getFeatures] featuresFilter:', featuresFilter);
+      // this.log('[ViessmannDevice::getFeatures] featuresFilter:', featuresFilter);
     }
     const response = await this.oAuth2Client.getFeatures({
       installationId: this._installationId,
@@ -150,7 +276,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     Get the compressor status
   */
   async isCompressorRunning() {
-    // check the compressor status set in the capability measure_something_active.compressor
+    // check the compressor status set in the capability
     // keep down nof calls to the viessmann api
     return this.getCapabilityValue(CAPABILITIES.COMPRESSOR_ACTIVE_MEASURE.capabilityName);
   }
@@ -159,6 +285,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     if (process.env.DEBUG) {
       this.log('ViessmannDevice::_sync called');
     }
+
     this.getFeatures()
       .then((response) => {
         this.setAvailable();
@@ -170,71 +297,63 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
         const hwTemp = response.data.find((item) => item.feature === CAPABILITIES.HOT_WATER_TEMP_MEASURE.featureName);
         if (hwTemp && hwTemp.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.HOT_WATER_TEMP_MEASURE.capabilityName, hwTemp.properties.value.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.HOT_WATER_TEMP_MEASURE.capabilityName, hwTemp.properties.value.value);
         }
 
         const hwTargetTemp = response.data.find((item) => item.feature === CAPABILITIES.HOT_WATER_TARGET_TEMP.featureName);
         if (hwTargetTemp && hwTargetTemp.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.HOT_WATER_TARGET_TEMP.capabilityName, hwTargetTemp.properties.value.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.HOT_WATER_TARGET_TEMP.capabilityName, hwTargetTemp.properties.value.value);
         }
 
         const heatingTargetTemp = response.data.find((item) => item.feature === CAPABILITIES.HEATING_TARGET_TEMP.featureName);
         if (heatingTargetTemp && heatingTargetTemp.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.HEATING_TARGET_TEMP.capabilityName, heatingTargetTemp.properties.temperature.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.HEATING_TARGET_TEMP.capabilityName, heatingTargetTemp.properties.temperature.value);
         }
 
         const outsideTemp = response.data.find((item) => item.feature === CAPABILITIES.OUTSIDE_TEMP_MEASURE.featureName);
         if (outsideTemp && outsideTemp.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.OUTSIDE_TEMP_MEASURE.capabilityName, outsideTemp.properties.value.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.OUTSIDE_TEMP_MEASURE.capabilityName, outsideTemp.properties.value.value);
         }
 
         const mainOpMode = response.data.find((item) => item.feature === CAPABILITIES.HEATING_MODE.featureName);
         if (mainOpMode && mainOpMode.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.HEATING_MODE.capabilityName, mainOpMode.properties.value.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.HEATING_MODE.capabilityName, mainOpMode.properties.value.value);
         }
 
         const dhwOneTimeCharge = response.data.find((item) => item.feature === CAPABILITIES.HOT_WATER_ONE_TIME_CHARGE.featureName);
         if (dhwOneTimeCharge && dhwOneTimeCharge.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.HOT_WATER_ONE_TIME_CHARGE.capabilityName, dhwOneTimeCharge.properties.active.value ? 'activate' : 'deactivate')
-            .catch((err) => {
-              this.error(err);
-            });
+          this.setCapabilityValueIfPossible(CAPABILITIES.HOT_WATER_ONE_TIME_CHARGE.capabilityName, dhwOneTimeCharge.properties.active.value ? 'activate' : 'deactivate');
         }
 
         // compressor status
         const compressorActive = response.data.find((item) => item.feature === CAPABILITIES.COMPRESSOR_ACTIVE_MEASURE.featureName);
         if (compressorActive && compressorActive.isEnabled) {
-          if (process.env.DEBUG) {
-            this.log('compressorActive.properties.active.value', compressorActive.properties.active.value);
-          }
-          this.setCapabilityValue(CAPABILITIES.COMPRESSOR_ACTIVE_MEASURE.capabilityName, compressorActive.properties.active.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.COMPRESSOR_ACTIVE_MEASURE.capabilityName, compressorActive.properties.active.value);
         }
 
         const compressorStat = response.data.find((item) => item.feature === CAPABILITIES.COMPRESSOR_STARTS_MEASURE.featureName);
         if (compressorStat && compressorStat.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.COMPRESSOR_HOURS_MEASURE.capabilityName, compressorStat.properties.hours.value);
-          this.setCapabilityValue(CAPABILITIES.COMPRESSOR_STARTS_MEASURE.capabilityName, compressorStat.properties.starts.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.COMPRESSOR_HOURS_MEASURE.capabilityName, compressorStat.properties.hours.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.COMPRESSOR_STARTS_MEASURE.capabilityName, compressorStat.properties.starts.value);
         }
 
         // burner status
-        /*
         const burnerActive = response.data.find((item) => item.feature === CAPABILITIES.BURNER_ACTIVE_MEASURE.featureName);
         if (burnerActive && burnerActive.isEnabled) {
           if (process.env.DEBUG) {
             this.log('burnerActive', burnerActive);
           }
-          this.setCapabilityValue(CAPABILITIES.BURNER_ACTIVE_MEASURE.capabilityName, (burnerActive.properties.active.value === 1));
+          this.setCapabilityValueIfPossible(CAPABILITIES.BURNER_ACTIVE_MEASURE.capabilityName, (burnerActive.properties.active.value === 1));
         }
         const burnerStat = response.data.find((item) => item.feature === CAPABILITIES.BURNER_HOURS_MEASURE.featureName);
         if (burnerStat && burnerStat.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.BURNER_HOURS_MEASURE.capabilityName, burnerStat.properties.hours.value);
-          this.setCapabilityValue(CAPABILITIES.BURNER_STARTS_MEASURE.capabilityName, burnerStat.properties.starts.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.BURNER_HOURS_MEASURE.capabilityName, burnerStat.properties.hours.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.BURNER_STARTS_MEASURE.capabilityName, burnerStat.properties.starts.value);
         }
         const burnerModulation = response.data.find((item) => item.feature === CAPABILITIES.BURNER_MODULATION_MEASURE.featureName);
         if (burnerModulation && burnerModulation.isEnabled) {
-          this.setCapabilityValue(CAPABILITIES.BURNER_MODULATION_MEASURE.capabilityName, burnerModulation.properties.value.value);
+          this.setCapabilityValueIfPossible(CAPABILITIES.BURNER_MODULATION_MEASURE.capabilityName, burnerModulation.properties.value.value);
         }
-        */
       })
       .catch((err) => {
         this.error(err);

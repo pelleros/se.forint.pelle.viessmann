@@ -38,15 +38,10 @@
       <h1 class="homey-title" data-i18n="settings.title">
         <!-- This will be filled with the translated string with key 'settings.title'. -->
       </h1>
-      <p class="homey-subtitle" data-i18n="settings.subtitle">
-        <!-- This field will also be translated -->
-      </p>
-      <p class="homey-subtitle" data-i18n="settings.bodytext">
-        <!-- This field will also be translated -->
-      </p>
     </header>
-
     <fieldset class="homey-form-fieldset">
+      <legend class="homey-form-legend" data-i18n="settings.subtitle"></legend>
+      <p class="homey-subtitle" data-i18n="settings.bodytext"></p>
       <div class="homey-form-group">
         <label class="homey-form-label" for="clientId">Viessmann Client ID</label>
         <input class="homey-form-input" id="clientId" type="text" value="" />
@@ -54,12 +49,35 @@
     </fieldset>
 
     <button id="save" class="homey-button-primary-full" data-i18n="settings.save"></button>
-
+    <p></p>
+    <hr>
+    <hr>
+    <fieldset class="homey-form-fieldset">
+      <legend class="homey-form-legend">Troubleshooting</legend>
+      <p class="homey-subtitle">
+        If asked to by the developer, click the Copy button below to copy the JSON output and paste the content into a file or directly into an email. Not to be posted as a community post (too much text for that).
+      </p>
+      <div class="homey-form-group">
+        <label class="homey-form-label" for="installations">Installations output</label>
+        <textarea class="homey-form-textarea" id="installations" rows="10"></textarea>
+      </div>
+      <button id="copyInstallations" class="homey-button-primary">Copy installations output</button>
+      <div class="homey-form-group">
+        <label class="homey-form-label" for="features">Features output</label>
+        <textarea class="homey-form-textarea" id="features" rows="10"></textarea>
+      </div>
+      <button id="copyFeatures" class="homey-button-primary">Copy features output</button>
+    </fieldset>
+    
     <script type="text/javascript">
       // a method named 'onHomeyReady' must be present in your code
       function onHomeyReady(Homey) {
         var clientIdElement = document.getElementById("clientId");
         var saveElement = document.getElementById("save");
+        var copyInstallationsElement = document.getElementById("copyInstallations");
+        var copyFeaturesElement = document.getElementById("copyFeatures");
+        var installationsElement = document.getElementById("installations");
+        var featuresElement = document.getElementById("features");
 
         Homey.get("clientId", function (err, clientId) {
           if (err) return Homey.alert(err);
@@ -71,6 +89,25 @@
             if (err) return Homey.alert(err);
             else Homey.alert(Homey.__("settings.saved"));
           });
+        });
+
+        copyInstallationsElement.addEventListener("click", function (e) {
+          installationsElement.select();
+          document.execCommand("copy");
+        });
+
+        copyFeaturesElement.addEventListener("click", function (e) {
+          featuresElement.select();
+          document.execCommand("copy");
+        });
+
+        Homey.get("features.json", function (err, features) {
+          if (err) return Homey.alert(err);
+          featuresElement.textContent = features;
+        });
+        Homey.get("installations.json", function (err, installations) {
+          if (err) return Homey.alert(err);
+          installationsElement.textContent = installations;
         });
         // Tell Homey we're ready to be displayed
         Homey.ready();

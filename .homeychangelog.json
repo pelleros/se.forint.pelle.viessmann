@@ -4,5 +4,14 @@
   },
   "1.0.1": {
     "en": "Updated readme.txt"
+  },
+  "1.0.2": {
+    "en": "Updated icons and texts to comply with guidlines. Also, minor bug fixes."
+  },
+  "1.0.3": {
+    "en": "This version adds support for a wider range of installation setups, enhancing compatibility across different configurations. Please note that it includes some unnecessary trigger flow cards that will be removed in a future release (compressor and boiler related)."
+  },
+  "1.0.4": {
+    "en": "This version adds support for a wider range of installation setups, enhancing compatibility across different configurations."
   }
 }

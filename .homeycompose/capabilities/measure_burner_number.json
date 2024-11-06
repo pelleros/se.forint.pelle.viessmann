@@ -7,5 +7,5 @@
     "insights": true, 
     "uiComponent": "sensor",
     "step": 1,
-    "icon": "/assets/compressor.svg"
+    "icon": "/assets/burner.svg"
 }

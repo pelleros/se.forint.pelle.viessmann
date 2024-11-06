@@ -13,26 +13,47 @@
     "thermostat_mode.heating",
     "target_temperature.heating",
     "measure_temperature.hotWater",
-    "measure_temperature.outside"
+    "measure_temperature.outside",
+    "measure_burner_active",
+    "measure_burner_number.burnerHours",
+    "measure_burner_number.burnerStarts",
+    "measure_burner_number.burnerModulation"
   ],
   "capabilitiesOptions": {
     "measure_something_active.compressor": {
       "title": {
         "en": "Compressor running"
       },
-      "insights": true
+      "titleTrue": {
+        "en": "Yes"
+      },
+      "titleFalse": {
+        "en": "No"
+      },
+      "insightsTitleTrue": {
+        "en": "Yes"
+      },
+      "insightsTitleFalse": {
+        "en": "No"
+      },
+      "preventInsights": false,
+      "preventTag": false
     },
     "measure_something_number.compressorHours": {
       "title": {
         "en": "Compressor runtime"
       },
-      "units": "hours"
+      "units": "hours",
+      "preventInsights": true,
+      "preventTag": true
     },
     "measure_something_number.compressorStarts": {
       "title": {
         "en": "Compressor starts"
       },
-      "units": "times"
+      "units": "times",
+      "preventInsights": true,
+      "preventTag": true
     },
     "thermostat_mode.hotWaterOneTimeCharge": {
       "title": {
@@ -60,7 +81,6 @@
       "min": 10,
       "max": 60,
       "step": 1,
-      "insights": false,
       "preventInsights": true
     },
     "thermostat_mode.heating": {
@@ -81,6 +101,12 @@
           }
         },
         {
+          "id": "heating",
+          "title": {
+            "en": "Heating"
+          }
+        },
+        {
           "id": "standby",
           "title": {
             "en": "Standby"
@@ -95,7 +121,6 @@
       "min": 10,
       "max": 30,
       "step": 1,
-      "insights": false,
       "preventInsights": true
     },
     "measure_temperature.hotWater": {
@@ -107,6 +132,43 @@
       "title": {
         "en": "Outside temperature"
       }
+    },
+    "measure_burner_active": {
+      "title": {
+        "en": "Burner active"
+      },
+      "titleTrue": {
+        "en": "Yes"
+      },
+      "titleFalse": {
+        "en": "No"
+      },
+      "icon": "/assets/burner.svg",
+      "preventInsights": false
+    },
+    "measure_burner_number.burnerHours": {
+      "title": {
+        "en": "Burner runtime"
+      },
+      "units": "hours",
+      "preventInsights": true,
+      "preventTag": true
+    },
+    "measure_burner_number.burnerStarts": {
+      "title": {
+        "en": "Burner starts"
+      },
+      "units": "times",
+      "preventInsights": true,
+      "preventTag": true
+    },
+    "measure_burner_number.burnerModulation": {
+      "title": {
+        "en": "Burner modulation"
+      },
+      "units": "%",
+      "icon": "/assets/burner.svg",
+      "preventInsights": false
     }
   },
   "platforms": [

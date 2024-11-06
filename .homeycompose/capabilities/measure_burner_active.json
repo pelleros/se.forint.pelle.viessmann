@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": { "en": "Something is active" },
+  "getable": true,
+  "setable": false,
+  "insights": true, 
+  "insightsTitleTrue": { "en": "Yes" },
+  "insightsTitleFalse": { "en": "No" },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "icon": "/assets/burner.svg"
+}

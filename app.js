@@ -26,12 +26,17 @@ const ViessmannOAuth2Client = require('./lib/ViessmannOAuth2Client');
 class ViessmannApp extends OAuth2App {
 
   static OAUTH2_CLIENT = ViessmannOAuth2Client; // Default: OAuth2Client
-  // static OAUTH2_DEBUG = process.env.DEBUG; // Default: false
+  static OAUTH2_DEBUG = true; // Default: false
 
   async onOAuth2Init() {
-    if (process.env.DEBUG) {
-      this.log('[ViessmannApp::onOAuth2Init] called');
-      // this.enableOAuth2Debug();
+    try {
+      if (process.env.DEBUG) {
+        this.log('[ViessmannApp::onOAuth2Init] called');
+        this.enableOAuth2Debug();
+      }
+    } catch (error) {
+      this.error('Error in onOAuth2Init:', error);
+      throw error;
     }
   }
 

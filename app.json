@@ -37,14 +37,39 @@
     "conditions": [
       {
         "id": "compressor-is-running",
-        "hint": {
-          "en": "Checking last known state, i.e could return incorrect value if not reacently synched."
-        },
         "title": {
-          "en": "Compressor is!{{| not}} running"
+          "en": "Compressor is !{{running|not running}}",
+          "sv": "Kompressorn !{{är igång|är inte igång}}"
+        },
+        "hint": {
+          "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
+          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
         },
         "titleFormatted": {
-          "en": "Compressor is!{{| not}} running"
+          "en": "Compressor is !{{running|not running}}",
+          "sv": "Kompressorn !{{är igång|är inte igång}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          }
+        ]
+      },
+      {
+        "id": "burner-is-running",
+        "title": {
+          "en": "Burner is !{{running|not running}}",
+          "sv": "Brännaren !{{är igång|är inte igång}}"
+        },
+        "hint": {
+          "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
+          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
+        },
+        "titleFormatted": {
+          "en": "Burner is !{{running|not running}}",
+          "sv": "Brännaren !{{är igång|är inte igång}}"
         },
         "args": [
           {
@@ -57,12 +82,15 @@
     ],
     "actions": [
       {
-        "id": "set-hot-water-thermostat",
+        "id": "set-heating-mode",
         "title": {
-          "en": "Set hot water thermostat to [[temperature]] °C"
+          "en": "Set heating mode to [[mode]]",
+          "sv": "Ställ in värmeläge till [[mode]]"
         },
+        "hint": "",
         "titleFormatted": {
-          "en": "Set hot water thermostat to [[temperature]] °C"
+          "en": "Set heating mode to [[mode]]",
+          "sv": "Ställ in värmeläge till [[mode]]"
         },
         "args": [
           {
@@ -71,126 +99,129 @@
             "filter": "driver_id=vicare"
           },
           {
-            "type": "number",
-            "name": "temperature",
-            "placeholder": {
-              "en": "50"
-            },
-            "min": 10,
-            "max": 60,
-            "step": 1
-          }
-        ]
-      },
-      {
-        "id": "set-heating-thermostat",
-        "title": {
-          "en": "Set heating thermostat to [[temperature]] °C"
-        },
-        "titleFormatted": {
-          "en": "Set heating thermostat to [[temperature]] °C"
-        },
-        "hint": {
-          "en": "Setting the target temperature of the heating thermostat."
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=vicare"
-          },
-          {
-            "type": "number",
-            "name": "temperature",
-            "placeholder": {
-              "en": "21"
-            },
-            "min": 10,
-            "max": 30,
-            "step": 1
-          }
-        ]
-      },
-      {
-        "id": "do-one-time-hot-water-charge",
-        "title": {
-          "en": "Set one time hot water charge"
-        },
-        "titleFormatted": {
-          "en": "Set one time hot water charge [[active]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=vicare"
-          },
-          {
-            "type": "dropdown",
-            "name": "active",
-            "values": [
-              {
-                "id": "activate",
-                "label": {
-                  "en": "Active"
-                }
-              },
-              {
-                "id": "deactivate",
-                "label": {
-                  "en": "Inactive"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "set-operating-mode",
-        "hint": {
-          "en": "Not all installations support all modes."
-        },
-        "title": {
-          "en": "Set operating mode"
-        },
-        "titleFormatted": {
-          "en": "Set operating mode to [[mode]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=vicare"
-          },
-          {
-            "type": "dropdown",
             "name": "mode",
+            "type": "dropdown",
             "values": [
-              {
-                "id": "heating",
-                "label": {
-                  "en": "Heating"
-                }
-              },
               {
                 "id": "dhw",
-                "label": {
-                  "en": "Hot water"
+                "title": {
+                  "en": "DHW only",
+                  "sv": "Endast varmvatten"
                 }
               },
               {
                 "id": "dhwAndHeating",
-                "label": {
-                  "en": "Hot water and heating"
+                "title": {
+                  "en": "DHW and heating",
+                  "sv": "Varmvatten och värme"
                 }
               },
               {
                 "id": "standby",
-                "label": {
-                  "en": "Standby"
+                "title": {
+                  "en": "Standby",
+                  "sv": "Standby"
                 }
               }
             ]
+          }
+        ]
+      },
+      {
+        "id": "set-heating-target-temperature",
+        "title": {
+          "en": "Set heating target temperature to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
+        },
+        "hint": "",
+        "titleFormatted": {
+          "en": "Set heating target temperature to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 3,
+            "max": 37,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "sv": "Temperatur"
+            }
+          }
+        ]
+      },
+      {
+        "id": "set-dhw-target-temperature",
+        "title": {
+          "en": "Set hot water target temperature to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
+        },
+        "hint": "",
+        "titleFormatted": {
+          "en": "Set hot water target temperature to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 10,
+            "max": 60,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "sv": "Temperatur"
+            }
+          }
+        ]
+      },
+      {
+        "id": "start-dhw-charge",
+        "title": {
+          "en": "Start hot water charge",
+          "sv": "Starta varmvattenladdning"
+        },
+        "hint": "",
+        "titleFormatted": {
+          "en": "Start hot water charge",
+          "sv": "Starta varmvattenladdning"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          }
+        ]
+      },
+      {
+        "id": "stop-dhw-charge",
+        "title": {
+          "en": "Stop hot water charge",
+          "sv": "Stoppa varmvattenladdning"
+        },
+        "hint": "",
+        "titleFormatted": {
+          "en": "Stop hot water charge",
+          "sv": "Stoppa varmvattenladdning"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
           }
         ]
       }
@@ -207,16 +238,15 @@
         "measure_something_active.compressor",
         "measure_something_number.compressorHours",
         "measure_something_number.compressorStarts",
-        "thermostat_mode.hotWaterOneTimeCharge",
-        "target_temperature.hotWater",
-        "thermostat_mode.heating",
-        "target_temperature.heating",
-        "measure_temperature.hotWater",
-        "measure_temperature.outside",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
         "measure_burner_number.burnerStarts",
-        "measure_burner_number.burnerModulation"
+        "measure_temperature.hotWater",
+        "target_temperature.hotWater",
+        "thermostat_mode.hotWaterOneTimeCharge",
+        "thermostat_mode.heating",
+        "target_temperature.heating",
+        "measure_temperature.outside"
       ],
       "capabilitiesOptions": {
         "measure_something_active.compressor": {

@@ -8,16 +8,15 @@
     "measure_something_active.compressor",
     "measure_something_number.compressorHours",
     "measure_something_number.compressorStarts",
-    "thermostat_mode.hotWaterOneTimeCharge",
-    "target_temperature.hotWater",
-    "thermostat_mode.heating",
-    "target_temperature.heating",
-    "measure_temperature.hotWater",
-    "measure_temperature.outside",
     "measure_burner_active",
     "measure_burner_number.burnerHours",
     "measure_burner_number.burnerStarts",
-    "measure_burner_number.burnerModulation"
+    "measure_temperature.hotWater",
+    "target_temperature.hotWater",
+    "thermostat_mode.hotWaterOneTimeCharge",
+    "thermostat_mode.heating",
+    "target_temperature.heating",
+    "measure_temperature.outside"
   ],
   "capabilitiesOptions": {
     "measure_something_active.compressor": {

@@ -21,21 +21,25 @@
 'use strict';
 
 const fs = require('fs');
-const { CAPABILITIES } = require('./config');
+const path = require('path');
+const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('../drivers/vicare/flowCards');
 
-// Read the main driver.compose.json
-const driverCompose = JSON.parse(fs.readFileSync('driver.compose.json', 'utf8'));
-
-const capabilities = {
-  capabilities: Object.values(CAPABILITIES).map((cap) => cap.capabilityName),
-  capabilitiesOptions: Object.fromEntries(
-    Object.values(CAPABILITIES).map((cap) => [cap.capabilityName, cap.capabilityOptions]),
-  ),
+// Generate flow compose file from flow cards using new structure
+const flowCompose = {
+  conditions: Object.values(FLOW_CONDITIONS).map((condition) => ({
+    id: condition.id,
+    title: condition.title,
+    hint: condition.hint || '',
+    titleFormatted: condition.titleFormatted || condition.title,
+  })),
+  actions: Object.values(FLOW_ACTIONS).map((action) => ({
+    id: action.id,
+    title: action.title,
+    hint: action.hint || '',
+    titleFormatted: action.titleFormatted || action.title,
+    args: action.args || [],
+  })),
 };
 
-// Slå samman capabilities-delen med den huvudsakliga driver.compose.json
-driverCompose.capabilities = capabilities.capabilities;
-driverCompose.capabilitiesOptions = capabilities.capabilitiesOptions;
-
-// Skriv tillbaka den uppdaterade driver.compose.json till filen
-fs.writeFileSync('driver.compose.json', JSON.stringify(driverCompose, null, 2));
+const outputPath = path.join(__dirname, '../drivers/vicare/driver.flow.compose.json');
+fs.writeFileSync(outputPath, JSON.stringify(flowCompose, null, 2));

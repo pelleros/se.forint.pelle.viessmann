@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
+    "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
+    "prebuild": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js",
+    "build": "homey app build",
+    "deploy": "npm run prebuild && homey app deploy",
+    "preinstall": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js",
+    "install": "homey app install",
+    "prerun": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js",
+    "run": "homey app run"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",

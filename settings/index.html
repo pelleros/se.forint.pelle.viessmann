@@ -20,55 +20,57 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- The '/homey.js' script must be included in your settings view to work -->
-    <script
-      type="text/javascript"
-      src="/homey.js"
-      data-origin="settings"
-    >
-    function onHomeyReady(Homey) {
-    // ...
-
-    Homey.ready();
-    }
-  </script>
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   </head>
   <body>
     <header class="homey-header">
-      <h1 class="homey-title" data-i18n="settings.title">
-        <!-- This will be filled with the translated string with key 'settings.title'. -->
-      </h1>
+      <h1 class="homey-title" data-i18n="settings.title"></h1>
     </header>
+
+    <!-- Client ID Configuration -->
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.subtitle"></legend>
-      <p class="homey-subtitle" data-i18n="settings.bodytext"></p>
+      <p class="homey-form-hint" data-i18n="settings.bodytext"></p>
       <div class="homey-form-group">
         <label class="homey-form-label" for="clientId">Viessmann Client ID</label>
         <input class="homey-form-input" id="clientId" type="text" value="" />
       </div>
+      <div class="homey-form-buttons">
+        <button id="save" class="homey-button-primary-full" data-i18n="settings.save"></button>
+      </div>
     </fieldset>
 
-    <button id="save" class="homey-button-primary-full" data-i18n="settings.save"></button>
-    <p></p>
-    <hr>
-    <hr>
+    <!-- Separator -->
+    <div class="homey-form-group-separator"></div>
+
+    <!-- Troubleshooting Section -->
     <fieldset class="homey-form-fieldset">
-      <legend class="homey-form-legend">Troubleshooting</legend>
-      <p class="homey-subtitle">
-        If asked to by the developer, click the Copy button below to copy the JSON output and paste the content into a file or directly into an email. Not to be posted as a community post (too much text for that).
-      </p>
+      <legend class="homey-form-legend" data-i18n="settings.troubleshooting.title"></legend>
+      <p class="homey-form-hint" data-i18n="settings.troubleshooting.description"></p>
+      
+      <!-- Installations -->
       <div class="homey-form-group">
-        <label class="homey-form-label" for="installations">Installations output</label>
+        <label class="homey-form-label" for="installations" data-i18n="settings.troubleshooting.installations.title"></label>
+        <p class="homey-form-hint" data-i18n="settings.troubleshooting.installations.description"></p>
         <textarea class="homey-form-textarea" id="installations" rows="10"></textarea>
+        <div class="homey-form-buttons">
+          <button id="refreshInstallations" class="homey-button-primary" data-i18n="settings.troubleshooting.installations.get"></button>
+          <button id="copyInstallations" class="homey-button-secondary" data-i18n="settings.troubleshooting.installations.copy"></button>
+        </div>
       </div>
-      <button id="copyInstallations" class="homey-button-primary">Copy installations output</button>
+
+      <!-- Features -->
       <div class="homey-form-group">
-        <label class="homey-form-label" for="features">Features output</label>
+        <label class="homey-form-label" for="features" data-i18n="settings.troubleshooting.features.title"></label>
+        <p class="homey-form-hint" data-i18n="settings.troubleshooting.features.description"></p>
         <textarea class="homey-form-textarea" id="features" rows="10"></textarea>
+        <div class="homey-form-buttons">
+          <button id="refreshFeatures" class="homey-button-primary" data-i18n="settings.troubleshooting.features.get"></button>
+          <button id="copyFeatures" class="homey-button-secondary" data-i18n="settings.troubleshooting.features.copy"></button>
+        </div>
       </div>
-      <button id="copyFeatures" class="homey-button-primary">Copy features output</button>
     </fieldset>
-    
+
     <script type="text/javascript">
       // a method named 'onHomeyReady' must be present in your code
       function onHomeyReady(Homey) {
@@ -76,6 +78,8 @@
         var saveElement = document.getElementById("save");
         var copyInstallationsElement = document.getElementById("copyInstallations");
         var copyFeaturesElement = document.getElementById("copyFeatures");
+        var refreshInstallationsElement = document.getElementById("refreshInstallations");
+        var refreshFeaturesElement = document.getElementById("refreshFeatures");
         var installationsElement = document.getElementById("installations");
         var featuresElement = document.getElementById("features");
 
@@ -85,9 +89,15 @@
         });
 
         saveElement.addEventListener("click", function (e) {
-          Homey.set("clientId", clientIdElement.value, function (err) {
+          const clientId = clientIdElement.value.trim();
+          
+          if (!clientId || clientId.length < 5) {
+            return Homey.alert(Homey.__("settings.error.invalid_client_id"));
+          }
+          
+          Homey.set("clientId", clientId, function (err) {
             if (err) return Homey.alert(err);
-            else Homey.alert(Homey.__("settings.saved"));
+            Homey.alert(Homey.__("settings.saved"));
           });
         });
 
@@ -101,15 +111,20 @@
           document.execCommand("copy");
         });
 
-        Homey.get("features.json", function (err, features) {
-          if (err) return Homey.alert(err);
-          featuresElement.textContent = features;
+        refreshInstallationsElement.addEventListener("click", function (e) {
+          Homey.api('GET', '/installations', null, function(err, result) {
+            if (err) return Homey.alert(err);
+            installationsElement.textContent = JSON.stringify(result, null, 3);
+          });
         });
-        Homey.get("installations.json", function (err, installations) {
-          if (err) return Homey.alert(err);
-          installationsElement.textContent = installations;
+
+        refreshFeaturesElement.addEventListener("click", function (e) {
+          Homey.api('GET', '/features', null, function(err, result) {
+            if (err) return Homey.alert(err);
+            featuresElement.textContent = JSON.stringify(result, null, 3);
+          });
         });
-        // Tell Homey we're ready to be displayed
+
         Homey.ready();
       }
     </script>

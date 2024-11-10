@@ -158,6 +158,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           this.log('thermostat_mode.heating:', value);
         }
         await this.setMainOperatingMode(value);
+
+        // Trigger flow card with device and token
+        try {
+          const tokens = { mode: value };
+          const state = {};
+          await this.driver._heatingModeChangedTrigger.trigger(this, tokens, state);
+          this.log('Flow card triggered with mode:', value);
+        } catch (error) {
+          this.error('Failed to trigger flow card:', error);
+        }
       },
     );
 
@@ -201,8 +211,17 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
   async onFeaturesUpdated(response) {
     try {
+      if (process.env.DEBUG) {
+        this.log('Starting feature update processing...');
+      }
+
       for (const feature of response.data) {
-        if (!feature.isEnabled || !feature.properties) continue;
+        if (!feature.isEnabled || !feature.properties) {
+          if (process.env.DEBUG) {
+            this.log(`Skipping disabled/empty feature: ${feature.feature}`);
+          }
+          continue;
+        }
 
         const featureConfig = FEATURES[feature.feature];
         if (!featureConfig) {
@@ -214,7 +233,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
         // Check if device has required role for this feature
         if (featureConfig.requireRole && !this._roles.includes(featureConfig.requireRole)) {
+          if (process.env.DEBUG) {
+            this.log(`Skipping feature due to missing role: ${feature.feature}, required role: ${featureConfig.requireRole}`);
+          }
           continue;
+        }
+
+        if (process.env.DEBUG) {
+          this.log(`Processing feature: ${feature.feature}`);
         }
 
         // Helper function to safely get nested property values
@@ -226,9 +252,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         for (const capability of featureConfig.capabilities) {
           const value = getValue(feature.properties, capability.propertyPath);
           if (value !== undefined) {
+            if (process.env.DEBUG) {
+              this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
+            }
             await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+          } else if (process.env.DEBUG) {
+            this.log(`No value found for capability: ${capability.capabilityName}, path: ${capability.propertyPath}`);
           }
         }
+      }
+
+      if (process.env.DEBUG) {
+        this.log('Feature update processing completed');
       }
 
       this.setAvailable();
@@ -264,9 +299,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         let processedValue = value;
         if (capability.valueMapping && value in capability.valueMapping) {
           processedValue = capability.valueMapping[value];
-          if (process.env.DEBUG) {
-            this.log(`Mapped value ${value} to ${processedValue} for capability ${capabilityName}`);
-          }
         }
 
         await this.setCapabilityValue(capabilityName, processedValue);
@@ -279,6 +311,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   registerCapabilityListenerIfPossible(capabilityName, listener) {
     if (this.hasCapability(capabilityName)) {
       this.registerCapabilityListener(capabilityName, listener);
+    } else {
+      this.log(`Capability ${capabilityName} not found, skipping listener registration`);
     }
   }
 
@@ -286,48 +320,68 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     Set the hot water temperature
   */
   async setDhwTemp(value) {
-    return this.oAuth2Client.setDhwTemp({
+    await this.oAuth2Client.setDhwTemp({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
       value,
     });
+
+    // Uppdatera capability
+    const { capabilityName } = getCapability(PATHS.HOT_WATER_TARGET);
+    await this.setCapabilityValue(capabilityName, value);
+    return true;
   }
 
   /*
     Set the main/normal heating temperature
   */
   async setHeatingTemp(value) {
-    return this.oAuth2Client.setHeatingTemp({
+    await this.oAuth2Client.setHeatingTemp({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
       value,
     });
+
+    // Uppdatera capability
+    const { capabilityName } = getCapability(PATHS.HEATING_TARGET);
+    await this.setCapabilityValue(capabilityName, value);
+    return true;
   }
 
   /*
     Set the operating mode of the heating system
   */
   async setMainOperatingMode(value) {
-    return this.oAuth2Client.setMainOperatingMode({
+    await this.oAuth2Client.setMainOperatingMode({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
       value,
     });
+
+    // Uppdatera capability
+    const { capabilityName } = getCapability(PATHS.HEATING_MODE);
+    await this.setCapabilityValue(capabilityName, value);
+    return true;
   }
 
   /*
     Set the operating mode of the heating system
   */
   async setDhwOneTimeCharge(value) {
-    return this.oAuth2Client.setDhwOneTimeCharge({
+    await this.oAuth2Client.setDhwOneTimeCharge({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
       value,
     });
+
+    // Uppdatera capability
+    const { capabilityName } = getCapability(PATHS.HOT_WATER_CHARGE);
+    await this.setCapabilityValue(capabilityName, value);
+    return true;
   }
 
   async getGatewayFeatures() {
@@ -341,10 +395,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async getFeatures() {
     // Use PATHS directly for feature filtering
     const featuresFilter = Object.values(PATHS).join(',');
-    this.log('featuresFilter:', featuresFilter);
-    this.log('installationId:', this._installationId);
-    this.log('gatewaySerial:', this._gatewaySerial);
-    this.log('deviceId:', this._deviceId);
 
     return this.oAuth2Client.getFeatures({
       installationId: this._installationId,
@@ -362,61 +412,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return this.getCapabilityValue(capabilityName);
   }
 
-  /*
-   * Get heating id, compressor id, burner id
-   * currently only taking the first id of each type 
-   * (could be multiple in the returned array).
-   * // currently not used as not fully implemented for all ids (ex burners).
-  async getInstallationSpecificIds(installationId, gatewaySerial, deviceId) {
-    try {
-      const compressorResponse = await this.oAuth2Client.getFeature({
-        installationId, gatewaySerial, deviceId, featureName: 'heating.compressors',
-      });
-      this._compressorId = compressorResponse.data.properties.enabled.value[0];
-    } catch (err) {
-      this.log('Error getting compressors:', err);
-    }
-    // Use compressorId in feature strings
-    // Compressorid could be 'undefined' if no compressor was found. This is ok since
-    // in sync method the featureName will simply not be found and no value will be set.   
-    FEATURES.COMPRESSOR_ACTIVE_MEASURE.featureName = `heating.compressors.${this._compressorId}`;
-    FEATURES.COMPRESSOR_STARTS_MEASURE.featureName = `heating.compressors.${this._compressorId}.statistics`;
-    FEATURES.COMPRESSOR_HOURS_MEASURE.featureName = `heating.compressors.${this._compressorId}.statistics`;
-
-    try {
-      const heatingCircuitsResponse = await this.oAuth2Client.getFeature({
-        installationId, gatewaySerial, deviceId, featureName: 'heating.circuits',
-      });
-      this._heatingCircuitsId = heatingCircuitsResponse.data.properties.enabled.value[0];
-    } catch (err) {
-      this.log('Error getting heating circuits:', err);
-    }
-    // Use heatingCircuitsId in feature strings
-    // heatingCircuitsId could be 'undefined' if no heating circuit was found. This is ok since
-    // in sync method the featureName will simply not be found and no value will be set.
-    FEATURES.HEATING_TARGET_TEMP.featureName = `heating.circuits.${this._heatingCircuitsId}.operating.programs.normal`;
-    FEATURES.HEATING_MODE.featureName = `heating.circuits.${this._heatingCircuitsId}.operating.modes.active`;
-
-    // Get heating id and compressor id
-    // currently only taking the first heating circuit and the first compressor 
-    // (could be multiple in the returned array).
-    try {
-      const compressorResponse = await this.oAuth2Client.getFeature({
-        installationId, gatewaySerial, deviceId, featureName: 'heating.compressors',
-      });
-      this._compressorId = compressorResponse.data.properties.enabled.value[0];
-    } catch (err) {
-      this.log('Error getting compressors:', err);
-    }
-    // Use compressorId in feature strings
-    // Compressorid could be 'undefined' if no compressor was found. This is ok since
-    // in sync method the featureName will simply not be found and no value will be set.   
-    FEATURES.COMPRESSOR_ACTIVE_MEASURE.featureName = `heating.compressors.${this._compressorId}`;
-    FEATURES.COMPRESSOR_STARTS_MEASURE.featureName = `heating.compressors.${this._compressorId}.statistics`;
-    FEATURES.COMPRESSOR_HOURS_MEASURE.featureName = `heating.compressors.${this._compressorId}.statistics`;
-  }
-  */
-
   async onOAuth2Uninit() {
     // Stop polling for this device
     const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
@@ -424,15 +419,28 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   // Method to handle dynamic feature paths based on installation
-  updateFeaturePaths(compressorId, heatingCircuitsId) {
+  /* // Method not used, we probably want to handle the ids in a different way (have it as a device setting)
+  updateFeaturePaths(compressorId, heatingCircuitsId, burnerId) {
     // Instead of modifying FEATURES directly, we create installation-specific paths
     this._installationPaths = {
       ...PATHS,
       COMPRESSOR: `heating.compressors.${compressorId}`,
       COMPRESSOR_STATS: `heating.compressors.${compressorId}.statistics`,
+      BURNER: `heating.burners.${burnerId}`,
+      BURNER_STATS: `heating.burners.${burnerId}.statistics`,
+      BURNER_MODULATION: `heating.burners.${burnerId}.modulation`,
       HEATING_MODE: `heating.circuits.${heatingCircuitsId}.operating.modes.active`,
       HEATING_TARGET: `heating.circuits.${heatingCircuitsId}.operating.programs.normal`,
     };
+  }
+  */
+
+  async startDhwOneTimeCharge() {
+    return this.setDhwOneTimeCharge(true);
+  }
+
+  async stopDhwOneTimeCharge() {
+    return this.setDhwOneTimeCharge(false);
   }
 
 };

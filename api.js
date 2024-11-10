@@ -20,26 +20,29 @@
 
 'use strict';
 
-const { OAuth2App } = require('homey-oauth2app');
-const ViessmannOAuth2Client = require('./lib/ViessmannOAuth2Client');
-
-class ViessmannApp extends OAuth2App {
-
-  static OAUTH2_CLIENT = ViessmannOAuth2Client; // Default: OAuth2Client
-  // static OAUTH2_DEBUG = true; // Default: false
-
-  async onOAuth2Init() {
+module.exports = {
+  async getInstallations({ homey }) {
     try {
-      if (process.env.DEBUG) {
-        this.log('[ViessmannApp::onOAuth2Init] called');
-        this.enableOAuth2Debug();
-      }
+      const oAuth2Client = homey.app.getFirstSavedOAuth2Client();
+      if (!oAuth2Client) throw new Error('No OAuth2Client found');
+      return await oAuth2Client.getInstallations();
     } catch (error) {
-      this.error('Error in onOAuth2Init:', error);
+      homey.error('Error in getInstallations API:', error);
       throw error;
     }
-  }
+  },
 
-}
+  async getFeatures({ homey }) {
+    try {
+      const driver = homey.drivers.getDriver('vicare');
+      const devices = driver.getDevices();
+      if (!devices || devices.length === 0) throw new Error('No device found');
+      const device = devices[0];
+      return await device.getFeatures();
+    } catch (error) {
+      homey.error('Error in getFeatures API:', error);
+      throw error;
+    }
+  },
 
-module.exports = ViessmannApp;
+};

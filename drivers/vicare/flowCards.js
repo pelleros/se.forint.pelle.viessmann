@@ -51,11 +51,15 @@ module.exports = {
   },
   FLOW_ACTIONS: {
     SET_HEATING_MODE: {
-      id: 'set-heating-mode',
-      method: 'setHeatingMode',
+      id: 'set-operating-mode',
+      method: 'setMainOperatingMode',
       title: {
-        en: 'Set heating mode to [[mode]]',
-        sv: 'Ställ in värmeläge till [[mode]]',
+        en: 'Set main operating mode to [[mode]]',
+        sv: 'Ställ in huvuddriftläge till [[mode]]',
+      },
+      hint: {
+        en: 'Note: Not all operating modes are supported by all installations',
+        sv: 'OBS: Alla driftlägen stöds inte av alla installationer',
       },
       args: [
         {
@@ -63,6 +67,7 @@ module.exports = {
           type: 'dropdown',
           values: [
             { id: 'dhw', title: { en: 'DHW only', sv: 'Endast varmvatten' } },
+            { id: 'heating', title: { en: 'Heating only', sv: 'Endast värme' } },
             { id: 'dhwAndHeating', title: { en: 'DHW and heating', sv: 'Varmvatten och värme' } },
             { id: 'standby', title: { en: 'Standby', sv: 'Standby' } },
           ],
@@ -70,8 +75,8 @@ module.exports = {
       ],
     },
     SET_HEATING_TEMPERATURE: {
-      id: 'set-heating-target-temperature',
-      method: 'setHeatingTargetTemperature',
+      id: 'set-heating-thermostat',
+      method: 'setHeatingTemp',
       title: {
         en: 'Set heating target temperature to [[temperature]] °C',
         sv: 'Ställ in måltemperatur för värme till [[temperature]] °C',
@@ -88,8 +93,8 @@ module.exports = {
       ],
     },
     SET_DHW_TEMPERATURE: {
-      id: 'set-dhw-target-temperature',
-      method: 'setDHWTargetTemperature',
+      id: 'set-hot-water-thermostat',
+      method: 'setDhwTemp',
       title: {
         en: 'Set hot water target temperature to [[temperature]] °C',
         sv: 'Ställ in måltemperatur för varmvatten till [[temperature]] °C',
@@ -105,21 +110,60 @@ module.exports = {
         },
       ],
     },
-    START_DHW_CHARGE: {
-      id: 'start-dhw-charge',
-      method: 'startDHWCharge',
+    SET_DHW_CHARGE: {
+      id: 'do-one-time-hot-water-charge',
+      method: 'setDhwOneTimeCharge',
       title: {
-        en: 'Start hot water charge',
-        sv: 'Starta varmvattenladdning',
+        en: 'Set one time hot water charge',
+        sv: 'Ställ in engångsladdning av varmvatten',
       },
+      titleFormatted: {
+        en: 'Set one time hot water charge to [[active]]',
+        sv: 'Ställ in engångsladdning av varmvatten till [[active]]',
+      },
+      args: [
+        {
+          name: 'active',
+          type: 'dropdown',
+          values: [
+            {
+              id: 'activate',
+              title: {
+                en: 'Active',
+                sv: 'Aktiv',
+              },
+            },
+            {
+              id: 'deactivate',
+              title: {
+                en: 'Inactive',
+                sv: 'Inaktiv',
+              },
+            },
+          ],
+        },
+      ],
     },
-    STOP_DHW_CHARGE: {
-      id: 'stop-dhw-charge',
-      method: 'stopDHWCharge',
+  },
+  FLOW_TRIGGERS: {
+    HEATING_MODE_CHANGED: {
+      id: 'heating-mode-changed',
+      capability: getCapability(PATHS.HEATING_MODE).capabilityName,
       title: {
-        en: 'Stop hot water charge',
-        sv: 'Stoppa varmvattenladdning',
+        en: 'Heating mode changed',
+        sv: 'Värmeläge ändrat',
       },
+      tokens: [
+        {
+          name: 'mode',
+          type: 'string',
+          title: {
+            en: 'Mode',
+            sv: 'Läge',
+          },
+          example: { en: 'dhw', sv: 'dhw' },
+        },
+      ],
     },
   },
 };

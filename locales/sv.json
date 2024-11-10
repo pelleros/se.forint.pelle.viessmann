@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "title": "Viessmann utvecklarkonto",
+    "subtitle": "Client ID Konfiguration",
+    "bodytext": "Gå till https://app.developer.viessmann.com/ och lägg till en ny klient. Se till att Google reCaptcha är avstängt. Sätt redirect URI till https://callback.athom.com/oauth2/callback",
+    "save": "Spara",
+    "saved": "Client ID sparades! Du kan nu lägga till din Viessmann-enhet i Homey.",
+    "error": {
+      "invalid_client_id": "Ange ett giltigt Client ID"
+    },
+    "troubleshooting": {
+      "title": "Felsökning",
+      "description": "Dessa verktyg hjälper till att diagnostisera problem med appen. Informationen som visas här kan vara användbar vid felsökning med utvecklaren. Varning: Kan innehålla känslig data, såsom din adress.",
+      "installations": {
+        "title": "Installationsinformation",
+        "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",
+        "get": "Hämta installationsdata",
+        "copy": "Kopiera till urklipp"
+      },
+      "features": {
+        "title": "Enhetsfunktioner",
+        "description": "Visar tillgängliga funktioner och aktuella värden för din enhet",
+        "get": "Hämta funktionsdata",
+        "copy": "Kopiera till urklipp"
+      }
+    }
+  },
+  "pair": {
+    "no_client_id": "Viessmann Client ID är inte konfigurerat. Vänligen ställ in det i appinställningarna innan du lägger till en enhet."
+  }
+} 

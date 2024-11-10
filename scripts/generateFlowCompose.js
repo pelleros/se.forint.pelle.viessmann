@@ -22,22 +22,47 @@
 
 const fs = require('fs');
 const path = require('path');
-const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('../drivers/vicare/flowCards');
+const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../drivers/vicare/flowCards');
 
 // Generate flow compose file from flow cards using new structure
 const flowCompose = {
-  conditions: Object.values(FLOW_CONDITIONS).map((condition) => ({
-    id: condition.id,
-    title: condition.title,
-    hint: condition.hint || '',
-    titleFormatted: condition.titleFormatted || condition.title,
-  })),
-  actions: Object.values(FLOW_ACTIONS).map((action) => ({
-    id: action.id,
-    title: action.title,
-    hint: action.hint || '',
-    titleFormatted: action.titleFormatted || action.title,
-    args: action.args || [],
+  conditions: Object.values(FLOW_CONDITIONS).map((condition) => {
+    const flowCard = {
+      id: condition.id,
+      title: condition.title,
+      titleFormatted: condition.titleFormatted || condition.title,
+      args: condition.args || [],
+    };
+
+    // Lägg bara till hint om den finns
+    if (condition.hint) {
+      flowCard.hint = condition.hint;
+    }
+
+    return flowCard;
+  }),
+
+  actions: Object.values(FLOW_ACTIONS).map((action) => {
+    const flowCard = {
+      id: action.id,
+      title: action.title,
+      titleFormatted: action.titleFormatted || action.title,
+      args: action.args || [],
+    };
+
+    // Lägg bara till hint om den finns
+    if (action.hint) {
+      flowCard.hint = action.hint;
+    }
+
+    return flowCard;
+  }),
+
+  triggers: Object.values(FLOW_TRIGGERS).map((trigger) => ({
+    id: trigger.id,
+    title: trigger.title,
+    args: trigger.args || [],
+    tokens: trigger.tokens || [],
   })),
 };
 

@@ -1,6 +1,6 @@
 {
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -31,5 +31,16 @@
   },
   "brandColor": "#ff0000",
   "homeyCommunityTopicId": 118749,
-  "source": "https://github.com/pelleros/se.forint.pelle.viessmann"
+  "source": "https://github.com/pelleros/se.forint.pelle.viessmann",
+  "api": {
+    "getInstallations": {
+      "method": "GET",
+      "path": "/installations",
+      "oauth2": true
+    },
+    "getFeatures": {
+      "method": "GET",
+      "path": "/features"
+    }
+  }
 }

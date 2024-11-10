@@ -6,13 +6,14 @@
         "en": "Compressor is !{{running|not running}}",
         "sv": "Kompressorn !{{är igång|är inte igång}}"
       },
-      "hint": {
-        "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
-        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
-      },
       "titleFormatted": {
         "en": "Compressor is !{{running|not running}}",
         "sv": "Kompressorn !{{är igång|är inte igång}}"
+      },
+      "args": [],
+      "hint": {
+        "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
+        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
       }
     },
     {
@@ -21,27 +22,27 @@
         "en": "Burner is !{{running|not running}}",
         "sv": "Brännaren !{{är igång|är inte igång}}"
       },
-      "hint": {
-        "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
-        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
-      },
       "titleFormatted": {
         "en": "Burner is !{{running|not running}}",
         "sv": "Brännaren !{{är igång|är inte igång}}"
+      },
+      "args": [],
+      "hint": {
+        "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
+        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
       }
     }
   ],
   "actions": [
     {
-      "id": "set-heating-mode",
+      "id": "set-operating-mode",
       "title": {
-        "en": "Set heating mode to [[mode]]",
-        "sv": "Ställ in värmeläge till [[mode]]"
+        "en": "Set main operating mode to [[mode]]",
+        "sv": "Ställ in huvuddriftläge till [[mode]]"
       },
-      "hint": "",
       "titleFormatted": {
-        "en": "Set heating mode to [[mode]]",
-        "sv": "Ställ in värmeläge till [[mode]]"
+        "en": "Set main operating mode to [[mode]]",
+        "sv": "Ställ in huvuddriftläge till [[mode]]"
       },
       "args": [
         {
@@ -53,6 +54,13 @@
               "title": {
                 "en": "DHW only",
                 "sv": "Endast varmvatten"
+              }
+            },
+            {
+              "id": "heating",
+              "title": {
+                "en": "Heating only",
+                "sv": "Endast värme"
               }
             },
             {
@@ -71,15 +79,18 @@
             }
           ]
         }
-      ]
+      ],
+      "hint": {
+        "en": "Note: Not all operating modes are supported by all installations",
+        "sv": "OBS: Alla driftlägen stöds inte av alla installationer"
+      }
     },
     {
-      "id": "set-heating-target-temperature",
+      "id": "set-heating-thermostat",
       "title": {
         "en": "Set heating target temperature to [[temperature]] °C",
         "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
       },
-      "hint": "",
       "titleFormatted": {
         "en": "Set heating target temperature to [[temperature]] °C",
         "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
@@ -99,12 +110,11 @@
       ]
     },
     {
-      "id": "set-dhw-target-temperature",
+      "id": "set-hot-water-thermostat",
       "title": {
         "en": "Set hot water target temperature to [[temperature]] °C",
         "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
       },
-      "hint": "",
       "titleFormatted": {
         "en": "Set hot water target temperature to [[temperature]] °C",
         "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
@@ -124,30 +134,61 @@
       ]
     },
     {
-      "id": "start-dhw-charge",
+      "id": "do-one-time-hot-water-charge",
       "title": {
-        "en": "Start hot water charge",
-        "sv": "Starta varmvattenladdning"
+        "en": "Set one time hot water charge",
+        "sv": "Ställ in engångsladdning av varmvatten"
       },
-      "hint": "",
       "titleFormatted": {
-        "en": "Start hot water charge",
-        "sv": "Starta varmvattenladdning"
+        "en": "Set one time hot water charge to [[active]]",
+        "sv": "Ställ in engångsladdning av varmvatten till [[active]]"
       },
-      "args": []
-    },
+      "args": [
+        {
+          "name": "active",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "activate",
+              "title": {
+                "en": "Active",
+                "sv": "Aktiv"
+              }
+            },
+            {
+              "id": "deactivate",
+              "title": {
+                "en": "Inactive",
+                "sv": "Inaktiv"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "triggers": [
     {
-      "id": "stop-dhw-charge",
+      "id": "heating-mode-changed",
       "title": {
-        "en": "Stop hot water charge",
-        "sv": "Stoppa varmvattenladdning"
+        "en": "Heating mode changed",
+        "sv": "Värmeläge ändrat"
       },
-      "hint": "",
-      "titleFormatted": {
-        "en": "Stop hot water charge",
-        "sv": "Stoppa varmvattenladdning"
-      },
-      "args": []
+      "args": [],
+      "tokens": [
+        {
+          "name": "mode",
+          "type": "string",
+          "title": {
+            "en": "Mode",
+            "sv": "Läge"
+          },
+          "example": {
+            "en": "dhw",
+            "sv": "dhw"
+          }
+        }
+      ]
     }
   ]
 }

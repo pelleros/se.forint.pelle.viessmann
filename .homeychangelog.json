@@ -13,5 +13,8 @@
   },
   "1.0.4": {
     "en": "This version adds support for a wider range of installation setups, enhancing compatibility across different configurations."
+  },
+  "1.0.5": {
+    "en": "Added: New flow cards for heating mode control\nAdded: Improved error handling and stability\nAdded: Debug logging for troubleshooting\nFixed: Direct capability updates after flow card actions\nNote: For best performance, please remove and re-add your devices after this update"
   }
 }

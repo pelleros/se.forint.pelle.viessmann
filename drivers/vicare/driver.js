@@ -22,7 +22,7 @@
 
 const { OAuth2Driver } = require('homey-oauth2app');
 const { FEATURES, PATHS } = require('./config');
-const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('./flowCards');
+const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
@@ -35,6 +35,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   async onOAuth2Init() {
     try {
       this.log('Starting onOAuth2Init');
+
+      // Get device trigger card reference
+      this._heatingModeChangedTrigger = this.homey.flow.getDeviceTriggerCard(FLOW_TRIGGERS.HEATING_MODE_CHANGED.id);
 
       // Register Flow Cards
       this.log('Registering flow cards');
@@ -188,11 +191,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       }
 
       const result = await oAuth2Client.getInstallations();
-      this.homey.settings.set('installations.json', JSON.stringify(result, null, 3));
 
-      if (process.env.DEBUG) {
-        this.log('[ViessmannDriver::onPairListDevices] Installations:', JSON.stringify(result, null, 3));
-      }
+      this.log('[ViessmannDriver::onPairListDevices] Installations:', JSON.stringify(result, null, 3));
 
       const devices = [];
 
@@ -208,8 +208,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
               const response = await oAuth2Client.getFeatures({ installationId: gateway.installationId, gatewaySerial: gateway.serial, deviceId: device.id });
               // this.log('[ViessmannDriver::onPairListDevices] Features:', JSON.stringify(response, null, 3));
-              // used in the app settings page for troubleshooting
-              this.homey.settings.set('features.json', JSON.stringify(response, null, 3));
 
               const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_MODE);
               const operatingModes = [];
@@ -261,9 +259,13 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
   async onPair(socket) {
     try {
-      this.log('Starting pairing process');
+      // Check if clientId is set
+      const clientId = await this.homey.settings.get('clientId');
+      if (!clientId || clientId.trim() === '') {
+        throw new Error(this.homey.__('pair.no_client_id'));
+      }
 
-      // Anropa parent onPair med session
+      // Anropa parent onPair med socket
       const result = await super.onPair(socket);
       this.log('Pairing process completed');
 

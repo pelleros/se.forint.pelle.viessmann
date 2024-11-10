@@ -1,12 +1,31 @@
 {
     "settings": {
       "title": "Viessmann developer account",
-      "subtitle": "Provide your Client ID",
+      "subtitle": "Client ID Configuration",
       "bodytext": "Go to https://app.developer.viessmann.com/ and add a new client. Ensure Google reCaptcha is turned off. Set redirect URI to https://callback.athom.com/oauth2/callback",
       "save": "Save",
-      "saved": "Client ID saved",
-      "debugtitle": "Get debug information",
-      "debuginfo": "Get the debug information and provide to the developer if you have problem connecting your Viessmann device.",
-      "getfeatures": "Get features.json"
+      "saved": "Client ID saved successfully! You can now add your Viessmann device in Homey.",
+      "error": {
+        "invalid_client_id": "Please enter a valid Client ID"
+      },
+      "troubleshooting": {
+        "title": "Troubleshooting",
+        "description": "These tools help diagnose issues with the app. The data shown here can be useful when troubleshooting with the developer. Warning: May contain sensitive data, such as your address.",
+        "installations": {
+          "title": "Installation Information",
+          "description": "Shows details about your Viessmann installation and connected devices",
+          "get": "Get Installation Data",
+          "copy": "Copy to Clipboard"
+        },
+        "features": {
+          "title": "Device Features",
+          "description": "Shows available features and current values for your device",
+          "get": "Get Feature Data",
+          "copy": "Copy to Clipboard"
+        }
+      }
+    },
+    "pair": {
+      "no_client_id": "Viessmann Client ID is not configured. Please set it in the app settings before adding a device."
     }
 }

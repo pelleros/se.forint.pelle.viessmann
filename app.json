@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -33,7 +33,48 @@
   "brandColor": "#ff0000",
   "homeyCommunityTopicId": 118749,
   "source": "https://github.com/pelleros/se.forint.pelle.viessmann",
+  "api": {
+    "getInstallations": {
+      "method": "GET",
+      "path": "/installations",
+      "oauth2": true
+    },
+    "getFeatures": {
+      "method": "GET",
+      "path": "/features"
+    }
+  },
   "flow": {
+    "triggers": [
+      {
+        "id": "heating-mode-changed",
+        "title": {
+          "en": "Heating mode changed",
+          "sv": "Värmeläge ändrat"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "sv": "Läge"
+            },
+            "example": {
+              "en": "dhw",
+              "sv": "dhw"
+            }
+          }
+        ]
+      }
+    ],
     "conditions": [
       {
         "id": "compressor-is-running",
@@ -41,10 +82,6 @@
           "en": "Compressor is !{{running|not running}}",
           "sv": "Kompressorn !{{är igång|är inte igång}}"
         },
-        "hint": {
-          "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
-          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
-        },
         "titleFormatted": {
           "en": "Compressor is !{{running|not running}}",
           "sv": "Kompressorn !{{är igång|är inte igång}}"
@@ -55,17 +92,17 @@
             "name": "device",
             "filter": "driver_id=vicare"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
+          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
+        }
       },
       {
         "id": "burner-is-running",
         "title": {
           "en": "Burner is !{{running|not running}}",
           "sv": "Brännaren !{{är igång|är inte igång}}"
-        },
-        "hint": {
-          "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
-          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
         },
         "titleFormatted": {
           "en": "Burner is !{{running|not running}}",
@@ -77,20 +114,23 @@
             "name": "device",
             "filter": "driver_id=vicare"
           }
-        ]
+        ],
+        "hint": {
+          "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
+          "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
+        }
       }
     ],
     "actions": [
       {
-        "id": "set-heating-mode",
+        "id": "set-operating-mode",
         "title": {
-          "en": "Set heating mode to [[mode]]",
-          "sv": "Ställ in värmeläge till [[mode]]"
+          "en": "Set main operating mode to [[mode]]",
+          "sv": "Ställ in huvuddriftläge till [[mode]]"
         },
-        "hint": "",
         "titleFormatted": {
-          "en": "Set heating mode to [[mode]]",
-          "sv": "Ställ in värmeläge till [[mode]]"
+          "en": "Set main operating mode to [[mode]]",
+          "sv": "Ställ in huvuddriftläge till [[mode]]"
         },
         "args": [
           {
@@ -110,6 +150,13 @@
                 }
               },
               {
+                "id": "heating",
+                "title": {
+                  "en": "Heating only",
+                  "sv": "Endast värme"
+                }
+              },
+              {
                 "id": "dhwAndHeating",
                 "title": {
                   "en": "DHW and heating",
@@ -125,15 +172,18 @@
               }
             ]
           }
-        ]
+        ],
+        "hint": {
+          "en": "Note: Not all operating modes are supported by all installations",
+          "sv": "OBS: Alla driftlägen stöds inte av alla installationer"
+        }
       },
       {
-        "id": "set-heating-target-temperature",
+        "id": "set-heating-thermostat",
         "title": {
           "en": "Set heating target temperature to [[temperature]] °C",
           "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
         },
-        "hint": "",
         "titleFormatted": {
           "en": "Set heating target temperature to [[temperature]] °C",
           "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
@@ -158,12 +208,11 @@
         ]
       },
       {
-        "id": "set-dhw-target-temperature",
+        "id": "set-hot-water-thermostat",
         "title": {
           "en": "Set hot water target temperature to [[temperature]] °C",
           "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
         },
-        "hint": "",
         "titleFormatted": {
           "en": "Set hot water target temperature to [[temperature]] °C",
           "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
@@ -188,40 +237,40 @@
         ]
       },
       {
-        "id": "start-dhw-charge",
+        "id": "do-one-time-hot-water-charge",
         "title": {
-          "en": "Start hot water charge",
-          "sv": "Starta varmvattenladdning"
+          "en": "Set one time hot water charge",
+          "sv": "Ställ in engångsladdning av varmvatten"
         },
-        "hint": "",
         "titleFormatted": {
-          "en": "Start hot water charge",
-          "sv": "Starta varmvattenladdning"
+          "en": "Set one time hot water charge to [[active]]",
+          "sv": "Ställ in engångsladdning av varmvatten till [[active]]"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=vicare"
-          }
-        ]
-      },
-      {
-        "id": "stop-dhw-charge",
-        "title": {
-          "en": "Stop hot water charge",
-          "sv": "Stoppa varmvattenladdning"
-        },
-        "hint": "",
-        "titleFormatted": {
-          "en": "Stop hot water charge",
-          "sv": "Stoppa varmvattenladdning"
-        },
-        "args": [
+          },
           {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=vicare"
+            "name": "active",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "activate",
+                "title": {
+                  "en": "Active",
+                  "sv": "Aktiv"
+                }
+              },
+              {
+                "id": "deactivate",
+                "title": {
+                  "en": "Inactive",
+                  "sv": "Inaktiv"
+                }
+              }
+            ]
           }
         ]
       }

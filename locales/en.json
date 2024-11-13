@@ -27,5 +27,57 @@
     },
     "pair": {
       "no_client_id": "Viessmann Client ID is not configured. Please set it in the app settings before adding a device."
+    },
+    "flow": {
+      "conditions": {
+        "compressor": {
+          "title": "Compressor is !{{running|not running}}",
+          "hint": "Checking last known state, i.e. could return incorrect value if not recently synced."
+        },
+        "burner": {
+          "title": "Burner is !{{running|not running}}",
+          "hint": "Checking last known state, i.e. could return incorrect value if not recently synced."
+        }
+      },
+      "actions": {
+        "heating_mode": {
+          "title": "Set main operating mode to [[mode]]",
+          "hint": "Note: Not all operating modes are supported by all installations",
+          "values": {
+            "dhw": "DHW only",
+            "heating": "Heating only",
+            "dhwAndHeating": "DHW and heating",
+            "standby": "Standby"
+          }
+        },
+        "heating_temp": {
+          "title": "Set heating target temperature to [[temperature]] °C",
+          "temperature": "Temperature"
+        },
+        "dhw_temp": {
+          "title": "Set hot water target temperature to [[temperature]] °C",
+          "temperature": "Temperature"
+        },
+        "dhw_charge": {
+          "title": "Set one time hot water charge",
+          "titleFormatted": "Set one time hot water charge to [[active]]",
+          "values": {
+            "activate": "Active",
+            "deactivate": "Inactive"
+          }
+        },
+        "hot_water_temp2": {
+          "title": "Set hot water target temperature 2 to [[temperature]] °C"
+        },
+        "temperature": {
+          "title": "Temperature"
+        }
+      },
+      "triggers": {
+        "heating_mode": {
+          "title": "Heating mode changed",
+          "mode": "Mode"
+        }
+      }
     }
 }

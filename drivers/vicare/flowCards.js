@@ -27,78 +27,78 @@ module.exports = {
     COMPRESSOR_RUNNING: {
       id: 'compressor-is-running',
       capability: getCapability(PATHS.COMPRESSOR).capabilityName,
-      title: {
-        en: 'Compressor is !{{running|not running}}',
-        sv: 'Kompressorn !{{är igång|är inte igång}}',
-      },
-      hint: {
-        en: 'Checking last known state, i.e could return incorrect value if not recently synched.',
-        sv: 'Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen.',
-      },
+      title: 'flow.conditions.compressor.title',
+      hint: 'flow.conditions.compressor.hint',
     },
     BURNER_RUNNING: {
       id: 'burner-is-running',
       capability: getCapability(PATHS.BURNER).capabilityName,
-      title: {
-        en: 'Burner is !{{running|not running}}',
-        sv: 'Brännaren !{{är igång|är inte igång}}',
-      },
-      hint: {
-        en: 'Checking last known state, i.e could return incorrect value if not reacently synched.',
-        sv: 'Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen.',
-      },
+      title: 'flow.conditions.burner.title',
+      hint: 'flow.conditions.burner.hint',
     },
   },
   FLOW_ACTIONS: {
     SET_HEATING_MODE: {
       id: 'set-operating-mode',
       method: 'setMainOperatingMode',
-      title: {
-        en: 'Set main operating mode to [[mode]]',
-        sv: 'Ställ in huvuddriftläge till [[mode]]',
-      },
-      hint: {
-        en: 'Note: Not all operating modes are supported by all installations',
-        sv: 'OBS: Alla driftlägen stöds inte av alla installationer',
-      },
-      args: [
-        {
-          name: 'mode',
-          type: 'dropdown',
-          values: [
-            { id: 'dhw', title: { en: 'DHW only', sv: 'Endast varmvatten' } },
-            { id: 'heating', title: { en: 'Heating only', sv: 'Endast värme' } },
-            { id: 'dhwAndHeating', title: { en: 'DHW and heating', sv: 'Varmvatten och värme' } },
-            { id: 'standby', title: { en: 'Standby', sv: 'Standby' } },
-          ],
-        },
-      ],
+      title: 'flow.actions.heating_mode.title',
+      hint: 'flow.actions.heating_mode.hint',
+      args: [{
+        name: 'mode',
+        type: 'dropdown',
+        values: [
+          { id: 'dhw', title: 'flow.actions.heating_mode.values.dhw' },
+          { id: 'heating', title: 'flow.actions.heating_mode.values.heating' },
+          { id: 'dhwAndHeating', title: 'flow.actions.heating_mode.values.dhwAndHeating' },
+          { id: 'standby', title: 'flow.actions.heating_mode.values.standby' },
+        ],
+      }],
     },
     SET_HEATING_TEMPERATURE: {
       id: 'set-heating-thermostat',
       method: 'setHeatingTemp',
-      title: {
-        en: 'Set heating target temperature to [[temperature]] °C',
-        sv: 'Ställ in måltemperatur för värme till [[temperature]] °C',
-      },
-      args: [
-        {
-          name: 'temperature',
-          type: 'number',
-          min: 3,
-          max: 37,
-          step: 1,
-          title: { en: 'Temperature', sv: 'Temperatur' },
-        },
-      ],
+      title: 'flow.actions.heating_temp.title',
+      args: [{
+        name: 'temperature',
+        type: 'number',
+        min: 3,
+        max: 37,
+        step: 1,
+        title: 'flow.actions.heating_temp.temperature',
+      }],
     },
     SET_DHW_TEMPERATURE: {
       id: 'set-hot-water-thermostat',
       method: 'setDhwTemp',
-      title: {
-        en: 'Set hot water target temperature to [[temperature]] °C',
-        sv: 'Ställ in måltemperatur för varmvatten till [[temperature]] °C',
-      },
+      title: 'flow.actions.dhw_temp.title',
+      args: [{
+        name: 'temperature',
+        type: 'number',
+        min: 10,
+        max: 60,
+        step: 1,
+        title: 'flow.actions.dhw_temp.temperature',
+      }],
+    },
+    SET_DHW_CHARGE: {
+      id: 'do-one-time-hot-water-charge',
+      method: 'setDhwOneTimeCharge',
+      title: 'flow.actions.dhw_charge.title',
+      titleFormatted: 'flow.actions.dhw_charge.titleFormatted',
+      args: [{
+        name: 'active',
+        type: 'dropdown',
+        values: [
+          { id: 'activate', title: 'flow.actions.dhw_charge.values.activate' },
+          { id: 'deactivate', title: 'flow.actions.dhw_charge.values.deactivate' },
+        ],
+      }],
+    },
+    SET_HOT_WATER_TEMP2: {
+      id: 'set-hot-water-thermostat2',
+      method: 'setDhwTemp2',
+      title: 'flow.actions.hot_water_temp2.title',
+      titleFormatted: 'flow.actions.hot_water_temp2.title',
       args: [
         {
           name: 'temperature',
@@ -106,64 +106,22 @@ module.exports = {
           min: 10,
           max: 60,
           step: 1,
-          title: { en: 'Temperature', sv: 'Temperatur' },
-        },
-      ],
-    },
-    SET_DHW_CHARGE: {
-      id: 'do-one-time-hot-water-charge',
-      method: 'setDhwOneTimeCharge',
-      title: {
-        en: 'Set one time hot water charge',
-        sv: 'Ställ in engångsladdning av varmvatten',
-      },
-      titleFormatted: {
-        en: 'Set one time hot water charge to [[active]]',
-        sv: 'Ställ in engångsladdning av varmvatten till [[active]]',
-      },
-      args: [
-        {
-          name: 'active',
-          type: 'dropdown',
-          values: [
-            {
-              id: 'activate',
-              title: {
-                en: 'Active',
-                sv: 'Aktiv',
-              },
-            },
-            {
-              id: 'deactivate',
-              title: {
-                en: 'Inactive',
-                sv: 'Inaktiv',
-              },
-            },
-          ],
-        },
-      ],
+          title: 'flow.actions.temperature.title'
+        }
+      ]
     },
   },
   FLOW_TRIGGERS: {
     HEATING_MODE_CHANGED: {
       id: 'heating-mode-changed',
       capability: getCapability(PATHS.HEATING_MODE).capabilityName,
-      title: {
-        en: 'Heating mode changed',
-        sv: 'Värmeläge ändrat',
-      },
-      tokens: [
-        {
-          name: 'mode',
-          type: 'string',
-          title: {
-            en: 'Mode',
-            sv: 'Läge',
-          },
-          example: { en: 'dhw', sv: 'dhw' },
-        },
-      ],
+      title: 'flow.triggers.heating_mode.title',
+      tokens: [{
+        name: 'mode',
+        type: 'string',
+        title: 'flow.triggers.heating_mode.mode',
+        example: { en: 'dhw' },
+      }],
     },
   },
 };

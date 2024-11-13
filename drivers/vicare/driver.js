@@ -109,8 +109,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     try {
       this.log(`Setting up polling for device: ${deviceKey}`);
       let consecutiveErrors = 0;
-      const defaultInterval = this._calculatePollInterval();
-      const pollInterval = interval || defaultInterval;
+      const pollInterval = interval || this._calculatePollInterval();
 
       // Stop any existing polling
       this._stopPolling(deviceKey);
@@ -128,12 +127,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
           // Update device with new features
           await device.onFeaturesUpdated(features);
-
-          // Reset to default interval if currently using increased interval
-          if (pollInterval > defaultInterval) {
-            this._updatePollingInterval(device, deviceKey, defaultInterval);
-            return; // Exit current interval since we're starting a new one
-          }
         } catch (error) {
           consecutiveErrors++;
           this.error(`Error polling device ${deviceKey}:`, error);
@@ -144,12 +137,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
             } else if (error.message.includes('unauthorized')) {
               device.setUnavailable('Authentication failed');
             }
-          }
-
-          if (consecutiveErrors >= 5) {
-            this.log('Increasing polling interval temporarily due to multiple errors');
-            this._updatePollingInterval(device, deviceKey, pollInterval * 2);
-            consecutiveErrors = 0;
           }
         }
       };

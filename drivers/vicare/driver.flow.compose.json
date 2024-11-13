@@ -12,7 +12,7 @@
       },
       "args": [],
       "hint": {
-        "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
+        "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
         "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
       }
     },
@@ -28,7 +28,7 @@
       },
       "args": [],
       "hint": {
-        "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
+        "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
         "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
       }
     }

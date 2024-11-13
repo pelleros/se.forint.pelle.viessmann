@@ -1,4 +1,4 @@
-An app to control Viessmann heat pumps (Vitoconnect equipped). Control it with flows in Homey, check its status, and more.
+An app to control Viessmann devices. Control it with flows in Homey, check its status, and more.
 Get it set up:
 * Log in to Viessmann dev portal https://app.developer.viessmann.com/ with your existing ViCare app user.
 * At the Viessmann dev portal add a new client to get a Viessmann Client ID. Name it Homey, ensure Google reCaptcha is turned off and set redirect URI to https://callback.athom.com/oauth2/callback.

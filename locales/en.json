@@ -6,7 +6,8 @@
       "save": "Save",
       "saved": "Client ID saved successfully! You can now add your Viessmann device in Homey.",
       "error": {
-        "invalid_client_id": "Please enter a valid Client ID"
+        "invalid_client_id": "Please enter a valid Client ID",
+        "no_device_selected": "Please select a device first"
       },
       "troubleshooting": {
         "title": "Troubleshooting",
@@ -22,6 +23,12 @@
           "description": "Shows available features and current values for your device",
           "get": "Get Feature Data",
           "copy": "Copy to Clipboard"
+        },
+        "device": {
+          "title": "Device Selection",
+          "description": "Select which device to get features for",
+          "select": "Select a device...",
+          "refresh": "Refresh Devices"
         }
       }
     },
@@ -41,7 +48,7 @@
       },
       "actions": {
         "heating_mode": {
-          "title": "Set main operating mode to [[mode]]",
+          "title": "Set operating mode to [[mode]]",
           "hint": "Note: Not all operating modes are supported by all installations",
           "values": {
             "dhw": "DHW only",
@@ -75,7 +82,7 @@
       },
       "triggers": {
         "heating_mode": {
-          "title": "Heating mode changed",
+          "title": "Operating mode changed",
           "mode": "Mode"
         }
       }

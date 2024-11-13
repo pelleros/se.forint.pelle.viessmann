@@ -27,21 +27,32 @@ const { PATHS, getAllCapabilities } = require('../drivers/vicare/config');
 // Define absolute paths relative to this file
 const driverPath = __dirname;
 const driverComposeFile = path.join(driverPath, '../drivers/vicare/driver.compose.json');
+const driverComposeBaseFile = path.join(driverPath, '../drivers/vicare/driver.compose.json');
 
-// Get all unique capabilities from FEATURES using PATHS
+// Get all unique capabilities and their options from FEATURES using PATHS
 const capabilities = new Set();
+const capabilitiesOptions = {};
+
 Object.values(PATHS).forEach((path) => {
   try {
     const caps = getAllCapabilities(path);
-    caps.forEach((cap) => capabilities.add(cap.capabilityName));
+    caps.forEach((cap) => {
+      capabilities.add(cap.capabilityName);
+      if (cap.capabilityOptions) {
+        capabilitiesOptions[cap.capabilityName] = cap.capabilityOptions;
+      }
+    });
   } catch (err) {
     // Skip if feature doesn't have capabilities
   }
 });
 
 // Read and update driver.compose.json
-const driverComposeContent = JSON.parse(fs.readFileSync(driverComposeFile, 'utf8'));
+const driverComposeContent = JSON.parse(fs.readFileSync(driverComposeBaseFile, 'utf8'));
 driverComposeContent.capabilities = Array.from(capabilities);
+driverComposeContent.capabilitiesOptions = capabilitiesOptions;
 
 // Write updated content back to file
 fs.writeFileSync(driverComposeFile, JSON.stringify(driverComposeContent, null, 2));
+// eslint-disable-next-line no-console
+console.log('Driver compose file generated');

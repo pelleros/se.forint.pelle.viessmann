@@ -106,9 +106,9 @@ module.exports = {
           min: 10,
           max: 60,
           step: 1,
-          title: 'flow.actions.temperature.title'
-        }
-      ]
+          title: 'flow.actions.temperature.title',
+        },
+      ],
     },
   },
   FLOW_TRIGGERS: {

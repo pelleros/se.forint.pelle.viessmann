@@ -24,13 +24,13 @@ const fs = require('fs');
 const path = require('path');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../drivers/vicare/flowCards');
 
-// Läs in alla tillgängliga språkfiler
+// Read all available language files
 const localesPath = path.join(__dirname, '../locales');
 const languages = fs.readdirSync(localesPath)
   .filter((file) => file.endsWith('.json'))
   .map((file) => file.replace('.json', ''));
 
-// Funktion för att hämta översättning för en nyckel
+// Function to get translations for a key
 function getTranslations(key) {
   const translations = {};
   for (const lang of languages) {
@@ -102,7 +102,7 @@ const flowCompose = {
   })),
 };
 
-// Skriv till fil
+// Write to file
 const outputPath = path.join(__dirname, '../drivers/vicare/driver.flow.compose.json');
 fs.writeFileSync(outputPath, JSON.stringify(flowCompose, null, 2));
 // eslint-disable-next-line no-console

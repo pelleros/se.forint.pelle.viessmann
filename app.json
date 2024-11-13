@@ -41,7 +41,13 @@
     },
     "getFeatures": {
       "method": "GET",
-      "path": "/features"
+      "path": "/features",
+      "oauth2": true
+    },
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices",
+      "oauth2": true
     }
   },
   "flow": {
@@ -49,8 +55,8 @@
       {
         "id": "heating-mode-changed",
         "title": {
-          "en": "Heating mode changed",
-          "sv": "Värmeläge ändrat"
+          "en": "Operating mode changed",
+          "sv": "Driftläge ändrat"
         },
         "args": [
           {
@@ -68,8 +74,7 @@
               "sv": "Läge"
             },
             "example": {
-              "en": "dhw",
-              "sv": "dhw"
+              "en": "dhw"
             }
           }
         ]
@@ -94,7 +99,7 @@
           }
         ],
         "hint": {
-          "en": "Checking last known state, i.e could return incorrect value if not recently synched.",
+          "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
           "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
         }
       },
@@ -116,7 +121,7 @@
           }
         ],
         "hint": {
-          "en": "Checking last known state, i.e could return incorrect value if not reacently synched.",
+          "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
           "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
         }
       }
@@ -125,12 +130,12 @@
       {
         "id": "set-operating-mode",
         "title": {
-          "en": "Set main operating mode to [[mode]]",
-          "sv": "Ställ in huvuddriftläge till [[mode]]"
+          "en": "Set operating mode to [[mode]]",
+          "sv": "Ställ in driftläge till [[mode]]"
         },
         "titleFormatted": {
-          "en": "Set main operating mode to [[mode]]",
-          "sv": "Ställ in huvuddriftläge till [[mode]]"
+          "en": "Set operating mode to [[mode]]",
+          "sv": "Ställ in driftläge till [[mode]]"
         },
         "args": [
           {
@@ -273,6 +278,35 @@
             ]
           }
         ]
+      },
+      {
+        "id": "set-hot-water-thermostat2",
+        "title": {
+          "en": "Set hot water target temperature 2 to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+        },
+        "titleFormatted": {
+          "en": "Set hot water target temperature 2 to [[temperature]] °C",
+          "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 10,
+            "max": 60,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "sv": "Temperatur"
+            }
+          }
+        ]
       }
     ]
   },
@@ -284,35 +318,129 @@
       },
       "class": "heater",
       "capabilities": [
+        "measure_temperature.hotWater",
+        "target_temperature.hotWater",
+        "target_temperature.hotWater2",
+        "target_temperature.heating",
+        "thermostat_mode.hotWaterOneTimeCharge",
+        "thermostat_mode.heating",
+        "measure_temperature.return",
+        "measure_temperature.outside",
         "measure_something_active.compressor",
         "measure_something_number.compressorHours",
         "measure_something_number.compressorStarts",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts",
-        "measure_temperature.hotWater",
-        "target_temperature.hotWater",
-        "thermostat_mode.hotWaterOneTimeCharge",
-        "thermostat_mode.heating",
-        "target_temperature.heating",
-        "measure_temperature.outside"
+        "measure_burner_number.burnerStarts"
       ],
       "capabilitiesOptions": {
+        "measure_temperature.hotWater": {
+          "title": {
+            "en": "Hot water temperature"
+          },
+          "units": "°C",
+          "preventInsights": false,
+          "preventTag": false
+        },
+        "target_temperature.hotWater": {
+          "title": {
+            "en": "Hot water thermostat"
+          },
+          "units": "°C",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "preventInsights": true
+        },
+        "target_temperature.hotWater2": {
+          "title": {
+            "en": "Hot water thermostat 2"
+          },
+          "units": "°C",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "preventInsights": true
+        },
+        "target_temperature.heating": {
+          "title": {
+            "en": "Heating thermostat"
+          },
+          "units": "°C",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "preventInsights": true
+        },
+        "thermostat_mode.hotWaterOneTimeCharge": {
+          "title": {
+            "en": "Hot water one time charge"
+          },
+          "values": [
+            {
+              "id": "activate",
+              "title": {
+                "en": "Active"
+              }
+            },
+            {
+              "id": "deactivate",
+              "title": {
+                "en": "Inactive"
+              }
+            }
+          ]
+        },
+        "thermostat_mode.heating": {
+          "title": {
+            "en": "Heating mode"
+          },
+          "values": [
+            {
+              "id": "dhw",
+              "title": {
+                "en": "Hot water"
+              }
+            },
+            {
+              "id": "dhwAndHeating",
+              "title": {
+                "en": "Hot water and heating"
+              }
+            },
+            {
+              "id": "heating",
+              "title": {
+                "en": "Heating"
+              }
+            },
+            {
+              "id": "standby",
+              "title": {
+                "en": "Standby"
+              }
+            }
+          ]
+        },
+        "measure_temperature.return": {
+          "title": {
+            "en": "Return temperature"
+          },
+          "units": "°C",
+          "preventInsights": false,
+          "preventTag": false
+        },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside temperature"
+          },
+          "units": "°C",
+          "preventInsights": false,
+          "preventTag": false
+        },
         "measure_something_active.compressor": {
           "title": {
             "en": "Compressor running"
-          },
-          "titleTrue": {
-            "en": "Yes"
-          },
-          "titleFalse": {
-            "en": "No"
-          },
-          "insightsTitleTrue": {
-            "en": "Yes"
-          },
-          "insightsTitleFalse": {
-            "en": "No"
           },
           "preventInsights": false,
           "preventTag": false
@@ -333,87 +461,9 @@
           "preventInsights": true,
           "preventTag": true
         },
-        "thermostat_mode.hotWaterOneTimeCharge": {
-          "title": {
-            "en": "One time hot water charge"
-          },
-          "values": [
-            {
-              "id": "activate",
-              "title": {
-                "en": "Active"
-              }
-            },
-            {
-              "id": "deactivate",
-              "title": {
-                "en": "Inactive"
-              }
-            }
-          ]
-        },
-        "target_temperature.hotWater": {
-          "title": {
-            "en": "Hot water thermostat"
-          },
-          "min": 10,
-          "max": 60,
-          "step": 1,
-          "preventInsights": true
-        },
-        "thermostat_mode.heating": {
-          "title": {
-            "en": "Heating mode"
-          },
-          "values": [
-            {
-              "id": "dhw",
-              "title": {
-                "en": "Hot water"
-              }
-            },
-            {
-              "id": "dhwAndHeating",
-              "title": {
-                "en": "Hot water and Heating"
-              }
-            },
-            {
-              "id": "heating",
-              "title": {
-                "en": "Heating"
-              }
-            },
-            {
-              "id": "standby",
-              "title": {
-                "en": "Standby"
-              }
-            }
-          ]
-        },
-        "target_temperature.heating": {
-          "title": {
-            "en": "Heating thermostat"
-          },
-          "min": 10,
-          "max": 30,
-          "step": 1,
-          "preventInsights": true
-        },
-        "measure_temperature.hotWater": {
-          "title": {
-            "en": "Hot water temperature"
-          }
-        },
-        "measure_temperature.outside": {
-          "title": {
-            "en": "Outside temperature"
-          }
-        },
         "measure_burner_active": {
           "title": {
-            "en": "Burner active"
+            "en": "Burner running"
           },
           "titleTrue": {
             "en": "Yes"
@@ -421,8 +471,14 @@
           "titleFalse": {
             "en": "No"
           },
-          "icon": "/assets/burner.svg",
-          "preventInsights": false
+          "insightsTitleTrue": {
+            "en": "Yes"
+          },
+          "insightsTitleFalse": {
+            "en": "No"
+          },
+          "preventInsights": false,
+          "preventTag": false
         },
         "measure_burner_number.burnerHours": {
           "title": {
@@ -439,14 +495,6 @@
           "units": "times",
           "preventInsights": true,
           "preventTag": true
-        },
-        "measure_burner_number.burnerModulation": {
-          "title": {
-            "en": "Burner modulation"
-          },
-          "units": "%",
-          "icon": "/assets/burner.svg",
-          "preventInsights": false
         }
       },
       "platforms": [

@@ -59,6 +59,18 @@
         </div>
       </div>
 
+      <!-- Device Select -->
+      <div class="homey-form-group">
+        <label class="homey-form-label" for="deviceSelect" data-i18n="settings.troubleshooting.device.title">Select Device</label>
+        <p class="homey-form-hint" data-i18n="settings.troubleshooting.device.description">Choose which device to get features for</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <select class="homey-form-select" id="deviceSelect" style="flex-grow: 1;">
+            <option value="" data-i18n="settings.troubleshooting.device.select">Select a device...</option>
+          </select>
+          <button id="refreshDevices" class="homey-button-secondary" data-i18n="settings.troubleshooting.device.refresh">Refresh Devices</button>
+        </div>
+      </div>
+
       <!-- Features -->
       <div class="homey-form-group">
         <label class="homey-form-label" for="features" data-i18n="settings.troubleshooting.features.title"></label>
@@ -82,6 +94,8 @@
         var refreshFeaturesElement = document.getElementById("refreshFeatures");
         var installationsElement = document.getElementById("installations");
         var featuresElement = document.getElementById("features");
+        var deviceSelectElement = document.getElementById("deviceSelect");
+        var refreshDevicesElement = document.getElementById("refreshDevices");
 
         Homey.get("clientId", function (err, clientId) {
           if (err) return Homey.alert(err);
@@ -118,8 +132,41 @@
           });
         });
 
+        // Funktion för att populera device-dropdown
+        function populateDevices(devices) {
+          // Rensa existerande options förutom default
+          while (deviceSelectElement.options.length > 1) {
+            deviceSelectElement.remove(1);
+          }
+          
+          // Lägg till nya devices
+          devices.forEach(device => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify({
+              deviceId: device.deviceId
+            });
+            option.text = `${device.name || 'Unknown'} (${device.deviceId})`;
+            deviceSelectElement.add(option);
+          });
+        }
+
+        // Hämta devices när man klickar på refresh
+        refreshDevicesElement.addEventListener("click", function (e) {
+          Homey.api('GET', '/devices', null, function(err, result) {
+            if (err) return Homey.alert(err);
+            populateDevices(result);
+          });
+        });
+
+        // Uppdatera features-hämtning att använda vald device
         refreshFeaturesElement.addEventListener("click", function (e) {
-          Homey.api('GET', '/features', null, function(err, result) {
+          const selectedDevice = deviceSelectElement.value;
+          if (!selectedDevice) {
+            return Homey.alert(Homey.__("settings.error.no_device_selected"));
+          }
+
+          const deviceInfo = JSON.parse(selectedDevice);
+          Homey.api('GET', '/features', deviceInfo, function(err, result) {
             if (err) return Homey.alert(err);
             featuresElement.textContent = JSON.stringify(result, null, 3);
           });

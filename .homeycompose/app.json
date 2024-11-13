@@ -40,7 +40,13 @@
     },
     "getFeatures": {
       "method": "GET",
-      "path": "/features"
+      "path": "/features",
+      "oauth2": true
+    },
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices",
+      "oauth2": true
     }
   }
 }

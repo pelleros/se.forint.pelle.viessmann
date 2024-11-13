@@ -41,7 +41,7 @@
     },
     "actions": {
       "heating_mode": {
-        "title": "Ställ in huvuddriftläge till [[mode]]",
+        "title": "Ställ in driftläge till [[mode]]",
         "hint": "OBS: Alla driftlägen stöds inte av alla installationer",
         "values": {
           "dhw": "Endast varmvatten",
@@ -75,7 +75,7 @@
     },
     "triggers": {
       "heating_mode": {
-        "title": "Värmeläge ändrat",
+        "title": "Driftläge ändrat",
         "mode": "Läge"
       }
     }

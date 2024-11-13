@@ -32,15 +32,38 @@ module.exports = {
     }
   },
 
-  async getFeatures({ homey }) {
+  async getFeatures({ homey, body }) {
+    try {
+      const { deviceId } = body;
+      const driver = homey.drivers.getDriver('vicare');
+      const devices = driver.getDevices();
+      const device = devices.find((d) => d.getData().deviceId === deviceId);
+
+      if (!device) throw new Error('No device found');
+      return await device.getFeatures();
+    } catch (error) {
+      homey.error('Error in getFeatures API:', error);
+      throw error;
+    }
+  },
+
+  async getDevices({ homey }) {
     try {
       const driver = homey.drivers.getDriver('vicare');
       const devices = driver.getDevices();
       if (!devices || devices.length === 0) throw new Error('No device found');
-      const device = devices[0];
-      return await device.getFeatures();
+
+      const devicesData = [];
+      for (const device of devices) {
+        const { id } = device.getData();
+        devicesData.push({
+          deviceId: id,
+          name: device.getName(),
+        });
+      }
+      return devicesData;
     } catch (error) {
-      homey.error('Error in getFeatures API:', error);
+      homey.error('Error in getDevices API:', error);
       throw error;
     }
   },

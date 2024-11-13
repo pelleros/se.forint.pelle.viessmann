@@ -181,6 +181,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       },
     );
 
+    this.registerCapabilityListenerIfPossible(
+      getCapability(PATHS.HOT_WATER_TARGET_2).capabilityName,
+      async (value) => {
+        if (process.env.DEBUG) {
+          this.log('target_temperature.hotWater2:', value);
+        }
+        await this.setDhwTemp2(value);
+      },
+    );
+
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
   }
 
@@ -441,6 +451,23 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
   async stopDhwOneTimeCharge() {
     return this.setDhwOneTimeCharge(false);
+  }
+
+  /*
+    Set the hot water temperature 2
+  */
+  async setDhwTemp2(value) {
+    await this.oAuth2Client.setDhwTemp2({
+      installationId: this._installationId,
+      gatewaySerial: this._gatewaySerial,
+      deviceId: this._deviceId,
+      value,
+    });
+
+    // Uppdatera capability
+    const { capabilityName } = getCapability(PATHS.HOT_WATER_TARGET_2);
+    await this.setCapabilityValue(capabilityName, value);
+    return true;
   }
 
 };

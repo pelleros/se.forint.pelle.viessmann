@@ -37,12 +37,12 @@
     {
       "id": "set-operating-mode",
       "title": {
-        "en": "Set main operating mode to [[mode]]",
-        "sv": "Ställ in huvuddriftläge till [[mode]]"
+        "en": "Set operating mode to [[mode]]",
+        "sv": "Ställ in driftläge till [[mode]]"
       },
       "titleFormatted": {
-        "en": "Set main operating mode to [[mode]]",
-        "sv": "Ställ in huvuddriftläge till [[mode]]"
+        "en": "Set operating mode to [[mode]]",
+        "sv": "Ställ in driftläge till [[mode]]"
       },
       "args": [
         {
@@ -165,14 +165,38 @@
           ]
         }
       ]
+    },
+    {
+      "id": "set-hot-water-thermostat2",
+      "title": {
+        "en": "Set hot water target temperature 2 to [[temperature]] °C",
+        "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+      },
+      "titleFormatted": {
+        "en": "Set hot water target temperature 2 to [[temperature]] °C",
+        "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+      },
+      "args": [
+        {
+          "name": "temperature",
+          "type": "number",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "title": {
+            "en": "Temperature",
+            "sv": "Temperatur"
+          }
+        }
+      ]
     }
   ],
   "triggers": [
     {
       "id": "heating-mode-changed",
       "title": {
-        "en": "Heating mode changed",
-        "sv": "Värmeläge ändrat"
+        "en": "Operating mode changed",
+        "sv": "Driftläge ändrat"
       },
       "args": [],
       "tokens": [
@@ -184,8 +208,7 @@
             "sv": "Läge"
           },
           "example": {
-            "en": "dhw",
-            "sv": "dhw"
+            "en": "dhw"
           }
         }
       ]

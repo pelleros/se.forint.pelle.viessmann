@@ -18,19 +18,22 @@
  * 
  */
 
-/* eslint-disable */
+'use strict';
+
 // Feature paths as constants to avoid string errors and enable IDE autocompletion
 const PATHS = {
+  HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.hotWaterStorage',
+  HOT_WATER_TARGET: 'heating.dhw.temperature.main',
+  HOT_WATER_TARGET_2: 'heating.dhw.temperature.temp2',
+  HEATING_TARGET: 'heating.circuits.0.operating.programs.normal',
+  HOT_WATER_CHARGE: 'heating.dhw.oneTimeCharge',
+  HEATING_MODE: 'heating.circuits.0.operating.modes.active',
+  RETURN_TEMP: 'heating.sensors.temperature.return',
+  OUTSIDE_TEMP: 'heating.sensors.temperature.outside',
   COMPRESSOR: 'heating.compressors.0',
   COMPRESSOR_STATS: 'heating.compressors.0.statistics',
   BURNER: 'heating.burners.0',
   BURNER_STATS: 'heating.burners.0.statistics',
-  HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.hotWaterStorage',
-  HOT_WATER_TARGET: 'heating.dhw.temperature.main',
-  HOT_WATER_CHARGE: 'heating.dhw.oneTimeCharge',
-  HEATING_MODE: 'heating.circuits.0.operating.modes.active',
-  HEATING_TARGET: 'heating.circuits.0.operating.programs.normal',
-  OUTSIDE_TEMP: 'heating.sensors.temperature.outside'
 };
 
 // Helper function to get capability from feature path
@@ -56,17 +59,59 @@ module.exports = {
   getCapability,
   getAllCapabilities,
   FEATURES: {
-    [PATHS.COMPRESSOR]: {
-      requireRole: 'type:heatpump',
+    [PATHS.HOT_WATER_TEMP]: {
       capabilities: [{
-        capabilityName: 'measure_something_active.compressor',
-        propertyPath: 'active.value',
+        capabilityName: 'measure_temperature.hotWater',
+        propertyPath: 'value.value',
         capabilityOptions: {
-          title: { en: 'Compressor running' },
-          titleTrue: { en: 'Yes' },
-          titleFalse: { en: 'No' }
-        }
-      }]
+          title: { en: 'Hot water temperature' },
+          units: '°C',
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
+    },
+    [PATHS.HOT_WATER_TARGET]: {
+      capabilities: [{
+        capabilityName: 'target_temperature.hotWater',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Hot water thermostat' },
+          units: '°C',
+          min: 10,
+          max: 60,
+          step: 1,
+          preventInsights: true,
+        },
+      }],
+    },
+    [PATHS.HOT_WATER_TARGET_2]: {
+      capabilities: [{
+        capabilityName: 'target_temperature.hotWater2',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Hot water thermostat 2' },
+          units: '°C',
+          min: 10,
+          max: 60,
+          step: 1,
+          preventInsights: true,
+        },
+      }],
+    },
+    [PATHS.HEATING_TARGET]: {
+      capabilities: [{
+        capabilityName: 'target_temperature.heating',
+        propertyPath: 'temperature.value',
+        capabilityOptions: {
+          title: { en: 'Heating thermostat' },
+          units: '°C',
+          min: 10,
+          max: 30,
+          step: 1,
+          preventInsights: true,
+        },
+      }],
     },
     [PATHS.HOT_WATER_CHARGE]: {
       capabilities: [{
@@ -74,12 +119,82 @@ module.exports = {
         propertyPath: 'active.value',
         valueMapping: {
           true: 'activate',
-          false: 'deactivate'
+          false: 'deactivate',
         },
         capabilityOptions: {
-          title: { en: 'Hot water one time charge' }
-        }
-      }]
+          title: { en: 'Hot water one time charge' },
+          values: [{
+            id: 'activate',
+            title: { en: 'Active' },
+          }, {
+            id: 'deactivate',
+            title: { en: 'Inactive' },
+          }],
+        },
+      }],
+    },
+    [PATHS.HEATING_MODE]: {
+      capabilities: [{
+        capabilityName: 'thermostat_mode.heating',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Heating mode' },
+          values: [
+            {
+              id: 'dhw',
+              title: { en: 'Hot water' },
+            },
+            {
+              id: 'dhwAndHeating',
+              title: { en: 'Hot water and heating' },
+            },
+            {
+              id: 'heating',
+              title: { en: 'Heating' },
+            },
+            {
+              id: 'standby',
+              title: { en: 'Standby' },
+            },
+          ],
+        },
+      }],
+    },
+    [PATHS.RETURN_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.return',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Return temperature' },
+          units: '°C',
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
+    },
+    [PATHS.OUTSIDE_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.outside',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Outside temperature' },
+          units: '°C',
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
+    },
+    [PATHS.COMPRESSOR]: {
+      requireRole: 'type:heatpump',
+      capabilities: [{
+        capabilityName: 'measure_something_active.compressor',
+        propertyPath: 'active.value',
+        capabilityOptions: {
+          title: { en: 'Compressor running' },
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
     },
     [PATHS.COMPRESSOR_STATS]: {
       requireRole: 'type:heatpump',
@@ -91,8 +206,8 @@ module.exports = {
             title: { en: 'Compressor runtime' },
             units: 'hours',
             preventInsights: true,
-            preventTag: true
-          }
+            preventTag: true,
+          },
         },
         {
           capabilityName: 'measure_something_number.compressorStarts',
@@ -101,10 +216,10 @@ module.exports = {
             title: { en: 'Compressor starts' },
             units: 'times',
             preventInsights: true,
-            preventTag: true
-          }
-        }
-      ]
+            preventTag: true,
+          },
+        },
+      ],
     },
     [PATHS.BURNER]: {
       requireRole: 'type:boiler',
@@ -118,9 +233,9 @@ module.exports = {
           insightsTitleTrue: { en: 'Yes' },
           insightsTitleFalse: { en: 'No' },
           preventInsights: false,
-          preventTag: false
-        }
-      }]
+          preventTag: false,
+        },
+      }],
     },
     [PATHS.BURNER_STATS]: {
       requireRole: 'type:boiler',
@@ -132,8 +247,8 @@ module.exports = {
             title: { en: 'Burner runtime' },
             units: 'hours',
             preventInsights: true,
-            preventTag: true
-          }
+            preventTag: true,
+          },
         },
         {
           capabilityName: 'measure_burner_number.burnerStarts',
@@ -142,10 +257,10 @@ module.exports = {
             title: { en: 'Burner starts' },
             units: 'times',
             preventInsights: true,
-            preventTag: true
-          }
-        }
-      ]
+            preventTag: true,
+          },
+        },
+      ],
     },
     [PATHS.BURNER_MODULATION]: {
       requireRole: 'type:boiler',
@@ -155,71 +270,10 @@ module.exports = {
         capabilityOptions: {
           title: { en: 'Burner modulation' },
           units: '%',
-          icon: '/assets/burner.svg',
-          preventInsights: false
-        }
-      }]
-    },
-    [PATHS.HOT_WATER_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.hotWater',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Hot water temperature' },
-          units: '°C'
-        }
-      }]
-    },
-    [PATHS.HOT_WATER_TARGET]: {
-      capabilities: [{
-        capabilityName: 'target_temperature.hotWater',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Hot water target temperature' },
-          units: '°C',
-          min: 10,
-          max: 60,
-          step: 1
-        }
-      }]
-    },
-    [PATHS.HEATING_MODE]: {
-      capabilities: [{
-        capabilityName: 'thermostat_mode.heating',
-        propertyPath: 'value.value',
-        valueMapping: {
-          'dhw': 'dhw',
-          'dhwAndHeating': 'dhwAndHeating',
-          'heating': 'heating',
-          'standby': 'standby'
+          preventInsights: false,
+          preventTag: false,
         },
-        capabilityOptions: {
-          title: { en: 'Heating mode' }
-        }
-      }]
+      }],
     },
-    [PATHS.HEATING_TARGET]: {
-      capabilities: [{
-        capabilityName: 'target_temperature.heating',
-        propertyPath: 'temperature.value',
-        capabilityOptions: {
-          title: { en: 'Heating target temperature' },
-          units: '°C',
-          min: 3,
-          max: 37,
-          step: 1
-        }
-      }]
-    },
-    [PATHS.OUTSIDE_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.outside',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Outside temperature' },
-          units: '°C'
-        }
-      }]
-    }
-  }
+  },
 };

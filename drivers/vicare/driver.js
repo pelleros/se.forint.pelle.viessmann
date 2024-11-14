@@ -31,13 +31,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
   MIN_POLL_INTERVAL = 2 * 60 * 1000;
   _devicePollers = new Map();
+  _triggerCards = new Map();
 
   async onOAuth2Init() {
     try {
       this.log('Starting onOAuth2Init');
 
-      // Get device trigger card reference
-      this._heatingModeChangedTrigger = this.homey.flow.getDeviceTriggerCard(FLOW_TRIGGERS.HEATING_MODE_CHANGED.id);
+      // Registrera alla triggers från flowCards.js
+      await this._registerTriggerCards();
 
       // Register Flow Cards
       this.log('Registering flow cards');
@@ -49,6 +50,23 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.error('Error in onOAuth2Init:', error);
       throw error;
     }
+  }
+
+  async _registerTriggerCards() {
+    // Registrera alla triggers från FLOW_TRIGGERS
+    for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
+      const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
+      this._triggerCards.set(trigger.capability, triggerCard);
+    }
+  }
+
+  // Hjälpmetod för att hämta trigger card baserat på capability
+  getTriggerCard(capabilityName) {
+    const triggerCard = this._triggerCards.get(capabilityName);
+    if (!triggerCard) {
+      throw new Error(`No trigger card found for capability: ${capabilityName}`);
+    }
+    return triggerCard;
   }
 
   _registerFlowCards() {
@@ -75,7 +93,18 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         const flowCard = this.homey.flow.getActionCard(action.id);
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
-          return device[action.method](...Object.values(actionArgs));
+
+          // Hitta path och capability från FEATURES
+          for (const [path, feature] of Object.entries(FEATURES)) {
+            const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
+            if (capability) {
+              // Använd executeCommand med path och capability
+              const value = actionArgs[Object.keys(actionArgs)[0]]; // Hämta värdet från första argumentet
+              return device.executeCommand(path, capability, value);
+            }
+          }
+
+          throw new Error(`No matching capability found for action: ${action.id}`);
         });
       } catch (error) {
         this.error(`Failed to register action ${action.id}:`, error);

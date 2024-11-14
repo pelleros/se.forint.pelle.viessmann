@@ -20,7 +20,8 @@
 
 'use strict';
 
-// Feature paths as constants to avoid string errors and enable IDE autocompletion
+// Feature paths (as defined in the Viessmann api https://documentation.viessmann.com/static/iot/data-points)
+// as constants to avoid string errors and enable IDE autocompletion
 const PATHS = {
   HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.hotWaterStorage',
   HOT_WATER_TARGET: 'heating.dhw.temperature.main',
@@ -76,6 +77,12 @@ module.exports = {
       capabilities: [{
         capabilityName: 'target_temperature.hotWater',
         propertyPath: 'value.value',
+        command: {
+          name: 'setTargetTemperature',
+          parameterMapping: {
+            value: 'temperature',
+          },
+        },
         capabilityOptions: {
           title: { en: 'Hot water thermostat' },
           units: '°C',
@@ -90,6 +97,12 @@ module.exports = {
       capabilities: [{
         capabilityName: 'target_temperature.hotWater2',
         propertyPath: 'value.value',
+        command: {
+          name: 'setTargetTemperature',
+          parameterMapping: {
+            value: 'temperature',
+          },
+        },
         capabilityOptions: {
           title: { en: 'Hot water thermostat 2' },
           units: '°C',
@@ -104,6 +117,12 @@ module.exports = {
       capabilities: [{
         capabilityName: 'target_temperature.heating',
         propertyPath: 'temperature.value',
+        command: {
+          name: 'setTemperature',
+          parameterMapping: {
+            value: 'temperature',
+          },
+        },
         capabilityOptions: {
           title: { en: 'Heating thermostat' },
           units: '°C',
@@ -118,6 +137,9 @@ module.exports = {
       capabilities: [{
         capabilityName: 'thermostat_mode.hotWaterOneTimeCharge',
         propertyPath: 'active.value',
+        command: {
+          useValueAsCommand: true,
+        },
         valueMapping: {
           true: 'activate',
           false: 'deactivate',
@@ -138,6 +160,12 @@ module.exports = {
       capabilities: [{
         capabilityName: 'thermostat_mode.heating',
         propertyPath: 'value.value',
+        command: {
+          name: 'setMode',
+          parameterMapping: {
+            value: 'mode',
+          },
+        },
         capabilityOptions: {
           title: { en: 'Heating mode' },
           values: [

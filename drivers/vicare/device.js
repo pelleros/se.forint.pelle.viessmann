@@ -56,6 +56,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     await this.initializeOperatingModes();
     await this.registerCapabilityListeners();
 
+    this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
+
     const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
     await this.driver._startPolling(this, deviceKey);
   }
@@ -143,80 +145,76 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async registerCapabilityListeners() {
-    if (!this._listeners.includes(PATHS.HOT_WATER_TARGET)) {
-      this.registerCapabilityListenerIfPossible(
-        getCapability(PATHS.HOT_WATER_TARGET).capabilityName,
-        async (value) => {
-          if (process.env.DEBUG) {
-            this.log('target_temperature.hotWater:', value);
-          }
-          await this.setDhwTemp(value);
-        },
-      );
-      this._listeners.push(PATHS.HOT_WATER_TARGET);
-    }
-    if (!this._listeners.includes(PATHS.HEATING_TARGET)) {
-      this.registerCapabilityListenerIfPossible(
-        getCapability(PATHS.HEATING_TARGET).capabilityName,
-        async (value) => {
-          if (process.env.DEBUG) {
-            this.log('target_temperature.heating:', value);
-          }
-          await this.setHeatingTemp(value);
-        },
-      );
-      this._listeners.push(PATHS.HEATING_TARGET);
-    }
-    if (!this._listeners.includes(PATHS.HEATING_MODE)) {
-      this.registerCapabilityListenerIfPossible(
-        getCapability(PATHS.HEATING_MODE).capabilityName,
-        async (value) => {
-          if (process.env.DEBUG) {
-            this.log('thermostat_mode.heating:', value);
-          }
-          await this.setMainOperatingMode(value);
+    // Gå igenom alla features
+    for (const path of Object.values(PATHS)) {
+      try {
+        const capabilities = getAllCapabilities(path);
 
-          // Trigger flow card with device and token
-          try {
-            const tokens = { mode: value };
-            const state = {};
-            await this.driver._heatingModeChangedTrigger.trigger(this, tokens, state);
-            this.log('Flow card triggered with mode:', value);
-          } catch (error) {
-            this.error('Failed to trigger flow card:', error);
-          }
-        },
-      );
-      this._listeners.push(PATHS.HEATING_MODE);
-    }
+        for (const capability of capabilities) {
+          // Skippa om inget command är definierat eller om lyssnaren redan finns
+          if (!capability.command || this._listeners.includes(path)) continue;
 
-    if (!this._listeners.includes(PATHS.HOT_WATER_CHARGE)) {
-      this.registerCapabilityListenerIfPossible(
-        getCapability(PATHS.HOT_WATER_CHARGE).capabilityName,
-        async (value) => {
-          if (process.env.DEBUG) {
-            this.log('thermostat_mode.hotWaterOneTimeCharge:', value);
-          }
-          await this.setDhwOneTimeCharge(value);
-        },
-      );
-      this._listeners.push(PATHS.HOT_WATER_CHARGE);
-    }
+          this.registerCapabilityListenerIfPossible(
+            capability.capabilityName,
+            async (value) => {
+              if (process.env.DEBUG) {
+                this.log(`${capability.capabilityName}:`, value);
+              }
 
-    if (!this._listeners.includes(PATHS.HOT_WATER_TARGET_2)) {
-      this.registerCapabilityListenerIfPossible(
-        getCapability(PATHS.HOT_WATER_TARGET_2).capabilityName,
-        async (value) => {
-          if (process.env.DEBUG) {
-            this.log('target_temperature.hotWater2:', value);
-          }
-          await this.setDhwTemp2(value);
-        },
-      );
-      this._listeners.push(PATHS.HOT_WATER_TARGET_2);
+              await this.executeCommand(path, capability, value);
+
+              // Hantera triggers om de finns
+              try {
+                const triggerCard = this.driver.getTriggerCard(capability.capabilityName);
+                if (triggerCard) {
+                  const tokens = { mode: value }; // Anpassa efter behov
+                  await triggerCard.trigger(this, tokens, {});
+                }
+              } catch (error) {
+                // Ignorera om ingen trigger finns
+              }
+            },
+          );
+
+          this._listeners.push(path);
+        }
+      } catch (err) {
+        this.error(`Error setting up listener for ${path}:`, err);
+      }
+    }
+  }
+
+  async executeCommand(path, capability, value) {
+    const { command } = capability;
+
+    if (command.useValueAsCommand) {
+      const mappedValue = capability.valueMapping?.[value] || value;
+      await this.oAuth2Client.executeCommand({
+        installationId: this._installationId,
+        gatewaySerial: this._gatewaySerial,
+        deviceId: this._deviceId,
+        feature: path,
+        command: mappedValue,
+      });
+    } else {
+      const parameters = {};
+      for (const [, apiParam] of Object.entries(command.parameterMapping)) {
+        parameters[apiParam] = value;
+      }
+
+      await this.oAuth2Client.executeCommand({
+        installationId: this._installationId,
+        gatewaySerial: this._gatewaySerial,
+        deviceId: this._deviceId,
+        feature: path,
+        command: command.name,
+        body: parameters,
+      });
     }
 
-    this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
+    // Uppdate capability value 
+    await this.setCapabilityValue(capability.capabilityName, value);
+    return true;
   }
 
   checkUpgradeSpecifics() {
@@ -301,7 +299,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         }
 
         if (process.env.DEBUG && !extendedResponse) {
-          this.log(`Processing feature: ${feature.feature}`);
+          // this.log(`Processing feature: ${feature.feature}`);
         }
 
         // Helper function to safely get nested property values
@@ -322,7 +320,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           const value = getValue(feature.properties, capability.propertyPath);
           if (value !== undefined) {
             if (process.env.DEBUG) {
-              this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
+              // this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
             }
             await this.setCapabilityValueIfPossible(capability.capabilityName, value);
           } else if (process.env.DEBUG) {
@@ -385,74 +383,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  /*
-    Set the hot water temperature
-  */
-  async setDhwTemp(value) {
-    await this.oAuth2Client.setDhwTemp({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      value,
-    });
-
-    // Update capability
-    const { capabilityName } = getCapability(PATHS.HOT_WATER_TARGET);
-    await this.setCapabilityValue(capabilityName, value);
-    return true;
-  }
-
-  /*
-    Set the main/normal heating temperature
-  */
-  async setHeatingTemp(value) {
-    await this.oAuth2Client.setHeatingTemp({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      value,
-    });
-
-    // Update capability
-    const { capabilityName } = getCapability(PATHS.HEATING_TARGET);
-    await this.setCapabilityValue(capabilityName, value);
-    return true;
-  }
-
-  /*
-    Set the operating mode of the heating system
-  */
-  async setMainOperatingMode(value) {
-    await this.oAuth2Client.setMainOperatingMode({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      value,
-    });
-
-    // Update capability
-    const { capabilityName } = getCapability(PATHS.HEATING_MODE);
-    await this.setCapabilityValue(capabilityName, value);
-    return true;
-  }
-
-  /*
-    Set the operating mode of the heating system
-  */
-  async setDhwOneTimeCharge(value) {
-    await this.oAuth2Client.setDhwOneTimeCharge({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      value,
-    });
-
-    // Update capability
-    const { capabilityName } = getCapability(PATHS.HOT_WATER_CHARGE);
-    await this.setCapabilityValue(capabilityName, value);
-    return true;
-  }
-
   async getGatewayFeatures() {
     return this.oAuth2Client.getGatewayFeatures({
       installationId: this._installationId,
@@ -503,30 +433,5 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     };
   }
   */
-
-  async startDhwOneTimeCharge() {
-    return this.setDhwOneTimeCharge(true);
-  }
-
-  async stopDhwOneTimeCharge() {
-    return this.setDhwOneTimeCharge(false);
-  }
-
-  /*
-    Set the hot water temperature 2
-  */
-  async setDhwTemp2(value) {
-    await this.oAuth2Client.setDhwTemp2({
-      installationId: this._installationId,
-      gatewaySerial: this._gatewaySerial,
-      deviceId: this._deviceId,
-      value,
-    });
-
-    // Uppdatera capability
-    const { capabilityName } = getCapability(PATHS.HOT_WATER_TARGET_2);
-    await this.setCapabilityValue(capabilityName, value);
-    return true;
-  }
 
 };

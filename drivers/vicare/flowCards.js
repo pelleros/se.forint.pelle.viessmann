@@ -40,6 +40,7 @@ module.exports = {
   FLOW_ACTIONS: {
     SET_HEATING_MODE: {
       id: 'set-operating-mode',
+      capability: getCapability(PATHS.HEATING_MODE).capabilityName,
       method: 'setMainOperatingMode',
       title: 'flow.actions.heating_mode.title',
       hint: 'flow.actions.heating_mode.hint',
@@ -56,6 +57,7 @@ module.exports = {
     },
     SET_HEATING_TEMPERATURE: {
       id: 'set-heating-thermostat',
+      capability: getCapability(PATHS.HEATING_TEMP).capabilityName,
       method: 'setHeatingTemp',
       title: 'flow.actions.heating_temp.title',
       args: [{
@@ -69,6 +71,7 @@ module.exports = {
     },
     SET_DHW_TEMPERATURE: {
       id: 'set-hot-water-thermostat',
+      capability: getCapability(PATHS.HOT_WATER_TARGET).capabilityName,
       method: 'setDhwTemp',
       title: 'flow.actions.dhw_temp.title',
       args: [{
@@ -82,6 +85,7 @@ module.exports = {
     },
     SET_DHW_CHARGE: {
       id: 'do-one-time-hot-water-charge',
+      capability: getCapability(PATHS.HOT_WATER_CHARGE).capabilityName,
       method: 'setDhwOneTimeCharge',
       title: 'flow.actions.dhw_charge.title',
       titleFormatted: 'flow.actions.dhw_charge.titleFormatted',
@@ -96,6 +100,7 @@ module.exports = {
     },
     SET_HOT_WATER_TEMP2: {
       id: 'set-hot-water-thermostat2',
+      capability: getCapability(PATHS.HOT_WATER_TARGET_2).capabilityName,
       method: 'setDhwTemp2',
       title: 'flow.actions.hot_water_temp2.title',
       titleFormatted: 'flow.actions.hot_water_temp2.title',

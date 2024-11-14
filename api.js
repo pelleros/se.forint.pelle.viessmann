@@ -40,7 +40,7 @@ module.exports = {
       const device = devices.find((d) => d.getData().deviceId === deviceId);
 
       if (!device) throw new Error('No device found');
-      return await device.getFeatures();
+      return await device.getFeatures(false);
     } catch (error) {
       homey.error('Error in getFeatures API:', error);
       throw error;

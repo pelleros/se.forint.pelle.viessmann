@@ -16,5 +16,14 @@
   },
   "1.0.5": {
     "en": "Added: New flow cards for heating mode control\nAdded: Improved error handling and stability\nAdded: Debug logging for troubleshooting\nFixed: Direct capability updates after flow card actions\nNote: For best performance, please remove and re-add your devices after this update"
+  },
+  "1.0.6": {
+    "en": "Set Hot water temp 2. Sensor for return temperature."
+  },
+  "1.0.7": {
+    "en": "More dynamic capabilities"
+  },
+  "1.0.8": {
+    "en": "Buffer temperature and return temperature sensors. Installations troubleshooting data automatically anonymized."
   }
 }

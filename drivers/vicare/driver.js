@@ -117,8 +117,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       // Create reusable async polling function
       const doPoll = async () => {
         try {
-          // Use device's getFeatures method instead of direct API call
-          const features = await device.getFeatures();
+          // get features with extended response every 30th poll
+          const extendedRequest = Math.random() < 0.03;
+          const features = await device.getFeatures({ useFilter: !extendedRequest });
 
           consecutiveErrors = 0;
           if (!device.getAvailable()) {
@@ -126,7 +127,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
           }
 
           // Update device with new features
-          await device.onFeaturesUpdated(features);
+          await device.onFeaturesUpdated(features, extendedRequest);
         } catch (error) {
           consecutiveErrors++;
           this.error(`Error polling device ${deviceKey}:`, error);
@@ -196,6 +197,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
               const response = await oAuth2Client.getFeatures({ installationId: gateway.installationId, gatewaySerial: gateway.serial, deviceId: device.id });
               // this.log('[ViessmannDriver::onPairListDevices] Features:', JSON.stringify(response, null, 3));
 
+              // store all available features in the device store
+              const features = [];
+              for (const feature of response.data) {
+                if (feature.isEnabled) {
+                  features.push(feature.feature);
+                }
+              }
+              // Get the main operating mode
               const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_MODE);
               const operatingModes = [];
               try {
@@ -229,6 +238,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                   gatewaySerial: gateway.serial,
                   deviceId: device.id,
                   roles: device.roles,
+                  features,
                   operatingModes,
                 },
               });

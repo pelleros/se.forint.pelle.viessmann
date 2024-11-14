@@ -10,7 +10,7 @@
     },
     "troubleshooting": {
       "title": "Felsökning",
-      "description": "Dessa verktyg hjälper till att diagnostisera problem med appen. Informationen som visas här kan vara användbar vid felsökning med utvecklaren. Varning: Kan innehålla känslig data, såsom din adress.",
+      "description": "Dessa verktyg hjälper till att diagnostisera problem med appen. Informationen som visas här kan vara användbar vid felsökning med utvecklaren.",
       "installations": {
         "title": "Installationsinformation",
         "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",

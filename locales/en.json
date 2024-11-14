@@ -11,7 +11,7 @@
       },
       "troubleshooting": {
         "title": "Troubleshooting",
-        "description": "These tools help diagnose issues with the app. The data shown here can be useful when troubleshooting with the developer. Warning: May contain sensitive data, such as your address.",
+        "description": "These tools help diagnose issues with the app. The data shown here can be useful when troubleshooting with the developer.",
         "installations": {
           "title": "Installation Information",
           "description": "Shows details about your Viessmann installation and connected devices",

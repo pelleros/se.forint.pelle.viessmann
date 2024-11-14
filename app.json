@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -324,8 +324,9 @@
         "target_temperature.heating",
         "thermostat_mode.hotWaterOneTimeCharge",
         "thermostat_mode.heating",
-        "measure_temperature.return",
         "measure_temperature.outside",
+        "measure_temperature.return",
+        "measure_temperature.buffer",
         "measure_something_active.compressor",
         "measure_something_number.compressorHours",
         "measure_something_number.compressorStarts",
@@ -422,6 +423,14 @@
             }
           ]
         },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside temperature"
+          },
+          "units": "°C",
+          "preventInsights": false,
+          "preventTag": false
+        },
         "measure_temperature.return": {
           "title": {
             "en": "Return temperature"
@@ -430,9 +439,9 @@
           "preventInsights": false,
           "preventTag": false
         },
-        "measure_temperature.outside": {
+        "measure_temperature.buffer": {
           "title": {
-            "en": "Outside temperature"
+            "en": "Buffer temperature"
           },
           "units": "°C",
           "preventInsights": false,

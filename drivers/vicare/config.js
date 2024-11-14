@@ -28,8 +28,9 @@ const PATHS = {
   HEATING_TARGET: 'heating.circuits.0.operating.programs.normal',
   HOT_WATER_CHARGE: 'heating.dhw.oneTimeCharge',
   HEATING_MODE: 'heating.circuits.0.operating.modes.active',
-  RETURN_TEMP: 'heating.sensors.temperature.return',
   OUTSIDE_TEMP: 'heating.sensors.temperature.outside',
+  RETURN_TEMP: 'heating.sensors.temperature.return',
+  BUFFER_TEMP: 'heating.bufferCylinder.sensors.temperature.main',
   COMPRESSOR: 'heating.compressors.0',
   COMPRESSOR_STATS: 'heating.compressors.0.statistics',
   BURNER: 'heating.burners.0',
@@ -270,6 +271,18 @@ module.exports = {
         capabilityOptions: {
           title: { en: 'Burner modulation' },
           units: '%',
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
+    },
+    [PATHS.BUFFER_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.buffer',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Buffer temperature' },
+          units: '°C',
           preventInsights: false,
           preventTag: false,
         },

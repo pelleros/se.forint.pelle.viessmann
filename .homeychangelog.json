@@ -30,6 +30,6 @@
     "en": "Add support for more data points from Vicare API and extended device features"
   },
   "1.0.10": {
-    "en": "Bug fixes and improved error handling"
+    "en": "Bug fix for trigger flow cards and improved error handling"
   }
 }

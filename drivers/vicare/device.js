@@ -190,17 +190,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
               }
 
               await this.executeCommand(path, capability, value);
-
-              // Hantera triggers om de finns
-              try {
-                const triggerCard = this.driver.getTriggerCard(capability.capabilityName);
-                if (triggerCard) {
-                  const tokens = { mode: value }; // Anpassa efter behov
-                  await triggerCard.trigger(this, tokens, {});
-                }
-              } catch (error) {
-                // Ignorera om ingen trigger finns
-              }
             },
           );
 
@@ -242,16 +231,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         });
       }
     } catch (error) {
-      this.error('Error executing command:', error);
-      this.log('Error executing command:', {
-        path,
-        capability,
-        value,
-        error,
-      });
+      this.log('Error executing command:', error);
+      // throw error with message
+      throw new Error('Error executing command', error);
     }
     // Uppdate capability value 
-    await this.setCapabilityValue(capability.capabilityName, value);
+    await this.setCapabilityValueIfPossible(capability.capabilityName, value);
     return true;
   }
 
@@ -414,13 +399,27 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           return;
         }
 
-        // Apply value mapping if defined
-        let processedValue = value;
-        if (capability.valueMapping && value in capability.valueMapping) {
-          processedValue = capability.valueMapping[value];
-        }
+        // Jämför med originalvärdet innan value mapping
+        const currentValue = this.getCapabilityValue(capabilityName);
+        if (currentValue !== value) {
+          // Applicera value mapping efter jämförelsen
+          let processedValue = value;
+          if (capability.valueMapping && value in capability.valueMapping) {
+            processedValue = capability.valueMapping[value];
+          }
 
-        await this.setCapabilityValue(capabilityName, processedValue);
+          await this.setCapabilityValue(capabilityName, processedValue);
+
+          // Använd _triggerCards för att trigga flow card
+          try {
+            const triggerCard = this.driver.getTriggerCard(capabilityName);
+            if (triggerCard) {
+              await triggerCard.trigger(this, { mode: value }, {});
+            }
+          } catch (error) {
+            // Ignorera om inget trigger card finns
+          }
+        }
       }
     } catch (error) {
       this.error(`Failed to set capability ${capabilityName}:`, error);

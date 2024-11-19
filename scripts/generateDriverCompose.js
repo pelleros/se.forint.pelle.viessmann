@@ -22,7 +22,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { PATHS, getAllCapabilities } = require('../drivers/vicare/config');
+// const { PATHS, getAllCapabilities } = require('../drivers/vicare/config');
 
 // Define absolute paths relative to this file
 const driverPath = __dirname;

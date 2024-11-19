@@ -15,7 +15,9 @@
     "postvalidate": "node scripts/restoreDocumentation.js",
     "prepublish": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js && node scripts/moveDocumentation.js",
     "publish": "homey app publish",
-    "postpublish": "node scripts/restoreDocumentation.js"
+    "postpublish": "node scripts/restoreDocumentation.js",
+    "doc": "node scripts/restoreDocumentation.js",
+    "nodoc": "node scripts/moveDocumentation.js"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",

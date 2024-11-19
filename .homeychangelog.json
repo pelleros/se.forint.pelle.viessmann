@@ -31,5 +31,8 @@
   },
   "1.0.10": {
     "en": "Bug fix for trigger flow cards and improved error handling"
+  },
+  "1.0.11": {
+    "en": "App size reduced"
   }
 }

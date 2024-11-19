@@ -146,7 +146,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       // Create reusable async polling function
       const doPoll = async () => {
         try {
-          // get features with extended response every 30th poll
+          // get features with extended response every 30th poll (statisticaly)
           const extendedRequest = Math.random() < 0.03;
           const features = await device.getFeatures({ useFilter: !extendedRequest });
 
@@ -212,6 +212,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.log('[ViessmannDriver::onPairListDevices] Installations:', JSON.stringify(result, null, 3));
 
       const devices = [];
+      const { version } = this.homey.manifest;
 
       for (const installation of result.data) {
         for (const gateway of installation.gateways) {
@@ -223,39 +224,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 
-              const response = await oAuth2Client.getFeatures({ installationId: gateway.installationId, gatewaySerial: gateway.serial, deviceId: device.id });
-              // this.log('[ViessmannDriver::onPairListDevices] Features:', JSON.stringify(response, null, 3));
-
-              // store all available features in the device store
-              const features = [];
-              for (const feature of response.data) {
-                if (feature.isEnabled) {
-                  features.push(feature.feature);
-                }
-              }
-              // Get the main operating mode
-              const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_MODE);
-              const operatingModes = [];
-              try {
-                if (mainOpMode && mainOpMode.isEnabled) {
-                  const formatString = (str) => {
-                    return str.replace(/([A-Z])/g, ' $1')
-                      .replace(/^./, (char) => char.toUpperCase())
-                      .replace(/Dhw/g, 'DHW')
-                      .trim();
-                  };
-                  // loop through the array mainOpMode.commands.setMode.params.mode.constraints.enum and log the formatstring
-                  for (const mode of mainOpMode.commands.setMode.params.mode.constraints.enum) {
-                    const formattedMode = formatString(mode);
-                    this.log('Formatted Heating Modes:', formattedMode);
-                    // push the formattedMode and corresponding mode to the modes array
-                    operatingModes.push({ id: mode, title: { en: formattedMode } });
-                  }
-                }
-              } catch (error) {
-                this.error('Error when parsing operating modes', error);
-                throw error;
-              }
+              const { features, constraints, operatingModes } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
 
               devices.push({
                 name: `Viessmann (${gateway.installationId})`,
@@ -268,7 +237,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                   deviceId: device.id,
                   roles: device.roles,
                   features,
+                  constraints,
                   operatingModes,
+                  version,
                 },
               });
             }
@@ -281,6 +252,67 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.error('Error in onPairListDevices:', error);
       throw error;
     }
+  }
+
+  async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId) {
+    const response = await oAuth2Client.getFeatures({
+      installationId,
+      gatewaySerial,
+      deviceId,
+    });
+
+    const features = [];
+    const constraints = {};
+
+    for (const feature of response.data) {
+      if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
+        features.push(feature.feature);
+
+        // Save constraints separately
+        if (feature.commands) {
+          constraints[feature.feature] = {};
+          Object.values(feature.commands).forEach((command) => {
+            Object.entries(command.params || {}).forEach(([paramName, param]) => {
+              if (param.constraints) {
+                constraints[feature.feature][paramName] = param.constraints;
+              }
+            });
+          });
+        }
+      }
+    }
+
+    // Get operating modes
+    const operatingModes = [];
+    try {
+      const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_MODE);
+
+      if (mainOpMode?.isEnabled) {
+        const formatString = (str) => {
+          return str.replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (char) => char.toUpperCase())
+            .replace(/Dhw/g, 'DHW')
+            .trim();
+        };
+
+        for (const mode of mainOpMode.commands.setMode.params.mode.constraints.enum) {
+          operatingModes.push({
+            id: mode,
+            title: { en: formatString(mode) },
+          });
+        }
+      }
+    } catch (err) {
+      // not critical, just log
+      if (process.env.DEBUG) {
+        this.log('Error parsing operating modes:', err);
+      }
+    }
+    return {
+      features,
+      constraints,
+      operatingModes,
+    };
   }
 
   async onPair(socket) {

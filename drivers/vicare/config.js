@@ -30,11 +30,20 @@ const PATHS = {
   HOT_WATER_CHARGE: 'heating.dhw.oneTimeCharge',
   HEATING_MODE: 'heating.circuits.0.operating.modes.active',
   OUTSIDE_TEMP: 'heating.sensors.temperature.outside',
-  RETURN_TEMP: 'heating.sensors.temperature.return',
+  HEATING_CIRCUIT_0_ROOM_TEMPERATURE: 'heating.circuits.0.sensors.temperature.room',
+  HEATING_CIRCUIT_0_TEMPERATURE: 'heating.circuits.0.temperature',
+  HEATING_CIRCUIT_0_SUPPLY_TEMPERATURE: 'heating.circuits.0.sensors.temperature.supply',
   BUFFER_TEMP: 'heating.bufferCylinder.sensors.temperature.main',
+  RETURN_TEMP: 'heating.sensors.temperature.return',
+  PRIMARY_CIRCUIT_SUPPLY_TEMP: 'heating.primaryCircuit.sensors.temperature.supply',
+  PRIMARY_CIRCUIT_RETURN_TEMP: 'heating.primaryCircuit.sensors.temperature.return',
+  SECONDARY_CIRCUIT_SUPPLY_TEMP: 'heating.secondaryCircuit.sensors.temperature.supply',
+  BOILER_TEMPERATURE_MAIN: 'heating.boiler.sensors.temperature.main',
+  BOILER_COMMON_SUPPLY_TEMP: 'heating.boiler.sensors.temperature.commonSupply',
   COMPRESSOR: 'heating.compressors.0',
   COMPRESSOR_STATS: 'heating.compressors.0.statistics',
   BURNER: 'heating.burners.0',
+  BURNER_MODULATION: 'heating.burners.0.modulation',
   BURNER_STATS: 'heating.burners.0.statistics',
 };
 
@@ -56,10 +65,21 @@ const getAllCapabilities = (featurePath) => {
   return feature.capabilities;
 };
 
+const getCapabilityOptions = (capabilityName) => {
+  for (const feature of Object.values(module.exports.FEATURES)) {
+    const capability = feature.capabilities?.find((cap) => cap.capabilityName === capabilityName);
+    if (capability?.capabilityOptions) {
+      return capability.capabilityOptions;
+    }
+  }
+  throw new Error(`No capability options found for: ${capabilityName}`);
+};
+
 module.exports = {
   PATHS,
   getCapability,
   getAllCapabilities,
+  getCapabilityOptions,
   FEATURES: {
     [PATHS.HOT_WATER_TEMP]: {
       capabilities: [{
@@ -68,6 +88,7 @@ module.exports = {
         capabilityOptions: {
           title: { en: 'Hot water temperature' },
           units: '°C',
+          decimals: 1,
           preventInsights: false,
           preventTag: false,
         },
@@ -120,7 +141,7 @@ module.exports = {
         command: {
           name: 'setTemperature',
           parameterMapping: {
-            value: 'temperature',
+            value: 'targetTemperature',
           },
         },
         capabilityOptions: {
@@ -153,6 +174,7 @@ module.exports = {
             id: 'deactivate',
             title: { en: 'Inactive' },
           }],
+          preventInsights: true,
         },
       }],
     },
@@ -186,6 +208,7 @@ module.exports = {
               title: { en: 'Standby' },
             },
           ],
+          preventInsights: true,
         },
       }],
     },
@@ -194,8 +217,9 @@ module.exports = {
         capabilityName: 'measure_temperature.return',
         propertyPath: 'value.value',
         capabilityOptions: {
-          title: { en: 'Return temperature' },
+          title: { en: 'Heating return temperature' },
           units: '°C',
+          decimals: 1,
           preventInsights: false,
           preventTag: false,
         },
@@ -208,6 +232,7 @@ module.exports = {
         capabilityOptions: {
           title: { en: 'Outside temperature' },
           units: '°C',
+          decimals: 1,
           preventInsights: false,
           preventTag: false,
         },
@@ -251,7 +276,6 @@ module.exports = {
       ],
     },
     [PATHS.BURNER]: {
-      requireRole: 'type:boiler',
       capabilities: [{
         capabilityName: 'measure_burner_active',
         propertyPath: 'active.value',
@@ -267,7 +291,6 @@ module.exports = {
       }],
     },
     [PATHS.BURNER_STATS]: {
-      requireRole: 'type:boiler',
       capabilities: [
         {
           capabilityName: 'measure_burner_number.burnerHours',
@@ -292,7 +315,6 @@ module.exports = {
       ],
     },
     [PATHS.BURNER_MODULATION]: {
-      requireRole: 'type:boiler',
       capabilities: [{
         capabilityName: 'measure_burner_number.burnerModulation',
         propertyPath: 'value.value',
@@ -300,7 +322,7 @@ module.exports = {
           title: { en: 'Burner modulation' },
           units: '%',
           preventInsights: false,
-          preventTag: false,
+          preventTag: true,
         },
       }],
     },
@@ -309,8 +331,114 @@ module.exports = {
         capabilityName: 'measure_temperature.buffer',
         propertyPath: 'value.value',
         capabilityOptions: {
-          title: { en: 'Buffer temperature' },
+          title: { en: 'Buffer cylinder temperature' },
           units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: false,
+        },
+      }],
+    },
+    [PATHS.PRIMARY_CIRCUIT_SUPPLY_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.supply',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Primary supply temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.PRIMARY_CIRCUIT_RETURN_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.primaryReturn',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Primary return temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.SECONDARY_CIRCUIT_SUPPLY_TEMP]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.secondarySupply',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Secondary supply temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.HEATING_CIRCUIT_0_TEMPERATURE]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.circuit0',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Heating circuit target temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.BOILER_COMMON_SUPPLY_TEMP]: {
+      requireRole: 'type:boiler',
+      capabilities: [{
+        capabilityName: 'measure_temperature.boilerCommonSupply',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Boiler Exit Temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.BOILER_TEMPERATURE_MAIN]: {
+      requireRole: 'type:boiler',
+      capabilities: [{
+        capabilityName: 'measure_temperature.boiler_main',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Boiler Main Temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+        },
+      }],
+    },
+    [PATHS.HEATING_CIRCUIT_0_SUPPLY_TEMPERATURE]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.circuit0_supply',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Heating Circuit Supply Temperature' },
+          units: '°C',
+          decimals: 1,
+          preventInsights: false,
+          preventTag: true,
+        },
+      }],
+    },
+    [PATHS.HEATING_CIRCUIT_0_ROOM_TEMPERATURE]: {
+      capabilities: [{
+        capabilityName: 'measure_temperature.circuit0_room',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: { en: 'Room Temperature' },
+          units: '°C',
+          decimals: 1,
           preventInsights: false,
           preventTag: false,
         },

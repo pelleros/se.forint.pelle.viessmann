@@ -32,7 +32,7 @@ const driverComposeBaseFile = path.join(driverPath, '../drivers/vicare/driver.co
 // Get all unique capabilities and their options from FEATURES using PATHS
 const capabilities = new Set();
 const capabilitiesOptions = {};
-
+/*
 Object.values(PATHS).forEach((path) => {
   try {
     const caps = getAllCapabilities(path);
@@ -46,7 +46,7 @@ Object.values(PATHS).forEach((path) => {
     // Skip if feature doesn't have capabilities
   }
 });
-
+*/
 // Read and update driver.compose.json
 const driverComposeContent = JSON.parse(fs.readFileSync(driverComposeBaseFile, 'utf8'));
 driverComposeContent.capabilities = Array.from(capabilities);

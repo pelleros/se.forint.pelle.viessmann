@@ -57,7 +57,7 @@ module.exports = {
     },
     SET_HEATING_TEMPERATURE: {
       id: 'set-heating-thermostat',
-      capability: getCapability(PATHS.HEATING_TEMP).capabilityName,
+      capability: getCapability(PATHS.HEATING_TARGET).capabilityName,
       method: 'setHeatingTemp',
       title: 'flow.actions.heating_temp.title',
       args: [{

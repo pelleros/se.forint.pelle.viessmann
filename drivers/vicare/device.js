@@ -22,7 +22,7 @@
 
 const { OAuth2Device } = require('homey-oauth2app');
 const {
-  FEATURES, PATHS, getCapability, getAllCapabilities,
+  FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
@@ -31,13 +31,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   static PATHS = PATHS;
 
   async onOAuth2Init() {
-    this.checkUpgradeSpecifics();
+    await this.checkUpgradeSpecifics();
     this._installationId = this.getStoreValue('installationId');
     this._gatewaySerial = this.getStoreValue('gatewaySerial');
     this._deviceId = this.getStoreValue('deviceId');
     this._roles = this.getStoreValue('roles');
-    this._operatingModes = this.getStoreValue('operatingModes');
     this._features = this.getStoreValue('features');
+    this._constraints = this.getStoreValue('constraints');
+    this._operatingModes = this.getStoreValue('operatingModes');
 
     if (process.env.DEBUG) {
       this.log(
@@ -45,8 +46,10 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         'gatewaySerial:', this._gatewaySerial,
         'deviceId:', this._deviceId,
         'roles:', this._roles,
-        'operatingModes:', this._operatingModes,
         'features:', this._features,
+        'constraints:', this._constraints,
+        'operatingModes:', this._operatingModes,
+        'version:', this.getStoreValue('version'),
       );
     }
 
@@ -101,13 +104,38 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         const capabilities = getAllCapabilities(path);
         for (const capability of capabilities) {
           if (!this.hasCapability(capability.capabilityName)) {
+            // Set capability options
+            let capabilityOptions = getCapabilityOptions(capability.capabilityName);
+
+            // Update with constraints if they exist
+            if (this._constraints && this._constraints[path]) {
+              // For temperature/targetTemperature constraints
+              const tempConstraints = this._constraints[path].temperature || this._constraints[path].targetTemperature;
+              if (tempConstraints) {
+                capabilityOptions = {
+                  ...capabilityOptions,
+                  min: tempConstraints.min,
+                  max: tempConstraints.max,
+                  step: tempConstraints.stepping || capabilityOptions.step || 1,
+                };
+              }
+            }
+
+            await this.setCapabilityOptions(capability.capabilityName, capabilityOptions);
             await this.addCapability(capability.capabilityName);
-            this.log(`Added capability: ${capability.capabilityName}`);
           }
         }
       } catch (err) {
         this.error(`Error handling capability for ${path}:`, err);
       }
+    }
+  }
+
+  async updateCapabilityOptions() {
+    const capabilities = this.getCapabilities();
+    for (const capability of capabilities) {
+      const capabilityOptions = getCapabilityOptions(capability);
+      await this.setCapabilityOptions(capability, capabilityOptions);
     }
   }
 
@@ -185,39 +213,49 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async executeCommand(path, capability, value) {
-    const { command } = capability;
+    try {
+      const { command } = capability;
 
-    if (command.useValueAsCommand) {
-      const mappedValue = capability.valueMapping?.[value] || value;
-      await this.oAuth2Client.executeCommand({
-        installationId: this._installationId,
-        gatewaySerial: this._gatewaySerial,
-        deviceId: this._deviceId,
-        feature: path,
-        command: mappedValue,
-      });
-    } else {
-      const parameters = {};
-      for (const [, apiParam] of Object.entries(command.parameterMapping)) {
-        parameters[apiParam] = value;
+      if (command?.useValueAsCommand) {
+        const mappedValue = capability.valueMapping?.[value] || value;
+        await this.oAuth2Client.executeCommand({
+          installationId: this._installationId,
+          gatewaySerial: this._gatewaySerial,
+          deviceId: this._deviceId,
+          feature: path,
+          command: mappedValue,
+          body: {},
+        });
+      } else {
+        const parameters = {};
+        for (const [, apiParam] of Object.entries(command.parameterMapping)) {
+          parameters[apiParam] = value;
+        }
+
+        await this.oAuth2Client.executeCommand({
+          installationId: this._installationId,
+          gatewaySerial: this._gatewaySerial,
+          deviceId: this._deviceId,
+          feature: path,
+          command: command.name,
+          body: parameters,
+        });
       }
-
-      await this.oAuth2Client.executeCommand({
-        installationId: this._installationId,
-        gatewaySerial: this._gatewaySerial,
-        deviceId: this._deviceId,
-        feature: path,
-        command: command.name,
-        body: parameters,
+    } catch (error) {
+      this.error('Error executing command:', error);
+      this.log('Error executing command:', {
+        path,
+        capability,
+        value,
+        error,
       });
     }
-
     // Uppdate capability value 
     await this.setCapabilityValue(capability.capabilityName, value);
     return true;
   }
 
-  checkUpgradeSpecifics() {
+  async checkUpgradeSpecifics() {
     if (!this.getStoreValue('installationId')) {
       // 1.0.2 & 1.0.3 => 1.0.4, add roles and operatingModes and store them
       const {
@@ -240,23 +278,37 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.setStoreValue('operatingModes', operatingModes);
       }
     }
-    // 1.0.5 => 1.0.6, add features and initialize capabilities and listeners
-    if (!this.getStoreValue('features')) {
-      // take all paths from PATHS and add them to features
-      this.setStoreValue('features', Object.values(PATHS));
+    // started to store version in 1.0.9
+    if (this.storeVersionBefore('1.0.9')) {
+      this.log('Upgrading to 1.0.9');
+      // add features and operating modes
+      const installationId = this.getStoreValue('installationId');
+      const gatewaySerial = this.getStoreValue('gatewaySerial');
+      const deviceId = this.getStoreValue('deviceId');
+      const { features, constraints, operatingModes } = await this.driver._getEnabledFeaturesAndOpModes(this.oAuth2Client, installationId, gatewaySerial, deviceId);
+      if (process.env.DEBUG) {
+        this.log('Features:', features);
+        this.log('Constraints:', constraints);
+        this.log('Operating modes:', operatingModes);
+      }
+      this.setStoreValue('features', features);
+      this.setStoreValue('constraints', constraints);
+      this.setStoreValue('operatingModes', operatingModes);
+      await this.updateCapabilityOptions();
+      this.setStoreValue('version', '1.0.9');
     }
   }
 
   async onFeaturesUpdated(response, extendedResponse) {
     try {
       if (process.env.DEBUG) {
-        this.log('Starting feature update processing...');
+        this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
       if (extendedResponse) {
         // get all enabled features from the response
         const enabledFeatures = [];
         for (const feature of response.data) {
-          if (feature.isEnabled) {
+          if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
             enabledFeatures.push(feature.feature);
           }
         }
@@ -275,7 +327,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
 
       for (const feature of response.data) {
-        if (!feature.isEnabled || !feature.properties) {
+        if (!feature.isEnabled || !feature.properties || feature.properties?.status?.value === 'notConnected') {
           if (process.env.DEBUG && !extendedResponse) {
             this.log(`Skipping disabled/empty feature: ${feature.feature}`);
           }
@@ -433,5 +485,17 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     };
   }
   */
+
+  storeVersionBefore(targetVersion) {
+    const currentVersion = this.getStoreValue('version');
+    const parts1 = (currentVersion || '0.0.0').split('.').map(Number);
+    const parts2 = targetVersion.split('.').map(Number);
+
+    for (let i = 0; i < 3; i++) {
+      if (parts1[i] > parts2[i]) return false;
+      if (parts1[i] < parts2[i]) return true;
+    }
+    return false;
+  }
 
 };

@@ -47,6 +47,108 @@ const PATHS = {
   BURNER_STATS: 'heating.burners.0.statistics',
 };
 
+// Gemensamma capability-mallar
+const CAPABILITY_TEMPLATES = {
+  temperature: {
+    units: '°C',
+    decimals: 1,
+    preventInsights: false,
+    preventTag: false,
+  },
+  counter: {
+    preventInsights: true,
+    preventTag: true,
+  },
+  thermostat: {
+    units: '°C',
+    preventInsights: true,
+  },
+  activeState: {
+    preventInsights: false,
+    preventTag: false,
+  },
+  modulation: {
+    preventInsights: false,
+    preventTag: true,
+  },
+};
+
+// Förbättrad temperature capability med mer flexibilitet
+const createTemperatureCapability = (name, title, options = {}) => ({
+  capabilityName: `measure_temperature.${name}`,
+  propertyPath: options.propertyPath || 'value.value',
+  capabilityOptions: {
+    title: { en: title },
+    ...CAPABILITY_TEMPLATES.temperature,
+    ...options,
+  },
+});
+
+// Förbättrad modulation capability
+const createModulationCapability = (name, title, options = {}) => ({
+  capabilityName: `measure_${name}_number.${name}Modulation`,
+  propertyPath: 'value.value',
+  capabilityOptions: {
+    title: { en: title },
+    units: '%',
+    ...CAPABILITY_TEMPLATES.modulation,
+    ...options,
+  },
+});
+
+// Förbättrad active capability med mer flexibilitet
+const createActiveCapability = (name, title, options = {}) => ({
+  capabilityName: `measure_${name}_active`,
+  propertyPath: 'active.value',
+  capabilityOptions: {
+    title: { en: title },
+    ...CAPABILITY_TEMPLATES.activeState,
+    ...options,
+  },
+});
+
+// Hjälpfunktion för att skapa statistik capabilities
+const createStatisticsCapabilities = (prefix, unitName) => ([
+  {
+    capabilityName: `measure_${prefix}_number.${prefix}Hours`,
+    propertyPath: 'hours.value',
+    capabilityOptions: {
+      title: { en: `${unitName} runtime` },
+      units: 'hours',
+      ...CAPABILITY_TEMPLATES.counter,
+    },
+  },
+  {
+    capabilityName: `measure_${prefix}_number.${prefix}Starts`,
+    propertyPath: 'starts.value',
+    capabilityOptions: {
+      title: { en: `${unitName} starts` },
+      units: 'times',
+      ...CAPABILITY_TEMPLATES.counter,
+    },
+  },
+]);
+
+// Hjälpfunktion för att skapa thermostat capability
+const createThermostatCapability = (name, title, options = {}) => ({
+  capabilityName: `target_temperature.${name}`,
+  propertyPath: options.propertyPath || 'value.value',
+  command: options.command || {
+    name: 'setTargetTemperature',
+    parameterMapping: {
+      value: 'temperature',
+    },
+  },
+  capabilityOptions: {
+    title: { en: title },
+    ...CAPABILITY_TEMPLATES.thermostat,
+    min: options.min || 10,
+    max: options.max || 60,
+    step: options.step || 1,
+    ...options.capabilityOptions,
+  },
+});
+
 // Helper function to get capability from feature path
 const getCapability = (featurePath) => {
   const feature = module.exports.FEATURES[featurePath];
@@ -82,61 +184,22 @@ module.exports = {
   getCapabilityOptions,
   FEATURES: {
     [PATHS.HOT_WATER_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.hotWater',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Hot water temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
+      capabilities: [createTemperatureCapability('hotWater', 'Hot water temperature')],
+    },
+    [PATHS.OUTSIDE_TEMP]: {
+      capabilities: [createTemperatureCapability('outside', 'Outside temperature')],
+    },
+    [PATHS.BUFFER_TEMP]: {
+      capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
     },
     [PATHS.HOT_WATER_TARGET]: {
-      capabilities: [{
-        capabilityName: 'target_temperature.hotWater',
-        propertyPath: 'value.value',
-        command: {
-          name: 'setTargetTemperature',
-          parameterMapping: {
-            value: 'temperature',
-          },
-        },
-        capabilityOptions: {
-          title: { en: 'Hot water thermostat' },
-          units: '°C',
-          min: 10,
-          max: 60,
-          step: 1,
-          preventInsights: true,
-        },
-      }],
+      capabilities: [createThermostatCapability('hotWater', 'Hot water thermostat')],
     },
     [PATHS.HOT_WATER_TARGET_2]: {
-      capabilities: [{
-        capabilityName: 'target_temperature.hotWater2',
-        propertyPath: 'value.value',
-        command: {
-          name: 'setTargetTemperature',
-          parameterMapping: {
-            value: 'temperature',
-          },
-        },
-        capabilityOptions: {
-          title: { en: 'Hot water thermostat 2' },
-          units: '°C',
-          min: 10,
-          max: 60,
-          step: 1,
-          preventInsights: true,
-        },
-      }],
+      capabilities: [createThermostatCapability('hotWater2', 'Hot water thermostat 2')],
     },
     [PATHS.HEATING_TARGET]: {
-      capabilities: [{
-        capabilityName: 'target_temperature.heating',
+      capabilities: [createThermostatCapability('heating', 'Heating thermostat', {
         propertyPath: 'temperature.value',
         command: {
           name: 'setTemperature',
@@ -144,39 +207,34 @@ module.exports = {
             value: 'targetTemperature',
           },
         },
-        capabilityOptions: {
-          title: { en: 'Heating thermostat' },
-          units: '°C',
-          min: 10,
-          max: 30,
-          step: 1,
-          preventInsights: true,
-        },
-      }],
+        min: 10,
+        max: 30,
+      })],
     },
-    [PATHS.HOT_WATER_CHARGE]: {
-      capabilities: [{
-        capabilityName: 'thermostat_mode.hotWaterOneTimeCharge',
-        propertyPath: 'active.value',
-        command: {
-          useValueAsCommand: true,
-        },
-        valueMapping: {
-          true: 'activate',
-          false: 'deactivate',
-        },
-        capabilityOptions: {
-          title: { en: 'Hot water one time charge' },
-          values: [{
-            id: 'activate',
-            title: { en: 'Active' },
-          }, {
-            id: 'deactivate',
-            title: { en: 'Inactive' },
-          }],
-          preventInsights: true,
-        },
-      }],
+    [PATHS.COMPRESSOR]: {
+      requireRole: 'type:heatpump',
+      capabilities: [createActiveCapability('compressor', 'Compressor running')],
+    },
+    [PATHS.BURNER]: {
+      capabilities: [createActiveCapability('burner', 'Burner running', {
+        titleTrue: { en: 'Yes' },
+        titleFalse: { en: 'No' },
+        insightsTitleTrue: { en: 'Yes' },
+        insightsTitleFalse: { en: 'No' },
+      })],
+    },
+    [PATHS.COMPRESSOR_STATS]: {
+      requireRole: 'type:heatpump',
+      capabilities: createStatisticsCapabilities('compressor', 'Compressor'),
+    },
+    [PATHS.BURNER_STATS]: {
+      capabilities: createStatisticsCapabilities('burner', 'Burner'),
+    },
+    [PATHS.BURNER_MODULATION]: {
+      capabilities: [createModulationCapability('burner', 'Burner modulation')],
+    },
+    [PATHS.RETURN_TEMP]: {
+      capabilities: [createTemperatureCapability('return', 'Heating return temperature')],
     },
     [PATHS.HEATING_MODE]: {
       capabilities: [{
@@ -212,235 +270,65 @@ module.exports = {
         },
       }],
     },
-    [PATHS.RETURN_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.return',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Heating return temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
-    },
-    [PATHS.OUTSIDE_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.outside',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Outside temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
-    },
-    [PATHS.COMPRESSOR]: {
-      requireRole: 'type:heatpump',
-      capabilities: [{
-        capabilityName: 'measure_something_active.compressor',
-        propertyPath: 'active.value',
-        capabilityOptions: {
-          title: { en: 'Compressor running' },
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
-    },
-    [PATHS.COMPRESSOR_STATS]: {
-      requireRole: 'type:heatpump',
-      capabilities: [
-        {
-          capabilityName: 'measure_something_number.compressorHours',
-          propertyPath: 'hours.value',
-          capabilityOptions: {
-            title: { en: 'Compressor runtime' },
-            units: 'hours',
-            preventInsights: true,
-            preventTag: true,
-          },
-        },
-        {
-          capabilityName: 'measure_something_number.compressorStarts',
-          propertyPath: 'starts.value',
-          capabilityOptions: {
-            title: { en: 'Compressor starts' },
-            units: 'times',
-            preventInsights: true,
-            preventTag: true,
-          },
-        },
-      ],
-    },
-    [PATHS.BURNER]: {
-      capabilities: [{
-        capabilityName: 'measure_burner_active',
-        propertyPath: 'active.value',
-        capabilityOptions: {
-          title: { en: 'Burner running' },
-          titleTrue: { en: 'Yes' },
-          titleFalse: { en: 'No' },
-          insightsTitleTrue: { en: 'Yes' },
-          insightsTitleFalse: { en: 'No' },
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
-    },
-    [PATHS.BURNER_STATS]: {
-      capabilities: [
-        {
-          capabilityName: 'measure_burner_number.burnerHours',
-          propertyPath: 'hours.value',
-          capabilityOptions: {
-            title: { en: 'Burner runtime' },
-            units: 'hours',
-            preventInsights: true,
-            preventTag: true,
-          },
-        },
-        {
-          capabilityName: 'measure_burner_number.burnerStarts',
-          propertyPath: 'starts.value',
-          capabilityOptions: {
-            title: { en: 'Burner starts' },
-            units: 'times',
-            preventInsights: true,
-            preventTag: true,
-          },
-        },
-      ],
-    },
-    [PATHS.BURNER_MODULATION]: {
-      capabilities: [{
-        capabilityName: 'measure_burner_number.burnerModulation',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Burner modulation' },
-          units: '%',
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
-    },
-    [PATHS.BUFFER_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.buffer',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Buffer cylinder temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: false,
-        },
-      }],
-    },
     [PATHS.PRIMARY_CIRCUIT_SUPPLY_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.supply',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Primary supply temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('supply', 'Primary supply temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.PRIMARY_CIRCUIT_RETURN_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.primaryReturn',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Primary return temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('primaryReturn', 'Primary return temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.SECONDARY_CIRCUIT_SUPPLY_TEMP]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.secondarySupply',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Secondary supply temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('secondarySupply', 'Secondary supply temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.HEATING_CIRCUIT_0_TEMPERATURE]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.circuit0',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Heating circuit target temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('circuit0', 'Heating circuit target temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.BOILER_COMMON_SUPPLY_TEMP]: {
       requireRole: 'type:boiler',
-      capabilities: [{
-        capabilityName: 'measure_temperature.boilerCommonSupply',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Boiler Exit Temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('boilerCommonSupply', 'Boiler Exit Temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.BOILER_TEMPERATURE_MAIN]: {
       requireRole: 'type:boiler',
-      capabilities: [{
-        capabilityName: 'measure_temperature.boiler_main',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Boiler Main Temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-        },
-      }],
+      capabilities: [createTemperatureCapability('boiler_main', 'Boiler Main Temperature')],
     },
     [PATHS.HEATING_CIRCUIT_0_SUPPLY_TEMPERATURE]: {
-      capabilities: [{
-        capabilityName: 'measure_temperature.circuit0_supply',
-        propertyPath: 'value.value',
-        capabilityOptions: {
-          title: { en: 'Heating Circuit Supply Temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: true,
-        },
-      }],
+      capabilities: [createTemperatureCapability('circuit0_supply', 'Heating Circuit Supply Temperature', {
+        preventTag: true,
+      })],
     },
     [PATHS.HEATING_CIRCUIT_0_ROOM_TEMPERATURE]: {
+      capabilities: [createTemperatureCapability('circuit0_room', 'Room Temperature')],
+    },
+    [PATHS.HOT_WATER_CHARGE]: {
       capabilities: [{
-        capabilityName: 'measure_temperature.circuit0_room',
-        propertyPath: 'value.value',
+        capabilityName: 'thermostat_mode.hotWaterOneTimeCharge',
+        propertyPath: 'active.value',
+        command: {
+          useValueAsCommand: true,
+        },
+        valueMapping: {
+          true: 'activate',
+          false: 'deactivate',
+        },
         capabilityOptions: {
-          title: { en: 'Room Temperature' },
-          units: '°C',
-          decimals: 1,
-          preventInsights: false,
-          preventTag: false,
+          title: { en: 'Hot water one time charge' },
+          values: [{
+            id: 'activate',
+            title: { en: 'Active' },
+          }, {
+            id: 'deactivate',
+            title: { en: 'Inactive' },
+          }],
+          preventInsights: true,
         },
       }],
     },

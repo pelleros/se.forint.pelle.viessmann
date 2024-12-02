@@ -1,0 +1,10 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Fuel cell phase"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/fuelcell.svg"
+} 

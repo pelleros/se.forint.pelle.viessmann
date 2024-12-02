@@ -26,9 +26,9 @@ const PATHS = {
   HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.hotWaterStorage',
   HOT_WATER_TARGET: 'heating.dhw.temperature.main',
   HOT_WATER_TARGET_2: 'heating.dhw.temperature.temp2',
-  HEATING_TARGET: 'heating.circuits.0.operating.programs.normal',
+  HEATING_CIRCUIT_0_TARGET: 'heating.circuits.0.operating.programs.normal',
   HOT_WATER_CHARGE: 'heating.dhw.oneTimeCharge',
-  HEATING_MODE: 'heating.circuits.0.operating.modes.active',
+  HEATING_CIRCUIT_0_MODE: 'heating.circuits.0.operating.modes.active',
   OUTSIDE_TEMP: 'heating.sensors.temperature.outside',
   HEATING_CIRCUIT_0_ROOM_TEMPERATURE: 'heating.circuits.0.sensors.temperature.room',
   HEATING_CIRCUIT_0_TEMPERATURE: 'heating.circuits.0.temperature',
@@ -45,6 +45,11 @@ const PATHS = {
   BURNER: 'heating.burners.0',
   BURNER_MODULATION: 'heating.burners.0.modulation',
   BURNER_STATS: 'heating.burners.0.statistics',
+  FUEL_CELL_RETURN_TEMP: 'fuelCell.sensors.temperature.return',
+  FUEL_CELL_SUPPLY_TEMP: 'fuelCell.sensors.temperature.supply',
+  FUEL_CELL_STATS: 'fuelCell.statistics',
+  FUEL_CELL_PHASE: 'fuelCell.operating.phase',
+  FUEL_CELL_MODE: 'fuelCell.operating.modes.active',
 };
 
 // Gemensamma capability-mallar
@@ -149,6 +154,37 @@ const createThermostatCapability = (name, title, options = {}) => ({
   },
 });
 
+// Hjälpfunktion för att skapa fuel cell statistik capabilities
+const createFuelCellStatisticsCapabilities = () => ([
+  {
+    capabilityName: 'measure_fuelcell_number.operationHours',
+    propertyPath: 'operationHours.value',
+    capabilityOptions: {
+      title: { en: 'Fuel cell operation hours' },
+      units: 'hours',
+      ...CAPABILITY_TEMPLATES.counter,
+    },
+  },
+  {
+    capabilityName: 'measure_fuelcell_number.productionHours',
+    propertyPath: 'productionHours.value',
+    capabilityOptions: {
+      title: { en: 'Fuel cell production hours' },
+      units: 'hours',
+      ...CAPABILITY_TEMPLATES.counter,
+    },
+  },
+  {
+    capabilityName: 'measure_fuelcell_number.productionStarts',
+    propertyPath: 'productionStarts.value',
+    capabilityOptions: {
+      title: { en: 'Fuel cell starts' },
+      units: 'times',
+      ...CAPABILITY_TEMPLATES.counter,
+    },
+  },
+]);
+
 // Helper function to get capability from feature path
 const getCapability = (featurePath) => {
   const feature = module.exports.FEATURES[featurePath];
@@ -193,12 +229,12 @@ module.exports = {
       capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
     },
     [PATHS.HOT_WATER_TARGET]: {
-      capabilities: [createThermostatCapability('hotWater', 'Hot water thermostat')],
+      capabilities: [createThermostatCapability('hotWater', 'Hot water Normal')],
     },
     [PATHS.HOT_WATER_TARGET_2]: {
-      capabilities: [createThermostatCapability('hotWater2', 'Hot water thermostat 2')],
+      capabilities: [createThermostatCapability('hotWater2', 'Hot water Temp 2')],
     },
-    [PATHS.HEATING_TARGET]: {
+    [PATHS.HEATING_CIRCUIT_0_TARGET]: {
       capabilities: [createThermostatCapability('heating', 'Heating thermostat', {
         propertyPath: 'temperature.value',
         command: {
@@ -236,7 +272,7 @@ module.exports = {
     [PATHS.RETURN_TEMP]: {
       capabilities: [createTemperatureCapability('return', 'Heating return temperature')],
     },
-    [PATHS.HEATING_MODE]: {
+    [PATHS.HEATING_CIRCUIT_0_MODE]: {
       capabilities: [{
         capabilityName: 'thermostat_mode.heating',
         propertyPath: 'value.value',
@@ -247,7 +283,7 @@ module.exports = {
           },
         },
         capabilityOptions: {
-          title: { en: 'Heating mode' },
+          title: { en: 'Operating mode' },
           values: [
             {
               id: 'dhw',
@@ -328,6 +364,80 @@ module.exports = {
             id: 'deactivate',
             title: { en: 'Inactive' },
           }],
+          preventInsights: true,
+        },
+      }],
+    },
+    [PATHS.FUEL_CELL_RETURN_TEMP]: {
+      capabilities: [createTemperatureCapability('fuelCellReturn', 'Fuel Cell Return Temperature', {
+        preventTag: true,
+      })],
+    },
+    [PATHS.FUEL_CELL_SUPPLY_TEMP]: {
+      capabilities: [createTemperatureCapability('fuelCellSupply', 'Fuel Cell Supply Temperature', {
+        preventTag: true,
+      })],
+    },
+    [PATHS.FUEL_CELL_STATS]: {
+      capabilities: createFuelCellStatisticsCapabilities(),
+    },
+    [PATHS.FUEL_CELL_PHASE]: {
+      capabilities: [{
+        capabilityName: 'measure_fuelcell_phase',
+        propertyPath: 'value.value',
+        capabilityOptions: {
+          title: {
+            en: 'Fuel cell phase',
+          },
+        },
+      }],
+    },
+    [PATHS.FUEL_CELL_MODE]: {
+      capabilities: [{
+        capabilityName: 'thermostat_mode.fuelCell',
+        propertyPath: 'value.value',
+        command: {
+          name: 'setMode',
+          parameterMapping: {
+            value: 'mode',
+          },
+        },
+        capabilityOptions: {
+          title: {
+            en: 'Fuel cell mode',
+          },
+          values: [
+            {
+              id: 'standby',
+              title: {
+                en: 'Standby',
+              },
+            },
+            {
+              id: 'maintenance',
+              title: {
+                en: 'Maintenance',
+              },
+            },
+            {
+              id: 'heatControlled',
+              title: {
+                en: 'Heat controlled',
+              },
+            },
+            {
+              id: 'economical',
+              title: {
+                en: 'Economical',
+              },
+            },
+            {
+              id: 'ecological',
+              title: {
+                en: 'Ecological',
+              },
+            },
+          ],
           preventInsights: true,
         },
       }],

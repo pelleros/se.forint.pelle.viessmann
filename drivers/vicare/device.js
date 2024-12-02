@@ -142,7 +142,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async initializeOperatingModes() {
     // Not that bad if this fails, we can just use the default operating modes
     try {
-      const { capabilityName } = getCapability(PATHS.HEATING_MODE);
+      const { capabilityName } = getCapability(PATHS.HEATING_CIRCUIT_0_MODE);
       const operatingModesCapOpt = this.getCapabilityOptions(capabilityName);
       const capabilityOperatingModes = operatingModesCapOpt.values;
 
@@ -173,13 +173,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async registerCapabilityListeners() {
-    // Gå igenom alla features
     for (const path of Object.values(PATHS)) {
       try {
         const capabilities = getAllCapabilities(path);
 
         for (const capability of capabilities) {
-          // Skippa om inget command är definierat eller om lyssnaren redan finns
+          // Skip if no command is defined or listener already exists
           if (!capability.command || this._listeners.includes(path)) continue;
 
           this.registerCapabilityListenerIfPossible(
@@ -399,10 +398,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           return;
         }
 
-        // Jämför med originalvärdet innan value mapping
+        // Compare with original value before value mapping
         const currentValue = this.getCapabilityValue(capabilityName);
         if (currentValue !== value) {
-          // Applicera value mapping efter jämförelsen
           let processedValue = value;
           if (capability.valueMapping && value in capability.valueMapping) {
             processedValue = capability.valueMapping[value];
@@ -410,14 +408,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
           await this.setCapabilityValue(capabilityName, processedValue);
 
-          // Använd _triggerCards för att trigga flow card
           try {
             const triggerCard = this.driver.getTriggerCard(capabilityName);
             if (triggerCard) {
               await triggerCard.trigger(this, { mode: value }, {});
             }
           } catch (error) {
-            // Ignorera om inget trigger card finns
+            // Ignore if no trigger card exists
           }
         }
       }

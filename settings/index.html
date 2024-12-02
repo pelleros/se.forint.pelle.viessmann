@@ -142,9 +142,7 @@
           // Lägg till nya devices
           devices.forEach(device => {
             const option = document.createElement('option');
-            option.value = JSON.stringify({
-              deviceId: device.deviceId
-            });
+            option.value = device.deviceId;
             option.text = `${device.name || 'Unknown'} (${device.deviceId})`;
             deviceSelectElement.add(option);
           });
@@ -160,13 +158,13 @@
 
         // Uppdatera features-hämtning att använda vald device
         refreshFeaturesElement.addEventListener("click", function (e) {
-          const selectedDevice = deviceSelectElement.value;
+          const selectedDevice = deviceSelectElement.options[deviceSelectElement.selectedIndex].value;
           if (!selectedDevice) {
             return Homey.alert(Homey.__("settings.error.no_device_selected"));
           }
 
-          const deviceInfo = JSON.parse(selectedDevice);
-          Homey.api('GET', '/features', deviceInfo, function(err, result) {
+          // Använd POST istället för GET
+          Homey.api('POST', '/features', { deviceId: selectedDevice }, function(err, result) {
             if (err) return Homey.alert(err);
             featuresElement.textContent = JSON.stringify(result, null, 3);
           });

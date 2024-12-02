@@ -1,0 +1,11 @@
+{
+    "type": "number",
+    "title": { "en": "Fuel cell runtime" },
+    "units": { "en": "hours" },
+    "getable": true,
+    "setable": false,
+    "insights": true, 
+    "uiComponent": "sensor",
+    "step": 1,
+    "icon": "/assets/fuelcell.svg"
+}

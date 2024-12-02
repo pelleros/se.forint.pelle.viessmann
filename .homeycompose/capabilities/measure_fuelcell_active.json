@@ -1,0 +1,12 @@
+{
+    "type": "boolean",
+    "title": { "en": "Fuel cell is active" },
+    "getable": true,
+    "setable": false,
+    "insights": true, 
+    "insightsTitleTrue": { "en": "Yes" },
+    "insightsTitleFalse": { "en": "No" },
+    "uiComponent": "sensor",
+    "uiQuickAction": false,
+    "icon": "/assets/fuelcell.svg"
+  }

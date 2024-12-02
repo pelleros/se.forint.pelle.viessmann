@@ -40,7 +40,7 @@ module.exports = {
   FLOW_ACTIONS: {
     SET_HEATING_MODE: {
       id: 'set-operating-mode',
-      capability: getCapability(PATHS.HEATING_MODE).capabilityName,
+      capability: getCapability(PATHS.HEATING_CIRCUIT_0_MODE).capabilityName,
       method: 'setMainOperatingMode',
       title: 'flow.actions.heating_mode.title',
       hint: 'flow.actions.heating_mode.hint',
@@ -57,7 +57,7 @@ module.exports = {
     },
     SET_HEATING_TEMPERATURE: {
       id: 'set-heating-thermostat',
-      capability: getCapability(PATHS.HEATING_TARGET).capabilityName,
+      capability: getCapability(PATHS.HEATING_CIRCUIT_0_TARGET).capabilityName,
       method: 'setHeatingTemp',
       title: 'flow.actions.heating_temp.title',
       args: [{
@@ -115,11 +115,28 @@ module.exports = {
         },
       ],
     },
+    SET_FUELCELL_MODE: {
+      id: 'set-fuelcell-mode',
+      capability: getCapability(PATHS.FUEL_CELL_MODE).capabilityName,
+      method: 'setFuelCellMode',
+      title: 'flow.actions.fuelcell_mode.title',
+      args: [{
+        name: 'mode',
+        type: 'dropdown',
+        values: [
+          { id: 'standby', title: 'flow.actions.fuelcell_mode.values.standby' },
+          { id: 'maintenance', title: 'flow.actions.fuelcell_mode.values.maintenance' },
+          { id: 'heatControlled', title: 'flow.actions.fuelcell_mode.values.heatControlled' },
+          { id: 'economical', title: 'flow.actions.fuelcell_mode.values.economical' },
+          { id: 'ecological', title: 'flow.actions.fuelcell_mode.values.ecological' },
+        ],
+      }],
+    },
   },
   FLOW_TRIGGERS: {
     HEATING_MODE_CHANGED: {
       id: 'heating-mode-changed',
-      capability: getCapability(PATHS.HEATING_MODE).capabilityName,
+      capability: getCapability(PATHS.HEATING_CIRCUIT_0_MODE).capabilityName,
       title: 'flow.triggers.heating_mode.title',
       tokens: [{
         name: 'mode',

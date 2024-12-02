@@ -33,13 +33,16 @@ module.exports = {
   },
 
   async getFeatures({ homey, body }) {
+    console.log('Received body:', body);
     try {
       const { deviceId } = body;
+      if (!deviceId) throw new Error('Device ID is required');
+      
       const driver = homey.drivers.getDriver('vicare');
       const devices = driver.getDevices();
-      const device = devices.find((d) => d.getData().deviceId === deviceId);
+      const device = devices.find((d) => d.getData().id === deviceId);
 
-      if (!device) throw new Error('No device found');
+      if (!device) throw new Error(`No device found with ID: ${deviceId}`);
       return await device.getFeatures(false);
     } catch (error) {
       homey.error('Error in getFeatures API:', error);

@@ -3,33 +3,27 @@
     {
       "id": "compressor-is-running",
       "title": {
-        "en": "Compressor is !{{running|not running}}",
-        "sv": "Kompressorn !{{är igång|är inte igång}}"
+        "en": "Compressor is !{{running|not running}}"
       },
       "titleFormatted": {
-        "en": "Compressor is !{{running|not running}}",
-        "sv": "Kompressorn !{{är igång|är inte igång}}"
+        "en": "Compressor is !{{running|not running}}"
       },
       "args": [],
       "hint": {
-        "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
-        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
+        "en": "Checking last known state, i.e. could return incorrect value if not recently synced."
       }
     },
     {
       "id": "burner-is-running",
       "title": {
-        "en": "Burner is !{{running|not running}}",
-        "sv": "Brännaren !{{är igång|är inte igång}}"
+        "en": "Burner is !{{running|not running}}"
       },
       "titleFormatted": {
-        "en": "Burner is !{{running|not running}}",
-        "sv": "Brännaren !{{är igång|är inte igång}}"
+        "en": "Burner is !{{running|not running}}"
       },
       "args": [],
       "hint": {
-        "en": "Checking last known state, i.e. could return incorrect value if not recently synced.",
-        "sv": "Kontrollerar senaste kända tillstånd, dvs kan returnera felaktigt värde om inte synkroniserat nyligen."
+        "en": "Checking last known state, i.e. could return incorrect value if not recently synced."
       }
     }
   ],
@@ -37,12 +31,10 @@
     {
       "id": "set-operating-mode",
       "title": {
-        "en": "Set operating mode to [[mode]]",
-        "sv": "Ställ in driftläge till [[mode]]"
+        "en": "Set operating mode to [[mode]]"
       },
       "titleFormatted": {
-        "en": "Set operating mode to [[mode]]",
-        "sv": "Ställ in driftläge till [[mode]]"
+        "en": "Set operating mode to [[mode]]"
       },
       "args": [
         {
@@ -52,48 +44,41 @@
             {
               "id": "dhw",
               "title": {
-                "en": "DHW only",
-                "sv": "Endast varmvatten"
+                "en": "Hot water only"
               }
             },
             {
               "id": "heating",
               "title": {
-                "en": "Heating only",
-                "sv": "Endast värme"
+                "en": "Heating only"
               }
             },
             {
               "id": "dhwAndHeating",
               "title": {
-                "en": "DHW and heating",
-                "sv": "Varmvatten och värme"
+                "en": "Hot water and heating"
               }
             },
             {
               "id": "standby",
               "title": {
-                "en": "Standby",
-                "sv": "Standby"
+                "en": "Standby"
               }
             }
           ]
         }
       ],
       "hint": {
-        "en": "Note: Not all operating modes are supported by all installations",
-        "sv": "OBS: Alla driftlägen stöds inte av alla installationer"
+        "en": "Note: Not all operating modes are supported by all installations"
       }
     },
     {
       "id": "set-heating-thermostat",
       "title": {
-        "en": "Set heating target temperature to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
+        "en": "Set heating target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set heating target temperature to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur för värme till [[temperature]] °C"
+        "en": "Set heating target temperature to [[temperature]] °C"
       },
       "args": [
         {
@@ -103,8 +88,7 @@
           "max": 37,
           "step": 1,
           "title": {
-            "en": "Temperature",
-            "sv": "Temperatur"
+            "en": "Temperature"
           }
         }
       ]
@@ -112,12 +96,10 @@
     {
       "id": "set-hot-water-thermostat",
       "title": {
-        "en": "Set hot water target temperature to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
+        "en": "Set hot water Normal target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set hot water target temperature to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur för varmvatten till [[temperature]] °C"
+        "en": "Set hot water Normal target temperature to [[temperature]] °C"
       },
       "args": [
         {
@@ -127,8 +109,7 @@
           "max": 60,
           "step": 1,
           "title": {
-            "en": "Temperature",
-            "sv": "Temperatur"
+            "en": "Temperature"
           }
         }
       ]
@@ -136,12 +117,10 @@
     {
       "id": "do-one-time-hot-water-charge",
       "title": {
-        "en": "Set one time hot water charge",
-        "sv": "Ställ in engångsladdning av varmvatten"
+        "en": "Set one time hot water charge"
       },
       "titleFormatted": {
-        "en": "Set one time hot water charge to [[active]]",
-        "sv": "Ställ in engångsladdning av varmvatten till [[active]]"
+        "en": "Set one time hot water charge to [[active]]"
       },
       "args": [
         {
@@ -151,15 +130,13 @@
             {
               "id": "activate",
               "title": {
-                "en": "Active",
-                "sv": "Aktiv"
+                "en": "Active"
               }
             },
             {
               "id": "deactivate",
               "title": {
-                "en": "Inactive",
-                "sv": "Inaktiv"
+                "en": "Inactive"
               }
             }
           ]
@@ -169,12 +146,10 @@
     {
       "id": "set-hot-water-thermostat2",
       "title": {
-        "en": "Set hot water target temperature 2 to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set hot water target temperature 2 to [[temperature]] °C",
-        "sv": "Ställ in måltemperatur 2 för varmvatten till [[temperature]] °C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
       },
       "args": [
         {
@@ -184,9 +159,55 @@
           "max": 60,
           "step": 1,
           "title": {
-            "en": "Temperature",
-            "sv": "Temperatur"
+            "en": "Temperature"
           }
+        }
+      ]
+    },
+    {
+      "id": "set-fuelcell-mode",
+      "title": {
+        "en": "Set fuel cell mode to [[mode]]"
+      },
+      "titleFormatted": {
+        "en": "Set fuel cell mode to [[mode]]"
+      },
+      "args": [
+        {
+          "name": "mode",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "standby",
+              "title": {
+                "en": "Standby"
+              }
+            },
+            {
+              "id": "maintenance",
+              "title": {
+                "en": "Maintenance"
+              }
+            },
+            {
+              "id": "heatControlled",
+              "title": {
+                "en": "Heat controlled"
+              }
+            },
+            {
+              "id": "economical",
+              "title": {
+                "en": "Economical"
+              }
+            },
+            {
+              "id": "ecological",
+              "title": {
+                "en": "Ecological"
+              }
+            }
+          ]
         }
       ]
     }
@@ -195,8 +216,7 @@
     {
       "id": "heating-mode-changed",
       "title": {
-        "en": "Operating mode changed",
-        "sv": "Driftläge ändrat"
+        "en": "Operating mode changed"
       },
       "args": [],
       "tokens": [
@@ -204,8 +224,7 @@
           "name": "mode",
           "type": "string",
           "title": {
-            "en": "Mode",
-            "sv": "Läge"
+            "en": "Mode"
           },
           "example": {
             "en": "dhw"

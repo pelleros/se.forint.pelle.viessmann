@@ -52,7 +52,7 @@ describe('Config funktioner', () => {
             },
           },
           capabilityOptions: {
-            title: { en: 'Hot water thermostat 2' },
+            title: { en: 'Hot water Temp 2 thermostat' },
             units: '°C',
             min: 10,
             max: 60,
@@ -116,7 +116,7 @@ describe('Config funktioner', () => {
             },
           },
           capabilityOptions: {
-            title: { en: 'Heating mode' },
+            title: { en: 'Operating mode' },
             values: [
               {
                 id: 'dhw',
@@ -379,7 +379,7 @@ describe('Config funktioner', () => {
         test('har korrekt struktur och värden', () => {
           const actualFeature = config.FEATURES[featurePath];
           expect(actualFeature).toBeDefined();
-          
+
           // Testa requireRole om det finns
           if (expectedFeature.requireRole) {
             expect(actualFeature.requireRole).toBe(expectedFeature.requireRole);
@@ -387,26 +387,26 @@ describe('Config funktioner', () => {
 
           // Testa capabilities
           expect(actualFeature.capabilities).toHaveLength(expectedFeature.capabilities.length);
-          
+
           expectedFeature.capabilities.forEach((expectedCapability, index) => {
             const actualCapability = actualFeature.capabilities[index];
-            
+
             // Testa capabilityName
             expect(actualCapability.capabilityName).toBe(expectedCapability.capabilityName);
-            
+
             // Testa propertyPath
             expect(actualCapability.propertyPath).toBe(expectedCapability.propertyPath);
-            
+
             // Testa command om det finns
             if (expectedCapability.command) {
               expect(actualCapability.command).toEqual(expectedCapability.command);
             }
-            
+
             // Testa valueMapping om det finns
             if (expectedCapability.valueMapping) {
               expect(actualCapability.valueMapping).toEqual(expectedCapability.valueMapping);
             }
-            
+
             // Testa capabilityOptions
             expect(actualCapability.capabilityOptions).toEqual(expectedCapability.capabilityOptions);
           });
@@ -439,4 +439,4 @@ describe('Config funktioner', () => {
       }).toThrow('No capability options found for: invalid.capability');
     });
   });
-}); 
+});

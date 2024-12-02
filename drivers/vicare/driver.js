@@ -285,7 +285,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Get operating modes
     const operatingModes = [];
     try {
-      const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_MODE);
+      const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_CIRCUIT_0_MODE);
 
       if (mainOpMode?.isEnabled) {
         const formatString = (str) => {

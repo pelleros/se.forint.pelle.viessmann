@@ -51,9 +51,9 @@
           "title": "Set operating mode to [[mode]]",
           "hint": "Note: Not all operating modes are supported by all installations",
           "values": {
-            "dhw": "DHW only",
+            "dhw": "Hot water only",
             "heating": "Heating only",
-            "dhwAndHeating": "DHW and heating",
+            "dhwAndHeating": "Hot water and heating",
             "standby": "Standby"
           }
         },
@@ -62,7 +62,7 @@
           "temperature": "Temperature"
         },
         "dhw_temp": {
-          "title": "Set hot water target temperature to [[temperature]] °C",
+          "title": "Set hot water Normal target temperature to [[temperature]] °C",
           "temperature": "Temperature"
         },
         "dhw_charge": {
@@ -74,10 +74,20 @@
           }
         },
         "hot_water_temp2": {
-          "title": "Set hot water target temperature 2 to [[temperature]] °C"
+          "title": "Set hot water Temp 2 target temperature to [[temperature]] °C"
         },
         "temperature": {
           "title": "Temperature"
+        },
+        "fuelcell_mode": {
+          "title": "Set fuel cell mode to [[mode]]",
+          "values": {
+            "standby": "Standby",
+            "maintenance": "Maintenance",
+            "heatControlled": "Heat controlled",
+            "economical": "Economical",
+            "ecological": "Ecological"
+          }
         }
       },
       "triggers": {

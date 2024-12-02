@@ -1,6 +1,6 @@
 {
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -39,7 +39,7 @@
       "oauth2": true
     },
     "getFeatures": {
-      "method": "GET",
+      "method": "POST",
       "path": "/features",
       "oauth2": true
     },

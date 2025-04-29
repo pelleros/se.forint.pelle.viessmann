@@ -23,7 +23,7 @@
 // Feature paths (as defined in the Viessmann api https://documentation.viessmann.com/static/iot/data-points)
 // as constants to avoid string errors and enable IDE autocompletion
 const PATHS = {
-  HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.hotWaterStorage',
+  HOT_WATER_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder',
   HOT_WATER_TARGET: 'heating.dhw.temperature.main',
   HOT_WATER_TARGET_2: 'heating.dhw.temperature.temp2',
   HEATING_CIRCUIT_0_TARGET: 'heating.circuits.0.operating.programs.normal',

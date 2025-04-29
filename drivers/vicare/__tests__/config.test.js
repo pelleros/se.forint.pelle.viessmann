@@ -8,7 +8,7 @@ describe('Config funktioner', () => {
   // Testa varje feature och dess capabilities
   describe('Features och Capabilities', () => {
     const expectedFeatures = {
-      'heating.dhw.sensors.temperature.hotWaterStorage': {
+      'heating.dhw.sensors.temperature.dhwCylinder': {
         capabilities: [{
           capabilityName: 'measure_temperature.hotWater',
           propertyPath: 'value.value',
@@ -32,7 +32,7 @@ describe('Config funktioner', () => {
             },
           },
           capabilityOptions: {
-            title: { en: 'Hot water thermostat' },
+            title: { en: 'Hot water Normal' },
             units: '°C',
             min: 10,
             max: 60,
@@ -52,7 +52,7 @@ describe('Config funktioner', () => {
             },
           },
           capabilityOptions: {
-            title: { en: 'Hot water Temp 2 thermostat' },
+            title: { en: 'Hot water Temp 2' },
             units: '°C',
             min: 10,
             max: 60,

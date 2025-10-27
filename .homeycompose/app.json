@@ -1,6 +1,6 @@
 {
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [

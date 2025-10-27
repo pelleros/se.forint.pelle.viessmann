@@ -40,5 +40,8 @@
   },
   "1.0.13": {
     "en": "Viessmann ViCare API update"
+  },
+  "1.0.14": {
+    "en": "Viessmann ViCare API endpoint update"
   }
 }

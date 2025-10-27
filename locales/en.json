@@ -2,7 +2,7 @@
     "settings": {
       "title": "Viessmann developer account",
       "subtitle": "Client ID Configuration",
-      "bodytext": "Go to https://app.developer.viessmann.com/ and add a new client. Ensure Google reCaptcha is turned off. Set redirect URI to https://callback.athom.com/oauth2/callback",
+      "bodytext": "Go to https://app.developer.viessmann-climatesolutions.com/ and add a new client. Ensure Google reCaptcha is turned off. Set redirect URI to https://callback.athom.com/oauth2/callback",
       "save": "Save",
       "saved": "Client ID saved successfully! You can now add your Viessmann device in Homey.",
       "error": {

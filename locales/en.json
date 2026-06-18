@@ -29,6 +29,11 @@
           "description": "Select which device to get features for",
           "select": "Select a device...",
           "refresh": "Refresh Devices"
+        },
+        "power": {
+          "title": "Power Measurement",
+          "description": "Fetch the latest data from the API and update the power reading now.",
+          "refresh": "Refresh Power Now"
         }
       }
     },

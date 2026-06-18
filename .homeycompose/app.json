@@ -1,6 +1,6 @@
 {
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -41,6 +41,11 @@
     "getFeatures": {
       "method": "POST",
       "path": "/features",
+      "oauth2": true
+    },
+    "refreshPower": {
+      "method": "POST",
+      "path": "/refreshPower",
       "oauth2": true
     },
     "getDevices": {

@@ -29,7 +29,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   static FEATURES = FEATURES;
   static PATHS = PATHS;
 
-  MIN_POLL_INTERVAL = 2 * 60 * 1000;
+  static DEFAULT_POLL_INTERVAL_MINUTES = 2;
+  static MIN_POLL_INTERVAL_MINUTES = 1;
+
   _devicePollers = new Map();
   _triggerCards = new Map();
 
@@ -114,31 +116,28 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     this.log('Finished registering flow cards');
   }
 
-  _calculatePollInterval() {
-    const deviceCount = this.getDevices().length;
-    return this.MIN_POLL_INTERVAL * deviceCount;
+  // Convert raw minutes (from a setting value or anywhere else) to a
+  // sanitised interval in milliseconds. Centralised so onSettings — where
+  // device.getSetting() may still return the previous value — can convert
+  // the new value directly without re-reading from settings.
+  static _toIntervalMs(rawMinutes) {
+    const { DEFAULT_POLL_INTERVAL_MINUTES, MIN_POLL_INTERVAL_MINUTES } = this;
+    const num = Number(rawMinutes);
+    const minutes = Number.isFinite(num) && num > 0
+      ? Math.max(num, MIN_POLL_INTERVAL_MINUTES)
+      : DEFAULT_POLL_INTERVAL_MINUTES;
+    return minutes * 60 * 1000;
   }
 
-  async _updateAllPollingIntervals() {
-    const newInterval = this._calculatePollInterval();
-    const devices = this.getDevices();
-
-    if (process.env.DEBUG) {
-      this.log(`Updating polling interval for ${devices.length} devices to ${newInterval / 1000} seconds`);
-    }
-
-    await Promise.all(devices.map(async (device) => {
-      const { installationId, gatewaySerial, deviceId } = device.getStore();
-      const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-      await this._startPolling(device, deviceKey, newInterval);
-    }));
+  _calculatePollInterval(device) {
+    return this.constructor._toIntervalMs(device.getSetting('pollInterval'));
   }
 
   async _startPolling(device, deviceKey, interval = null) {
     try {
       this.log(`Setting up polling for device: ${deviceKey}`);
       let consecutiveErrors = 0;
-      const pollInterval = interval || this._calculatePollInterval();
+      const pollInterval = interval || this._calculatePollInterval(device);
 
       // Stop any existing polling
       this._stopPolling(deviceKey);
@@ -148,7 +147,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         try {
           // get features with extended response every 30th poll (statisticaly)
           const extendedRequest = Math.random() < 0.03;
-          const features = await device.getFeatures({ useFilter: !extendedRequest });
+          const features = await device.getFeatures(!extendedRequest);
 
           consecutiveErrors = 0;
           if (!device.getAvailable()) {

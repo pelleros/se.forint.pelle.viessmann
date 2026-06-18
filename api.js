@@ -50,6 +50,29 @@ module.exports = {
     }
   },
 
+  async refreshPower({ homey, body }) {
+    try {
+      const { deviceId } = body;
+      if (!deviceId) throw new Error('Device ID is required');
+
+      const driver = homey.drivers.getDriver('vicare');
+      const devices = driver.getDevices();
+      const device = devices.find((d) => d.getData().id === deviceId);
+      if (!device) throw new Error(`No device found with ID: ${deviceId}`);
+
+      const features = await device.getFeatures(false);
+      await device.onFeaturesUpdated(features, false);
+
+      return {
+        meter_power: device.getCapabilityValue('meter_power'),
+        measure_power: device.getCapabilityValue('measure_power'),
+      };
+    } catch (error) {
+      homey.error('Error in refreshPower API:', error);
+      throw error;
+    }
+  },
+
   async getDevices({ homey }) {
     try {
       const driver = homey.drivers.getDriver('vicare');

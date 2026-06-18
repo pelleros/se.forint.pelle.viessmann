@@ -240,6 +240,8 @@ describe('ViessmannDevice capability handling', () => {
         if (status && status !== 'connected') continue;
 
         for (const capability of featureConfig.capabilities) {
+          // Derived capabilities (e.g. measure_power) are computed in device.js, not via propertyPath
+          if (capability.derived) continue;
           testCases.push([
             featurePath,
             capability.capabilityName,

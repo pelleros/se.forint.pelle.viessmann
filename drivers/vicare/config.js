@@ -50,6 +50,14 @@ const PATHS = {
   FUEL_CELL_STATS: 'fuelCell.statistics',
   FUEL_CELL_PHASE: 'fuelCell.operating.phase',
   FUEL_CELL_MODE: 'fuelCell.operating.modes.active',
+  POWER_CONSUMPTION_SUMMARY_HEATING: 'heating.power.consumption.summary.heating',
+  POWER_CONSUMPTION_SUMMARY_DHW: 'heating.power.consumption.summary.dhw',
+  POWER_CONSUMPTION_SUMMARY_COOLING: 'heating.power.consumption.summary.cooling',
+  // Live activity signals used by device.js to derive an instantaneous
+  // measure_power estimate (the API does not expose a direct W sensor on
+  // most Vitocal models, so we infer from compressor activity).
+  COMPRESSOR_SPEED: 'heating.compressors.0.speed.current',
+  PRIMARY_FAN_MODULATION: 'heating.primaryCircuit.fans.0.current',
 };
 
 // Gemensamma capability-mallar
@@ -392,6 +400,44 @@ module.exports = {
         },
       }],
     },
+    // meter_power / measure_power are derived from the sum of currentDay across
+    // summary.heating + summary.dhw + summary.cooling (see device.js). They are
+    // declared here on summary.heating so the capability addition loop in
+    // device.js:120 picks them up whenever that feature is enabled.
+    [PATHS.POWER_CONSUMPTION_SUMMARY_HEATING]: {
+      capabilities: [
+        {
+          capabilityName: 'meter_power',
+          propertyPath: '_derived',
+          derived: true,
+          capabilityOptions: {
+            title: { en: 'Energy' },
+            units: 'kWh',
+            decimals: 3,
+          },
+        },
+        {
+          capabilityName: 'measure_power',
+          propertyPath: '_derived',
+          derived: true,
+          capabilityOptions: {
+            title: { en: 'Power' },
+            units: 'W',
+            decimals: 0,
+          },
+        },
+      ],
+    },
+    // DHW and cooling summary features carry no Homey capability of their own —
+    // they are only used as additional inputs to the aggregated currentDay sum.
+    // An entry must exist here, otherwise the loop in device.js skips them as
+    // "unknown feature".
+    [PATHS.POWER_CONSUMPTION_SUMMARY_DHW]: { capabilities: [] },
+    [PATHS.POWER_CONSUMPTION_SUMMARY_COOLING]: { capabilities: [] },
+    // Compressor speed and primary fan modulation feed the live-wattage
+    // estimate computed in device.js. No Homey capability of their own.
+    [PATHS.COMPRESSOR_SPEED]: { capabilities: [] },
+    [PATHS.PRIMARY_FAN_MODULATION]: { capabilities: [] },
     [PATHS.FUEL_CELL_MODE]: {
       capabilities: [{
         capabilityName: 'thermostat_mode.fuelCell',

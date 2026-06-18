@@ -81,6 +81,16 @@
           <button id="copyFeatures" class="homey-button-secondary" data-i18n="settings.troubleshooting.features.copy"></button>
         </div>
       </div>
+
+      <!-- Refresh Power -->
+      <div class="homey-form-group">
+        <label class="homey-form-label" data-i18n="settings.troubleshooting.power.title"></label>
+        <p class="homey-form-hint" data-i18n="settings.troubleshooting.power.description"></p>
+        <p id="powerResult" style="font-family: monospace; display: none;"></p>
+        <div class="homey-form-buttons">
+          <button id="refreshPower" class="homey-button-primary" data-i18n="settings.troubleshooting.power.refresh"></button>
+        </div>
+      </div>
     </fieldset>
 
     <script type="text/javascript">
@@ -96,6 +106,8 @@
         var featuresElement = document.getElementById("features");
         var deviceSelectElement = document.getElementById("deviceSelect");
         var refreshDevicesElement = document.getElementById("refreshDevices");
+        var refreshPowerElement = document.getElementById("refreshPower");
+        var powerResultElement = document.getElementById("powerResult");
 
         Homey.get("clientId", function (err, clientId) {
           if (err) return Homey.alert(err);
@@ -104,11 +116,11 @@
 
         saveElement.addEventListener("click", function (e) {
           const clientId = clientIdElement.value.trim();
-          
+
           if (!clientId || clientId.length < 5) {
             return Homey.alert(Homey.__("settings.error.invalid_client_id"));
           }
-          
+
           Homey.set("clientId", clientId, function (err) {
             if (err) return Homey.alert(err);
             Homey.alert(Homey.__("settings.saved"));
@@ -167,6 +179,23 @@
           Homey.api('POST', '/features', { deviceId: selectedDevice }, function(err, result) {
             if (err) return Homey.alert(err);
             featuresElement.textContent = JSON.stringify(result, null, 3);
+          });
+        });
+
+        refreshPowerElement.addEventListener("click", function (e) {
+          const selectedDevice = deviceSelectElement.options[deviceSelectElement.selectedIndex].value;
+          if (!selectedDevice) {
+            return Homey.alert(Homey.__("settings.error.no_device_selected"));
+          }
+
+          refreshPowerElement.disabled = true;
+          Homey.api('POST', '/refreshPower', { deviceId: selectedDevice }, function(err, result) {
+            refreshPowerElement.disabled = false;
+            if (err) return Homey.alert(err);
+            powerResultElement.style.display = 'block';
+            powerResultElement.textContent =
+              'Energy: ' + (result.meter_power !== null ? result.meter_power.toFixed(3) + ' kWh' : 'n/a') +
+              '  |  Power: ' + (result.measure_power !== null ? Math.round(result.measure_power) + ' W' : 'n/a');
           });
         });
 

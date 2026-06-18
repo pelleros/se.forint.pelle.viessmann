@@ -5,3 +5,7 @@
 **/.DS_Store
 .DS_Store
 app.json
+.env
+.env.local
+scripts/.testConnection.state.json
+scripts/.testConnection.poll.log

@@ -6,6 +6,7 @@
   "class": "heater",
   "capabilities": [],
   "capabilitiesOptions": {},
+  "energy": {},
   "platforms": [
     "local"
   ],
@@ -38,6 +39,50 @@
     {
       "id": "login_oauth2",
       "template": "login_oauth2"
+    }
+  ],
+  "settings": [
+    {
+      "id": "pollInterval",
+      "type": "number",
+      "label": {
+        "en": "Poll interval (minutes)"
+      },
+      "hint": {
+        "en": "How often this device polls the Viessmann API. The free Basic tier allows 120 calls per day per Client ID — keep this high enough that calls/day × devices stays under that limit."
+      },
+      "value": 2,
+      "min": 1,
+      "step": 1,
+      "units": "min"
+    },
+    {
+      "id": "baselineW",
+      "type": "number",
+      "label": {
+        "en": "Baseline power draw (W)"
+      },
+      "hint": {
+        "en": "Estimated standby power draw when the compressor is OFF (circulator pump, controller, etc.). Used to compute live measure_power when no kWh delta is available."
+      },
+      "value": 150,
+      "min": 0,
+      "step": 10,
+      "units": "W"
+    },
+    {
+      "id": "maxCompressorW",
+      "type": "number",
+      "label": {
+        "en": "Max compressor power draw (W)"
+      },
+      "hint": {
+        "en": "Estimated electrical draw of the compressor at its maximum speed (typically ~120 rps for inverter heat pumps). Live measure_power is scaled linearly from compressor.speed when the compressor is active. Tune to match what the Viessmann ViCare app shows during a steady-state cycle. Set to 0 to disable the compressor-based estimate and fall back to kWh-delta derivation."
+      },
+      "value": 3500,
+      "min": 0,
+      "step": 100,
+      "units": "W"
     }
   ]
 }

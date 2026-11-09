@@ -59,7 +59,7 @@ test.each([['0'], ['1'], ['2']])('discovers circuit %s and its modes/constraints
 
 test('prefers enabled circuit 0 and ignores disabled circuit 0', () => {
   expect(detectHeatingCircuit(response(['1', '0']).data)).toBe('0');
-  const data = response(['1']).data;
+  const { data } = response(['1']);
   data.push({ feature: PATHS.HEATING_CIRCUIT_0_MODE, isEnabled: false });
   expect(detectHeatingCircuit(data)).toBe('1');
 });
@@ -101,10 +101,16 @@ test('updates readings only from the selected circuit without mutating API data'
 
 test('refreshes an existing pairing once without changing device identity', async () => {
   const target = device('1');
-  const store = { installationId: 'installation', gatewaySerial: 'gateway', deviceId: '0', version: '1.0.10' };
+  const store = {
+    installationId: 'installation', gatewaySerial: 'gateway', deviceId: '0', version: '1.0.10',
+  };
   target.getStoreValue = (key) => store[key];
-  target.setStoreValue = jest.fn(async (key, value) => { store[key] = value; });
-  const metadata = { heatingCircuitId: '1', features: [PATHS.HEATING_CIRCUIT_0_MODE], constraints: {}, operatingModes: [] };
+  target.setStoreValue = jest.fn(async (key, value) => {
+    store[key] = value;
+  });
+  const metadata = {
+    commandMetadata: {}, heatingCircuitId: '1', features: [PATHS.HEATING_CIRCUIT_0_MODE], constraints: {}, operatingModes: [],
+  };
   target.driver = { _getEnabledFeaturesAndOpModes: jest.fn().mockResolvedValue(metadata) };
   await target.checkUpgradeSpecifics();
   await target.checkUpgradeSpecifics();
@@ -143,10 +149,16 @@ test('existing Flow action resolves the paired device circuit', async () => {
   const listeners = {};
   driver.log = jest.fn();
   driver.error = jest.fn();
-  driver.homey = { flow: {
-    getConditionCard: () => ({ registerRunListener: jest.fn() }),
-    getActionCard: (id) => ({ registerRunListener: (listener) => { listeners[id] = listener; } }),
-  } };
+  driver.homey = {
+    flow: {
+      getConditionCard: () => ({ registerRunListener: jest.fn() }),
+      getActionCard: (id) => ({
+        registerRunListener: (listener) => {
+          listeners[id] = listener;
+        },
+      }),
+    },
+  };
   driver._registerFlowCards();
   const target = device('1');
   await listeners['set-operating-mode']({ device: target, mode: 'dhwAndHeating' });
@@ -163,13 +175,66 @@ test('pairing stores the discovered circuit with unchanged device identity', asy
   driver.homey = { manifest: { version: '1.0.10' } };
   const client = {
     getFeatures: jest.fn().mockResolvedValue(response(['1'])),
-    getInstallations: jest.fn().mockResolvedValue({ data: [{ gateways: [{
-      installationId: 'installation', serial: 'gateway',
-      devices: [{ id: '0', deviceType: 'heating', roles: [] }],
-    }] }] }),
+    getInstallations: jest.fn().mockResolvedValue({
+      data: [{
+        gateways: [{
+          installationId: 'installation',
+          serial: 'gateway',
+          devices: [{ id: '0', deviceType: 'heating', roles: [] }],
+        }],
+      }],
+    }),
   };
   const paired = await driver.onPairListDevices({ oAuth2Client: client });
   expect(paired[0].data.id).toBe('installation-gateway-0');
   expect(paired[0].store.heatingCircuitId).toBe('1');
   expect(paired[0].store.operatingModes.map((mode) => mode.id)).toContain('forcedReduced');
+});
+
+test('explicit circuit selection overrides automatic circuit 0 preference', () => {
+  expect(detectHeatingCircuit(response(['0', '1']).data, '1')).toBe('1');
+  expect(() => detectHeatingCircuit(response(['0']).data, '1')).toThrow('not enabled');
+});
+
+test('changing the circuit setting refreshes metadata and restarts polling', async () => {
+  const target = device('0');
+  const metadata = {
+    heatingCircuitId: '1', features: [], constraints: {}, operatingModes: [], commandMetadata: {},
+  };
+  target.driver = {
+    _getEnabledFeaturesAndOpModes: jest.fn().mockResolvedValue(metadata),
+    _stopPolling: jest.fn(),
+    _startPolling: jest.fn(),
+  };
+  target.setStoreValue = jest.fn();
+  target.initializeCapabilities = jest.fn();
+  target.updateCapabilityOptions = jest.fn();
+  target.initializeOperatingModes = jest.fn();
+  target.registerCapabilityListeners = jest.fn();
+  await target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '1' } });
+  expect(target.driver._getEnabledFeaturesAndOpModes.mock.calls[0][4]).toBe('1');
+  expect(target._heatingCircuitId).toBe('1');
+  expect(target.setStoreValue).toHaveBeenCalledWith('heatingCircuitId', '1');
+  expect(target.driver._stopPolling).toHaveBeenCalledTimes(1);
+  expect(target.driver._startPolling).toHaveBeenCalledTimes(1);
+});
+
+test('invalid circuit settings leave the current device untouched', async () => {
+  const target = device('0');
+  target.driver = { _stopPolling: jest.fn() };
+  await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '../1' } })).rejects.toThrow('Enter auto');
+  expect(target._heatingCircuitId).toBe('0');
+  expect(target.driver._stopPolling).not.toHaveBeenCalled();
+});
+
+test('unavailable commands and rejected API results never update the displayed state', async () => {
+  const target = device('1');
+  const capability = getCapability(PATHS.HEATING_CIRCUIT_0_MODE);
+  target._commands = { [PATHS.HEATING_CIRCUIT_0_MODE]: { setMode: { isExecutable: false } } };
+  await expect(target.executeCommand(PATHS.HEATING_CIRCUIT_0_MODE, capability, 'dhwAndHeating')).rejects.toThrow('currently unavailable');
+  expect(target.oAuth2Client.executeCommand).not.toHaveBeenCalled();
+  target._commands[PATHS.HEATING_CIRCUIT_0_MODE].setMode.isExecutable = true;
+  target.oAuth2Client.executeCommand.mockResolvedValue({ data: { success: false, reason: 'DEVICE_BUSY' } });
+  await expect(target.executeCommand(PATHS.HEATING_CIRCUIT_0_MODE, capability, 'dhwAndHeating')).rejects.toThrow('DEVICE_BUSY');
+  expect(target.setCapabilityValueIfPossible).not.toHaveBeenCalled();
 });

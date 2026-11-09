@@ -21,6 +21,7 @@
 'use strict';
 
 const { OAuth2Device } = require('homey-oauth2app');
+const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
@@ -41,6 +42,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._constraints = this.getStoreValue('constraints');
     this._operatingModes = this.getStoreValue('operatingModes');
     this._heatingCircuitId = this.getStoreValue('heatingCircuitId');
+    this._commands = this.getStoreValue('commandMetadata');
 
     if (process.env.DEBUG) {
       this.log(
@@ -58,6 +60,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._listeners = [];
 
     await this.initializeCapabilities();
+    await this.updateCapabilityOptions();
     await this.initializeOperatingModes();
     await this.registerCapabilityListeners();
 
@@ -134,10 +137,15 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async updateCapabilityOptions() {
-    const capabilities = this.getCapabilities();
-    for (const capability of capabilities) {
-      const capabilityOptions = getCapabilityOptions(capability);
-      await this.setCapabilityOptions(capability, capabilityOptions);
+    for (const [path, feature] of Object.entries(FEATURES)) {
+      for (const capability of feature.capabilities) {
+        if (!this.hasCapability(capability.capabilityName)) continue;
+        const options = { ...getCapabilityOptions(capability.capabilityName) };
+        const constraints = this._constraints?.[path];
+        const temperature = constraints?.temperature || constraints?.targetTemperature;
+        if (temperature) Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
+        await this.setCapabilityOptions(capability.capabilityName, options);
+      }
     }
   }
 
@@ -194,35 +202,30 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
       }
 
-      if (command?.useValueAsCommand) {
-        const mappedValue = capability.valueMapping?.[value] || value;
-        await this.oAuth2Client.executeCommand({
-          installationId: this._installationId,
-          gatewaySerial: this._gatewaySerial,
-          deviceId: this._deviceId,
-          feature: resolveCircuitPath(path, this._heatingCircuitId),
-          command: mappedValue,
-          body: {},
-        });
-      } else {
-        const parameters = {};
-        for (const [, apiParam] of Object.entries(command.parameterMapping)) {
-          parameters[apiParam] = value;
-        }
-
-        await this.oAuth2Client.executeCommand({
-          installationId: this._installationId,
-          gatewaySerial: this._gatewaySerial,
-          deviceId: this._deviceId,
-          feature: resolveCircuitPath(path, this._heatingCircuitId),
-          command: command.name,
-          body: parameters,
-        });
+      const commandName = command.useValueAsCommand
+        ? (capability.valueMapping?.[value] || value) : command.name;
+      const parameters = {};
+      if (!command.useValueAsCommand) {
+        for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
+      }
+      validateCommand(this._commands, path, commandName, parameters);
+      const result = await this.oAuth2Client.executeCommand({
+        installationId: this._installationId,
+        gatewaySerial: this._gatewaySerial,
+        deviceId: this._deviceId,
+        feature: resolveCircuitPath(path, this._heatingCircuitId),
+        command: commandName,
+        body: parameters,
+      });
+      if (result?.data?.success === false) {
+        throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
       }
     } catch (error) {
-      this.log('Error executing command:', error);
-      // throw error with message
-      throw new Error(`Error executing command: ${error.message}`, { cause: error });
+      this.log('Error executing command:', error.message);
+      const wrapped = new Error(`Error executing command: ${error.message}`, { cause: error });
+      wrapped.status = error.status;
+      wrapped.retryAfterMs = error.retryAfterMs;
+      throw wrapped;
     }
     // Uppdate capability value 
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
@@ -235,59 +238,50 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       const {
         installationId, gatewaySerial, deviceId, roles, operatingModes,
       } = this.getData();
-      this.setStoreValue('installationId', installationId);
-      this.setStoreValue('gatewaySerial', gatewaySerial);
-      this.setStoreValue('deviceId', deviceId);
+      await this.setStoreValue('installationId', installationId);
+      await this.setStoreValue('gatewaySerial', gatewaySerial);
+      await this.setStoreValue('deviceId', deviceId);
       if (!roles) {
         // 1.0.2 => 1.0.4
-        this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
-        this.setStoreValue('operatingModes', [
+        await this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
+        await this.setStoreValue('operatingModes', [
           { id: 'dhw', title: { en: 'Hot water' } },
           { id: 'dhwAndHeating', title: { en: 'Hot water and Heating' } },
           { id: 'standby', title: { en: 'Standby' } },
         ]);
       } else {
         // 1.0.3 => 1.0.4
-        this.setStoreValue('roles', roles);
-        this.setStoreValue('operatingModes', operatingModes);
+        await this.setStoreValue('roles', roles);
+        await this.setStoreValue('operatingModes', operatingModes);
       }
     }
     // Refresh older pairings once so circuit discovery does not require re-pairing.
-    if (this.getStoreValue('heatingCircuitId') == null) {
+    if (this.getStoreValue('heatingCircuitId') == null || !this.getStoreValue('commandMetadata')) {
       const metadata = await this.driver._getEnabledFeaturesAndOpModes(
         this.oAuth2Client,
         this.getStoreValue('installationId'),
         this.getStoreValue('gatewaySerial'),
         this.getStoreValue('deviceId'),
+        this.getSetting?.('heatingCircuit') || 'auto',
       );
       for (const [key, value] of Object.entries(metadata)) {
         await this.setStoreValue(key, value);
       }
     }
-    // started to store version in 1.0.9
     if (this.storeVersionBefore('1.0.9')) {
-      this.log('Upgrading to 1.0.9');
-      // add features and operating modes
-      const installationId = this.getStoreValue('installationId');
-      const gatewaySerial = this.getStoreValue('gatewaySerial');
-      const deviceId = this.getStoreValue('deviceId');
-      const { features, constraints, operatingModes } = await this.driver._getEnabledFeaturesAndOpModes(this.oAuth2Client, installationId, gatewaySerial, deviceId);
-      if (process.env.DEBUG) {
-        this.log('Features:', features);
-        this.log('Constraints:', constraints);
-        this.log('Operating modes:', operatingModes);
-      }
-      this.setStoreValue('features', features);
-      this.setStoreValue('constraints', constraints);
-      this.setStoreValue('operatingModes', operatingModes);
-      await this.updateCapabilityOptions();
-      this.setStoreValue('version', '1.0.9');
+      await this.setStoreValue('version', '1.0.9');
     }
   }
 
   async onFeaturesUpdated(response, extendedResponse) {
     response = normalizeCircuitFeatures(response, this._heatingCircuitId);
     try {
+      const commands = { ...this._commands };
+      for (const feature of response.data) {
+        if (!feature.isEnabled) commands[feature.feature] = {};
+        else if (feature.commands) commands[feature.feature] = feature.commands;
+      }
+      this._commands = commands;
       if (process.env.DEBUG) {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
@@ -463,10 +457,52 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return this.getCapabilityValue(capabilityName);
   }
 
+  async onSettings({ newSettings, changedKeys }) {
+    if (!changedKeys.includes('heatingCircuit')) return;
+    const selectedCircuit = String(newSettings.heatingCircuit).trim();
+    if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
+      throw new Error('Enter auto or an enabled heating circuit number');
+    }
+    const metadata = await this.driver._getEnabledFeaturesAndOpModes(
+      this.oAuth2Client, this._installationId, this._gatewaySerial, this._deviceId, selectedCircuit,
+    );
+    const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
+    await this.driver._stopPolling(deviceKey);
+    const previous = {
+      heatingCircuitId: this._heatingCircuitId,
+      features: this._features,
+      constraints: this._constraints,
+      operatingModes: this._operatingModes,
+      commandMetadata: this._commands,
+    };
+    try {
+      await this.applyCircuitMetadata(metadata);
+    } catch (error) {
+      await this.applyCircuitMetadata(previous);
+      throw error;
+    } finally {
+      await this.driver._startPolling(this, deviceKey);
+    }
+  }
+
+  async applyCircuitMetadata(metadata) {
+    for (const [key, value] of Object.entries(metadata)) await this.setStoreValue(key, value);
+    this._heatingCircuitId = metadata.heatingCircuitId;
+    this._features = metadata.features;
+    this._constraints = metadata.constraints;
+    this._operatingModes = metadata.operatingModes;
+    this._commands = metadata.commandMetadata;
+    this._listeners = [];
+    await this.initializeCapabilities();
+    await this.updateCapabilityOptions();
+    await this.initializeOperatingModes();
+    await this.registerCapabilityListeners();
+  }
+
   async onOAuth2Uninit() {
     // Stop polling for this device
     const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-    this.driver._stopPolling(deviceKey);
+    await this.driver._stopPolling(deviceKey);
   }
 
   storeVersionBefore(targetVersion) {

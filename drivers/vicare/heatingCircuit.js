@@ -5,7 +5,7 @@ function resolveCircuitPath(path, circuitId = '0') {
   return path.replace(/^heating\.circuits\.0\./, `heating.circuits.${circuitId}.`);
 }
 
-function detectHeatingCircuit(data) {
+function detectHeatingCircuit(data, selectedCircuit = 'auto') {
   const circuits = data.find((item) => item.feature === 'heating.circuits' && item.isEnabled);
   const enabled = circuits?.properties?.enabled?.value;
   const candidates = Array.isArray(enabled)
@@ -14,6 +14,10 @@ function detectHeatingCircuit(data) {
       .map((item) => item.feature.match(/^heating\.circuits\.(\d+)\.operating\.modes\.active$/)?.[1])
       .filter((id) => id !== undefined);
 
+  if (selectedCircuit !== 'auto') {
+    if (!candidates.includes(String(selectedCircuit))) throw new Error(`Heating circuit ${selectedCircuit} is not enabled on this device`);
+    return String(selectedCircuit);
+  }
   // Preserve the previous choice when circuit 0 is available.
   return candidates.includes('0') ? '0' : (candidates[0] || '0');
 }

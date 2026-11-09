@@ -60,6 +60,18 @@
               }
             },
             {
+              "id": "forcedNormal",
+              "title": {
+                "en": "Forced normal"
+              }
+            },
+            {
+              "id": "forcedReduced",
+              "title": {
+                "en": "Forced reduced"
+              }
+            },
+            {
               "id": "standby",
               "title": {
                 "en": "Standby"
@@ -75,10 +87,10 @@
     {
       "id": "set-heating-thermostat",
       "title": {
-        "en": "Set heating target temperature to [[temperature]] °C"
+        "en": "Set heating target temperature to [[temperature]] Â°C"
       },
       "titleFormatted": {
-        "en": "Set heating target temperature to [[temperature]] °C"
+        "en": "Set heating target temperature to [[temperature]] Â°C"
       },
       "args": [
         {
@@ -96,10 +108,10 @@
     {
       "id": "set-hot-water-thermostat",
       "title": {
-        "en": "Set hot water Normal target temperature to [[temperature]] °C"
+        "en": "Set hot water Normal target temperature to [[temperature]] Â°C"
       },
       "titleFormatted": {
-        "en": "Set hot water Normal target temperature to [[temperature]] °C"
+        "en": "Set hot water Normal target temperature to [[temperature]] Â°C"
       },
       "args": [
         {
@@ -146,10 +158,10 @@
     {
       "id": "set-hot-water-thermostat2",
       "title": {
-        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] Â°C"
       },
       "titleFormatted": {
-        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] Â°C"
       },
       "args": [
         {

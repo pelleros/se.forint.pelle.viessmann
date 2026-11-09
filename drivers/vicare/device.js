@@ -21,6 +21,7 @@
 'use strict';
 
 const { OAuth2Device } = require('homey-oauth2app');
+const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
@@ -39,6 +40,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._features = this.getStoreValue('features');
     this._constraints = this.getStoreValue('constraints');
     this._operatingModes = this.getStoreValue('operatingModes');
+    this._heatingCircuitId = this.getStoreValue('heatingCircuitId');
 
     if (process.env.DEBUG) {
       this.log(
@@ -143,27 +145,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     // Not that bad if this fails, we can just use the default operating modes
     try {
       const { capabilityName } = getCapability(PATHS.HEATING_CIRCUIT_0_MODE);
-      const operatingModesCapOpt = this.getCapabilityOptions(capabilityName);
-      const capabilityOperatingModes = operatingModesCapOpt.values;
-
-      for (const opMode of capabilityOperatingModes) {
-        if (!this._operatingModes.some((mode) => mode.id === opMode.id)) {
-          capabilityOperatingModes.splice(capabilityOperatingModes.indexOf(opMode), 1);
-          if (process.env.DEBUG) {
-            this.log('[ViessmannDevice::onInit] Removed operating mode:', opMode);
-          }
-        }
+      const operatingModesCapOpt = { ...this.getCapabilityOptions(capabilityName) };
+      // Clone per-device options: config defaults must not be shared or mutated.
+      if (this._operatingModes?.length) {
+        operatingModesCapOpt.values = this._operatingModes.map((mode) => ({ ...mode }));
       }
-
-      for (const opMode of this._operatingModes) {
-        if (!capabilityOperatingModes.some((mode) => mode.id === opMode.id)) {
-          capabilityOperatingModes.push(opMode);
-          if (process.env.DEBUG) {
-            this.log('[ViessmannDevice::onInit] Added operating mode:', opMode);
-          }
-        }
-      }
-      operatingModesCapOpt.values = capabilityOperatingModes;
       await this.setCapabilityOptions(capabilityName, operatingModesCapOpt);
     } catch (err) {
       if (process.env.DEBUG) {
@@ -203,6 +189,10 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async executeCommand(path, capability, value) {
     try {
       const { command } = capability;
+      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
+        && !this._operatingModes.some((mode) => mode.id === value)) {
+        throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
+      }
 
       if (command?.useValueAsCommand) {
         const mappedValue = capability.valueMapping?.[value] || value;
@@ -210,7 +200,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           installationId: this._installationId,
           gatewaySerial: this._gatewaySerial,
           deviceId: this._deviceId,
-          feature: path,
+          feature: resolveCircuitPath(path, this._heatingCircuitId),
           command: mappedValue,
           body: {},
         });
@@ -224,7 +214,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           installationId: this._installationId,
           gatewaySerial: this._gatewaySerial,
           deviceId: this._deviceId,
-          feature: path,
+          feature: resolveCircuitPath(path, this._heatingCircuitId),
           command: command.name,
           body: parameters,
         });
@@ -232,7 +222,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     } catch (error) {
       this.log('Error executing command:', error);
       // throw error with message
-      throw new Error('Error executing command', error);
+      throw new Error(`Error executing command: ${error.message}`, { cause: error });
     }
     // Uppdate capability value 
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
@@ -262,6 +252,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.setStoreValue('operatingModes', operatingModes);
       }
     }
+    // Refresh older pairings once so circuit discovery does not require re-pairing.
+    if (this.getStoreValue('heatingCircuitId') == null) {
+      const metadata = await this.driver._getEnabledFeaturesAndOpModes(
+        this.oAuth2Client,
+        this.getStoreValue('installationId'),
+        this.getStoreValue('gatewaySerial'),
+        this.getStoreValue('deviceId'),
+      );
+      for (const [key, value] of Object.entries(metadata)) {
+        await this.setStoreValue(key, value);
+      }
+    }
     // started to store version in 1.0.9
     if (this.storeVersionBefore('1.0.9')) {
       this.log('Upgrading to 1.0.9');
@@ -284,6 +286,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async onFeaturesUpdated(response, extendedResponse) {
+    response = normalizeCircuitFeatures(response, this._heatingCircuitId);
     try {
       if (process.env.DEBUG) {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
@@ -303,7 +306,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           // add new features to this._features
           this._features = [...this._features, ...newFeatures];
           // update the store
-          this.setStore('features', this._features);
+          await this.setStoreValue('features', this._features);
           // Initialize capabilities and listeners
           await this.initializeCapabilities();
           await this.registerCapabilityListeners();
@@ -439,9 +442,10 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
-  async getFeatures(useFilter) {
-    // Use PATHS directly for feature filtering
-    const featuresFilter = useFilter ? Object.values(PATHS).join(',') : undefined;
+  async getFeatures({ useFilter = false } = {}) {
+    const featuresFilter = useFilter
+      ? Object.values(PATHS).map((path) => resolveCircuitPath(path, this._heatingCircuitId)).join(',')
+      : undefined;
 
     return this.oAuth2Client.getFeatures({
       installationId: this._installationId,
@@ -464,23 +468,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
     this.driver._stopPolling(deviceKey);
   }
-
-  // Method to handle dynamic feature paths based on installation
-  /* // Method not used, we probably want to handle the ids in a different way (have it as a device setting)
-  updateFeaturePaths(compressorId, heatingCircuitsId, burnerId) {
-    // Instead of modifying FEATURES directly, we create installation-specific paths
-    this._installationPaths = {
-      ...PATHS,
-      COMPRESSOR: `heating.compressors.${compressorId}`,
-      COMPRESSOR_STATS: `heating.compressors.${compressorId}.statistics`,
-      BURNER: `heating.burners.${burnerId}`,
-      BURNER_STATS: `heating.burners.${burnerId}.statistics`,
-      BURNER_MODULATION: `heating.burners.${burnerId}.modulation`,
-      HEATING_MODE: `heating.circuits.${heatingCircuitsId}.operating.modes.active`,
-      HEATING_TARGET: `heating.circuits.${heatingCircuitsId}.operating.programs.normal`,
-    };
-  }
-  */
 
   storeVersionBefore(targetVersion) {
     const currentVersion = this.getStoreValue('version');

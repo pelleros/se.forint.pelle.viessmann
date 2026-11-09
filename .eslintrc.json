@@ -3,6 +3,22 @@
     "athom/homey-app"
   ],
   "rules": {
-    "no-trailing-spaces": ["error", {"ignoreComments": true}]
-  }
+    "no-trailing-spaces": [
+      "error",
+      {
+        "ignoreComments": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/__tests__/**/*.js",
+        "__mocks__/*.js"
+      ],
+      "rules": {
+        "max-classes-per-file": "off"
+      }
+    }
+  ]
 }

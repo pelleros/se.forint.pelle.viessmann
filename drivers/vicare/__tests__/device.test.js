@@ -23,7 +23,7 @@ jest.mock('homey-oauth2app', () => ({
   },
 }));
 
-// Hjälpfunktion för att hämta värde från nested path
+// HjÃ¤lpfunktion fÃ¶r att hÃ¤mta vÃ¤rde frÃ¥n nested path
 function getValueFromPath(obj, path) {
   try {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -39,9 +39,9 @@ describe('ViessmannDevice', () => {
     device._features = Object.values(device.constructor.PATHS);
     device._roles = ['type:heating', 'type:heatpump', 'type:boiler'];
 
-    // Lägg till mock för hasCapability som matchar alla capabilities från config
+    // LÃ¤gg till mock fÃ¶r hasCapability som matchar alla capabilities frÃ¥n config
     device.hasCapability = jest.fn().mockImplementation((capabilityName) => {
-      // Samla alla definierade capabilities från FEATURES
+      // Samla alla definierade capabilities frÃ¥n FEATURES
       const availableCapabilities = Object.values(FEATURES)
         .flatMap((feature) => feature.capabilities)
         .map((cap) => cap.capabilityName);
@@ -175,17 +175,17 @@ describe('ViessmannDevice', () => {
 
 describe('ViessmannDevice capability handling', () => {
   const exampleFiles = fs
-    .readdirSync(path.join(__dirname, '../../../documentation/json-example-files'))
+    .readdirSync(path.join(__dirname, 'fixtures'))
     .filter((file) => file.endsWith('_features.json'))
     .map((file) => jest.requireActual(
-      path.join(__dirname, '../../../documentation/json-example-files', file),
+      path.join(__dirname, 'fixtures', file),
     ));
 
   let device;
 
   beforeEach(() => {
     device = new ViessmannDevice();
-    // Mock nödvändiga metoder
+    // Mock nÃ¶dvÃ¤ndiga metoder
     device.setCapabilityValue = jest.fn();
     device.hasCapability = jest.fn().mockReturnValue(true);
     device.log = jest.fn();
@@ -197,7 +197,7 @@ describe('ViessmannDevice capability handling', () => {
   test('should correctly set capability values from example responses', async () => {
     for (const exampleFile of exampleFiles) {
       for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
-        // Återställ mocken före varje feature-test
+        // Ã…terstÃ¤ll mocken fÃ¶re varje feature-test
         device.setCapabilityValue.mockClear();
 
         const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
@@ -232,7 +232,7 @@ describe('ViessmannDevice capability handling', () => {
         const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
         if (!exampleFeature) continue;
 
-        // Skippa features som inte är enabled
+        // Skippa features som inte Ã¤r enabled
         if (!exampleFeature.isEnabled) continue;
 
         // Skippa features som har status !== "connected" (om status finns)

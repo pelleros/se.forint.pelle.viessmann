@@ -39,7 +39,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     try {
       this.log('Starting onOAuth2Init');
 
-      // Registrera alla triggers frÃƒÂ¥n flowCards.js
+      // Registrera alla triggers från flowCards.js
       await this._registerTriggerCards();
 
       // Register Flow Cards
@@ -55,14 +55,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _registerTriggerCards() {
-    // Registrera alla triggers frÃƒÂ¥n FLOW_TRIGGERS
+    // Registrera alla triggers från FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       this._triggerCards.set(trigger.capability, triggerCard);
     }
   }
 
-  // HjÃƒÂ¤lpmetod fÃƒÂ¶r att hÃƒÂ¤mta trigger card baserat pÃƒÂ¥ capability
+  // Hjälpmetod för att hämta trigger card baserat på capability
   getTriggerCard(capabilityName) {
     const triggerCard = this._triggerCards.get(capabilityName);
     if (!triggerCard) {
@@ -96,12 +96,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Hitta path och capability frÃƒÂ¥n FEATURES
+          // Hitta path och capability från FEATURES
           for (const [path, feature] of Object.entries(FEATURES)) {
             const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
             if (capability) {
-              // AnvÃƒÂ¤nd executeCommand med path och capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // HÃƒÂ¤mta vÃƒÂ¤rdet frÃƒÂ¥n fÃƒÂ¶rsta argumentet
+              // Använd executeCommand med path och capability
+              const value = actionArgs[Object.keys(actionArgs)[0]]; // Hämta värdet från första argumentet
               return device.executeCommand(path, capability, value);
             }
           }

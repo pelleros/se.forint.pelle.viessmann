@@ -23,7 +23,7 @@ jest.mock('homey-oauth2app', () => ({
   },
 }));
 
-// HjÃ¤lpfunktion fÃ¶r att hÃ¤mta vÃ¤rde frÃ¥n nested path
+// Hjälpfunktion för att hämta värde från nested path
 function getValueFromPath(obj, path) {
   try {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -39,9 +39,9 @@ describe('ViessmannDevice', () => {
     device._features = Object.values(device.constructor.PATHS);
     device._roles = ['type:heating', 'type:heatpump', 'type:boiler'];
 
-    // LÃ¤gg till mock fÃ¶r hasCapability som matchar alla capabilities frÃ¥n config
+    // Lägg till mock för hasCapability som matchar alla capabilities från config
     device.hasCapability = jest.fn().mockImplementation((capabilityName) => {
-      // Samla alla definierade capabilities frÃ¥n FEATURES
+      // Samla alla definierade capabilities från FEATURES
       const availableCapabilities = Object.values(FEATURES)
         .flatMap((feature) => feature.capabilities)
         .map((cap) => cap.capabilityName);
@@ -185,7 +185,7 @@ describe('ViessmannDevice capability handling', () => {
 
   beforeEach(() => {
     device = new ViessmannDevice();
-    // Mock nÃ¶dvÃ¤ndiga metoder
+    // Mock nödvändiga metoder
     device.setCapabilityValue = jest.fn();
     device.hasCapability = jest.fn().mockReturnValue(true);
     device.log = jest.fn();
@@ -197,7 +197,7 @@ describe('ViessmannDevice capability handling', () => {
   test('should correctly set capability values from example responses', async () => {
     for (const exampleFile of exampleFiles) {
       for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
-        // Ã…terstÃ¤ll mocken fÃ¶re varje feature-test
+        // Återställ mocken före varje feature-test
         device.setCapabilityValue.mockClear();
 
         const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
@@ -232,7 +232,7 @@ describe('ViessmannDevice capability handling', () => {
         const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
         if (!exampleFeature) continue;
 
-        // Skippa features som inte Ã¤r enabled
+        // Skippa features som inte är enabled
         if (!exampleFeature.isEnabled) continue;
 
         // Skippa features som har status !== "connected" (om status finns)

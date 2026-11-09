@@ -22,6 +22,7 @@
 
 const { OAuth2Driver } = require('homey-oauth2app');
 const { FEATURES, PATHS } = require('./config');
+const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
@@ -37,7 +38,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     try {
       this.log('Starting onOAuth2Init');
 
-      // Registrera alla triggers från flowCards.js
+      // Registrera alla triggers frÃ¥n flowCards.js
       await this._registerTriggerCards();
 
       // Register Flow Cards
@@ -53,14 +54,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _registerTriggerCards() {
-    // Registrera alla triggers från FLOW_TRIGGERS
+    // Registrera alla triggers frÃ¥n FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       this._triggerCards.set(trigger.capability, triggerCard);
     }
   }
 
-  // Hjälpmetod för att hämta trigger card baserat på capability
+  // HjÃ¤lpmetod fÃ¶r att hÃ¤mta trigger card baserat pÃ¥ capability
   getTriggerCard(capabilityName) {
     const triggerCard = this._triggerCards.get(capabilityName);
     if (!triggerCard) {
@@ -94,12 +95,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Hitta path och capability från FEATURES
+          // Hitta path och capability frÃ¥n FEATURES
           for (const [path, feature] of Object.entries(FEATURES)) {
             const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
             if (capability) {
-              // Använd executeCommand med path och capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // Hämta värdet från första argumentet
+              // AnvÃ¤nd executeCommand med path och capability
+              const value = actionArgs[Object.keys(actionArgs)[0]]; // HÃ¤mta vÃ¤rdet frÃ¥n fÃ¶rsta argumentet
               return device.executeCommand(path, capability, value);
             }
           }
@@ -224,7 +225,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 
-              const { features, constraints, operatingModes } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
+              const { features, constraints, operatingModes, heatingCircuitId } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
 
               devices.push({
                 name: `Viessmann (${gateway.installationId})`,
@@ -239,6 +240,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                   features,
                   constraints,
                   operatingModes,
+                  heatingCircuitId,
                   version,
                 },
               });
@@ -255,12 +257,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId) {
-    const response = await oAuth2Client.getFeatures({
+    const rawResponse = await oAuth2Client.getFeatures({
       installationId,
       gatewaySerial,
       deviceId,
     });
 
+    const heatingCircuitId = detectHeatingCircuit(rawResponse.data);
+    const response = normalizeCircuitFeatures(rawResponse, heatingCircuitId);
     const features = [];
     const constraints = {};
 
@@ -312,6 +316,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       features,
       constraints,
       operatingModes,
+      heatingCircuitId,
     };
   }
 

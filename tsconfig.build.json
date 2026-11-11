@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./.homeybuild",
+    "checkJs": false,
+    "noEmit": false
+  },
+  "include": [
+    "app.js",
+    "api.js",
+    "drivers/**/*.js",
+    "lib/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    ".homeybuild",
+    "**/__tests__/**",
+    "__mocks__",
+    "scripts",
+    "work"
+  ]
+}

@@ -55,6 +55,7 @@ Use Node.js 18 or newer. Install development dependencies without invoking the r
 
 ```sh
 npm ci --ignore-scripts --legacy-peer-deps
+npm run build
 npm run lint
 npm test -- --runInBand
 node scripts/generateFlowCompose.js
@@ -79,3 +80,8 @@ The recorded test result is in [VALIDATION.md](VALIDATION.md). Homey publish val
 ## Review and contribution scope
 
 These changes follow `CONTRIBUTING.md`: describe the failure and evidence, keep fixes relevant to the requested reliability work, include regression tests and document limitations. The work is kept in focused development-check and runtime commits. Before sending an upstream PR, squash each independently submitted change as requested by the contributing guide, and check for upstream conflicts. No upstream issue, PR, review request or release is created by this change.
+
+
+## Homey CLI build compatibility
+
+The Homey CLI detects the direct TypeScript development dependency used by lint tooling and invokes `npm run build`. The build script compiles only runtime JavaScript through `tsconfig.build.json` into `.homeybuild`, preserving the existing app ID and source directory layout. Tests, development scripts and scratch files are excluded from compiler inputs. The CLI copies assets and production dependencies as part of its normal preprocessing.

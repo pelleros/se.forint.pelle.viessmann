@@ -175,10 +175,10 @@ describe('ViessmannDevice', () => {
 
 describe('ViessmannDevice capability handling', () => {
   const exampleFiles = fs
-    .readdirSync(path.join(__dirname, '../../../documentation/json-example-files'))
+    .readdirSync(path.join(__dirname, 'fixtures'))
     .filter((file) => file.endsWith('_features.json'))
     .map((file) => jest.requireActual(
-      path.join(__dirname, '../../../documentation/json-example-files', file),
+      path.join(__dirname, 'fixtures', file),
     ));
 
   let device;

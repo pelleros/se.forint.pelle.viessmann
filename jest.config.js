@@ -1,6 +1,6 @@
 'use strict';
 
 module.exports = {
-  modulePathIgnorePatterns: [".homeybuild"],
-  testPathIgnorePatterns: [".homeybuild"]
-}; 
+  modulePathIgnorePatterns: ['.homeybuild'],
+  testPathIgnorePatterns: ['.homeybuild'],
+};

@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "feature": "heating.dhw.sensors.temperature.dhwCylinder",
+      "isEnabled": true,
+      "properties": {
+        "value": {
+          "value": 45
+        },
+        "status": {
+          "value": "connected"
+        }
+      }
+    },
+    {
+      "feature": "heating.sensors.temperature.outside",
+      "isEnabled": true,
+      "properties": {
+        "value": {
+          "value": 10.5
+        },
+        "status": {
+          "value": "connected"
+        }
+      }
+    },
+    {
+      "feature": "heating.boiler.sensors.temperature.main",
+      "isEnabled": true,
+      "properties": {
+        "value": {
+          "value": 48
+        },
+        "status": {
+          "value": "connected"
+        }
+      }
+    },
+    {
+      "feature": "heating.burners.0",
+      "isEnabled": true,
+      "properties": {
+        "active": {
+          "value": true
+        }
+      }
+    },
+    {
+      "feature": "heating.burners.0.modulation",
+      "isEnabled": true,
+      "properties": {
+        "value": {
+          "value": 35
+        }
+      }
+    },
+    {
+      "feature": "heating.burners.0.statistics",
+      "isEnabled": true,
+      "properties": {
+        "hours": {
+          "value": 1000
+        },
+        "starts": {
+          "value": 200
+        }
+      }
+    },
+    {
+      "feature": "heating.circuits.0.operating.modes.active",
+      "isEnabled": true,
+      "properties": {
+        "value": {
+          "value": "dhwAndHeating"
+        }
+      }
+    },
+    {
+      "feature": "heating.circuits.0.operating.programs.normal",
+      "isEnabled": true,
+      "properties": {
+        "temperature": {
+          "value": 20
+        }
+      }
+    }
+  ]
+}

@@ -39,5 +39,18 @@
       "id": "login_oauth2",
       "template": "login_oauth2"
     }
+  ],
+  "settings": [
+    {
+      "id": "heatingCircuit",
+      "type": "text",
+      "label": {
+        "en": "Heating circuit"
+      },
+      "value": "auto",
+      "hint": {
+        "en": "Use auto to prefer circuit 0 or the first enabled circuit. Enter an enabled circuit number (for example 1) to select it explicitly."
+      }
+    }
   ]
 }

@@ -5,4 +5,4 @@ module.exports = {
   FlowCardTriggerDevice: class {},
   FlowCardCondition: class {},
   FlowCardAction: class {},
-}; 
+};

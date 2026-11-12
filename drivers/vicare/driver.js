@@ -21,7 +21,9 @@
 'use strict';
 
 const { OAuth2Driver } = require('homey-oauth2app');
+const DevicePoller = require('../../lib/DevicePoller');
 const { FEATURES, PATHS } = require('./config');
+const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
@@ -116,7 +118,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
   _calculatePollInterval() {
     const deviceCount = this.getDevices().length;
-    return this.MIN_POLL_INTERVAL * deviceCount;
+    return this.MIN_POLL_INTERVAL * Math.max(1, deviceCount);
   }
 
   async _updateAllPollingIntervals() {
@@ -130,71 +132,38 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     await Promise.all(devices.map(async (device) => {
       const { installationId, gatewaySerial, deviceId } = device.getStore();
       const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-      await this._startPolling(device, deviceKey, newInterval);
+      await this._startPolling(device, deviceKey);
     }));
   }
 
-  async _startPolling(device, deviceKey, interval = null) {
-    try {
-      this.log(`Setting up polling for device: ${deviceKey}`);
-      let consecutiveErrors = 0;
-      const pollInterval = interval || this._calculatePollInterval();
-
-      // Stop any existing polling
-      this._stopPolling(deviceKey);
-
-      // Create reusable async polling function
-      const doPoll = async () => {
-        try {
-          // get features with extended response every 30th poll (statisticaly)
-          const extendedRequest = Math.random() < 0.03;
-          const features = await device.getFeatures({ useFilter: !extendedRequest });
-
-          consecutiveErrors = 0;
-          if (!device.getAvailable()) {
-            device.setAvailable();
-          }
-
-          // Update device with new features
-          await device.onFeaturesUpdated(features, extendedRequest);
-        } catch (error) {
-          consecutiveErrors++;
-          this.error(`Error polling device ${deviceKey}:`, error);
-
-          if (device.getAvailable()) {
-            if (consecutiveErrors >= 3) {
-              device.setUnavailable('Multiple communication errors');
-            } else if (error.message.includes('unauthorized')) {
-              device.setUnavailable('Authentication failed');
-            }
-          }
-        }
-      };
-
-      // Perform initial poll immediately
-      this.log(`Performing initial poll for device: ${deviceKey}`);
-      await doPoll();
-
-      // Start interval polling
-      const timer = this.homey.setInterval(doPoll, pollInterval);
-      this._devicePollers.set(deviceKey, timer);
-
-      if (process.env.DEBUG) {
-        this.log(`Started polling for ${deviceKey} with interval ${pollInterval / 1000} seconds`);
-      }
-    } catch (error) {
-      this.error(`Error setting up polling for device ${deviceKey}:`, error);
-      throw error;
+  async _startPolling(device, deviceKey) {
+    const existing = this._devicePollers.get(deviceKey);
+    if (existing) {
+      existing.schedule();
+      return;
     }
+    const poller = new DevicePoller({
+      homey: this.homey,
+      getInterval: () => this._calculatePollInterval(),
+      poll: async (isStopped) => {
+        const extendedRequest = Math.random() < 0.03;
+        const features = await device.getFeatures({ useFilter: !extendedRequest });
+        if (!isStopped()) await device.onFeaturesUpdated(features, extendedRequest);
+      },
+      onError: async (error, consecutiveErrors) => {
+        this.error(`Error polling device ${deviceKey}:`, error);
+        if (error.status === 401) await device.setUnavailable('Authentication failed; repair the device to sign in again');
+        else if (consecutiveErrors >= 3) await device.setUnavailable(error.message || 'Multiple communication errors');
+      },
+    });
+    this._devicePollers.set(deviceKey, poller);
+    await poller.start();
   }
 
-  _stopPolling(deviceKey) {
-    const existingTimer = this._devicePollers.get(deviceKey);
-    if (existingTimer) {
-      this.log(`Stopping polling for device: ${deviceKey}`);
-      this.homey.clearInterval(existingTimer);
-      this._devicePollers.delete(deviceKey);
-    }
+  async _stopPolling(deviceKey) {
+    const poller = this._devicePollers.get(deviceKey);
+    this._devicePollers.delete(deviceKey);
+    if (poller) await poller.stop();
   }
 
   async onPairListDevices({ oAuth2Client }) {
@@ -224,7 +193,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 
-              const { features, constraints, operatingModes } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
+              const {
+                features, constraints, operatingModes, heatingCircuitId, commandMetadata,
+              } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
 
               devices.push({
                 name: `Viessmann (${gateway.installationId})`,
@@ -239,6 +210,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                   features,
                   constraints,
                   operatingModes,
+                  heatingCircuitId,
+                  commandMetadata,
                   version,
                 },
               });
@@ -254,15 +227,18 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
   }
 
-  async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId) {
-    const response = await oAuth2Client.getFeatures({
+  async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId, selectedCircuit = 'auto') {
+    const rawResponse = await oAuth2Client.getFeatures({
       installationId,
       gatewaySerial,
       deviceId,
     });
 
+    const heatingCircuitId = detectHeatingCircuit(rawResponse.data, selectedCircuit);
+    const response = normalizeCircuitFeatures(rawResponse, heatingCircuitId);
     const features = [];
     const constraints = {};
+    const commandMetadata = {};
 
     for (const feature of response.data) {
       if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
@@ -270,6 +246,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
         // Save constraints separately
         if (feature.commands) {
+          commandMetadata[feature.feature] = feature.commands;
           constraints[feature.feature] = {};
           Object.values(feature.commands).forEach((command) => {
             Object.entries(command.params || {}).forEach(([paramName, param]) => {
@@ -312,6 +289,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       features,
       constraints,
       operatingModes,
+      heatingCircuitId,
+      commandMetadata,
     };
   }
 

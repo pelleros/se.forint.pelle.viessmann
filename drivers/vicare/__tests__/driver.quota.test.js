@@ -12,6 +12,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 
 const ViessmannDriver = require('../driver');
 const { apiError } = require('../../../lib/apiError');
+const { POLL_TIMEOUT, STOP_TIMEOUT } = require('../../../lib/DevicePoller');
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -167,5 +168,39 @@ describe.each([2, 3, 4, 5])('adding device number %i while the others poll', (co
     gaps(added.polls).forEach((gap) => expect(gap).toBe(newInterval));
 
     expect(callsBetween([...existing, added], addedAt, addedAt + DAY)).toBeLessThanOrEqual(MAX_PER_DAY);
+  });
+});
+
+describe('requests that never answer (e.g. a half-open connection)', () => {
+  test('polling goes on, never faster than normal, and stopping does not hang', async () => {
+    const { driver, known } = createDriver();
+    const hanging = createDevice('hanging', () => new Promise(() => {}));
+    const healthy = createDevice('healthy');
+    known.push(hanging, healthy);
+    const started = startDevice(driver, hanging);
+    await jest.advanceTimersByTimeAsync(POLL_TIMEOUT);
+    await started;
+    await startDevice(driver, healthy);
+
+    await jest.advanceTimersByTimeAsync(DAY);
+
+    // Backoff up to 30 minutes plus the poll deadline: about 45 polls a day instead of none
+    expect(hanging.polls.length).toBeGreaterThan(40);
+    gaps(hanging.polls).forEach((gap) => expect(gap).toBeGreaterThanOrEqual(2 * BASE_INTERVAL));
+    expect(healthy.polls.length).toBeGreaterThanOrEqual(TARGET_PER_DAY / 2);
+    expect(hanging.setUnavailable).toHaveBeenCalledWith('Multiple communication errors');
+
+    // Deleting the device while one of its polls hangs
+    const poller = driver._devicePollers.get('hanging');
+    while (!poller.running) await jest.advanceTimersByTimeAsync(MINUTE);
+    let stopped = false;
+    driver._stopPolling('hanging').then(() => {
+      stopped = true;
+    }, () => {});
+    await jest.advanceTimersByTimeAsync(STOP_TIMEOUT);
+    expect(stopped).toBe(true);
+    const polls = hanging.polls.length;
+    await jest.advanceTimersByTimeAsync(DAY);
+    expect(hanging.polls).toHaveLength(polls);
   });
 });

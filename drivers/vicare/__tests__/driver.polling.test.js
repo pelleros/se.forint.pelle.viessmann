@@ -65,6 +65,14 @@ function createPolledDevice() {
   };
 }
 
+// The timers that schedule the next poll (the poll deadline and stop timers are shorter)
+function pollTimers(driver) {
+  const { calls, results } = driver.homey.setTimeout.mock;
+  return calls
+    .map(([callback, ms], index) => ({ callback, ms, handle: results[index].value }))
+    .filter(({ ms }) => ms >= POLL_INTERVAL);
+}
+
 // Waits until the poller has no poll in progress
 async function waitForPoll(poller) {
   while (poller.running) await poller.running;
@@ -77,9 +85,8 @@ async function startPolling(driver, device) {
   await driver._startPolling(device, DEVICE_KEY);
   const poller = driver._devicePollers.get(DEVICE_KEY);
   return async () => {
-    const { calls } = driver.homey.setTimeout.mock;
-    const [callback] = calls[calls.length - 1];
-    callback();
+    const timers = pollTimers(driver);
+    timers[timers.length - 1].callback();
     await waitForPoll(poller);
   };
 }
@@ -101,7 +108,7 @@ describe('ViessmannDriver polling feature requests', () => {
     expect(device.getFeatures).toHaveBeenCalledTimes(1);
     expect(device.getFeatures).toHaveBeenCalledWith({ useFilter: true });
     expect(device.onFeaturesUpdated).toHaveBeenCalledWith(response, false);
-    expect(driver.homey.setTimeout).toHaveBeenLastCalledWith(expect.any(Function), POLL_INTERVAL);
+    expect(pollTimers(driver).pop().ms).toBe(POLL_INTERVAL);
   });
 
   test('an extended poll requests all features', async () => {
@@ -150,8 +157,9 @@ describe('ViessmannDriver polling feature requests', () => {
 
     expect(driver._devicePollers.get(DEVICE_KEY)).toBe(poller);
     expect(device.getFeatures).toHaveBeenCalledTimes(1);
-    expect(driver.homey.clearTimeout).toHaveBeenCalledTimes(1);
-    expect(driver.homey.setTimeout).toHaveBeenCalledTimes(2);
+    const timers = pollTimers(driver);
+    expect(timers).toHaveLength(2);
+    expect(driver.homey.clearTimeout).toHaveBeenCalledWith(timers[0].handle);
   });
 });
 
@@ -216,10 +224,10 @@ describe('ViessmannDriver polling errors', () => {
     device.getFeatures.mockRejectedValueOnce(new Error('socket hang up'));
 
     const nextPoll = await startPolling(driver, device);
-    expect(driver.homey.setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 2 * POLL_INTERVAL);
+    expect(pollTimers(driver).pop().ms).toBe(2 * POLL_INTERVAL);
 
     await nextPoll();
-    expect(driver.homey.setTimeout).toHaveBeenLastCalledWith(expect.any(Function), POLL_INTERVAL);
+    expect(pollTimers(driver).pop().ms).toBe(POLL_INTERVAL);
   });
 
   test('a successful poll resets the error count and makes the device available again', async () => {
@@ -289,7 +297,7 @@ describe('ViessmannDriver polling after the device is deleted', () => {
     const driver = createDriver();
     const device = createDeletableDevice(driver);
     const nextPoll = await startPolling(driver, device);
-    const [timer] = driver.homey.setTimeout.mock.results.map((result) => result.value);
+    const [{ handle: timer }] = pollTimers(driver);
     expect(driver._devicePollers.has(DEVICE_KEY)).toBe(true);
 
     await device.onOAuth2Deleted();
@@ -301,7 +309,7 @@ describe('ViessmannDriver polling after the device is deleted', () => {
     device.oAuth2Client.getFeatures.mockClear();
     await nextPoll();
     expect(device.oAuth2Client.getFeatures).not.toHaveBeenCalled();
-    expect(driver.homey.setTimeout).toHaveBeenCalledTimes(1);
+    expect(pollTimers(driver)).toHaveLength(1);
   });
 
   test('unloading the device still stops its poller', async () => {
@@ -330,7 +338,7 @@ describe('ViessmannDriver polling after the device is deleted', () => {
 
     expect(device.setUnavailable).not.toHaveBeenCalled();
     expect(driver.error).not.toHaveBeenCalled();
-    expect(driver.homey.setTimeout).toHaveBeenCalledTimes(1);
+    expect(pollTimers(driver)).toHaveLength(1);
   });
 
   test('a device deleted during the first poll never gets a poll timer', async () => {
@@ -346,7 +354,7 @@ describe('ViessmannDriver polling after the device is deleted', () => {
     resolveRequest({ data: [] });
     await Promise.all([started, deleted]);
 
-    expect(driver.homey.setTimeout).not.toHaveBeenCalled();
+    expect(pollTimers(driver)).toHaveLength(0);
     expect(driver._devicePollers.has(DEVICE_KEY)).toBe(false);
     expect(device.onFeaturesUpdated).not.toHaveBeenCalled();
   });

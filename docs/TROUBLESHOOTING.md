@@ -96,12 +96,30 @@ without contact. In a diagnostic report this often shows up as `invalid_grant`; 
 **Fix:** open the device in Homey, go to its settings (gear icon), choose **Repair** and log in with
 your ViCare account again. Your flows and settings stay as they are.
 
-### "Viessmann HTTP 429: API rate limit exceeded"
+### "Viessmann API limit reached, updates resume at …" (or "Viessmann HTTP 429")
 
 **Cause:** your ViCare account has used up its [daily API calls](#viessmann-api-limits).
 
-**Fix:** wait; the limit resets over the following day. If it happens often, check whether other
-systems use the Viessmann API with your ViCare account.
+**Fix:** wait. The app pauses until the time shown (Homey's time) and then continues by itself.
+If it happens often, check whether other systems use the Viessmann API with your ViCare account.
+
+### "Viessmann requires a paid API package for this account"
+
+**Cause:** Viessmann answers that your account has no access to the device data without a paid API
+package (`PACKAGE_NOT_PAID_FOR` in a diagnostic report). Since early 2026 this has been reported
+for some newly created accounts. The app cannot change it.
+
+**Fix:** contact Viessmann about your account's API access. The app checks again every six hours;
+restarting the app checks right away.
+
+### "The Viessmann gateway is offline"
+
+**Cause:** Viessmann cannot reach the gateway (the Vitoconnect or the built-in internet module) of
+your heating system, for example after a power cut or a Wi-Fi change.
+
+**Fix:** check that the gateway has power and an internet connection, and whether the ViCare app
+shows the system as online. The app keeps checking (at most half an hour apart), and the device
+becomes available again by itself.
 
 ## Sending a useful report
 
@@ -131,9 +149,9 @@ Want to fix something yourself? See [CONTRIBUTING.md](../CONTRIBUTING.md) for th
 ## Viessmann API limits
 
 On the free plan, Viessmann allows about **1,450 API calls per day** per ViCare user. When the
-limit is reached, Viessmann refuses further calls for a while and the app shows errors such as
-"Viessmann HTTP 429: API rate limit exceeded". When Viessmann says how long to wait, the app waits
-that long before it tries again.
+limit is reached, Viessmann refuses further calls for a while. When Viessmann says until when, the
+device shows "Viessmann API limit reached, updates resume at …" and the app waits until then;
+otherwise it shows "Viessmann HTTP 429: API rate limit exceeded" and retries less and less often.
 
 The app spreads its requests so that it stays well below that limit. It fetches data about once
 every 2 minutes in total: with one device, that device is updated every 2 minutes; with two

@@ -41,3 +41,9 @@ jobs:
 
       - name: Validate Homey app
         run: npx --yes homey@4.4.0 app validate --level publish
+
+      # Only runtime files may end up in the app package (see .homeyignore).
+      - name: Check app package contents
+        run: |
+          npx --yes homey@4.4.0 app build
+          node scripts/checkPackage.js

@@ -3,9 +3,23 @@
   "title": { "en": "Something is active" },
   "getable": true,
   "setable": false,
-  "insights": true, 
-  "insightsTitleTrue": { "en": "Yes" },
-  "insightsTitleFalse": { "en": "No" },
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Burner started",
+    "de": "Brenner gestartet",
+    "nl": "Brander gestart",
+    "fr": "Brûleur démarré",
+    "sv": "Brännaren startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Burner stopped",
+    "de": "Brenner gestoppt",
+    "nl": "Brander gestopt",
+    "fr": "Brûleur arrêté",
+    "sv": "Brännaren stannade"
+  },
   "uiComponent": "sensor",
   "uiQuickAction": false,
   "icon": "/assets/burner.svg"

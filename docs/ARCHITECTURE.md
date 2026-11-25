@@ -136,7 +136,8 @@ Users share these dumps, so `api.js` anonymizes everything it returns with `lib/
 - `drivers/vicare/__tests__/pairing.test.js`: pairing each fixture installation yields the frozen device names and `data.id`s, and the pairing log holds no ids or personal data.
 - `drivers/vicare/__tests__/roles.test.js`: role aliases (with an inline Vitocal 262-A, `type:dhwHeatpump`); every fixture with its type roles stripped gets the same capabilities and values as with them; PyViCare responses (no roles) get the role-gated capabilities their features imply. `driver.errorStates.test.js`: message and poll delay per error state, while polling and pairing. `device.robustness.test.js`: a fixture with null and garbage values and entries. `pyvicare.errorStates.test.js`: the error states and odd values for a few PyViCare devices after the update from 1.0.14.
 - Lifecycle, polling, heating circuit and OAuth client tests next to them, tests for `lib/` in `lib/__tests__/`; Web API (`api.test.js`: nothing identifying in the troubleshooting dumps, payload intact), anonymizer, fixture generation and fixture privacy tests in `test/`.
-- `config.test.js` is a golden copy of `FEATURES`; update it when `config.js` changes.
+- `config.test.js` is a golden copy of `FEATURES`; update it when `config.js` changes. It also checks that the texts of the running states (`measure_*_active`) are translated into every app language and match their definitions in `.homeycompose/capabilities/`, and that the statistics counters log Insights.
+- `drivers/vicare/__tests__/capabilityOptions.upgrade.test.js`: a device paired on 1.0.14, with the options 1.0.14 set on its running and statistics capabilities, gets the current options from `config.js` on its first start.
 
 ## Versions and migrations
 
@@ -157,3 +158,10 @@ Users share these dumps, so `api.js` anonymizes everything it returns with `lib/
 1. Add it to `flowCards.js` with translation keys (never inline strings) and add the keys to `locales/*.json`.
 2. Actions need a `capability` that exists in `FEATURES`; triggers use the capability as the key in `driver._triggerCards`.
 3. `npm run generate`, then register the card in `registry.json`.
+
+**Change a capability's options or texts**
+
+1. Change its `capabilityOptions` in `config.js`. `updateCapabilityOptions()` reapplies them on every start, so devices that already have the capability get the change without re-pairing. To change an option, set its new value; don't leave it out, or a device may keep the old one.
+2. Texts users see (`titleTrue`/`titleFalse`, `insightsTitleTrue`/`insightsTitleFalse` on the timeline and in Insights, translated `units`) go into every app language: English, German, Dutch, French and Swedish. The running states (`measure_*_active`) carry the same texts in `.homeycompose/capabilities/`; `config.test.js` checks that they match.
+3. Once a capability logs Insights (`preventInsights: false`), keep it that way: users build on that history. The statistics counters log Insights since 1.0.15; they have no Flow tag (`preventTag: true`), since a tag once offered cannot be taken back without breaking Flows.
+4. Update the golden copy in `config.test.js`, then `npm test`, `npm run lint`, `npm run homey:validate`.

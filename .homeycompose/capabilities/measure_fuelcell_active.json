@@ -3,9 +3,23 @@
     "title": { "en": "Fuel cell is active" },
     "getable": true,
     "setable": false,
-    "insights": true, 
-    "insightsTitleTrue": { "en": "Yes" },
-    "insightsTitleFalse": { "en": "No" },
+    "insights": true,
+    "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+    "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+    "insightsTitleTrue": {
+      "en": "Fuel cell started",
+      "de": "Brennstoffzelle gestartet",
+      "nl": "Brandstofcel gestart",
+      "fr": "Pile à combustible démarrée",
+      "sv": "Bränslecellen startade"
+    },
+    "insightsTitleFalse": {
+      "en": "Fuel cell stopped",
+      "de": "Brennstoffzelle gestoppt",
+      "nl": "Brandstofcel gestopt",
+      "fr": "Pile à combustible arrêtée",
+      "sv": "Bränslecellen stannade"
+    },
     "uiComponent": "sensor",
     "uiQuickAction": false,
     "icon": "/assets/fuelcell.svg"

@@ -3,9 +3,23 @@
     "title": { "en": "Something is active" },
     "getable": true,
     "setable": false,
-    "insights": true, 
-    "insightsTitleTrue": { "en": "Yes" },
-    "insightsTitleFalse": { "en": "No" },
+    "insights": true,
+    "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+    "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+    "insightsTitleTrue": {
+      "en": "Compressor started",
+      "de": "Verdichter gestartet",
+      "nl": "Compressor gestart",
+      "fr": "Compresseur démarré",
+      "sv": "Kompressorn startade"
+    },
+    "insightsTitleFalse": {
+      "en": "Compressor stopped",
+      "de": "Verdichter gestoppt",
+      "nl": "Compressor gestopt",
+      "fr": "Compresseur arrêté",
+      "sv": "Kompressorn stannade"
+    },
     "uiComponent": "sensor",
     "uiQuickAction": false,
     "icon": "/assets/compressor.svg"

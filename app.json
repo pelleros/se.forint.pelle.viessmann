@@ -481,11 +481,33 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
       "insightsTitleTrue": {
-        "en": "Yes"
+        "en": "Burner started",
+        "de": "Brenner gestartet",
+        "nl": "Brander gestart",
+        "fr": "Brûleur démarré",
+        "sv": "Brännaren startade"
       },
       "insightsTitleFalse": {
-        "en": "No"
+        "en": "Burner stopped",
+        "de": "Brenner gestoppt",
+        "nl": "Brander gestopt",
+        "fr": "Brûleur arrêté",
+        "sv": "Brännaren stannade"
       },
       "uiComponent": "sensor",
       "uiQuickAction": false,
@@ -514,11 +536,33 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
       "insightsTitleTrue": {
-        "en": "Yes"
+        "en": "Compressor started",
+        "de": "Verdichter gestartet",
+        "nl": "Compressor gestart",
+        "fr": "Compresseur démarré",
+        "sv": "Kompressorn startade"
       },
       "insightsTitleFalse": {
-        "en": "No"
+        "en": "Compressor stopped",
+        "de": "Verdichter gestoppt",
+        "nl": "Compressor gestopt",
+        "fr": "Compresseur arrêté",
+        "sv": "Kompressorn stannade"
       },
       "uiComponent": "sensor",
       "uiQuickAction": false,
@@ -559,11 +603,33 @@
       "getable": true,
       "setable": false,
       "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
       "insightsTitleTrue": {
-        "en": "Yes"
+        "en": "Fuel cell started",
+        "de": "Brennstoffzelle gestartet",
+        "nl": "Brandstofcel gestart",
+        "fr": "Pile à combustible démarrée",
+        "sv": "Bränslecellen startade"
       },
       "insightsTitleFalse": {
-        "en": "No"
+        "en": "Fuel cell stopped",
+        "de": "Brennstoffzelle gestoppt",
+        "nl": "Brandstofcel gestopt",
+        "fr": "Pile à combustible arrêtée",
+        "sv": "Bränslecellen stannade"
       },
       "uiComponent": "sensor",
       "uiQuickAction": false,

@@ -65,8 +65,10 @@ const CAPABILITY_TEMPLATES = {
     preventInsights: false,
     preventTag: false,
   },
+  // Logged in Insights since 1.0.15. No Flow tag: once offered, a tag cannot be taken back
+  // without breaking the Flows that use it
   counter: {
-    preventInsights: true,
+    preventInsights: false,
     preventTag: true,
   },
   thermostat: {
@@ -81,6 +83,53 @@ const CAPABILITY_TEMPLATES = {
     preventInsights: false,
     preventTag: true,
   },
+};
+
+// Texts of the boolean "running" capabilities in every app language. insightsTitleTrue/False
+// label the state changes on the device's timeline and in Insights; titleTrue/False show the
+// state on the device. The capability definitions in .homeycompose/capabilities/ carry the
+// same texts (config.test.js checks that they match); the options here also reach devices that
+// already have the capability, because device.js reapplies them on every start.
+const YES_NO = {
+  titleTrue: {
+    en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',
+  },
+  titleFalse: {
+    en: 'No', de: 'Nein', nl: 'Nee', fr: 'Non', sv: 'Nej',
+  },
+};
+
+const RUNNING_STATE_TEXTS = {
+  compressor: {
+    ...YES_NO,
+    insightsTitleTrue: {
+      en: 'Compressor started', de: 'Verdichter gestartet', nl: 'Compressor gestart', fr: 'Compresseur démarré', sv: 'Kompressorn startade',
+    },
+    insightsTitleFalse: {
+      en: 'Compressor stopped', de: 'Verdichter gestoppt', nl: 'Compressor gestopt', fr: 'Compresseur arrêté', sv: 'Kompressorn stannade',
+    },
+  },
+  burner: {
+    ...YES_NO,
+    insightsTitleTrue: {
+      en: 'Burner started', de: 'Brenner gestartet', nl: 'Brander gestart', fr: 'Brûleur démarré', sv: 'Brännaren startade',
+    },
+    insightsTitleFalse: {
+      en: 'Burner stopped', de: 'Brenner gestoppt', nl: 'Brander gestopt', fr: 'Brûleur arrêté', sv: 'Brännaren stannade',
+    },
+  },
+};
+
+// Units of the statistics counters. Hours use the symbol, which is the same in every language;
+// starts are a count
+const HOURS_COUNTER = {
+  units: 'h',
+};
+const STARTS_COUNTER = {
+  units: {
+    en: 'starts', de: 'Starts', nl: 'starts', fr: 'démarrages', sv: 'starter',
+  },
+  decimals: 0,
 };
 
 // Förbättrad temperature capability med mer flexibilitet
@@ -136,7 +185,7 @@ const createStatisticsCapabilities = (prefix, unitName) => ([
     propertyPath: 'hours.value',
     capabilityOptions: {
       title: { en: `${unitName} runtime` },
-      units: 'hours',
+      ...HOURS_COUNTER,
       ...CAPABILITY_TEMPLATES.counter,
     },
   },
@@ -145,7 +194,7 @@ const createStatisticsCapabilities = (prefix, unitName) => ([
     propertyPath: 'starts.value',
     capabilityOptions: {
       title: { en: `${unitName} starts` },
-      units: 'times',
+      ...STARTS_COUNTER,
       ...CAPABILITY_TEMPLATES.counter,
     },
   },
@@ -178,7 +227,7 @@ const createFuelCellStatisticsCapabilities = () => ([
     propertyPath: 'operationHours.value',
     capabilityOptions: {
       title: { en: 'Fuel cell operation hours' },
-      units: 'hours',
+      ...HOURS_COUNTER,
       ...CAPABILITY_TEMPLATES.counter,
     },
   },
@@ -187,7 +236,7 @@ const createFuelCellStatisticsCapabilities = () => ([
     propertyPath: 'productionHours.value',
     capabilityOptions: {
       title: { en: 'Fuel cell production hours' },
-      units: 'hours',
+      ...HOURS_COUNTER,
       ...CAPABILITY_TEMPLATES.counter,
     },
   },
@@ -196,7 +245,7 @@ const createFuelCellStatisticsCapabilities = () => ([
     propertyPath: 'productionStarts.value',
     capabilityOptions: {
       title: { en: 'Fuel cell starts' },
-      units: 'times',
+      ...STARTS_COUNTER,
       ...CAPABILITY_TEMPLATES.counter,
     },
   },
@@ -271,15 +320,10 @@ module.exports = {
     },
     [PATHS.COMPRESSOR]: {
       requireRole: 'type:heatpump',
-      capabilities: [createActiveCapability('compressor', 'Compressor running')],
+      capabilities: [createActiveCapability('compressor', 'Compressor running', RUNNING_STATE_TEXTS.compressor)],
     },
     [PATHS.BURNER]: {
-      capabilities: [createActiveCapability('burner', 'Burner running', {
-        titleTrue: { en: 'Yes' },
-        titleFalse: { en: 'No' },
-        insightsTitleTrue: { en: 'Yes' },
-        insightsTitleFalse: { en: 'No' },
-      })],
+      capabilities: [createActiveCapability('burner', 'Burner running', RUNNING_STATE_TEXTS.burner)],
     },
     [PATHS.COMPRESSOR_STATS]: {
       requireRole: 'type:heatpump',

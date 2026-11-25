@@ -1,0 +1,118 @@
+'use strict';
+
+// Simulates the update from 1.0.14: a device store built the way 1.0.14 paired a device, with
+// the capabilities 1.0.14 gave it, starts on the current code. The 1.0.14 versions of the code
+// that shaped a paired device are frozen here, so the simulation keeps describing what is
+// installed on users' Homeys.
+//
+// Needs the in-memory Homey fake; call this in the test file before requiring this helper:
+//   jest.mock('homey-oauth2app', () => require('<path>/test/helpers/fakeHomeyOAuth2App'));
+
+const ViessmannDriver = require('../../drivers/vicare/driver');
+const ViessmannDevice = require('../../drivers/vicare/device');
+const { apiError } = require('../../lib/apiError');
+const { FEATURES, PATHS, getAllCapabilities } = require('../../drivers/vicare/config');
+
+const clone = (value) => JSON.parse(JSON.stringify(value));
+
+// drivers/vicare/driver.js _getEnabledFeaturesAndOpModes in 1.0.14
+function pairedStore1014(response) {
+  const features = [];
+  const constraints = {};
+  for (const feature of response.data) {
+    if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
+      features.push(feature.feature);
+      if (feature.commands) {
+        constraints[feature.feature] = {};
+        Object.values(feature.commands).forEach((command) => {
+          Object.entries(command.params || {}).forEach(([paramName, param]) => {
+            if (param.constraints) constraints[feature.feature][paramName] = param.constraints;
+          });
+        });
+      }
+    }
+  }
+  const operatingModes = [];
+  try {
+    const mainOpMode = response.data.find((item) => item.feature === 'heating.circuits.0.operating.modes.active');
+    if (mainOpMode?.isEnabled) {
+      const formatString = (str) => str.replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (char) => char.toUpperCase())
+        .replace(/Dhw/g, 'DHW')
+        .trim();
+      for (const mode of mainOpMode.commands.setMode.params.mode.constraints.enum) {
+        operatingModes.push({ id: mode, title: { en: formatString(mode) } });
+      }
+    }
+  } catch (err) {
+    // not critical in 1.0.14 either
+  }
+  return { features, constraints, operatingModes };
+}
+
+// drivers/vicare/device.js initializeCapabilities in 1.0.14: the capabilities of every stored
+// feature that passes the role check. Also the capabilities the current code must give a store.
+function capabilitiesFor({ features, roles }) {
+  const capabilities = new Set();
+  for (const featurePath of Object.values(PATHS)) {
+    const { requireRole } = FEATURES[featurePath];
+    if (features.includes(featurePath) && (!requireRole || roles.includes(requireRole))) {
+      getAllCapabilities(featurePath).forEach((capability) => capabilities.add(capability.capabilityName));
+    }
+  }
+  return [...capabilities].sort();
+}
+
+// Returns only the requested features, like the API does for ?filter=
+function respond(dump, filter) {
+  if (filter === undefined) return clone(dump);
+  const requested = filter.split(',');
+  return { ...clone(dump), data: dump.data.filter((feature) => requested.includes(feature.feature)).map(clone) };
+}
+
+/**
+ * Pairs a device the 1.0.14 way from `before`, then starts it on the current code against an
+ * API that reports `after`. With `refreshFails`, the unfiltered read of the upgrade refresh
+ * fails with HTTP 503; regular (filtered) polls still work.
+ *
+ * @param {object} options
+ * @param {{ installationId: number, gatewaySerial: string, deviceId: string, roles: string[] }} options.identity
+ * @param {{ data: object[] }} options.before features response at pairing time
+ * @param {{ data: object[] }} [options.after] features response today (default: `before`)
+ * @param {boolean} [options.refreshFails]
+ */
+async function upgradeFrom1014({
+  identity, before, after = before, refreshFails = false,
+}) {
+  const store = { ...identity, ...pairedStore1014(before), version: '1.0.14' };
+  const capabilitiesBefore = capabilitiesFor(store);
+  const data = { id: `${identity.installationId}-${identity.gatewaySerial}-${identity.deviceId}` };
+
+  const driver = new ViessmannDriver();
+  const device = new ViessmannDevice();
+  device.driver = driver;
+  device.__store = clone(store);
+  device.__data = clone(data);
+  device.__settings = { heatingCircuit: 'auto' };
+  capabilitiesBefore.forEach((id) => device.__values.set(id, null));
+  device.oAuth2Client = {
+    getFeatures: jest.fn(async ({ filter }) => {
+      if (filter === undefined && refreshFails) throw apiError({ status: 503, statusText: 'Service Unavailable' });
+      return respond(after, filter);
+    }),
+    executeCommand: jest.fn(async () => ({ data: { success: true } })),
+  };
+
+  await device.onOAuth2Init();
+  return {
+    driver, device, store, data, capabilitiesBefore, pollingKey: data.id,
+  };
+}
+
+// The filtered polls a device made (the upgrade refresh is the only unfiltered read)
+const filteredPolls = (device) => device.oAuth2Client.getFeatures.mock.calls
+  .filter(([request]) => request.filter !== undefined);
+
+module.exports = {
+  pairedStore1014, capabilitiesFor, respond, upgradeFrom1014, filteredPolls,
+};

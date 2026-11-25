@@ -100,6 +100,99 @@ describe('effectiveRoles', () => {
   });
 });
 
+describe('role aliases', () => {
+  test.each([
+    ['a hot water heat pump', ['type:dhwHeatpump']],
+    ['another spelling', ['type:heatPump']],
+    ['a longer type name', ['type:heatpumpOutdoorUnit']],
+    ['next to a role tag of its own', ['type:boiler', 'type:dhwHeatpump']],
+  ])('%s counts as type:heatpump', (_, roles) => {
+    expect(effectiveRoles(roles)).toEqual(expect.arrayContaining([...roles, 'type:heatpump']));
+  });
+
+  test.each([
+    ['a product family', ['type:productFamily;Vitocal']],
+    ['a value after the type name', ['type:gateway;Heatpump1']],
+    ['an interface', ['interface:heatpump']],
+    ['a capability', ['capability:heatpumpReport']],
+  ])('%s does not', (_, roles) => {
+    expect(effectiveRoles(roles)).not.toContain('type:heatpump');
+  });
+
+  test('an alias does not stop the inference for a device without role tags', () => {
+    expect(hasRoleTags(['type:dhwHeatpump'])).toBe(false);
+    expect(effectiveRoles(['type:dhwHeatpump'], ['type:boiler'])).toEqual(['type:dhwHeatpump', 'type:heatpump', 'type:boiler']);
+  });
+});
+
+/*
+  Vitocal 262-A, a hot water heat pump (PyViCare's Vitocal262A_T2H-R290.json, model
+  E3_Vitocal_262_02): its roles have type:dhwHeatpump instead of type:heatpump. Only the roles
+  and features this test needs.
+*/
+const VITOCAL_262A_ROLES = [
+  'interface:compressor', 'interface:domesticHotWater', 'type:E3', 'type:dhw;integrated', 'type:dhwHeatpump',
+  'type:heating;integrated', 'type:product;Vitocal_262A', 'type:productFamily;Vitocal',
+];
+const VITOCAL_262A = {
+  data: [
+    { feature: 'heating.compressors', isEnabled: true, properties: { enabled: { type: 'array', value: ['0'] } } },
+    {
+      feature: 'heating.compressors.0',
+      isEnabled: true,
+      properties: { active: { type: 'boolean', value: false }, phase: { type: 'string', value: 'off' } },
+    },
+    {
+      feature: 'heating.compressors.0.statistics',
+      isEnabled: true,
+      properties: { hours: { type: 'number', unit: 'hour', value: 1256 }, starts: { type: 'number', unit: '', value: 330 } },
+    },
+    {
+      feature: 'heating.dhw.sensors.temperature.dhwCylinder',
+      isEnabled: true,
+      properties: { status: { type: 'string', value: 'connected' }, value: { type: 'number', unit: 'celsius', value: 55.3 } },
+    },
+  ],
+};
+
+describe('Vitocal 262-A (type:dhwHeatpump)', () => {
+  const COMPRESSOR_CAPABILITIES = {
+    measure_compressor_active: false,
+    'measure_compressor_number.compressorHours': 1256,
+    'measure_compressor_number.compressorStarts': 330,
+  };
+
+  test('gets the compressor capabilities and values', async () => {
+    const device = await pairedDevice(VITOCAL_262A, VITOCAL_262A_ROLES);
+
+    await device.onFeaturesUpdated(clone(VITOCAL_262A), false);
+
+    for (const [capabilityName, value] of Object.entries(COMPRESSOR_CAPABILITIES)) {
+      expect([capabilityName, device.getCapabilityValue(capabilityName)]).toEqual([capabilityName, value]);
+    }
+    expect(device.getCapabilityValue('measure_temperature.hotWater')).toBe(55.3);
+    expect(device.removeCapability).not.toHaveBeenCalled();
+  });
+
+  test('the role alone allows them, also without a compressor feature to infer it from', async () => {
+    const device = new ViessmannDevice();
+    device._roles = VITOCAL_262A_ROLES;
+    device._features = [PATHS.COMPRESSOR_STATS];
+
+    await device.initializeCapabilities();
+
+    expect(device.hasCapability('measure_compressor_number.compressorHours')).toBe(true);
+    expect(device.hasCapability('measure_compressor_number.compressorStarts')).toBe(true);
+  });
+
+  test('next to a role tag of its own (here type:boiler), the alias still adds the heat pump', async () => {
+    const device = await pairedDevice(VITOCAL_262A, ['type:boiler', 'type:dhwHeatpump']);
+
+    for (const capabilityName of Object.keys(COMPRESSOR_CAPABILITIES)) expect(device.hasCapability(capabilityName)).toBe(true);
+    expect(device.removeCapability).not.toHaveBeenCalled();
+  });
+});
+
 describe('our fixtures with the type roles stripped', () => {
   const cases = [
     ['vitocal_222_features.json', 'vitocal_222_installations.json', 'type:heatpump'],

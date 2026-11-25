@@ -28,22 +28,33 @@ function inferRoles(featureNames = [], featureData = []) {
     .map(({ role }) => role);
 }
 
+// Other roles that count as a role FEATURES can require, e.g. type:dhwHeatpump for a hot
+// water heat pump. Only the role's type name (before any ';') is matched.
+const ROLE_ALIASES = [
+  { role: 'type:heatpump', pattern: /^type:[^;]*heatpump/i },
+];
+
+// The roles that ROLE_ALIASES add for the given roles
+function aliasRoles(roles) {
+  return ROLE_ALIASES.filter(({ pattern }) => roles.some((role) => pattern.test(role))).map(({ role }) => role);
+}
+
 // True when the roles say what the device is (contain a role that FEATURES can require)
 function hasRoleTags(roles) {
   return Array.isArray(roles) && roles.some((role) => ROLE_TAGS.includes(role));
 }
 
 /**
- * The roles to check `requireRole` against: the stored roles when they contain any role that
- * FEATURES can require, otherwise the stored roles plus the inferred ones.
+ * The roles to check `requireRole` against: the stored roles plus the roles their aliases
+ * stand for, and, when the stored roles contain no role that FEATURES can require, the
+ * inferred ones. Both only ever add roles.
  * @param {string[]} storedRoles roles from the installation list (stored at pairing)
  * @param {string[]} inferred roles from inferRoles()
  * @returns {string[]}
  */
 function effectiveRoles(storedRoles, inferred = []) {
   const roles = Array.isArray(storedRoles) ? storedRoles.filter((role) => typeof role === 'string') : [];
-  if (hasRoleTags(roles)) return roles;
-  return [...new Set([...roles, ...inferred])];
+  return [...new Set([...roles, ...aliasRoles(roles), ...(hasRoleTags(roles) ? [] : inferred)])];
 }
 
 module.exports = {

@@ -207,6 +207,7 @@ test('changing the circuit setting refreshes metadata and restarts polling', asy
     _stopPolling: jest.fn(),
     _startPolling: jest.fn(),
   };
+  target.getStoreValue = jest.fn();
   target.setStoreValue = jest.fn();
   target.initializeCapabilities = jest.fn();
   target.updateCapabilityOptions = jest.fn();

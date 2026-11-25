@@ -77,6 +77,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async initializeCapabilities() {
+    // Without a stored feature list (pairings older than 1.0.9 whose refresh failed) every
+    // capability would look obsolete; leave them alone until the refresh succeeds
+    if (!Array.isArray(this._features)) {
+      this.error('No stored feature list, capabilities are left unchanged');
+      return;
+    }
+
     // Remove capabilities that are no longer in config or don't match device roles
     for (const existingCap of this.getCapabilities()) {
       let shouldKeep = false;
@@ -143,7 +150,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         const constraints = this._constraints?.[path];
         const temperature = constraints?.temperature || constraints?.targetTemperature;
         if (temperature) Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
-        await this.setCapabilityOptions(capability.capabilityName, options);
+        try {
+          await this.setCapabilityOptions(capability.capabilityName, options);
+        } catch (error) {
+          this.error(`Could not update the options of ${capability.capabilityName}:`, error);
+        }
       }
     }
   }
@@ -282,6 +293,22 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
     // Refresh older pairings once so circuit discovery does not require re-pairing.
     if (this.getStoreValue('heatingCircuitId') == null || !this.getStoreValue('commandMetadata')) {
+      await this.refreshStoredMetadata();
+    }
+    if (this.storeVersionBefore('1.0.9')) {
+      await this.setStoreValue('version', '1.0.9');
+    }
+  }
+
+  /*
+    Re-reads the device's features from the API and stores what pairing stores today
+    (heating circuit, constraints, operating modes, command metadata). The stored feature
+    list becomes the union of the old and the fresh list, so a sensor that is disabled or
+    notConnected at this moment keeps its capability. The refresh is not needed to run the
+    device: a failure is logged and the refresh is retried on the next start.
+  */
+  async refreshStoredMetadata() {
+    try {
       const metadata = await this.driver._getEnabledFeaturesAndOpModes(
         this.oAuth2Client,
         this.getStoreValue('installationId'),
@@ -289,13 +316,35 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.getStoreValue('deviceId'),
         this.getSetting?.('heatingCircuit') || 'auto',
       );
-      for (const [key, value] of Object.entries(metadata)) {
-        await this.setStoreValue(key, value);
+      const merged = this.mergeRefreshedMetadata(metadata);
+      // heatingCircuitId and commandMetadata go last: until both are stored, the next start
+      // runs the refresh again
+      for (const key of ['features', 'constraints', 'operatingModes', 'commandMetadata', 'heatingCircuitId']) {
+        if (merged[key] !== undefined) await this.setStoreValue(key, merged[key]);
       }
+    } catch (error) {
+      this.error('Could not refresh the device metadata, retrying on the next start:', error);
     }
-    if (this.storeVersionBefore('1.0.9')) {
-      await this.setStoreValue('version', '1.0.9');
+  }
+
+  /*
+    Combines freshly read metadata with what the device has stored. The feature list only
+    grows. Constraints are merged per feature, and stored operating modes are kept when the
+    API reports none right now. Everything else comes from the fresh metadata.
+  */
+  mergeRefreshedMetadata(metadata) {
+    const storedFeatures = this.getStoreValue('features');
+    const features = Array.isArray(storedFeatures) ? [...storedFeatures] : [];
+    for (const feature of Array.isArray(metadata?.features) ? metadata.features : []) {
+      if (!features.includes(feature)) features.push(feature);
     }
+    const storedModes = this.getStoreValue('operatingModes');
+    return {
+      ...metadata,
+      features,
+      constraints: { ...this.getStoreValue('constraints'), ...metadata?.constraints },
+      operatingModes: metadata?.operatingModes?.length ? metadata.operatingModes : storedModes,
+    };
   }
 
   async onFeaturesUpdated(rawResponse, extendedResponse) {
@@ -526,14 +575,15 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
       throw new Error('Enter auto or an enabled heating circuit number');
     }
-    const metadata = await this.driver._getEnabledFeaturesAndOpModes(
+    const metadata = this.mergeRefreshedMetadata(await this.driver._getEnabledFeaturesAndOpModes(
       this.oAuth2Client, this._installationId, this._gatewaySerial, this._deviceId, selectedCircuit,
-    );
+    ));
     const deviceKey = this.getPollingKey();
     await this.driver._stopPolling(deviceKey);
     const previous = {
       heatingCircuitId: this._heatingCircuitId,
-      features: this._features,
+      // The feature list only grows, also when the switch is rolled back
+      features: metadata.features,
       constraints: this._constraints,
       operatingModes: this._operatingModes,
       commandMetadata: this._commands,

@@ -33,6 +33,10 @@ Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`]
 4. **One ID, one meaning, forever.** Never reuse a shipped ID for another datapoint. A fallback path that reads the *same physical sensor* is fine (e.g. buffer `.top` for `measure_temperature.buffer`, roadmap 1.4). Suffixes are unique per base on the device: `measure_temperature.supply` is already the *primary-circuit* supply, so other supply temperatures need other suffixes.
 5. **Never use a deprecated path**, whether it is flagged in the official list or in any dump (the dumps flag some paths the official list does not). Use the named replacement.
 6. **Never derive one value from another** (roadmap principle 6): no power from nominal compressor power, no gas m³ from kWh with a guessed calorific value. The one deliberate exception is the running-state fallback in [Undocumented but relied on](#undocumented-but-relied-on). It reads the same component's own measured load, so it reports the same physical state; it is not an estimate.
+7. **Discover indexes, never assume 0; index 0 keeps today's IDs.** `N` means there can be several: compressors, burners, circuits, evaporators, condensers, inverters, heating rods. The app hard-codes index 0 today.
+   - **Where the indexes come from.** Take the existing indexes from the documented list feature's `enabled` property (`heating.compressors`, `heating.burners`, `heating.circuits`, e.g. `{"enabled": {"value": ["0"]}}`), not from the paths that happen to appear. The 2024 heat-pump dump contains `heating.compressors.1.*` and `heating.circuits.1.*` / `.2.*`, all disabled, while the lists say `["0"]`. The other families (`heating.evaporators`, `heating.condensors`, `heating.inverters`, `heating.coolingCircuits`, …) have no list feature in the official list; there the index counts only if its features are enabled. The open [PR #6](https://github.com/pelleros/se.forint.pelle.viessmann/pull/6) already discovers circuits from `heating.circuits` → `enabled`: circuit 0 if enabled, otherwise the first enabled one.
+   - **IDs.** Index 0 (for circuits: the selected circuit) keeps today's IDs unchanged. IDs for index ≥ 1 follow one naming scheme, decided together with the multi-circuit design ([#4](https://github.com/pelleros/se.forint.pelle.viessmann/issues/4)). Proposed: append the unit and index to the sub-ID, e.g. `measure_compressor_active.compressor1`, `measure_compressor_number.compressorHoursCompressor1`, `measure_temperature.compressorInletCompressor1` (Q21).
+   - No real dump has a second *enabled* compressor, burner or circuit yet.
 
 ## Tiers
 
@@ -85,7 +89,12 @@ None of these paths is flagged deprecated in the official list or in any dump.
 
 ### Undocumented but relied on
 
-`heating.compressors.N` and `heating.burners.N` are not in Viessmann's datapoint list: it documents only the enabled-list features `heating.compressors` / `heating.burners` and children such as `heating.burners.N.modulation` or `heating.compressors.N.statistics`. (Checked against the 2026-11-25 copy; the maintainer confirmed the same on the live page.) Yet every real dump reports them, including the 2026-11-25 heat-pump dump (`active`, `phase`). The app maps their `active.value` to `measure_compressor_active` and `measure_burner_active`, which the Flow conditions `compressor-is-running` and `burner-is-running` read.
+Only the bare `heating.compressors.N` and `heating.burners.N` (with `active` and, for compressors, `phase`) are missing from Viessmann's datapoint list (checked against the 2026-11-25 copy; the maintainer confirmed the same on the live page). The list does document the enabled-list features `heating.compressors` / `heating.burners` and many children:
+
+- **Burner** (`heating.burners.N.…`): `modulation`, `statistics`, `errorStatus`, `manualActivation`, `preConditions`, `demand.modulation`, `demand.temperature`, `sensors.o2`. `automatic` is deprecated in favour of `errorStatus`.
+- **Compressor** (`heating.compressors.N.…`): `power`, `statistics` (and `.load`), `heatTarget` (Advanced), `sensors.*`, `speed.current` / `.setpoint`, `heater.crankcase`, plus Advanced-only `power.consumption.*` and `heat.production.*`.
+
+Yet every real dump reports the bare features, including the 2026-11-25 heat-pump dump (`active`, `phase`). The app maps their `active.value` to `measure_compressor_active` and `measure_burner_active`, which the Flow conditions `compressor-is-running` and `burner-is-running` read. Of the documented children, `errorStatus` and `heatTarget` would be worth mapping but are not in our dumps (see the [watch list](#3-watch-list-official-list-not-yet-seen-in-a-dump)).
 
 **Risk.** An undocumented feature can disappear or change without a `deprecated` flag or `removalDate`, so the deprecation checks (`scripts/featureCoverage.js`, roadmap 0.6) would not warn in advance. The capability would freeze on its last value (or turn unknown once roadmap 1.4 lands) and those Flow conditions would stop working.
 
@@ -230,11 +239,11 @@ Read at pairing and on "Refresh Viessmann features" (roadmap 3.5), stored under 
 
 | # | Viessmann feature | Properties | Seen in | Plan | Use |
 |---|---|---|---|---|---|
-| 1 | `heating.circuits` | `enabled[]`, `internal[]` | All | Basic | Circuit indexes: circuit selection / one device per circuit (#4). |
+| 1 | `heating.circuits` | `enabled[]`, `internal[]` | All | Basic | Circuit indexes: circuit selection / one device per circuit (#4; ID rule 7). |
 | 2 | `heating.circuits.N` ⓒ | `active`, `name`, `type` | All | not in official list | Circuit name for device naming (#4). |
 | 3 | `heating.circuits.N.name` ⓒ | `name` | All | not in official list | Same name as #2; use whichever exists. |
-| 4 | `heating.burners` | `enabled[]` | All (empty on HP) | Basic | Burner indexes (today hard-coded `0`). |
-| 5 | `heating.compressors` | `enabled[]` | HP | Basic | Compressor indexes (today hard-coded `0`). |
+| 4 | `heating.burners` | `enabled[]` | All (empty on HP) | Basic | Burner indexes (today hard-coded `0`; ID rule 7). |
+| 5 | `heating.compressors` | `enabled[]` | HP | Basic | Compressor indexes (today hard-coded `0`; ID rule 7). |
 | 6 | `heating.dhw` | `active`, `status` | All | Basic | Whether hot water is present and activated. |
 | 7 | `heating.circuits.N.temperature.levels` ⓒ | `min`, `max` (°C) | HP, Gas 2/3 (E3) | Basic + Ctrl | Supply-temperature limits of the circuit. Informational. |
 | 8 | `heating.configuration.flow.temperature.min` | `value` (°C) | HP (2025+) | Basic | Minimum *supply (flow)* temperature. Not the room set-point range (Q10). |
@@ -276,6 +285,8 @@ Basic features worth mapping as soon as an anonymized dump shows them (mostly ne
 | `heating.sensors.temperature.systemReturn` | Common return of a cascade | `measure_temperature.systemReturn` |
 | `heating.circuits.N.operating.programs.{comfortHeating, reducedHeating}` and cooling variants | Newer E3 naming of the programs in 2d #2–#3 | extends 2d |
 | `device.power.consumption.limitation`, `heating.device.smartGrid` (no plan listed) | Power-limiting tariffs, SG Ready (roadmap 3.2) | controls |
+| `heating.burners.N.errorStatus` (Basic) | Burner error state; documented replacement of the deprecated `heating.burners.N.automatic`. Not seen in our dumps, so its properties are unknown | `alarm_generic.burnerFault` *(proposed)*, see [5f](#5f-alarms) |
+| `heating.compressors.N.heatTarget` (Advanced only) | What the compressor is heating right now (e.g. hot water or heating). Not seen in our dumps. Everyday string sensor plus a trigger "Compressor started heating hot water". For Basic users, `heating.dhw.charging` (2a #4) together with `measure_compressor_active` gives a similar signal | `measure_compressor_heattarget` *(proposed)*, a new string base like `measure_heating_program` |
 
 ## 4. New base capabilities
 
@@ -508,6 +519,7 @@ Lower-risk alternative: never remove it; hide it with `uiComponent: null` (5g) o
 |---|---|---|---|
 | `alarm_generic.fault` | `device.messages.errors.raw`: true while `entries[]` is non-empty | HP (2024 only), Gas 3/3, FC | Not in the official list, and gone from the newer heat-pump snapshots. Candidates for newer devices: `device.messages.status.raw`, `.service.raw`, `.info.raw`, `heating.burners.N.errorStatus` (official list, not yet in a dump). Error codes as trigger tokens; ties in with the logbook trigger (roadmap 3.4). |
 | `alarm_generic.lowPressure` | `heating.sensors.pressure.supply` below a threshold set in the device settings | Gas 1/3 (E3), FC | Compares a real measurement, but the threshold is the app's choice, not Viessmann's; a wrong default gives false alarms. Alternative: only a Flow condition "System pressure is below X bar" on `measure_pressure.system`. |
+| `alarm_generic.burnerFault` | `heating.burners.N.errorStatus` (Basic; replaces deprecated `…automatic`) | not seen in our dumps | Burner-specific, so kept apart from the device-wide `fault`. The mapping to true/false can only be defined once a dump shows the feature's properties. |
 
 Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm turned on / off") and a condition ("Fault alarm is on") explicitly, with a `$filter`. Alarm booleans are logged in Insights by default, which is useful here. `alarm_generic.lowPressure` is not produced by a feature path, so it depends on the add-only fix (Q17).
 
@@ -541,6 +553,7 @@ Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm tur
 18. **Diagnostic visibility:** a three-level setting (Off / Insights only / Show) if per-device `uiComponent: null` works at runtime?
 19. **Mode titles:** confirm the meaning and English wording of `forcedNormal`, `forcedReduced` and `normalStandby`. Is "Heating & hot water" acceptable under the 3-word rule?
 20. **Fuel-cell tile state:** feed `measure_fuelcell_active` from `fuelCell.operating.phase`, and which phases count as running?
+21. **IDs for index ≥ 1** (ID rule 7): append the unit and index to the sub-ID (`…Compressor1`, `…Burner1`, proposed) or put the index inside it (`compressor1Hours`)? Decide together with #4. With one Homey device per circuit (roadmap 3.1 step 2) circuit capabilities may never need an index suffix, but compressors, burners and evaporators on the same device would.
 
 ## Refreshing this catalogue
 

@@ -22,6 +22,29 @@ const {
 
 const fixtures = loadPyViCareFixtures();
 
+// Capabilities of features mapped after 1.0.14 (COP, compressor load, top buffer sensor as a
+// fallback), with the values these responses report
+const ADDED_SINCE_1014 = {
+  'Ecotronic.json': { 'measure_temperature.buffer': 62.1 },
+  'Vitocal200S_AWB-M-E-AC-201.D10.json': {
+    'measure_cop_number.total': 5.2,
+    'measure_cop_number.heating': 5.2,
+    'measure_cop_number.dhw': 0,
+    'measure_compressor_number.compressorModulation': 0,
+  },
+  'Vitocal300G_CU401B.json': {
+    'measure_cop_number.total': 4.7,
+    'measure_cop_number.heating': 4.8,
+    'measure_cop_number.dhw': 4,
+    'measure_compressor_number.compressorModulation': 100,
+  },
+  'Vitocal333G-with-Vitovent300F.json': {
+    'measure_cop_number.total': 5.3,
+    'measure_cop_number.heating': 5.4,
+    'measure_cop_number.dhw': 4.8,
+  },
+};
+
 // The heating circuits the installation reports: the enabled list of `heating.circuits`, or
 // else the circuits with an enabled operating mode
 function reportedCircuits(dump) {
@@ -48,6 +71,22 @@ test('test/fixtures/pyvicare provides responses with one and with several heatin
   const counts = fixtures.map(({ dump }) => reportedCircuits(dump).length);
   expect(counts).toContain(1);
   expect(counts.some((count) => count > 1)).toBe(true);
+});
+
+describe.each(Object.entries(ADDED_SINCE_1014))('upgrade from 1.0.14: PyViCare %s gets capabilities mapped since', (name, added) => {
+  const { dump } = fixtures.find((fixture) => fixture.name === name);
+
+  test.each([
+    ['the refresh succeeds', false],
+    ['the refresh call throws', true],
+  ])('when %s: they are added with the reported values, and nothing is removed', async (_, refreshFails) => {
+    const { device, capabilitiesBefore } = await upgradeFrom1014({ identity: identityOf(dump), before: dump, refreshFails });
+
+    Object.keys(added).forEach((id) => expect(capabilitiesBefore).not.toContain(id));
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(device.getCapabilities()).toEqual(expect.arrayContaining([...capabilitiesBefore, ...Object.keys(added)]));
+    for (const [id, value] of Object.entries(added)) expect(device.getCapabilityValue(id)).toBe(value);
+  });
 });
 
 describe.each(fixtures.map(({ name, dump }) => [name, dump]))('upgrade from 1.0.14: PyViCare %s', (name, dump) => {
@@ -84,7 +123,9 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('upgrade from 1.0.
     expect(device.error).not.toHaveBeenCalledWith(expect.stringContaining('Error processing features update'), expect.anything());
 
     if (refreshFails) {
-      expect(capabilitiesAfter).toEqual(capabilitiesBefore);
+      // The stored features unchanged; features mapped after 1.0.14 can add capabilities
+      expect(device.getStoreValue('features')).toEqual(store.features);
+      expect(capabilitiesAfter).toEqual(capabilitiesFor(store));
       expect(device.getStoreValue('heatingCircuitId')).toBeUndefined();
       expect(device.error).toHaveBeenCalledWith(expect.stringContaining('retrying on the next start'), expect.any(Error));
     } else {

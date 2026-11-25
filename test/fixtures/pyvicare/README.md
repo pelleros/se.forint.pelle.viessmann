@@ -47,8 +47,8 @@ unchanged; only identifiers, timestamps, host names and formatting were changed,
    `api.viessmann-climatesolutions.com`. One zigbee hardware address (the value of
    `device.zigbee.parent.id` in `zigbee_zk03839_cs.json`) was masked with `#`, as PyViCare does in
    its other zigbee files.
-2. Each file was then anonymized on its own with `node scripts/anonymizeDump.js <in> <out>`, like
-   the fixtures in `test/fixtures/`. Besides the masked values from step 1, this replaced
+2. Each file was then anonymized on its own with `node scripts/anonymizeDump.js <in> <out>` (rules
+   in `lib/anonymize.js`), like the fixtures in `test/fixtures/`. Besides the masked values from step 1, this replaced
    identifiers that were still in the files (installation ids in the URIs of two files, other
    placeholder serials such as `XXXXXX`, and user-defined heating circuit names) with fake
    values (installation `900001`, serials

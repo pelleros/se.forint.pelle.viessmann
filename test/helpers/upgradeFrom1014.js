@@ -50,11 +50,43 @@ function pairedStore1014(response) {
   return { features, constraints, operatingModes };
 }
 
-// drivers/vicare/device.js initializeCapabilities in 1.0.14: the capabilities of every stored
-// feature that passes the role check. Also the capabilities the current code must give a store.
-function capabilitiesFor({ features, roles }) {
+// The feature paths config.js mapped in 1.0.14. Their capabilities and roles have not changed
+// since; paths added later must not count as capabilities a 1.0.14 device had.
+const PATHS_1014 = Object.freeze([
+  'heating.dhw.sensors.temperature.dhwCylinder',
+  'heating.dhw.temperature.main',
+  'heating.dhw.temperature.temp2',
+  'heating.circuits.0.operating.programs.normal',
+  'heating.dhw.oneTimeCharge',
+  'heating.circuits.0.operating.modes.active',
+  'heating.sensors.temperature.outside',
+  'heating.circuits.0.sensors.temperature.room',
+  'heating.circuits.0.temperature',
+  'heating.circuits.0.sensors.temperature.supply',
+  'heating.bufferCylinder.sensors.temperature.main',
+  'heating.sensors.temperature.return',
+  'heating.primaryCircuit.sensors.temperature.supply',
+  'heating.primaryCircuit.sensors.temperature.return',
+  'heating.secondaryCircuit.sensors.temperature.supply',
+  'heating.boiler.sensors.temperature.main',
+  'heating.boiler.sensors.temperature.commonSupply',
+  'heating.compressors.0',
+  'heating.compressors.0.statistics',
+  'heating.burners.0',
+  'heating.burners.0.modulation',
+  'heating.burners.0.statistics',
+  'fuelCell.sensors.temperature.return',
+  'fuelCell.sensors.temperature.supply',
+  'fuelCell.statistics',
+  'fuelCell.operating.phase',
+  'fuelCell.operating.modes.active',
+]);
+
+// The capabilities of every stored feature that passes the role check: what
+// initializeCapabilities gives the device, with the given feature paths mapped
+function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS)) {
   const capabilities = new Set();
-  for (const featurePath of Object.values(PATHS)) {
+  for (const featurePath of featurePaths) {
     const { requireRole } = FEATURES[featurePath];
     if (features.includes(featurePath) && (!requireRole || roles.includes(requireRole))) {
       getAllCapabilities(featurePath).forEach((capability) => capabilities.add(capability.capabilityName));
@@ -62,6 +94,9 @@ function capabilitiesFor({ features, roles }) {
   }
   return [...capabilities].sort();
 }
+
+// drivers/vicare/device.js initializeCapabilities in 1.0.14
+const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014);
 
 // Returns only the requested features, like the API does for ?filter=
 function respond(dump, filter) {
@@ -85,7 +120,7 @@ async function upgradeFrom1014({
   identity, before, after = before, refreshFails = false,
 }) {
   const store = { ...identity, ...pairedStore1014(before), version: '1.0.14' };
-  const capabilitiesBefore = capabilitiesFor(store);
+  const capabilitiesBefore = capabilitiesFor1014(store);
   const data = { id: `${identity.installationId}-${identity.gatewaySerial}-${identity.deviceId}` };
 
   const driver = new ViessmannDriver();
@@ -114,5 +149,5 @@ const filteredPolls = (device) => device.oAuth2Client.getFeatures.mock.calls
   .filter(([request]) => request.filter !== undefined);
 
 module.exports = {
-  pairedStore1014, capabilitiesFor, respond, upgradeFrom1014, filteredPolls,
+  PATHS_1014, pairedStore1014, capabilitiesFor, capabilitiesFor1014, respond, upgradeFrom1014, filteredPolls,
 };

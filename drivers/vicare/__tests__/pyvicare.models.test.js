@@ -78,12 +78,18 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
     expect(device.setUnavailable).not.toHaveBeenCalled();
     expect(device.getAvailable()).toBe(true);
 
-    // Every capability that has a value in the response got it; no other capability changed
-    const expected = {};
-    for (const [, capabilityName, propertyPath, properties] of cases) {
+    // Every capability that has a value in the response got it; no other capability changed.
+    // A feature marked `fallbackFor` is read only when the other features give no value.
+    const readings = new Map();
+    const byFallback = ([a], [b]) => Number(Boolean(FEATURES[a].fallbackFor)) - Number(Boolean(FEATURES[b].fallbackFor));
+    for (const [, capabilityName, propertyPath, properties] of [...cases].sort(byFallback)) {
       const value = getValueFromPath(properties, propertyPath);
+      if (value !== undefined && !readings.has(capabilityName)) readings.set(capabilityName, value);
+    }
+    const expected = {};
+    for (const [capabilityName, value] of readings) {
       // A capability starts at null, so a null reading is no change
-      if (value === undefined || value === null) continue;
+      if (value === null) continue;
       const { valueMapping } = ALL_CAPABILITIES.find((capability) => capability.capabilityName === capabilityName);
       expected[capabilityName] = valueMapping && value in valueMapping ? valueMapping[value] : value;
     }

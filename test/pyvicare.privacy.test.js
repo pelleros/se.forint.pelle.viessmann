@@ -4,13 +4,14 @@
 
 /*
  * Guards test/fixtures/pyvicare/ the way test/fixtures.privacy.test.js guards test/fixtures/:
- * every file must be the output of scripts/anonymizeDump.js, so running the anonymizer again
- * must not change anything. Failure messages name JSON paths only, never values.
+ * every file must be the output of scripts/anonymizeDump.js, so running the anonymizer
+ * (lib/anonymize.js, fixture style) again must not change anything. Failure messages name JSON
+ * paths only, never values.
  */
 
 const {
   anonymizeDumps, FAKE_PATTERNS, NEW_HOST, OLD_HOST,
-} = require('../scripts/anonymizeDump');
+} = require('../lib/anonymize');
 const { loadPyViCareFixtures } = require('./helpers/pyvicareFixtures');
 
 // Integers of 10+ digits that are not the fraction of a decimal number or part of a word.

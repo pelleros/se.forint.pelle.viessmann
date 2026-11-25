@@ -6,13 +6,7 @@ Get it set up:
 * Now add your new Viessmann device in Homey and log in with your ViCare app user when asked to.
 
 
-Heating circuit support:
-- The app detects enabled heating circuits when pairing and refreshes existing pairings once after this update; removing devices or recreating Flows is not required.
-- Circuit 0 is preferred when enabled. Otherwise the first enabled circuit is used (for example circuit 1 on some Vitoconnect Optolink installations).
-- The same circuit is used for operating modes, heating target temperatures, readings, and polling. Each Homey device currently controls one heating circuit.
-- Forced normal and forced reduced modes are available in Flows when supported by the installation. Unsupported mode requests report an error.
-
-After installing this version, verify the operating mode and heating target temperature against ViCare. Test both the device controls and existing Flow actions. Automated tests use mocked API responses; hardware validation is still required.
+Heating circuits: the app uses heating circuit 0, or the first enabled circuit when the installation has no circuit 0. You can choose another circuit in the device's advanced settings. One Homey device controls one heating circuit.
 
 ## Development
 

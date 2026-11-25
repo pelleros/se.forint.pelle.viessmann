@@ -93,11 +93,11 @@ Each capability entry has:
 
 ## Heating circuits
 
-`config.js`, capability IDs and Flow cards only know `heating.circuits.0.*`. Each device works on one heating circuit, `heatingCircuitId`: circuit 0 when it is enabled, otherwise the first enabled circuit, or the number in the advanced device setting `heatingCircuit` (`auto` by default). `heatingCircuit.js` maps the API's `heating.circuits.<id>.*` features to `heating.circuits.0.*` when reading (and drops other circuits), and back to `<id>` for the poll filter and commands. A device on circuit 1 therefore has the same capability IDs as one on circuit 0. Changing the setting re-reads the metadata (merging the feature list) and restarts polling.
+`config.js`, capability IDs and Flow cards only know `heating.circuits.0.*`. Each device works on one heating circuit, `heatingCircuitId`: circuit 0 when it is enabled, otherwise the first enabled circuit, or the number in the advanced device setting `heatingCircuit` (`auto` by default). `heatingCircuit.js` maps the API's `heating.circuits.<id>.*` features to `heating.circuits.0.*` when reading (and drops other circuits), and back to `<id>` for the poll filter and commands. A device on circuit 1 therefore has the same capability IDs as one on circuit 0, and readings, operating mode, heating target temperature, commands and the poll filter all use the same circuit. Devices paired before circuit support get their circuit from the one-time upgrade refresh, without re-pairing and without touching Flows. Changing the setting re-reads the metadata (merging the feature list) and restarts polling.
 
 ## Commands
 
-`executeCommand` checks the command against `commandMetadata` (`lib/commandValidation.js`: exists, `isExecutable`, required parameters, type, enum, min/max/stepping) and, for the operating mode, against the device's modes, before calling the API. A response with `data.success: false` is an error, and the capability value is only updated after a successful command. Polls keep the metadata current; until a device has any (no refresh and no poll yet), the check is skipped.
+`executeCommand` checks the command against `commandMetadata` (`lib/commandValidation.js`: exists, `isExecutable`, required parameters, type, enum, min/max/stepping) and, for the operating mode, against the circuit's modes (`set-operating-mode` offers `forcedNormal` and `forcedReduced` too; a mode the circuit does not have is refused with an error), before calling the API. A response with `data.success: false` is an error, and the capability value is only updated after a successful command. Polls keep the metadata current; until a device has any (no refresh and no poll yet), the check is skipped.
 
 ## Flow cards
 

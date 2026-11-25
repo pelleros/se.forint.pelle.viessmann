@@ -4,21 +4,13 @@
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
-    "preinstall": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js && node scripts/moveDocumentation.js",
-    "install": "homey app install",
-    "postinstall": "node scripts/restoreDocumentation.js",
-    "prerun": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js && node scripts/moveDocumentation.js",
-    "run": "homey app run",
-    "postrun": "node scripts/restoreDocumentation.js",
-    "prevalidate": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js && node scripts/moveDocumentation.js",
-    "validate": "homey app validate --level publish",
-    "postvalidate": "node scripts/restoreDocumentation.js",
-    "prepublish": "node scripts/generateFlowCompose.js && node scripts/generateDriverCompose.js && node scripts/moveDocumentation.js",
-    "publish": "homey app publish",
-    "postpublish": "node scripts/restoreDocumentation.js",
+    "test": "jest --config jest.config.js",
+    "homey:install": "node scripts/homey.js install",
+    "homey:run": "node scripts/homey.js run",
+    "homey:validate": "node scripts/homey.js validate",
+    "homey:publish": "node scripts/homey.js publish",
     "doc": "node scripts/restoreDocumentation.js",
-    "nodoc": "node scripts/moveDocumentation.js",
-    "test": "jest --config jest.config.js"
+    "nodoc": "node scripts/moveDocumentation.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",

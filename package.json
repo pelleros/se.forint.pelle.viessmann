@@ -10,7 +10,8 @@
     "homey:validate": "node scripts/homey.js validate",
     "homey:publish": "node scripts/homey.js publish",
     "doc": "node scripts/restoreDocumentation.js",
-    "nodoc": "node scripts/moveDocumentation.js"
+    "nodoc": "node scripts/moveDocumentation.js",
+    "fixtures": "node scripts/generateFixtures.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",

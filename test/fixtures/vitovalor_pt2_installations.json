@@ -1,0 +1,131 @@
+{
+  "cursor": {
+    "next": ""
+  },
+  "data": [
+    {
+      "id": 900005,
+      "description": "anonymized",
+      "address": {
+        "street": "anonymized",
+        "houseNumber": "anonymized",
+        "zip": "anonymized",
+        "city": "anonymized",
+        "region": null,
+        "country": "anonymized",
+        "phoneNumber": null,
+        "faxNumber": null,
+        "geolocation": {
+          "latitude": "anonymized",
+          "longitude": "anonymized",
+          "timeZone": "anonymized"
+        }
+      },
+      "gateways": [
+        {
+          "serial": "9999000000000011",
+          "version": "511.2405.3.0",
+          "firmwareUpdateFailureCounter": 0,
+          "autoUpdate": false,
+          "createdAt": "2000-01-01T00:00:00.000Z",
+          "producedAt": "2000-01-01T00:00:00.000Z",
+          "lastStatusChangedAt": "2000-01-01T00:00:00.000Z",
+          "aggregatedStatus": "WorksProperly",
+          "targetRealm": "DC",
+          "gatewayType": "SA180",
+          "installationId": 900005,
+          "registeredAt": "2000-01-01T00:00:00.000Z",
+          "description": null,
+          "otaOngoing": false,
+          "devices": [
+            {
+              "gatewaySerial": "9999000000000011",
+              "id": "0",
+              "boilerSerial": "9999000000000012",
+              "boilerSerialEditor": "DeviceCommunication",
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_Vitovalor_PT2_0620",
+              "status": "Online",
+              "deviceType": "heating",
+              "roles": [
+                "capability:backup;0002_HMU_PT2",
+                "capability:consumptionReport;electric",
+                "capability:consumptionReport;thermal",
+                "capability:monetization;AdvancedReport",
+                "capability:monetization;DhwSavingsCalculator",
+                "capability:productionReport;electric",
+                "capability:productionReport;thermal",
+                "type:E3",
+                "type:boiler",
+                "type:dhw;integrated",
+                "type:fuelcell",
+                "type:heating;integrated",
+                "type:product;Vitovalor_PT2"
+              ],
+              "isBoilerSerialEditable": false
+            },
+            {
+              "gatewaySerial": "9999000000000011",
+              "id": "gateway",
+              "boilerSerial": null,
+              "boilerSerialEditor": null,
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_TCU10_x07",
+              "status": "Online",
+              "deviceType": "tcu",
+              "roles": [
+                "capability:hems",
+                "capability:src",
+                "capability:zigbeeCoordinator",
+                "type:E3",
+                "type:gateway;TCU300"
+              ],
+              "isBoilerSerialEditable": false
+            },
+            {
+              "gatewaySerial": "9999000000000011",
+              "id": "RoomControl-1",
+              "boilerSerial": null,
+              "boilerSerialEditor": null,
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_RoomControl_One_03",
+              "status": "Online",
+              "deviceType": "roomControl",
+              "roles": [
+                "capability:monetization;FTDC",
+                "capability:monetization;OWD",
+                "capability:zigbeeCoordinator",
+                "type:E3",
+                "type:virtual;smartRoomControl"
+              ],
+              "isBoilerSerialEditable": false
+            }
+          ]
+        }
+      ],
+      "registeredAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "aggregatedStatus": "WorksProperly",
+      "servicedBy": "anonymized",
+      "heatingType": null,
+      "ownedByMaintainer": false,
+      "endUserWlanCommissioned": true,
+      "withoutViCareUser": false,
+      "installationType": "Residential",
+      "buildingName": null,
+      "buildingEmail": null,
+      "buildingPhone": null,
+      "accessLevel": "Owner",
+      "ownershipType": "ResidentialEndUser"
+    }
+  ]
+}

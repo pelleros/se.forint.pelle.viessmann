@@ -89,6 +89,7 @@ All of these have been seen in real installation dumps and are available in Vies
 | 2.6 | Primary circuit pump speed | `heating.primaryCircuit.sensors.rotation` (%) | `measure_pump_number.primaryRotation` *(proposed)*. | `planned` |
 | 2.7 | Condition cards for temperatures | n/a | For example "Hot water is above X °C". | `planned` |
 | 2.8 | Heating rod runtime | `heatingRods.heatGeneration.N.runtime` | Waiting for a dump that contains the new path. The old `heating.heatingRod.runtime` is deprecated and past its removal date. | `planned` |
+| 2.9 | Raise `compatibility` to `>=13.5.0` | n/a | Decided. Needed statically for `uiState`; it also provides Node 22, widgets and enum `values` in `capabilitiesOptions` (used for operating modes). Release 1.0.15 keeps `>=10.0.0` so the bug fixes reach everyone. Users on older Homey versions keep the app version they have installed and receive no further updates; the change is announced in the forum and the changelog. | `planned` |
 
 ## Phase 3: Larger improvements (releases 1.2.x)
 
@@ -136,8 +137,7 @@ No decisions yet; feedback is welcome in issues.
 |---|---|
 | Energy / Homey Energy | Real consumption datapoints exist in Basic for newer devices: `heating.power.consumption.current` (current electrical consumption), `heating.inverters.N.sensors.power.current` (inverter power), `heating.power.consumption.total`/`.heating`/`.dhw` and `.summary.*` (kWh). Idea: optional capabilities that appear only where the datapoint exists: `measure_power` from `…consumption.current` (second choice: the inverter power) and `meter_power` from `…consumption.total`. No estimate from `compressors.N.power`. Needs an anonymized dump from an E3 device to build a fixture. |
 | `heatpump` device class | Existing devices cannot be migrated without re-pairing, and `setClass()` breaks Flows. Possibly only for new pairings, after checking the effect on the Devices, Climate and Energy views. Low priority. |
-| Raising `compatibility` | Currently `>=10.0.0`. Enum `values` in `capabilitiesOptions` (used for operating modes) need 12.0.1, widgets need 12.3.0, Node 22 arrives with 12.9. Raising to `>=12.3.0` looks reasonable, but users on older Homey versions would stay on their current app version. Would be announced beforehand. |
-| Dashboard widget | Supported from Homey 12.3, not on Homey Cloud. Would show compressor, COP, temperatures and pumps; makes sense after Phase 2. |
+| Dashboard widget | Supported from Homey 12.3 (covered by the `compatibility` raise in 1.1.0), not on Homey Cloud. Would show compressor, COP, temperatures and pumps; makes sense after Phase 2. |
 | Homey Cloud | Has platform constraints: no custom settings pages (the Client ID must move into the pairing flow, see 3.6), no Web API (`api.js`), and unhandled promise rejections crash the app. To be revisited after 3.6. |
 | Radiator valves and room sensors | Separate devices inside the installation with their own feature calls. The quota is not enough for several valves at a 2-minute poll, so this needs per-Viessmann-device polling (3.1) first, then slower polling for valves. |
 
@@ -166,7 +166,7 @@ Not scheduled; listed so they are not lost.
 | Version | Contents | Risk |
 |---|---|---|
 | none | Phase 0 (tests, CI, fixtures, cleanup) | None; no behavior change |
-| **1.0.15** | Phase 1 bug fixes | Low if the registry test is green; 1-2 weeks in the test channel |
-| **1.1.0** | Phase 2: pumps, COP, compressor load, temperatures, condition cards | Low; additions only |
+| **1.0.15** | Phase 1 bug fixes; `compatibility` stays `>=10.0.0` so the fixes reach everyone | Low if the registry test is green; 1-2 weeks in the test channel |
+| **1.1.0** | Phase 2: pumps, COP, compressor load, temperatures, condition cards; raises `compatibility` to `>=13.5.0` | Low; additions only. Users on older Homey versions stay on their installed version |
 | **1.2.x** | Phase 3: circuit step 1, heating curve, programs, logbook trigger, settings, pairing, translations | Medium; some of it writes to the controller |
 | later | Circuits as separate devices, energy (if a source exists), widget, possibly Homey Cloud | Medium |

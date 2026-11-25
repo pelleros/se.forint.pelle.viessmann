@@ -268,3 +268,67 @@ describe('switching the heating circuit', () => {
     expect(device.removeCapability).not.toHaveBeenCalled();
   });
 });
+
+describe('a device that is deleted or unloaded while it initialises', () => {
+  test.each([
+    ['deleted', 'onOAuth2Deleted'],
+    ['unloaded', 'onOAuth2Uninit'],
+  ])('%s during the upgrade refresh: no poller is left behind', async (_, method) => {
+    let answerRefresh;
+    const { driver, device } = createDevice({
+      getFeatures: (request) => (isRefresh(request)
+        ? new Promise((resolve) => {
+          answerRefresh = resolve;
+        })
+        : currentFeatures()),
+    });
+    const stopPolling = jest.spyOn(driver, '_stopPolling');
+
+    const initialising = device.onOAuth2Init();
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(device.getPollingKey()).toBe(POLLING_KEY);
+    await device[method]();
+    answerRefresh(currentFeatures());
+    await initialising;
+
+    expect(stopPolling).toHaveBeenCalledWith(POLLING_KEY);
+    expect(driver._devicePollers.size).toBe(0);
+    expect(pollCalls(device)).toHaveLength(0);
+    expect(device.addCapability).not.toHaveBeenCalled();
+  });
+
+  test('deleted while capabilities are being set up: no poller is started', async () => {
+    const { driver, device } = createDevice();
+    const { registerCapabilityListeners } = device;
+    device.registerCapabilityListeners = async () => {
+      await device.onOAuth2Deleted();
+      return registerCapabilityListeners.call(device);
+    };
+
+    await device.onOAuth2Init();
+
+    expect(driver._devicePollers.size).toBe(0);
+    expect(pollCalls(device)).toHaveLength(0);
+  });
+
+  test('a pairing from before 1.0.4 has its polling key before the migration', async () => {
+    const {
+      installationId, gatewaySerial, deviceId, ...store
+    } = STORE_1_0_14;
+    const { device } = createDevice({ store });
+    device.__data = {
+      id: POLLING_KEY, installationId, gatewaySerial, deviceId,
+    };
+    const { checkUpgradeSpecifics } = device;
+    let keyDuringMigration;
+    device.checkUpgradeSpecifics = async () => {
+      keyDuringMigration = device.getPollingKey();
+      return checkUpgradeSpecifics.call(device);
+    };
+
+    await device.onOAuth2Init();
+
+    expect(keyDuringMigration).toBe(POLLING_KEY);
+    expect(device.driver._devicePollers.has(POLLING_KEY)).toBe(true);
+  });
+});

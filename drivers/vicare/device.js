@@ -33,7 +33,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   static PATHS = PATHS;
 
   async onOAuth2Init() {
+    // The polling key is known before the first await, so that onOAuth2Deleted and
+    // onOAuth2Uninit can stop polling at any moment (pairings before 1.0.4 keep it in data)
+    this._uninitialized = false;
+    const data = this.getStoreValue('installationId') ? {} : this.getData();
+    this._installationId = this.getStoreValue('installationId') ?? data.installationId;
+    this._gatewaySerial = this.getStoreValue('gatewaySerial') ?? data.gatewaySerial;
+    this._deviceId = this.getStoreValue('deviceId') ?? data.deviceId;
+
     await this.checkUpgradeSpecifics();
+    if (this._uninitialized) return;
     this._installationId = this.getStoreValue('installationId');
     this._gatewaySerial = this.getStoreValue('gatewaySerial');
     this._deviceId = this.getStoreValue('deviceId');
@@ -66,6 +75,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
+    // Deleted or unloaded while initialising: never start a poller that nothing would stop
+    if (this._uninitialized) return;
     await this.driver._startPolling(this, this.getPollingKey());
   }
 
@@ -628,11 +639,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
   async onOAuth2Uninit() {
     // Stop polling for this device
+    this._uninitialized = true;
     await this.driver._stopPolling(this.getPollingKey());
   }
 
   async onOAuth2Deleted() {
     // Stop polling right away: a poll that runs after deletion fails with device_not_found
+    this._uninitialized = true;
     await this.driver._stopPolling(this.getPollingKey());
   }
 

@@ -1,0 +1,327 @@
+{
+  "data": [
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.configuration.measurementWeight",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "weight": {
+          "type": "number",
+          "unit": "",
+          "value": 20
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.configuration.measurementWeight"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.heatingCircuitId",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "value": {
+          "type": "number",
+          "unit": "",
+          "value": 1
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.heatingCircuitId"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.identification",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "triggered": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.identification"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.information",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "manufacturer": {
+          "type": "string",
+          "value": "Viessmann"
+        },
+        "modelId": {
+          "type": "string",
+          "value": "#######"
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.information"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.messages.status.raw",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "value": []
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.messages.status.raw"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {
+        "setName": {
+          "isExecutable": true,
+          "name": "setName",
+          "params": {
+            "name": {
+              "constraints": {
+                "maxLength": 40,
+                "minLength": 1,
+                "regEx": "^[\\p{L}0-9]+( [\\p{L}0-9]+)*$"
+              },
+              "required": true,
+              "type": "string"
+            }
+          },
+          "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.name/commands/setName"
+        }
+      },
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.name",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "value": "Thermostat UG Flur"
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.name"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.power.battery",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "level": {
+          "type": "number",
+          "unit": "percent",
+          "value": 36
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.power.battery"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.sensors.temperature",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "status": {
+          "type": "string",
+          "value": "connected"
+        },
+        "value": {
+          "type": "number",
+          "unit": "celsius",
+          "value": 21.5
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.sensors.temperature"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.zigbee.lqi",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "strength": {
+          "type": "number",
+          "unit": "percent",
+          "value": 90
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.zigbee.lqi"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.zigbee.parent.id",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "value": {
+          "type": "string",
+          "value": "################"
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.zigbee.parent.id"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.zigbee.parent.rx",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "value": {
+          "type": "number",
+          "unit": "",
+          "value": 232
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.zigbee.parent.rx"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "device.zigbee.parent.tx",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "value": {
+          "type": "number",
+          "unit": "",
+          "value": 232
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/device.zigbee.parent.tx"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "trv.childLock",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "status": {
+          "type": "string",
+          "value": "active"
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/trv.childLock"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "trv.mountingMode",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/trv.mountingMode"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {
+        "setTargetTemperature": {
+          "isExecutable": true,
+          "name": "setTargetTemperature",
+          "params": {
+            "temperature": {
+              "constraints": {
+                "max": 30,
+                "min": 8,
+                "stepping": 0.5
+              },
+              "required": true,
+              "type": "number"
+            }
+          },
+          "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/trv.temperature/commands/setTargetTemperature"
+        }
+      },
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "trv.temperature",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "value": {
+          "type": "number",
+          "unit": "celsius",
+          "value": 21.5
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/trv.temperature"
+    },
+    {
+      "apiVersion": 1,
+      "commands": {},
+      "deviceId": "zigbee-fa4e000000000001",
+      "feature": "trv.valve.position",
+      "gatewayId": "9999000000000001",
+      "isEnabled": true,
+      "isReady": true,
+      "properties": {
+        "position": {
+          "type": "number",
+          "unit": "percent",
+          "value": 2
+        }
+      },
+      "timestamp": "2000-01-01T00:00:00.000Z",
+      "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/900001/gateways/9999000000000001/devices/zigbee-fa4e000000000001/features/trv.valve.position"
+    }
+  ]
+}

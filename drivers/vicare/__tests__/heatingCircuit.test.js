@@ -124,6 +124,7 @@ test('mode options remain independent between devices', async () => {
   const first = device('0');
   const second = device('1');
   for (const target of [first, second]) {
+    target.hasCapability = () => true;
     target.getCapabilityOptions = () => sharedOptions;
     target.setCapabilityOptions = jest.fn();
   }

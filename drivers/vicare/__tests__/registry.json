@@ -1,0 +1,113 @@
+{
+  "_comment": [
+    "Every user-facing identifier this app ships. registry.test.js fails if config.js (capabilities)",
+    "or driver.flow.compose.json (flow cards) no longer provides one of them: renaming or removing a",
+    "capability deletes the user's Insights history and breaks Flows, and changing a flow card id,",
+    "argument, dropdown value or token breaks saved Flows.",
+    "New identifiers: add them here in the same change. Deliberately retiring a capability: move it",
+    "from 'capabilities' to 'retiredCapabilities' with a note on why and what replaced it."
+  ],
+  "capabilities": [
+    "measure_burner_active",
+    "measure_burner_number.burnerHours",
+    "measure_burner_number.burnerModulation",
+    "measure_burner_number.burnerStarts",
+    "measure_compressor_active",
+    "measure_compressor_number.compressorHours",
+    "measure_compressor_number.compressorStarts",
+    "measure_fuelcell_number.operationHours",
+    "measure_fuelcell_number.productionHours",
+    "measure_fuelcell_number.productionStarts",
+    "measure_fuelcell_phase",
+    "measure_temperature.boilerCommonSupply",
+    "measure_temperature.boiler_main",
+    "measure_temperature.buffer",
+    "measure_temperature.circuit0",
+    "measure_temperature.circuit0_room",
+    "measure_temperature.circuit0_supply",
+    "measure_temperature.fuelCellReturn",
+    "measure_temperature.fuelCellSupply",
+    "measure_temperature.hotWater",
+    "measure_temperature.outside",
+    "measure_temperature.primaryReturn",
+    "measure_temperature.return",
+    "measure_temperature.secondarySupply",
+    "measure_temperature.supply",
+    "target_temperature.heating",
+    "target_temperature.hotWater",
+    "target_temperature.hotWater2",
+    "thermostat_mode.fuelCell",
+    "thermostat_mode.heating",
+    "thermostat_mode.hotWaterOneTimeCharge"
+  ],
+  "retiredCapabilities": {
+    "measure_something_active.compressor": "Renamed to measure_compressor_active in commit d9a0906 (v1.0.11). Users lost their compressor Insights history at the time.",
+    "measure_something_number.compressorHours": "Renamed to measure_compressor_number.compressorHours in commit d9a0906 (v1.0.11).",
+    "measure_something_number.compressorStarts": "Renamed to measure_compressor_number.compressorStarts in commit d9a0906 (v1.0.11)."
+  },
+  "flowCards": {
+    "conditions": {
+      "compressor-is-running": {
+        "args": {}
+      },
+      "burner-is-running": {
+        "args": {}
+      }
+    },
+    "actions": {
+      "set-operating-mode": {
+        "args": {
+          "mode": {
+            "type": "dropdown",
+            "values": ["dhw", "heating", "dhwAndHeating", "standby"]
+          }
+        }
+      },
+      "set-heating-thermostat": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "set-hot-water-thermostat": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "do-one-time-hot-water-charge": {
+        "args": {
+          "active": {
+            "type": "dropdown",
+            "values": ["activate", "deactivate"]
+          }
+        }
+      },
+      "set-hot-water-thermostat2": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "set-fuelcell-mode": {
+        "args": {
+          "mode": {
+            "type": "dropdown",
+            "values": ["standby", "maintenance", "heatControlled", "economical", "ecological"]
+          }
+        }
+      }
+    },
+    "triggers": {
+      "heating-mode-changed": {
+        "args": {},
+        "tokens": {
+          "mode": "string"
+        }
+      }
+    }
+  }
+}

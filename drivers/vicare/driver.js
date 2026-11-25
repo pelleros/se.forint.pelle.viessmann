@@ -26,6 +26,10 @@ const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
+// API errors carry the HTTP status (lib/apiError.js); older messages said 'Unauthorized'
+const isAuthenticationError = (error) => error?.status === 401
+  || /unauthorized/i.test(typeof error?.message === 'string' ? error.message : '');
+
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
   static FEATURES = FEATURES;
@@ -39,7 +43,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     try {
       this.log('Starting onOAuth2Init');
 
-      // Registrera alla triggers från flowCards.js
+      // Register all triggers from flowCards.js
       await this._registerTriggerCards();
 
       // Register Flow Cards
@@ -55,14 +59,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _registerTriggerCards() {
-    // Registrera alla triggers från FLOW_TRIGGERS
+    // Register all triggers from FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       this._triggerCards.set(trigger.capability, triggerCard);
     }
   }
 
-  // Hjälpmetod för att hämta trigger card baserat på capability
+  // Helper to get the trigger card for a capability
   getTriggerCard(capabilityName) {
     const triggerCard = this._triggerCards.get(capabilityName);
     if (!triggerCard) {
@@ -96,12 +100,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Hitta path och capability från FEATURES
+          // Find the path and capability in FEATURES
           for (const [path, feature] of Object.entries(FEATURES)) {
             const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
             if (capability) {
-              // Använd executeCommand med path och capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // Hämta värdet från första argumentet
+              // Use executeCommand with the path and capability
+              const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
               return device.executeCommand(path, capability, value);
             }
           }
@@ -146,24 +150,54 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       homey: this.homey,
       getInterval: () => this._calculatePollInterval(),
       poll: async (isStopped) => {
+        // get features with extended response every 30th poll (statistically)
         const extendedRequest = Math.random() < 0.03;
         const features = await device.getFeatures({ useFilter: !extendedRequest });
-        if (!isStopped()) await device.onFeaturesUpdated(features, extendedRequest);
+        // The device was deleted or its polling restarted while the request was running
+        if (isStopped()) return;
+        if (!device.getAvailable()) {
+          await this._setDeviceAvailability(device, deviceKey, true);
+        }
+        await device.onFeaturesUpdated(features, extendedRequest);
       },
       onError: async (error, consecutiveErrors) => {
         this.error(`Error polling device ${deviceKey}:`, error);
-        if (error.status === 401) await device.setUnavailable('Authentication failed; repair the device to sign in again');
-        else if (consecutiveErrors >= 3) await device.setUnavailable(error.message || 'Multiple communication errors');
+        if (isAuthenticationError(error)) {
+          await this._setDeviceAvailability(device, deviceKey, false, 'Authentication failed');
+        } else if (consecutiveErrors >= 3) {
+          // API errors carry a safe, redacted message; network errors can contain request URLs
+          const message = error?.status && error.message ? error.message : 'Multiple communication errors';
+          await this._setDeviceAvailability(device, deviceKey, false, message);
+        }
       },
     });
+    // Registered before the first poll, so that _stopPolling (e.g. when the device is
+    // deleted) also stops a poll that is still in progress
     this._devicePollers.set(deviceKey, poller);
+    this.log(`Performing initial poll for device: ${deviceKey}`);
     await poller.start();
   }
 
   async _stopPolling(deviceKey) {
     const poller = this._devicePollers.get(deviceKey);
+    if (!poller) return;
+    this.log(`Stopping polling for device: ${deviceKey}`);
     this._devicePollers.delete(deviceKey);
-    if (poller) await poller.stop();
+    await poller.stop();
+  }
+
+  // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
+  // deleted meanwhile; log that instead of letting the rejection escape the poll timer
+  async _setDeviceAvailability(device, deviceKey, available, message) {
+    try {
+      if (available) {
+        await device.setAvailable();
+      } else {
+        await device.setUnavailable(message);
+      }
+    } catch (error) {
+      this.error(`Could not mark device ${deviceKey} as ${available ? 'available' : 'unavailable'}:`, error);
+    }
   }
 
   async onPairListDevices({ oAuth2Client }) {
@@ -302,7 +336,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         throw new Error(this.homey.__('pair.no_client_id'));
       }
 
-      // Anropa parent onPair med socket
+      // Call the parent onPair with the socket
       const result = await super.onPair(socket);
       this.log('Pairing process completed');
 

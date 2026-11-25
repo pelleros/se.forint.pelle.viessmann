@@ -147,42 +147,58 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       // Stop any existing polling
       this._stopPolling(deviceKey);
 
+      // Registered before the first poll, so that _stopPolling (e.g. when the device is
+      // deleted) also stops a poll that is still in progress
+      const poller = { timer: null };
+      this._devicePollers.set(deviceKey, poller);
+      const isActive = () => this._devicePollers.get(deviceKey) === poller;
+
       // Create reusable async polling function
       const doPoll = async () => {
+        // The device was deleted or its polling restarted since this poll was scheduled
+        if (!isActive()) return;
         try {
           // get features with extended response every 30th poll (statisticaly)
           const extendedRequest = Math.random() < 0.03;
           // device.getFeatures(useFilter) takes a boolean: false requests all features
           const features = await device.getFeatures(!extendedRequest);
+          if (!isActive()) return;
 
           consecutiveErrors = 0;
           if (!device.getAvailable()) {
-            device.setAvailable();
+            await this._setDeviceAvailability(device, deviceKey, true);
           }
 
           // Update device with new features
           await device.onFeaturesUpdated(features, extendedRequest);
         } catch (error) {
+          if (!isActive()) return;
           consecutiveErrors++;
           this.error(`Error polling device ${deviceKey}:`, error);
 
           if (device.getAvailable()) {
             if (consecutiveErrors >= 3) {
-              device.setUnavailable('Multiple communication errors');
+              await this._setDeviceAvailability(device, deviceKey, false, 'Multiple communication errors');
             } else if (isAuthenticationError(error)) {
-              device.setUnavailable('Authentication failed');
+              await this._setDeviceAvailability(device, deviceKey, false, 'Authentication failed');
             }
           }
         }
       };
+      // The timer ignores the returned promise, so a rejection would be unhandled and crash the app
+      const safePoll = () => doPoll().catch((error) => {
+        this.error(`Unexpected error polling device ${deviceKey}:`, error);
+      });
 
       // Perform initial poll immediately
       this.log(`Performing initial poll for device: ${deviceKey}`);
-      await doPoll();
+      await safePoll();
+
+      // Polling was stopped (e.g. the device was deleted) during the initial poll
+      if (!isActive()) return;
 
       // Start interval polling
-      const timer = this.homey.setInterval(doPoll, pollInterval);
-      this._devicePollers.set(deviceKey, timer);
+      poller.timer = this.homey.setInterval(safePoll, pollInterval);
 
       if (process.env.DEBUG) {
         this.log(`Started polling for ${deviceKey} with interval ${pollInterval / 1000} seconds`);
@@ -194,11 +210,27 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   _stopPolling(deviceKey) {
-    const existingTimer = this._devicePollers.get(deviceKey);
-    if (existingTimer) {
+    const poller = this._devicePollers.get(deviceKey);
+    if (poller) {
       this.log(`Stopping polling for device: ${deviceKey}`);
-      this.homey.clearInterval(existingTimer);
+      if (poller.timer) {
+        this.homey.clearInterval(poller.timer);
+      }
       this._devicePollers.delete(deviceKey);
+    }
+  }
+
+  // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
+  // deleted meanwhile; log that instead of letting the rejection escape the poll timer
+  async _setDeviceAvailability(device, deviceKey, available, message) {
+    try {
+      if (available) {
+        await device.setAvailable();
+      } else {
+        await device.setUnavailable(message);
+      }
+    } catch (error) {
+      this.error(`Could not mark device ${deviceKey} as ${available ? 'available' : 'unavailable'}:`, error);
     }
   }
 

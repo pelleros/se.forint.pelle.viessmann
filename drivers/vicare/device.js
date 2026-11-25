@@ -61,8 +61,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
-    const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-    await this.driver._startPolling(this, deviceKey);
+    await this.driver._startPolling(this, this.getPollingKey());
   }
 
   async onInit() {
@@ -360,10 +359,24 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.log('Feature update processing completed');
       }
 
-      this.setAvailable();
+      await this.setAvailabilitySafely(true);
     } catch (error) {
       this.error('Error processing features update:', error);
-      this.setUnavailable(error);
+      await this.setAvailabilitySafely(false, error);
+    }
+  }
+
+  // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
+  // deleted meanwhile; log that instead of letting the rejection go unhandled
+  async setAvailabilitySafely(available, message) {
+    try {
+      if (available) {
+        await this.setAvailable();
+      } else {
+        await this.setUnavailable(message);
+      }
+    } catch (error) {
+      this.error(`Could not mark device as ${available ? 'available' : 'unavailable'}:`, error);
     }
   }
 
@@ -487,10 +500,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return this.getCapabilityValue(capabilityName);
   }
 
+  // Key of this device's poller in the driver
+  getPollingKey() {
+    return `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
+  }
+
   async onOAuth2Uninit() {
     // Stop polling for this device
-    const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-    this.driver._stopPolling(deviceKey);
+    this.driver._stopPolling(this.getPollingKey());
+  }
+
+  async onOAuth2Deleted() {
+    // Stop polling right away: a poll that runs after deletion fails with device_not_found
+    this.driver._stopPolling(this.getPollingKey());
   }
 
   // Method to handle dynamic feature paths based on installation

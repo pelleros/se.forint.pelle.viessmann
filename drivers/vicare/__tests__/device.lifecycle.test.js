@@ -114,6 +114,7 @@ function createDevice(store = {}) {
   device.__store = JSON.parse(JSON.stringify({ ...BASE_STORE, ...store }));
   device.driver = {
     _startPolling: jest.fn(async () => {}),
+    _stopPolling: jest.fn(),
     getTriggerCard: jest.fn(() => {
       throw new Error('No trigger card');
     }),
@@ -437,5 +438,34 @@ describe('ViessmannDevice.initializeOperatingModes', () => {
 
     await expect(device.initializeOperatingModes()).resolves.toBeUndefined();
     expect(device.setCapabilityOptions).not.toHaveBeenCalled();
+  });
+});
+
+describe('ViessmannDevice availability and deletion', () => {
+  const POLLING_KEY = `${BASE_STORE.installationId}-${BASE_STORE.gatewaySerial}-${BASE_STORE.deviceId}`;
+
+  test('stops polling when the device is deleted or unloaded', async () => {
+    const device = await createInitializedDevice();
+    expect(device.driver._startPolling).toHaveBeenCalledWith(device, POLLING_KEY);
+
+    await device.onOAuth2Deleted();
+    expect(device.driver._stopPolling).toHaveBeenCalledWith(POLLING_KEY);
+
+    device.driver._stopPolling.mockClear();
+    await device.onOAuth2Uninit();
+    expect(device.driver._stopPolling).toHaveBeenCalledWith(POLLING_KEY);
+  });
+
+  test.each([
+    ['setAvailable', { data: [] }],
+    ['setUnavailable', null], // a response without data makes the update fail
+  ])('a rejected %s (device deleted meanwhile) is logged, not thrown', async (method, response) => {
+    const device = await createInitializedDevice();
+    const deviceNotFound = new Error('device_not_found');
+    device[method].mockRejectedValueOnce(deviceNotFound);
+
+    await expect(device.onFeaturesUpdated(response, false)).resolves.toBeUndefined();
+    expect(device[method]).toHaveBeenCalled();
+    expect(device.error).toHaveBeenCalledWith(expect.any(String), deviceNotFound);
   });
 });

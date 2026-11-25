@@ -1,8 +1,9 @@
 {
   "_comment": [
-    "Every user-facing identifier this app ships. registry.test.js fails if config.js or flowCards.js",
-    "can no longer produce one of them: renaming or removing a capability deletes the user's Insights",
-    "history and breaks Flows, and changing a flow card id, argument, dropdown value or token breaks saved Flows.",
+    "Every user-facing identifier this app ships. registry.test.js fails if config.js (capabilities)",
+    "or driver.flow.compose.json (flow cards) no longer provides one of them: renaming or removing a",
+    "capability deletes the user's Insights history and breaks Flows, and changing a flow card id,",
+    "argument, dropdown value or token breaks saved Flows.",
     "New identifiers: add them here in the same change. Deliberately retiring a capability: move it",
     "from 'capabilities' to 'retiredCapabilities' with a note on why and what replaced it."
   ],

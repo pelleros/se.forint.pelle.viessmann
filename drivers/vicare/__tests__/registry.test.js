@@ -3,21 +3,26 @@
 'use strict';
 
 // Guards against breaking changes for existing users. See the comment in registry.json.
+// Capabilities come from config.js. Flow cards come from driver.flow.compose.json, which is
+// what Homey ships; flowCards.js holds their runtime mapping.
 
 const fs = require('fs');
 const path = require('path');
 const registry = require('./registry.json');
+const flowCompose = require('../driver.flow.compose.json');
 const { FEATURES } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
+const FLOW_COMPOSE_FILE = 'drivers/vicare/driver.flow.compose.json';
 const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/capabilities');
 
 // Homey system capabilities this app builds sub-capabilities on
 // (https://apps-sdk-v3.developer.homey.app/tutorial-device-capabilities.html).
 const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode'];
 
-const FLOW_CARD_GROUPS = {
+// Runtime mapping in flowCards.js per card group of the compose file
+const RUNTIME_FLOW_CARDS = {
   conditions: FLOW_CONDITIONS,
   actions: FLOW_ACTIONS,
   triggers: FLOW_TRIGGERS,
@@ -35,8 +40,8 @@ const describeFlowCard = (card) => ({
   tokens: Object.fromEntries((card.tokens || []).map((token) => [token.name, token.type])),
 });
 
-const producedFlowCards = Object.fromEntries(Object.entries(FLOW_CARD_GROUPS)
-  .map(([group, cards]) => [group, Object.fromEntries(Object.values(cards)
+const shippedFlowCards = Object.fromEntries(Object.keys(RUNTIME_FLOW_CARDS)
+  .map((group) => [group, Object.fromEntries((flowCompose[group] || [])
     .map((card) => [card.id, describeFlowCard(card)]))]));
 
 /**
@@ -134,17 +139,38 @@ describe('capability registry', () => {
 describe('flow card registry', () => {
   test('every registered flow card, argument, dropdown value and token still exists unchanged', () => {
     expectNone(
-      findMissingFlowCardParts(registry.flowCards, producedFlowCards, { compareTypes: true }),
-      'Breaking change: flowCards.js no longer provides these registered flow card parts. Saved Flows of '
-      + 'existing users would break. Restore them (to replace a card, add a new one and mark the old one '
-      + 'deprecated instead of removing it):',
+      findMissingFlowCardParts(registry.flowCards, shippedFlowCards, { compareTypes: true }),
+      `Breaking change: ${FLOW_COMPOSE_FILE} no longer provides these registered flow card parts. Saved `
+      + 'Flows of existing users would break. Restore them (to replace a card, add a new one and mark the '
+      + 'old one deprecated instead of removing it):',
     );
   });
 
-  test('every flow card, argument, dropdown value and token in flowCards.js is registered', () => {
+  test('every flow card, argument, dropdown value and token in the compose file is registered', () => {
     expectNone(
-      findMissingFlowCardParts(producedFlowCards, registry.flowCards),
-      `New flow card parts: add them to "flowCards" in ${REGISTRY_FILE}:`,
+      findMissingFlowCardParts(shippedFlowCards, registry.flowCards),
+      `New flow card parts in ${FLOW_COMPOSE_FILE}: add them to "flowCards" in ${REGISTRY_FILE}:`,
     );
+  });
+
+  test('every flow card in the compose file has a runtime mapping in flowCards.js and vice versa', () => {
+    const unmapped = [];
+    const undefinedInCompose = [];
+    for (const [group, runtimeCards] of Object.entries(RUNTIME_FLOW_CARDS)) {
+      const composeIds = Object.keys(shippedFlowCards[group]);
+      const runtimeIds = Object.values(runtimeCards).map((card) => card.id);
+      unmapped.push(...composeIds.filter((id) => !runtimeIds.includes(id)).map((id) => `${group} card '${id}'`));
+      undefinedInCompose.push(...runtimeIds.filter((id) => !composeIds.includes(id)).map((id) => `${group} card '${id}'`));
+    }
+    const problems = [];
+    if (unmapped.length > 0) {
+      problems.push(`These flow cards in ${FLOW_COMPOSE_FILE} have no runtime mapping in flowCards.js `
+        + `(FLOW_CONDITIONS/FLOW_ACTIONS/FLOW_TRIGGERS), so they would do nothing: ${unmapped.join(', ')}`);
+    }
+    if (undefinedInCompose.length > 0) {
+      problems.push(`flowCards.js maps these flow cards, but ${FLOW_COMPOSE_FILE} does not define them, so `
+        + `registering them in driver.js fails: ${undefinedInCompose.join(', ')}`);
+    }
+    expectNone(problems, 'Flow cards in the compose file and flowCards.js do not match:');
   });
 });

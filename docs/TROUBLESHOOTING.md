@@ -95,10 +95,10 @@ your ViCare account again. Your flows and settings stay as they are.
 
 ### "Rate limit exceeded"
 
-**Cause:** your client has used up its [daily API calls](#viessmann-api-limits).
+**Cause:** your ViCare account has used up its [daily API calls](#viessmann-api-limits).
 
 **Fix:** wait; the limit resets over the following day. If it happens often, check whether other
-systems use the Viessmann API with the same client.
+systems use the Viessmann API with your ViCare account.
 
 ## Sending a useful report
 
@@ -106,8 +106,8 @@ A good report makes the difference between a quick fix and a lot of guessing.
 
 1. **Diagnostic report:** in the Homey app, open the Viessmann ViCare app (More > Apps > Viessmann
    ViCare) and send a diagnostic report. Add a short message: what you did, what you expected, what
-   you saw (the exact error text), roughly when it happened, and which heating system you have.
-   The report contains the app's log and goes to the developer only.
+   you saw (the exact error text), roughly when it happened, your Homey and app version, and which
+   heating system you have. The report contains the app's log and goes to the developer only.
 2. **Raw data from the settings page (optional):** under Troubleshooting on the app's settings
    page, press "Get Installation Data", pick your device, press "Get Feature Data", and copy both.
    This shows exactly what Viessmann sends to the app and is very useful when a value is missing or
@@ -119,26 +119,30 @@ A good report makes the difference between a quick fix and a lot of guessing.
    [Homey Community Forum topic](https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749)
    or [GitHub issues](https://github.com/pelleros/se.forint.pelle.viessmann/issues).
 
+Want to fix something yourself? See [CONTRIBUTING.md](../CONTRIBUTING.md) for the ground rules and
+[ARCHITECTURE.md](ARCHITECTURE.md) for how the app works.
+
 ## Viessmann API limits
 
-On the free plan, Viessmann allows about **1,450 API calls per day**. When a client goes over the
-limit, Viessmann refuses further calls for a while and the app shows errors such as "Rate limit
-exceeded".
+On the free plan, Viessmann allows about **1,450 API calls per day** per ViCare user. When the
+limit is reached, Viessmann refuses further calls for a while and the app shows errors such as
+"Rate limit exceeded".
 
 The app spreads its requests so that it stays well below that limit. It fetches data about once
 every 2 minutes in total: with one device, that device is updated every 2 minutes; with two
 devices, each is updated every 4 minutes, and so on. That is roughly 720 calls per day, plus a few
 more for commands from flows, adding devices and the troubleshooting tools.
 
-If you also use the Viessmann API from other systems (for example Home Assistant, ioBroker or your
-own scripts), they may count towards the same limit. Give each system its own client in the
-developer portal and keep their polling modest.
+Because the limit is per user, other systems that use the Viessmann API with your ViCare account
+(for example Home Assistant, ioBroker or your own scripts) share it with Homey, even if each has its
+own client. If you hit the limit, make those systems poll less often.
 
 ## Viessmann outages and maintenance
 
 The Viessmann API is a cloud service, and it sometimes has outages or planned maintenance. During
-that time, devices can show as unavailable, values stop updating and commands from flows fail.
-This is not something the app or your Homey can fix.
+that time, devices can show as unavailable, values stop updating and commands from flows fail,
+often with errors such as "Viessmann API error (HTTP 503)". This is not something the app or your
+Homey can fix.
 
 If the ViCare app has problems at the same time, it is almost certainly on Viessmann's side. Wait
 and the app will recover by itself on the next successful update. Only if the device stays

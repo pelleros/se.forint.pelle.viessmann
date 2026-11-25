@@ -75,25 +75,28 @@ already added. Before the first device is added, there is no login to use.
 
 **Fix:** add a Viessmann ViCare device first, then try again.
 
-### Device unavailable: "Multiple communication errors"
+### Device unavailable: "Multiple communication errors" or "Viessmann HTTP …"
 
 **Cause:** the app could not reach Viessmann three times in a row. This is usually a temporary
-Viessmann outage, an internet problem at home or the [daily API limit](#viessmann-api-limits).
+Viessmann outage, an internet problem at home or the [daily API limit](#viessmann-api-limits). When
+Viessmann did answer, the device shows that answer instead, for example
+"Viessmann HTTP 503: Service Unavailable".
 
-**Fix:** usually nothing. The app keeps trying and the device becomes available again as soon as
-Viessmann answers. If it stays unavailable for more than an hour or two while the ViCare app works,
+**Fix:** usually nothing. The app keeps trying, waiting longer between attempts while the problem
+lasts (at most 30 minutes), and the device becomes available again as soon as Viessmann answers. If it stays unavailable for more than an hour or two while the ViCare app works,
 your login has probably expired: see the next problem.
 
 ### Device unavailable after weeks or months: "Authentication failed" or connection lost
 
 **Cause:** your Viessmann login for Homey has expired or been revoked, for example after a password
 change, after you deleted or changed the client in the developer portal, or after a long time
-without contact. In a diagnostic report this often shows up as `invalid_grant`.
+without contact. In a diagnostic report this often shows up as `invalid_grant`. An error that ends
+in "repair the device to sign in again" means the same.
 
 **Fix:** open the device in Homey, go to its settings (gear icon), choose **Repair** and log in with
 your ViCare account again. Your flows and settings stay as they are.
 
-### "Rate limit exceeded"
+### "Viessmann HTTP 429: API rate limit exceeded"
 
 **Cause:** your ViCare account has used up its [daily API calls](#viessmann-api-limits).
 
@@ -126,7 +129,8 @@ Want to fix something yourself? See [CONTRIBUTING.md](../CONTRIBUTING.md) for th
 
 On the free plan, Viessmann allows about **1,450 API calls per day** per ViCare user. When the
 limit is reached, Viessmann refuses further calls for a while and the app shows errors such as
-"Rate limit exceeded".
+"Viessmann HTTP 429: API rate limit exceeded". When Viessmann says how long to wait, the app waits
+that long before it tries again.
 
 The app spreads its requests so that it stays well below that limit. It fetches data about once
 every 2 minutes in total: with one device, that device is updated every 2 minutes; with two
@@ -141,7 +145,7 @@ own client. If you hit the limit, make those systems poll less often.
 
 The Viessmann API is a cloud service, and it sometimes has outages or planned maintenance. During
 that time, devices can show as unavailable, values stop updating and commands from flows fail,
-often with errors such as "Viessmann API error (HTTP 503)". This is not something the app or your
+often with errors such as "Viessmann HTTP 503: Service Unavailable". This is not something the app or your
 Homey can fix.
 
 If the ViCare app has problems at the same time, it is almost certainly on Viessmann's side. Wait

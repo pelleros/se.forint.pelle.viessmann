@@ -63,6 +63,9 @@
         }
       }
     },
+    "device_settings": {
+      "heating_circuit_not_available": "Heating circuit __circuit__ is not available on this installation. Available circuits: __available__."
+    },
     "pair": {
       "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again."
     },
@@ -85,6 +88,8 @@
             "dhw": "Hot water only",
             "heating": "Heating only",
             "dhwAndHeating": "Hot water and heating",
+            "forcedNormal": "Forced normal",
+            "forcedReduced": "Forced reduced",
             "standby": "Standby"
           }
         },

@@ -51,6 +51,8 @@ module.exports = {
           { id: 'dhw', title: 'flow.actions.heating_mode.values.dhw' },
           { id: 'heating', title: 'flow.actions.heating_mode.values.heating' },
           { id: 'dhwAndHeating', title: 'flow.actions.heating_mode.values.dhwAndHeating' },
+          { id: 'forcedNormal', title: 'flow.actions.heating_mode.values.forcedNormal' },
+          { id: 'forcedReduced', title: 'flow.actions.heating_mode.values.forcedReduced' },
           { id: 'standby', title: 'flow.actions.heating_mode.values.standby' },
         ],
       }],

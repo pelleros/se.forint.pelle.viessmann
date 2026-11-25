@@ -21,6 +21,8 @@
 'use strict';
 
 const { OAuth2Device } = require('homey-oauth2app');
+const validateCommand = require('../../lib/commandValidation');
+const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
@@ -31,7 +33,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   static PATHS = PATHS;
 
   async onOAuth2Init() {
+    // The polling key is known before the first await, so that onOAuth2Deleted and
+    // onOAuth2Uninit can stop polling at any moment (pairings before 1.0.4 keep it in data)
+    this._uninitialized = false;
+    const data = this.getStoreValue('installationId') ? {} : this.getData();
+    this._installationId = this.getStoreValue('installationId') ?? data.installationId;
+    this._gatewaySerial = this.getStoreValue('gatewaySerial') ?? data.gatewaySerial;
+    this._deviceId = this.getStoreValue('deviceId') ?? data.deviceId;
+
     await this.checkUpgradeSpecifics();
+    if (this._uninitialized) return;
     this._installationId = this.getStoreValue('installationId');
     this._gatewaySerial = this.getStoreValue('gatewaySerial');
     this._deviceId = this.getStoreValue('deviceId');
@@ -39,6 +50,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._features = this.getStoreValue('features');
     this._constraints = this.getStoreValue('constraints');
     this._operatingModes = this.getStoreValue('operatingModes');
+    this._heatingCircuitId = this.getStoreValue('heatingCircuitId');
+    this._commands = this.getStoreValue('commandMetadata');
 
     if (process.env.DEBUG) {
       this.log(
@@ -56,11 +69,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._listeners = [];
 
     await this.initializeCapabilities();
+    await this.updateCapabilityOptions();
     await this.initializeOperatingModes();
     await this.registerCapabilityListeners();
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
+    // Deleted or unloaded while initialising: never start a poller that nothing would stop
+    if (this._uninitialized) return;
     await this.driver._startPolling(this, this.getPollingKey());
   }
 
@@ -72,6 +88,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async initializeCapabilities() {
+    // Without a stored feature list (pairings older than 1.0.9 whose refresh failed) every
+    // capability would look obsolete; leave them alone until the refresh succeeds
+    if (!Array.isArray(this._features)) {
+      this.error('No stored feature list, capabilities are left unchanged');
+      return;
+    }
+
     // Remove capabilities that are no longer in config or don't match device roles
     for (const existingCap of this.getCapabilities()) {
       let shouldKeep = false;
@@ -131,10 +154,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async updateCapabilityOptions() {
-    const capabilities = this.getCapabilities();
-    for (const capability of capabilities) {
-      const capabilityOptions = getCapabilityOptions(capability);
-      await this.setCapabilityOptions(capability, capabilityOptions);
+    for (const [path, feature] of Object.entries(FEATURES)) {
+      for (const capability of feature.capabilities) {
+        if (!this.hasCapability(capability.capabilityName)) continue;
+        const options = { ...getCapabilityOptions(capability.capabilityName) };
+        const constraints = this._constraints?.[path];
+        const temperature = constraints?.temperature || constraints?.targetTemperature;
+        if (temperature) Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
+        try {
+          await this.setCapabilityOptions(capability.capabilityName, options);
+        } catch (error) {
+          this.error(`Could not update the options of ${capability.capabilityName}:`, error);
+        }
+      }
     }
   }
 
@@ -210,37 +242,37 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async executeCommand(path, capability, value) {
     try {
       const { command } = capability;
+      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
+        && !this._operatingModes.some((mode) => mode.id === value)) {
+        throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
+      }
 
-      if (command?.useValueAsCommand) {
-        const mappedValue = capability.valueMapping?.[value] || value;
-        await this.oAuth2Client.executeCommand({
-          installationId: this._installationId,
-          gatewaySerial: this._gatewaySerial,
-          deviceId: this._deviceId,
-          feature: path,
-          command: mappedValue,
-          body: {},
-        });
-      } else {
-        const parameters = {};
-        for (const [, apiParam] of Object.entries(command.parameterMapping)) {
-          parameters[apiParam] = value;
-        }
-
-        await this.oAuth2Client.executeCommand({
-          installationId: this._installationId,
-          gatewaySerial: this._gatewaySerial,
-          deviceId: this._deviceId,
-          feature: path,
-          command: command.name,
-          body: parameters,
-        });
+      const commandName = command.useValueAsCommand
+        ? (capability.valueMapping?.[value] || value) : command.name;
+      const parameters = {};
+      if (!command.useValueAsCommand) {
+        for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
+      }
+      validateCommand(this._commands, path, commandName, parameters);
+      const result = await this.oAuth2Client.executeCommand({
+        installationId: this._installationId,
+        gatewaySerial: this._gatewaySerial,
+        deviceId: this._deviceId,
+        feature: resolveCircuitPath(path, this._heatingCircuitId),
+        command: commandName,
+        body: parameters,
+      });
+      if (result?.data?.success === false) {
+        throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
       }
     } catch (error) {
       this.error('Error executing command:', error);
       // Keep the API's reason (status, Viessmann error type/message) visible to the user
       const reason = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error executing command: ${reason}`, { cause: error });
+      const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
+      wrapped.status = error?.status;
+      wrapped.retryAfterMs = error?.retryAfterMs;
+      throw wrapped;
     }
     // Update capability value
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
@@ -253,46 +285,88 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       const {
         installationId, gatewaySerial, deviceId, roles, operatingModes,
       } = this.getData();
-      this.setStoreValue('installationId', installationId);
-      this.setStoreValue('gatewaySerial', gatewaySerial);
-      this.setStoreValue('deviceId', deviceId);
+      await this.setStoreValue('installationId', installationId);
+      await this.setStoreValue('gatewaySerial', gatewaySerial);
+      await this.setStoreValue('deviceId', deviceId);
       if (!roles) {
         // 1.0.2 => 1.0.4
-        this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
-        this.setStoreValue('operatingModes', [
+        await this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
+        await this.setStoreValue('operatingModes', [
           { id: 'dhw', title: { en: 'Hot water' } },
           { id: 'dhwAndHeating', title: { en: 'Hot water and Heating' } },
           { id: 'standby', title: { en: 'Standby' } },
         ]);
       } else {
         // 1.0.3 => 1.0.4
-        this.setStoreValue('roles', roles);
-        this.setStoreValue('operatingModes', operatingModes);
+        await this.setStoreValue('roles', roles);
+        await this.setStoreValue('operatingModes', operatingModes);
       }
     }
-    // started to store version in 1.0.9
+    // Refresh older pairings once so circuit discovery does not require re-pairing.
+    if (this.getStoreValue('heatingCircuitId') == null || !this.getStoreValue('commandMetadata')) {
+      await this.refreshStoredMetadata();
+    }
     if (this.storeVersionBefore('1.0.9')) {
-      this.log('Upgrading to 1.0.9');
-      // add features and operating modes
-      const installationId = this.getStoreValue('installationId');
-      const gatewaySerial = this.getStoreValue('gatewaySerial');
-      const deviceId = this.getStoreValue('deviceId');
-      const { features, constraints, operatingModes } = await this.driver._getEnabledFeaturesAndOpModes(this.oAuth2Client, installationId, gatewaySerial, deviceId);
-      if (process.env.DEBUG) {
-        this.log('Features:', features);
-        this.log('Constraints:', constraints);
-        this.log('Operating modes:', operatingModes);
-      }
-      this.setStoreValue('features', features);
-      this.setStoreValue('constraints', constraints);
-      this.setStoreValue('operatingModes', operatingModes);
-      await this.updateCapabilityOptions();
-      this.setStoreValue('version', '1.0.9');
+      await this.setStoreValue('version', '1.0.9');
     }
   }
 
-  async onFeaturesUpdated(response, extendedResponse) {
+  /*
+    Re-reads the device's features from the API and stores what pairing stores today
+    (heating circuit, constraints, operating modes, command metadata). The stored feature
+    list becomes the union of the old and the fresh list, so a sensor that is disabled or
+    notConnected at this moment keeps its capability. The refresh is not needed to run the
+    device: a failure is logged and the refresh is retried on the next start.
+  */
+  async refreshStoredMetadata() {
     try {
+      const metadata = await this.driver._getEnabledFeaturesAndOpModes(
+        this.oAuth2Client,
+        this.getStoreValue('installationId'),
+        this.getStoreValue('gatewaySerial'),
+        this.getStoreValue('deviceId'),
+        this.getSetting?.('heatingCircuit') || 'auto',
+      );
+      const merged = this.mergeRefreshedMetadata(metadata);
+      // heatingCircuitId and commandMetadata go last: until both are stored, the next start
+      // runs the refresh again
+      for (const key of ['features', 'constraints', 'operatingModes', 'commandMetadata', 'heatingCircuitId']) {
+        if (merged[key] !== undefined) await this.setStoreValue(key, merged[key]);
+      }
+    } catch (error) {
+      this.error('Could not refresh the device metadata, retrying on the next start:', error);
+    }
+  }
+
+  /*
+    Combines freshly read metadata with what the device has stored. The feature list only
+    grows. Constraints are merged per feature, and stored operating modes are kept when the
+    API reports none right now. Everything else comes from the fresh metadata.
+  */
+  mergeRefreshedMetadata(metadata) {
+    const storedFeatures = this.getStoreValue('features');
+    const features = Array.isArray(storedFeatures) ? [...storedFeatures] : [];
+    for (const feature of Array.isArray(metadata?.features) ? metadata.features : []) {
+      if (!features.includes(feature)) features.push(feature);
+    }
+    const storedModes = this.getStoreValue('operatingModes');
+    return {
+      ...metadata,
+      features,
+      constraints: { ...this.getStoreValue('constraints'), ...metadata?.constraints },
+      operatingModes: metadata?.operatingModes?.length ? metadata.operatingModes : storedModes,
+    };
+  }
+
+  async onFeaturesUpdated(rawResponse, extendedResponse, { triggers = true } = {}) {
+    try {
+      const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
+      const commands = { ...this._commands };
+      for (const feature of response.data) {
+        if (!feature.isEnabled) commands[feature.feature] = {};
+        else if (feature.commands) commands[feature.feature] = feature.commands;
+      }
+      this._commands = commands;
       if (process.env.DEBUG) {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
@@ -348,7 +422,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
             if (process.env.DEBUG) {
               // this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
             }
-            await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+            await this.setCapabilityValueIfPossible(capability.capabilityName, value, { trigger: triggers });
           } else if (process.env.DEBUG) {
             this.log(`No value found for capability: ${capability.capabilityName}, path: ${capability.propertyPath}`);
           }
@@ -428,7 +502,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return null;
   }
 
-  async setCapabilityValueIfPossible(capabilityName, value) {
+  // `trigger: false` updates the value without firing its trigger card
+  async setCapabilityValueIfPossible(capabilityName, value, { trigger = true } = {}) {
     try {
       if (this.hasCapability(capabilityName)) {
         const capability = this.getConfigCapabilityByName(capabilityName);
@@ -446,6 +521,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           }
 
           await this.setCapabilityValue(capabilityName, processedValue);
+          if (!trigger) return;
 
           try {
             const triggerCard = this.driver.getTriggerCard(capabilityName);
@@ -480,9 +556,10 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
-  async getFeatures(useFilter) {
-    // Use PATHS directly for feature filtering
-    const featuresFilter = useFilter ? Object.values(PATHS).join(',') : undefined;
+  async getFeatures({ useFilter = false } = {}) {
+    const featuresFilter = useFilter
+      ? Object.values(PATHS).map((path) => resolveCircuitPath(path, this._heatingCircuitId)).join(',')
+      : undefined;
 
     return this.oAuth2Client.getFeatures({
       installationId: this._installationId,
@@ -505,32 +582,108 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
   }
 
+  async onSettings({ newSettings, changedKeys }) {
+    if (!changedKeys.includes('heatingCircuit')) return;
+    const selectedCircuit = String(newSettings.heatingCircuit).trim();
+    if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
+      throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
+    }
+    // One unfiltered read gives both the new circuit's metadata and its current values
+    const response = await this.getFeatures();
+    let fresh;
+    try {
+      fresh = this.driver._readDeviceMetadata(response, selectedCircuit);
+    } catch (error) {
+      // Homey shows the message and keeps the previous value; nothing has changed yet
+      if (error.code === 'heating_circuit_not_available') throw new Error(this.circuitNotAvailableMessage(error));
+      throw error;
+    }
+    const metadata = this.mergeRefreshedMetadata(fresh);
+    // Pausing (not replacing) the poller keeps its backoff and Retry-After; a poll still in
+    // progress for the old circuit is dropped
+    await this.driver._pausePolling(this.getPollingKey());
+    const previous = {
+      heatingCircuitId: this._heatingCircuitId,
+      // The feature list only grows, also when the switch is rolled back
+      features: metadata.features,
+      constraints: this._constraints,
+      operatingModes: this._operatingModes,
+      commandMetadata: this._commands,
+    };
+    const circuitChanged = metadata.heatingCircuitId !== previous.heatingCircuitId;
+    try {
+      await this.applyCircuitMetadata(metadata);
+      if (circuitChanged) await this.clearValuesNotReportedBy(fresh.features);
+      // Show the new circuit's values now, without waiting for (or adding) a poll. A different
+      // mode on the new circuit is not a mode change, so heating-mode-changed does not fire.
+      await this.onFeaturesUpdated(response, false, { triggers: !circuitChanged });
+    } catch (error) {
+      await this.applyCircuitMetadata(previous);
+      throw error;
+    } finally {
+      this.resumePolling();
+    }
+  }
+
+  /*
+    After switching circuits, per-circuit capabilities whose feature the new circuit does not
+    report would keep showing the old circuit's values. Their values become unknown (null);
+    the capabilities themselves stay.
+  */
+  async clearValuesNotReportedBy(reportedFeatures = []) {
+    for (const [path, feature] of Object.entries(FEATURES)) {
+      if (!path.startsWith('heating.circuits.0.') || reportedFeatures.includes(path)) continue;
+      for (const { capabilityName } of feature.capabilities) {
+        if (this.hasCapability(capabilityName) && this.getCapabilityValue(capabilityName) !== null) {
+          try {
+            await this.setCapabilityValue(capabilityName, null);
+          } catch (error) {
+            this.error(`Could not clear ${capabilityName}:`, error);
+          }
+        }
+      }
+    }
+  }
+
+  resumePolling() {
+    if (this._uninitialized) return;
+    const key = this.getPollingKey();
+    if (!this.driver._resumePolling(key)) {
+      this.driver._startPolling(this, key).catch((error) => this.error('Could not start polling:', error));
+    }
+  }
+
+  // The error for a heating circuit the installation does not have, in the user's language
+  circuitNotAvailableMessage({ circuit, available, message }) {
+    const tags = { circuit, available: available.length > 0 ? available.join(', ') : '–' };
+    const translated = this.homey?.__?.('device_settings.heating_circuit_not_available', tags);
+    return typeof translated === 'string' && !translated.startsWith('device_settings.') ? translated : message;
+  }
+
+  async applyCircuitMetadata(metadata) {
+    for (const [key, value] of Object.entries(metadata)) await this.setStoreValue(key, value);
+    this._heatingCircuitId = metadata.heatingCircuitId;
+    this._features = metadata.features;
+    this._constraints = metadata.constraints;
+    this._operatingModes = metadata.operatingModes;
+    this._commands = metadata.commandMetadata;
+    await this.initializeCapabilities();
+    await this.updateCapabilityOptions();
+    await this.initializeOperatingModes();
+    await this.registerCapabilityListeners();
+  }
+
   async onOAuth2Uninit() {
     // Stop polling for this device
-    this.driver._stopPolling(this.getPollingKey());
+    this._uninitialized = true;
+    await this.driver._stopPolling(this.getPollingKey());
   }
 
   async onOAuth2Deleted() {
     // Stop polling right away: a poll that runs after deletion fails with device_not_found
-    this.driver._stopPolling(this.getPollingKey());
+    this._uninitialized = true;
+    await this.driver._stopPolling(this.getPollingKey());
   }
-
-  // Method to handle dynamic feature paths based on installation
-  /* // Method not used, we probably want to handle the ids in a different way (have it as a device setting)
-  updateFeaturePaths(compressorId, heatingCircuitsId, burnerId) {
-    // Instead of modifying FEATURES directly, we create installation-specific paths
-    this._installationPaths = {
-      ...PATHS,
-      COMPRESSOR: `heating.compressors.${compressorId}`,
-      COMPRESSOR_STATS: `heating.compressors.${compressorId}.statistics`,
-      BURNER: `heating.burners.${burnerId}`,
-      BURNER_STATS: `heating.burners.${burnerId}.statistics`,
-      BURNER_MODULATION: `heating.burners.${burnerId}.modulation`,
-      HEATING_MODE: `heating.circuits.${heatingCircuitsId}.operating.modes.active`,
-      HEATING_TARGET: `heating.circuits.${heatingCircuitsId}.operating.programs.normal`,
-    };
-  }
-  */
 
   storeVersionBefore(targetVersion) {
     const currentVersion = this.getStoreValue('version');

@@ -5,6 +5,9 @@ Get it set up:
 * After installation of the Viessmann ViCare Homey app go to settings of the app and enter the ‘Client ID’ generated in the step above.
 * Now add your new Viessmann device in Homey and log in with your ViCare app user when asked to.
 
+
+Heating circuits: the app uses heating circuit 0, or the first enabled circuit when the installation has no circuit 0. You can choose another circuit in the device's advanced settings. One Homey device controls one heating circuit.
+
 ## Development
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how the app works.

@@ -60,6 +60,18 @@
               }
             },
             {
+              "id": "forcedNormal",
+              "title": {
+                "en": "Forced normal"
+              }
+            },
+            {
+              "id": "forcedReduced",
+              "title": {
+                "en": "Forced reduced"
+              }
+            },
+            {
               "id": "standby",
               "title": {
                 "en": "Standby"

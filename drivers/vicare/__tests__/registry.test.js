@@ -10,11 +10,13 @@ const fs = require('fs');
 const path = require('path');
 const registry = require('./registry.json');
 const flowCompose = require('../driver.flow.compose.json');
+const driverCompose = require('../driver.compose.json');
 const { FEATURES } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
 const FLOW_COMPOSE_FILE = 'drivers/vicare/driver.flow.compose.json';
+const DRIVER_COMPOSE_FILE = 'drivers/vicare/driver.compose.json';
 const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/capabilities');
 
 // Homey system capabilities this app builds sub-capabilities on
@@ -39,6 +41,37 @@ const describeFlowCard = (card) => ({
   }])),
   tokens: Object.fromEntries((card.tokens || []).map((token) => [token.name, token.type])),
 });
+
+// Device settings in the same shape as registry.deviceSettings, including settings inside groups
+const collectSettings = (settings = []) => settings.flatMap((setting) => (setting.type === 'group'
+  ? collectSettings(setting.children)
+  : [[setting.id, {
+    type: setting.type,
+    ...(setting.values ? { values: setting.values.map((value) => value.id) } : {}),
+  }]]));
+const shippedSettings = Object.fromEntries(collectSettings(driverCompose.settings));
+
+/**
+ * Lists every device setting and dropdown value in `source` that `target` lacks.
+ * With `compareTypes`, settings whose type differs are listed too.
+ */
+function findMissingSettingParts(source, target, { compareTypes = false } = {}) {
+  const missing = [];
+  for (const [id, setting] of Object.entries(source)) {
+    const targetSetting = target[id];
+    if (!targetSetting) {
+      missing.push(`setting '${id}'`);
+      continue;
+    }
+    if (compareTypes && targetSetting.type !== setting.type) {
+      missing.push(`setting '${id}' changed type from '${setting.type}' to '${targetSetting.type}'`);
+    }
+    for (const value of setting.values || []) {
+      if (!(targetSetting.values || []).includes(value)) missing.push(`dropdown value '${value}' of setting '${id}'`);
+    }
+  }
+  return missing;
+}
 
 const shippedFlowCards = Object.fromEntries(Object.keys(RUNTIME_FLOW_CARDS)
   .map((group) => [group, Object.fromEntries((flowCompose[group] || [])
@@ -172,5 +205,22 @@ describe('flow card registry', () => {
         + `registering them in driver.js fails: ${undefinedInCompose.join(', ')}`);
     }
     expectNone(problems, 'Flow cards in the compose file and flowCards.js do not match:');
+  });
+});
+
+describe('device settings registry', () => {
+  test('every registered device setting and dropdown value still exists unchanged', () => {
+    expectNone(
+      findMissingSettingParts(registry.deviceSettings, shippedSettings, { compareTypes: true }),
+      `Breaking change: ${DRIVER_COMPOSE_FILE} no longer provides these registered device setting parts. `
+      + 'Existing users would lose the value they set. Restore them:',
+    );
+  });
+
+  test('every device setting and dropdown value in the driver compose file is registered', () => {
+    expectNone(
+      findMissingSettingParts(shippedSettings, registry.deviceSettings),
+      `New device setting parts in ${DRIVER_COMPOSE_FILE}: add them to "deviceSettings" in ${REGISTRY_FILE}:`,
+    );
   });
 });

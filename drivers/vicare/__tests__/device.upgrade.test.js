@@ -1,0 +1,466 @@
+/* eslint-env jest */
+
+'use strict';
+
+// Covers the one-time metadata refresh in checkUpgradeSpecifics for devices paired before
+// 1.0.15 (no heatingCircuitId/commandMetadata in the store): the stored feature list only
+// grows, and a failing refresh never keeps the device from starting and polling.
+
+// eslint-disable-next-line global-require
+jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
+
+const ViessmannDriver = require('../driver');
+const ViessmannDevice = require('../device');
+const { PATHS } = require('../config');
+const { apiError } = require('../../../lib/apiError');
+const { STOP_TIMEOUT } = require('../../../lib/DevicePoller');
+
+const POLLING_KEY = '123456-0000000000000000-0';
+
+const STORE_1_0_14 = Object.freeze({
+  installationId: 123456,
+  gatewaySerial: '0000000000000000',
+  deviceId: '0',
+  roles: ['type:heating', 'type:dhw', 'type:heatpump'],
+  features: [
+    'heating.circuits',
+    PATHS.HOT_WATER_TEMP,
+    PATHS.BUFFER_TEMP,
+    PATHS.HEATING_CIRCUIT_0_MODE,
+    PATHS.HEATING_CIRCUIT_0_TARGET,
+  ],
+  constraints: {
+    [PATHS.HEATING_CIRCUIT_0_TARGET]: { targetTemperature: { min: 10, max: 30, stepping: 1 } },
+  },
+  operatingModes: [
+    { id: 'dhw', title: { en: 'DHW' } },
+    { id: 'dhwAndHeating', title: { en: 'DHW And Heating' } },
+    { id: 'standby', title: { en: 'Standby' } },
+  ],
+  version: '1.0.14',
+});
+
+// Capabilities that 1.0.14 created for STORE_1_0_14
+const CAPABILITIES_1_0_14 = Object.freeze([
+  'measure_temperature.hotWater',
+  'measure_temperature.buffer',
+  'thermostat_mode.heating',
+  'target_temperature.heating',
+]);
+
+const feature = (path, properties = {}, extra = {}) => ({
+  feature: path, isEnabled: true, properties, ...extra,
+});
+const temperature = (value) => ({ value: { type: 'number', value } });
+const NOT_CONNECTED = { status: { type: 'string', value: 'notConnected' } };
+
+// An unfiltered features response of the installation today
+function currentFeatures({ bufferConnected = false, modesEnabled = true } = {}) {
+  return {
+    data: [
+      feature('heating.circuits', { enabled: { type: 'array', value: ['0'] } }),
+      feature(PATHS.HOT_WATER_TEMP, temperature(48)),
+      feature(PATHS.OUTSIDE_TEMP, temperature(3.5)),
+      feature(PATHS.BUFFER_TEMP, bufferConnected ? temperature(35) : NOT_CONNECTED),
+      feature(PATHS.HEATING_CIRCUIT_0_MODE, { value: { type: 'string', value: 'dhwAndHeating' } }, {
+        isEnabled: modesEnabled,
+        commands: {
+          setMode: {
+            isExecutable: true,
+            params: {
+              mode: { type: 'string', required: true, constraints: { enum: ['dhw', 'dhwAndHeating', 'standby', 'forcedReduced'] } },
+            },
+          },
+        },
+      }),
+      feature(PATHS.HEATING_CIRCUIT_0_TARGET, { temperature: temperature(21).value }, {
+        commands: {
+          setTemperature: {
+            isExecutable: true,
+            params: {
+              targetTemperature: { type: 'number', required: true, constraints: { min: 3, max: 37, stepping: 1 } },
+            },
+          },
+        },
+      }),
+    ],
+  };
+}
+
+// The refresh requests all features; a regular poll requests a filter
+const isRefresh = (request) => request.filter === undefined;
+
+function createDevice({
+  store = STORE_1_0_14, capabilities = CAPABILITIES_1_0_14, getFeatures,
+} = {}) {
+  const driver = new ViessmannDriver();
+  const device = new ViessmannDevice();
+  device.driver = driver;
+  device.__store = JSON.parse(JSON.stringify(store));
+  for (const id of capabilities) device.__values.set(id, null);
+  device.oAuth2Client = {
+    getFeatures: jest.fn(getFeatures || (async () => currentFeatures())),
+    executeCommand: jest.fn(async () => ({ data: { success: true } })),
+  };
+  return { driver, device };
+}
+
+// Restarting the app creates a new device instance with the same store and capabilities
+function restart({ device }, getFeatures) {
+  return createDevice({ store: device.getStore(), capabilities: device.getCapabilities(), getFeatures });
+}
+
+const refreshCalls = (device) => device.oAuth2Client.getFeatures.mock.calls.filter(([request]) => isRefresh(request));
+const pollCalls = (device) => device.oAuth2Client.getFeatures.mock.calls.filter(([request]) => !isRefresh(request));
+
+beforeEach(() => {
+  jest.spyOn(Math, 'random').mockReturnValue(0.5); // regular (filtered) polls only
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+describe('upgrade refresh of a device paired on 1.0.14', () => {
+  test('stores circuit and command metadata and merges the feature lists', async () => {
+    const { driver, device } = createDevice();
+
+    await device.onOAuth2Init();
+
+    expect(refreshCalls(device)).toHaveLength(1);
+    expect(device.getStoreValue('heatingCircuitId')).toBe('0');
+    expect(device.getStoreValue('commandMetadata')[PATHS.HEATING_CIRCUIT_0_MODE].setMode).toBeDefined();
+    expect(device.getStoreValue('features')).toEqual([...STORE_1_0_14.features, PATHS.OUTSIDE_TEMP]);
+    expect(device.hasCapability('measure_temperature.outside')).toBe(true);
+    expect(device.getStoreValue('operatingModes').map((mode) => mode.id)).toContain('forcedReduced');
+    expect(device.getStoreValue('constraints')[PATHS.HEATING_CIRCUIT_0_TARGET].targetTemperature.min).toBe(3);
+    expect(driver._devicePollers.has(POLLING_KEY)).toBe(true);
+    expect(device.removeCapability).not.toHaveBeenCalled();
+  });
+
+  test('a sensor that is notConnected at upgrade time keeps its stored feature and capability', async () => {
+    const { device } = createDevice({ getFeatures: async () => currentFeatures({ bufferConnected: false }) });
+
+    await device.onOAuth2Init();
+
+    expect(device.getStoreValue('features')).toContain(PATHS.BUFFER_TEMP);
+    expect(device.hasCapability('measure_temperature.buffer')).toBe(true);
+    expect(device.getCapabilities()).toEqual(expect.arrayContaining(CAPABILITIES_1_0_14));
+    expect(device.removeCapability).not.toHaveBeenCalled();
+  });
+
+  test('runs once: the next start does not refresh again', async () => {
+    const first = createDevice();
+    await first.device.onOAuth2Init();
+
+    const second = restart(first);
+    await second.device.onOAuth2Init();
+
+    expect(refreshCalls(second.device)).toHaveLength(0);
+    expect(pollCalls(second.device)).toHaveLength(1);
+    expect(second.device.getStoreValue('features')).toEqual(first.device.getStoreValue('features'));
+  });
+
+  test('keeps stored operating modes and constraints the API does not report right now', async () => {
+    const { device } = createDevice({ getFeatures: async () => currentFeatures({ modesEnabled: false }) });
+
+    await device.onOAuth2Init();
+
+    expect(device.getStoreValue('operatingModes')).toEqual(STORE_1_0_14.operatingModes);
+    expect(device.getStoreValue('features')).toContain(PATHS.HEATING_CIRCUIT_0_MODE);
+    expect(device.hasCapability('thermostat_mode.heating')).toBe(true);
+    expect(device.getStoreValue('constraints')[PATHS.HEATING_CIRCUIT_0_TARGET].targetTemperature.min).toBe(3);
+  });
+});
+
+describe('a failing upgrade refresh', () => {
+  const failingRefresh = async (request) => {
+    if (isRefresh(request)) throw Object.assign(new Error('Viessmann HTTP 503: Service Unavailable'), { status: 503 });
+    return currentFeatures();
+  };
+
+  test('an API failure is logged and the device still starts and polls', async () => {
+    const { driver, device } = createDevice({ getFeatures: failingRefresh });
+
+    await expect(device.onOAuth2Init()).resolves.toBeUndefined();
+
+    expect(device.error).toHaveBeenCalledWith(expect.stringContaining('retrying on the next start'), expect.any(Error));
+    expect(device.getStore()).toEqual(STORE_1_0_14);
+    expect(device.getCapabilities()).toEqual(expect.arrayContaining(CAPABILITIES_1_0_14));
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(driver._devicePollers.has(POLLING_KEY)).toBe(true);
+    expect(pollCalls(device)).toHaveLength(1);
+    expect(device.getAvailable()).toBe(true);
+    expect(device.getCapabilityValue('measure_temperature.hotWater')).toBe(48);
+  });
+
+  test('commands still work while the metadata is missing', async () => {
+    const { device } = createDevice({ getFeatures: failingRefresh });
+    await device.onOAuth2Init();
+
+    await device.__listeners.get('thermostat_mode.heating')('standby');
+
+    expect(device.oAuth2Client.executeCommand).toHaveBeenCalledWith(expect.objectContaining({
+      feature: PATHS.HEATING_CIRCUIT_0_MODE, command: 'setMode', body: { mode: 'standby' },
+    }));
+  });
+
+  test('the refresh is retried on the next start', async () => {
+    const first = createDevice({ getFeatures: failingRefresh });
+    await first.device.onOAuth2Init();
+
+    const second = restart(first);
+    await second.device.onOAuth2Init();
+
+    expect(refreshCalls(second.device)).toHaveLength(1);
+    expect(second.device.getStoreValue('heatingCircuitId')).toBe('0');
+    expect(second.device.getStoreValue('features')).toEqual([...STORE_1_0_14.features, PATHS.OUTSIDE_TEMP]);
+  });
+
+  test('a failing store write is retried on the next start without duplicating features', async () => {
+    const first = createDevice();
+    const { setStoreValue } = first.device;
+    first.device.setStoreValue = jest.fn(async (key, value) => {
+      if (key === 'commandMetadata') throw new Error('store is busy');
+      return setStoreValue(key, value);
+    });
+    await first.device.onOAuth2Init();
+    expect(first.device.getStoreValue('heatingCircuitId')).toBeUndefined();
+    expect(first.driver._devicePollers.has(POLLING_KEY)).toBe(true);
+
+    const second = restart(first);
+    await second.device.onOAuth2Init();
+
+    expect(refreshCalls(second.device)).toHaveLength(1);
+    expect(second.device.getStoreValue('heatingCircuitId')).toBe('0');
+    const features = second.device.getStoreValue('features');
+    expect(features).toEqual([...new Set(features)]);
+    expect(features).toEqual([...STORE_1_0_14.features, PATHS.OUTSIDE_TEMP]);
+  });
+
+  test('an older pairing without a stored feature list keeps its capabilities', async () => {
+    const { features, ...store } = STORE_1_0_14;
+    const { driver, device } = createDevice({ store: { ...store, version: '1.0.8' }, getFeatures: failingRefresh });
+
+    await expect(device.onOAuth2Init()).resolves.toBeUndefined();
+
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(device.getCapabilities()).toEqual(expect.arrayContaining(CAPABILITIES_1_0_14));
+    expect(driver._devicePollers.has(POLLING_KEY)).toBe(true);
+  });
+});
+
+describe('switching the heating circuit', () => {
+  test('never shrinks the stored feature list', async () => {
+    const { device } = createDevice();
+    await device.onOAuth2Init();
+    const featuresBefore = device.getStoreValue('features');
+
+    const circuitOneOnly = currentFeatures();
+    circuitOneOnly.data = circuitOneOnly.data
+      .filter((item) => item.feature !== PATHS.BUFFER_TEMP && item.feature !== PATHS.HOT_WATER_TEMP)
+      .map((item) => ({ ...item, feature: item.feature.replace('heating.circuits.0.', 'heating.circuits.1.') }));
+    circuitOneOnly.data[0] = feature('heating.circuits', { enabled: { type: 'array', value: ['0', '1'] } });
+    device.oAuth2Client.getFeatures.mockImplementation(async () => circuitOneOnly);
+
+    await device.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '1' } });
+
+    expect(device.getStoreValue('heatingCircuitId')).toBe('1');
+    expect(device.getStoreValue('features')).toEqual(expect.arrayContaining(featuresBefore));
+    expect(device.removeCapability).not.toHaveBeenCalled();
+  });
+});
+
+describe('a device that is deleted or unloaded while it initialises', () => {
+  test.each([
+    ['deleted', 'onOAuth2Deleted'],
+    ['unloaded', 'onOAuth2Uninit'],
+  ])('%s during the upgrade refresh: no poller is left behind', async (_, method) => {
+    let answerRefresh;
+    const { driver, device } = createDevice({
+      getFeatures: (request) => (isRefresh(request)
+        ? new Promise((resolve) => {
+          answerRefresh = resolve;
+        })
+        : currentFeatures()),
+    });
+    const stopPolling = jest.spyOn(driver, '_stopPolling');
+
+    const initialising = device.onOAuth2Init();
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(device.getPollingKey()).toBe(POLLING_KEY);
+    await device[method]();
+    answerRefresh(currentFeatures());
+    await initialising;
+
+    expect(stopPolling).toHaveBeenCalledWith(POLLING_KEY);
+    expect(driver._devicePollers.size).toBe(0);
+    expect(pollCalls(device)).toHaveLength(0);
+    expect(device.addCapability).not.toHaveBeenCalled();
+  });
+
+  test('deleted while capabilities are being set up: no poller is started', async () => {
+    const { driver, device } = createDevice();
+    const { registerCapabilityListeners } = device;
+    device.registerCapabilityListeners = async () => {
+      await device.onOAuth2Deleted();
+      return registerCapabilityListeners.call(device);
+    };
+
+    await device.onOAuth2Init();
+
+    expect(driver._devicePollers.size).toBe(0);
+    expect(pollCalls(device)).toHaveLength(0);
+  });
+
+  test('a pairing from before 1.0.4 has its polling key before the migration', async () => {
+    const {
+      installationId, gatewaySerial, deviceId, ...store
+    } = STORE_1_0_14;
+    const { device } = createDevice({ store });
+    device.__data = {
+      id: POLLING_KEY, installationId, gatewaySerial, deviceId,
+    };
+    const { checkUpgradeSpecifics } = device;
+    let keyDuringMigration;
+    device.checkUpgradeSpecifics = async () => {
+      keyDuringMigration = device.getPollingKey();
+      return checkUpgradeSpecifics.call(device);
+    };
+
+    await device.onOAuth2Init();
+
+    expect(keyDuringMigration).toBe(POLLING_KEY);
+    expect(device.driver._devicePollers.has(POLLING_KEY)).toBe(true);
+  });
+});
+
+describe('switching the heating circuit while the device polls', () => {
+  const HOUR = 60 * 60 * 1000;
+
+  // Circuits 0 and 1; circuit 1 is in reduced mode at 18 °C and has no room sensor
+  function twoCircuits({ modeOfCircuitOne = 'forcedReduced' } = {}) {
+    const response = currentFeatures();
+    const circuitOne = response.data
+      .filter((item) => item.feature.startsWith('heating.circuits.0.'))
+      .map((item) => JSON.parse(JSON.stringify({ ...item, feature: item.feature.replace('heating.circuits.0.', 'heating.circuits.1.') })));
+    circuitOne.find((item) => item.feature.endsWith('operating.modes.active')).properties.value.value = modeOfCircuitOne;
+    circuitOne.find((item) => item.feature.endsWith('operating.programs.normal')).properties.temperature.value = 18;
+    response.data[0] = feature('heating.circuits', { enabled: { type: 'array', value: ['0', '1'] } });
+    response.data.push(feature(PATHS.HEATING_CIRCUIT_0_ROOM_TEMPERATURE, temperature(20.5)), ...circuitOne);
+    return response;
+  }
+
+  async function pollingDevice(poll) {
+    const { driver, device } = createDevice({
+      getFeatures: async (request) => (isRefresh(request) ? twoCircuits() : poll(request)),
+    });
+    driver.homey = { setTimeout, clearTimeout, error: jest.fn() };
+    await device.onOAuth2Init();
+    return { driver, device, poller: driver._devicePollers.get(POLLING_KEY) };
+  }
+
+  const switchToCircuitOne = (device) => device.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '1' } });
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
+
+  test('keeps a pending Retry-After and the backoff, and adds no poll', async () => {
+    const { device, poller } = await pollingDevice(async () => {
+      throw apiError({ status: 429, headers: { get: () => String(HOUR / 1000) } });
+    });
+    expect(poller.failures).toBe(1);
+    const { retryAt } = poller;
+    await jest.advanceTimersByTimeAsync(10 * 60 * 1000);
+
+    await switchToCircuitOne(device);
+
+    expect(device.driver._devicePollers.get(POLLING_KEY)).toBe(poller);
+    expect(poller.failures).toBe(1);
+    expect(poller.retryAt).toBe(retryAt);
+    expect(pollCalls(device)).toHaveLength(1);
+    // The new circuit's values come from the settings request
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('forcedReduced');
+
+    await jest.advanceTimersByTimeAsync(retryAt - Date.now() - 1);
+    expect(pollCalls(device)).toHaveLength(1);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(pollCalls(device)).toHaveLength(2);
+    expect(pollCalls(device)[1][0].filter).toContain('heating.circuits.1.operating.modes.active');
+  });
+
+  test('a poll that hangs does not hold up the switch, and its old values are not applied', async () => {
+    let answerPoll;
+    let polls = 0;
+    const { device, poller } = await pollingDevice(() => {
+      polls += 1;
+      if (polls === 1) return currentFeatures();
+      return new Promise((resolve) => {
+        answerPoll = resolve;
+      });
+    });
+    await jest.advanceTimersByTimeAsync(2 * 60 * 1000);
+    expect(poller.running).toBeTruthy();
+
+    let switched = false;
+    switchToCircuitOne(device).then(() => {
+      switched = true;
+    }, () => {});
+    await jest.advanceTimersByTimeAsync(STOP_TIMEOUT);
+    expect(switched).toBe(true);
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+
+    // The poll that hung answers late (here with data that would change circuit 1): ignored
+    const late = twoCircuits();
+    late.data.find((item) => item.feature === 'heating.circuits.1.operating.programs.normal').properties.temperature.value = 25;
+    answerPoll(late);
+    await jest.advanceTimersByTimeAsync(0);
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(pollCalls(device)).toHaveLength(2);
+  });
+
+  test('clears what the new circuit does not report and fires no mode trigger for the switch', async () => {
+    const state = { modeOfCircuitOne: 'forcedReduced' };
+    const { driver, device } = await pollingDevice(async () => twoCircuits(state));
+    const trigger = jest.fn(async () => {});
+    driver._triggerCards.set('thermostat_mode.heating', { trigger });
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBe(20.5);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhwAndHeating');
+
+    await switchToCircuitOne(device);
+
+    // Circuit 1 has no room sensor: the value is unknown now, the capability stays
+    expect(device.hasCapability('measure_temperature.circuit0_room')).toBe(true);
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBeNull();
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    // Values circuit 1 reports are shown, but the different mode is not a mode change
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('forcedReduced');
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(trigger).not.toHaveBeenCalled();
+
+    // A real mode change on circuit 1 later does fire the trigger
+    state.modeOfCircuitOne = 'dhw';
+    await jest.advanceTimersByTimeAsync(2 * 60 * 1000);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhw');
+    expect(trigger).toHaveBeenCalledTimes(1);
+    expect(trigger).toHaveBeenCalledWith(device, { mode: 'dhw' }, {});
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBeNull();
+  });
+
+  test('choosing the circuit it already uses clears nothing', async () => {
+    const { device } = await pollingDevice(async () => twoCircuits());
+
+    await device.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '0' } });
+
+    expect(device.getStoreValue('heatingCircuitId')).toBe('0');
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBe(20.5);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhwAndHeating');
+  });
+});

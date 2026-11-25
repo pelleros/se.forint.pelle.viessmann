@@ -3,7 +3,9 @@
     "Every user-facing identifier this app ships. registry.test.js fails if config.js (capabilities)",
     "or driver.flow.compose.json (flow cards) no longer provides one of them: renaming or removing a",
     "capability deletes the user's Insights history and breaks Flows, and changing a flow card id,",
-    "argument, dropdown value or token breaks saved Flows.",
+    "argument, dropdown value or token breaks saved Flows. Device settings (driver.compose.json) are",
+    "guarded the same way: renaming one, changing its type or removing a dropdown value resets the value",
+    "users have set.",
     "New identifiers: add them here in the same change. Deliberately retiring a capability: move it",
     "from 'capabilities' to 'retiredCapabilities' with a note on why and what replaced it."
   ],
@@ -59,7 +61,7 @@
         "args": {
           "mode": {
             "type": "dropdown",
-            "values": ["dhw", "heating", "dhwAndHeating", "standby"]
+            "values": ["dhw", "heating", "dhwAndHeating", "forcedNormal", "forcedReduced", "standby"]
           }
         }
       },
@@ -108,6 +110,12 @@
           "mode": "string"
         }
       }
+    }
+  },
+  "deviceSettings": {
+    "heatingCircuit": {
+      "type": "dropdown",
+      "values": ["auto", "0", "1", "2", "3"]
     }
   }
 }

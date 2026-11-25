@@ -114,7 +114,9 @@ function createDevice(store = {}) {
   device.__store = JSON.parse(JSON.stringify({ ...BASE_STORE, ...store }));
   device.driver = {
     _startPolling: jest.fn(async () => {}),
-    _stopPolling: jest.fn(),
+    _stopPolling: jest.fn(async () => {}),
+    // The upgrade refresh in checkUpgradeSpecifics is covered elsewhere; here it finds nothing
+    _getEnabledFeaturesAndOpModes: jest.fn(async () => ({})),
     getTriggerCard: jest.fn(() => {
       throw new Error('No trigger card');
     }),
@@ -151,7 +153,18 @@ describe('ViessmannDevice feature discovery on extended poll', () => {
       data: [
         feature(PATHS.HOT_WATER_TEMP, value(48)),
         feature(PATHS.HEATING_CIRCUIT_0_MODE, { value: { type: 'string', value: 'dhwAndHeating' } }),
-        feature(PATHS.HOT_WATER_TARGET, value(50)),
+        feature(PATHS.HOT_WATER_TARGET, value(50), {
+          commands: {
+            setTargetTemperature: {
+              isExecutable: true,
+              params: {
+                temperature: {
+                  type: 'number', required: true, constraints: { min: 10, max: 60, stepping: 1 },
+                },
+              },
+            },
+          },
+        }),
         feature(PATHS.OUTSIDE_TEMP, value(3.5)),
         feature('heating.some.future.feature', value(1)),
         feature('heating.disabled.feature', value(1), { isEnabled: false }),
@@ -304,7 +317,7 @@ describe('ViessmannDevice.registerCapabilityListeners', () => {
 describe('ViessmannDevice.getFeatures', () => {
   test('requests only the configured paths when filtered', async () => {
     const device = await createInitializedDevice();
-    await device.getFeatures(true);
+    await device.getFeatures({ useFilter: true });
     expect(device.oAuth2Client.getFeatures).toHaveBeenLastCalledWith(expect.objectContaining({
       filter: Object.values(PATHS).join(','),
     }));
@@ -312,7 +325,7 @@ describe('ViessmannDevice.getFeatures', () => {
 
   test('requests all features when unfiltered (extended poll and settings page API)', async () => {
     const device = await createInitializedDevice();
-    await device.getFeatures(false);
+    await device.getFeatures({ useFilter: false });
     expect(device.oAuth2Client.getFeatures).toHaveBeenLastCalledWith(expect.objectContaining({
       filter: undefined,
     }));

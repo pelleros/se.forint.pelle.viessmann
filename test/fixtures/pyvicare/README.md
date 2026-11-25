@@ -63,6 +63,9 @@ unchanged; only identifiers, timestamps, host names and formatting were changed,
   `device.onFeaturesUpdated` and checks the mapped capabilities.
 - `drivers/vicare/__tests__/pyvicare.upgrade.test.js` pairs a device from every file the way
   1.0.14 did and starts it on the current code.
+- `drivers/vicare/__tests__/roles.test.js` pairs every file without roles and checks the roles
+  inferred from its features; `pyvicare.errorStates.test.js` runs the API error states and a
+  response with odd values against a few of the files.
 - `test/pyvicare.privacy.test.js` fails if a file still contains something for the anonymizer to
   replace, so never add files here without step 2.
 

@@ -17,9 +17,9 @@ const { FEATURES, PATHS } = require('../config');
 const {
   ROLE_TAGS, inferRoles, hasRoleTags, effectiveRoles,
 } = require('../roles');
+const { loadPyViCareFixtures } = require('../../../test/helpers/pyvicareFixtures');
 
 const FIXTURES_DIR = path.join(__dirname, '../../../test/fixtures');
-const PYVICARE_DIR = path.join(FIXTURES_DIR, 'pyvicare');
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -232,15 +232,15 @@ describe('our fixtures with the type roles stripped', () => {
   });
 });
 
-// PyViCare's device responses (when test/fixtures/pyvicare/ exists) have no roles at all
-const pyvicareFixtures = fs.existsSync(PYVICARE_DIR)
-  ? fs.readdirSync(PYVICARE_DIR).filter((name) => name.endsWith('.json')).sort()
-    .map((name) => [name, readJson(path.join(PYVICARE_DIR, name))])
-    .filter(([, dump]) => Array.isArray(dump?.data))
-  : [];
+// PyViCare's device responses (test/fixtures/pyvicare/), all paired without any roles
+const pyvicareFixtures = loadPyViCareFixtures().map(({ name, dump }) => [name, dump]);
 
-(pyvicareFixtures.length > 0 ? describe : describe.skip)('PyViCare responses without roles', () => {
-  test.each(pyvicareFixtures.length > 0 ? pyvicareFixtures : [['none', { data: [] }]])('%s', async (_, dump) => {
+describe('PyViCare responses without roles', () => {
+  test('are there', () => {
+    expect(pyvicareFixtures.length).toBeGreaterThan(50);
+  });
+
+  test.each(pyvicareFixtures)('%s', async (_, dump) => {
     const device = await pairedDevice(dump, []);
     const inferred = inferRoles(device._features);
     for (const role of ROLE_TAGS) {

@@ -4,7 +4,7 @@ This catalogue lists the Viessmann datapoints ("features") the app reads today a
 
 Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`](../scripts/featureCoverage.js) (see [Refreshing this catalogue](#refreshing-this-catalogue)).
 
-**Contents:** [Sources](#sources-and-how-to-read-the-tables) · [ID rules](#id-rules) · [Tiers](#tiers) · [Already supported](#1-already-supported) · [Everyday](#2a-everyday-added-automatically) · [Energy](#2b-energy-homey-energy) · [Diagnostic](#2c-diagnostic-opt-in) · [Controls](#2d-controls-later-flow-actions) · [Static configuration](#2e-static-configuration-read-once) · [Not planned](#2f-not-planned) · [Watch list](#3-watch-list-official-list-not-yet-seen-in-a-dump) · [New base capabilities](#4-new-base-capabilities) · [Open questions](#5-open-questions)
+**Contents:** [Sources](#sources-and-how-to-read-the-tables) · [ID rules](#id-rules) · [Tiers](#tiers) · [Already supported](#1-already-supported) · [Everyday](#2a-everyday-added-automatically) · [Energy](#2b-energy-homey-energy) · [Diagnostic](#2c-diagnostic-opt-in) · [Controls](#2d-controls-later-flow-actions) · [Static configuration](#2e-static-configuration-read-once) · [Not planned](#2f-not-planned) · [Watch list](#3-watch-list-official-list-not-yet-seen-in-a-dump) · [New base capabilities](#4-new-base-capabilities) · [UI improvements](#5-ui-improvements-for-existing-and-new-capabilities) · [Open questions](#6-open-questions)
 
 ## Sources and how to read the tables
 
@@ -20,6 +20,7 @@ Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`]
 - **Official list.** Viessmann's datapoint list retrieved 2026-11-25 from <https://api.viessmann-climatesolutions.com/documentation/data-points>: 766 features, 679 with a Basic plan, 76 Advanced-only, 11 without a plan, 49 flagged deprecated. "Plan" uses: **Basic** = View Basic Feature Data, **Adv** = View Advanced Feature Data, **Ctrl** = Control Basic Features.
 - Indexes are written as `N` (`heating.circuits.N.…`). ⓒ marks a per-circuit feature, described for circuit 0 / "the selected circuit". How several circuits are exposed depends on the multi-circuit design in [#4](https://github.com/pelleros/se.forint.pelle.viessmann/issues/4) (roadmap 3.1); the `.circuit0` suffixes below follow the existing IDs and the roadmap and must be confirmed together with that design.
 - **Insights / tag** gives the proposed `preventInsights` / `preventTag` defaults as ✓ (on) or – (prevented), following the templates in `drivers/vicare/config.js`: temperatures ✓/✓ (diagnostic ones ✓/–), on/off states ✓/✓, modulation ✓/–, counters –/–.
+- **UI** gives the proposed `uiComponent` (`sensor`, `picker`, `thermostat`, …); *ind* means the user can choose it as a device indicator (numbers starting with `measure_`/`meter_`, custom booleans and numbers; not strings); for booleans it says whether the value should drive the device tile (`uiState`, see [5a](#5a-tile-state-uistate-for-running-booleans)).
 - Some features real devices deliver are missing from the official list (`heating.burners.N`, `heating.compressors.N`, `heating.circuits.N`, `heating.circuits.N.name`, `device.messages.errors.raw`). Missing from the list is not a reason to drop a mapping; the app already relies on two of them.
 
 **Totals.** 142 features are usable in at least one dump. 26 of them are mapped today (the 27th mapped path, `heating.primaryCircuit.sensors.temperature.return`, is not connected in any dump). Of the 116 unmapped ones, 10 are deprecated; the remaining **106** are classified below: 14 everyday, 18 energy, 17 diagnostic, 12 controls, 15 static configuration, 30 not planned.
@@ -86,45 +87,45 @@ None of these paths is flagged deprecated in the official list or in any dump.
 
 Ordered by the number of installation types that expose the feature.
 
-| # | Viessmann feature | Property | Unit / type | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | Notes |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | `heating.circuits.N.circulation.pump` ⓒ | `status` | `on`/`off` → boolean | HP, Gas 3/3, FC | Basic | `measure_pump_active.circuit0` | Circulation pump | ✓ / ✓ | `valueMapping { on: true, off: false }`. Explicit trigger + condition cards (roadmap 2.1). Read-only. |
-| 2 | `heating.circuits.N.operating.programs.active` ⓒ | `value` | string (`normal`, `reduced`, `comfort`, `eco`, `standby`, `fixed`, …) | HP, Gas 3/3, FC | Basic | `measure_heating_program.circuit0` | Active program | n/a (string) / ✓ | Raw Viessmann program id. Trigger "Active program changed" with a token. String rather than enum, see Q13. Replaces reading the per-program `active` booleans. |
-| 3 | `heating.dhw.pumps.circulation` | `status` | `on`/`off` → boolean | HP, Gas 1/3 (legacy), FC | Basic | `measure_pump_active.dhwCirculation` | Hot water circulation pump | ✓ / ✓ | Roadmap 2.2. Control only via schedule (not planned). |
-| 4 | `heating.dhw.charging` | `active` | boolean | HP, Gas 1/3 (legacy) | Basic | `measure_dhw_active.charging` | Hot water charging | ✓ / ✓ | True while the cylinder is being heated; not the same as `oneTimeCharge` (a user request). |
-| 5 | `heating.cop.total` | `value` | number, no unit | HP (2025+) | Basic + Adv | `measure_cop_number.total` | COP total | ✓ / – | Long-term average that changes rarely: describe as seasonal COP. 1 decimal. Roadmap 2.3. |
-| 6 | `heating.cop.heating` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.heating` | COP heating | ✓ / – | As above. |
-| 7 | `heating.cop.dhw` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.dhw` | COP hot water | ✓ / – | As above. |
-| 8 | `heating.compressors.N.sensors.power` | `value` | % | HP (2025+) | Basic | `measure_compressor_number.compressorModulation` | Compressor modulation | ✓ / – | Compressor load in %, not watts, despite the path. Roadmap 2.4. |
-| 9 | `heating.sensors.pressure.supply` | `value` | bar | Gas 1/3 (E3), FC | Basic + Adv | `measure_pressure.system` | System pressure | ✓ / ✓ | Water pressure of the heating system; good for a "pressure below X bar" condition. `measure_pressure` is mbar by default: override units to `bar`, 1 decimal (Q2). |
-| 10 | `heating.flue.sensors.temperature.main` | `value` | °C | Gas 1/3 (E3), FC | **Adv only** | `measure_temperature.flue` | Flue gas temperature | ✓ / – | Appears only where the user's Client ID gets Advanced data (Q1). |
-| 11 | `heating.dhw.sensors.temperature.dhwCylinder.bottom` | `value` | °C | FC (not connected on HP) | Basic | `measure_temperature.hotWaterBottom` | Hot water bottom temperature | ✓ / – | |
-| 12 | `heating.dhw.sensors.temperature.outlet` | `value` | °C | Gas 1/3 (legacy); not connected elsewhere | Basic | `measure_temperature.hotWaterOutlet` | Hot water outlet temperature | ✓ / – | |
-| 13 | `heating.sensors.temperature.hydraulicSeparator` | `value` | °C | Gas 1/3 (E3) | Basic | `measure_temperature.hydraulicSeparator` | Hydraulic separator temperature | ✓ / – | |
-| 14 | `heating.bufferCylinder.sensors.temperature.top` | `value` | °C | HP | Basic | none: fallback for existing `measure_temperature.buffer` | — | — | Roadmap 1.4: used when `.main` is `notConnected` (as in the 2026 snapshots). Where both were connected they had identical values, so a separate `measure_temperature.bufferTop` would duplicate; add it only if a dump shows two different values. |
+| # | Viessmann feature | Property | Unit / type | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | UI | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `heating.circuits.N.circulation.pump` ⓒ | `status` | `on`/`off` → boolean | HP, Gas 3/3, FC | Basic | `measure_pump_active.circuit0` | Circulation pump | ✓ / ✓ | sensor · ind · uiState off | `valueMapping { on: true, off: false }`. Explicit trigger + condition cards (roadmap 2.1). Read-only. |
+| 2 | `heating.circuits.N.operating.programs.active` ⓒ | `value` | string (`normal`, `reduced`, `comfort`, `eco`, `standby`, `fixed`, …) | HP, Gas 3/3, FC | Basic | `measure_heating_program.circuit0` | Active program | n/a (string) / ✓ | sensor (string: no ind) | Raw Viessmann program id. Trigger "Active program changed" with a token. String rather than enum, see Q13. Replaces reading the per-program `active` booleans. |
+| 3 | `heating.dhw.pumps.circulation` | `status` | `on`/`off` → boolean | HP, Gas 1/3 (legacy), FC | Basic | `measure_pump_active.dhwCirculation` | Hot water circulation pump | ✓ / ✓ | sensor · ind · uiState off | Roadmap 2.2. Control only via schedule (not planned). |
+| 4 | `heating.dhw.charging` | `active` | boolean | HP, Gas 1/3 (legacy) | Basic | `measure_dhw_active.charging` | Hot water charging | ✓ / ✓ | sensor · ind · uiState off | True while the cylinder is being heated; not the same as `oneTimeCharge` (a user request). |
+| 5 | `heating.cop.total` | `value` | number, no unit | HP (2025+) | Basic + Adv | `measure_cop_number.total` | COP total | ✓ / – | sensor · ind | Long-term average that changes rarely: describe as seasonal COP. 1 decimal. Roadmap 2.3. |
+| 6 | `heating.cop.heating` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.heating` | COP heating | ✓ / – | sensor · ind | As above. |
+| 7 | `heating.cop.dhw` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.dhw` | COP hot water | ✓ / – | sensor · ind | As above. |
+| 8 | `heating.compressors.N.sensors.power` | `value` | % | HP (2025+) | Basic | `measure_compressor_number.compressorModulation` | Compressor modulation | ✓ / – | sensor · ind | Compressor load in %, not watts, despite the path. Roadmap 2.4. |
+| 9 | `heating.sensors.pressure.supply` | `value` | bar | Gas 1/3 (E3), FC | Basic + Adv | `measure_pressure.system` | System pressure | ✓ / ✓ | sensor · ind | Water pressure of the heating system; good for a "pressure below X bar" condition. `measure_pressure` is mbar by default: override units to `bar`, 1 decimal (Q2). |
+| 10 | `heating.flue.sensors.temperature.main` | `value` | °C | Gas 1/3 (E3), FC | **Adv only** | `measure_temperature.flue` | Flue gas temperature | ✓ / – | sensor · ind | Appears only where the user's Client ID gets Advanced data (Q1). |
+| 11 | `heating.dhw.sensors.temperature.dhwCylinder.bottom` | `value` | °C | FC (not connected on HP) | Basic | `measure_temperature.hotWaterBottom` | Hot water bottom temperature | ✓ / – | sensor · ind | |
+| 12 | `heating.dhw.sensors.temperature.outlet` | `value` | °C | Gas 1/3 (legacy); not connected elsewhere | Basic | `measure_temperature.hotWaterOutlet` | Hot water outlet temperature | ✓ / – | sensor · ind | |
+| 13 | `heating.sensors.temperature.hydraulicSeparator` | `value` | °C | Gas 1/3 (E3) | Basic | `measure_temperature.hydraulicSeparator` | Hydraulic separator temperature | ✓ / – | sensor · ind | |
+| 14 | `heating.bufferCylinder.sensors.temperature.top` | `value` | °C | HP | Basic | none: fallback for existing `measure_temperature.buffer` | — | — | — | Roadmap 1.4: used when `.main` is `notConnected` (as in the 2026 snapshots). Where both were connected they had identical values, so a separate `measure_temperature.bufferTop` would duplicate; add it only if a dump shows two different values. |
 
 ## 2b. Energy (Homey Energy)
 
-| # | Viessmann feature | Properties used | Unit | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | Notes |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | `heating.gas.consumption.total` | `year[]`, `yearValueReadAt` | m³ on E3, **kWh on the legacy boiler** | Gas 3/3, FC | Basic | `meter_gas` | Gas consumption | ✓ / ✓ | Accumulator below. Only when `unit === 'cubicMeter'` (Q4). |
-| 2 | `heating.gas.consumption.heating` | as #1 | as #1 | Gas 3/3, FC | Basic | `meter_gas.heating` | Gas for heating | ✓ / – | Optional split (Q5). |
-| 3 | `heating.gas.consumption.dhw` | as #1 | as #1 | Gas 3/3, FC | Basic | `meter_gas.dhw` | Gas for hot water | ✓ / – | Optional split (Q5). |
-| 4 | `heating.power.consumption.total` | `year[]`, `yearValueReadAt` | kWh | Gas 3/3, FC | Basic | `meter_power` | Energy | ✓ / ✓ | The device's own electricity. On the gas boilers that is fan, pump and controller (0.3–1.8 kWh/day in the dumps); on E3 heat pumps it would be the main consumption (not in our heat-pump dump). |
-| 5 | `heating.power.consumption.heating` | as #4 | kWh | Gas 2/3 (E3), FC | Basic | `meter_power.heating` | Energy for heating | ✓ / – | Optional split (Q5). |
-| 6 | `heating.power.consumption.dhw` | as #4 | kWh | Gas 2/3 (E3), FC | Basic | `meter_power.dhw` | Energy for hot water | ✓ / – | Optional split (Q5). |
-| 7 | `heating.gas.consumption.summary.heating` | `currentYear`, `lastYear` | m³ | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | Fallback for #2 if the arrays are missing. No timestamps. |
-| 8 | `heating.gas.consumption.summary.dhw` | `currentYear`, `lastYear` | m³ | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | Fallback for #3. |
-| 9 | `heating.power.consumption.summary.heating` | `currentYear`, `lastYear` | kWh | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | Fallback for #5. |
-| 10 | `heating.power.consumption.summary.dhw` | `currentYear`, `lastYear` | kWh | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | Fallback for #6. |
-| 11 | `heating.gas.consumption.fuelCell` | as #1 | m³ | FC | **Adv only** | `meter_gas.fuelCell` | Gas for fuel cell | ✓ / – | Q1, Q8. |
-| 12 | `heating.power.production.cumulative` | `value` | kWh, already cumulative | FC | Basic + Adv | `meter_power.produced` (Q6) | Electricity produced | ✓ / ✓ | A real counter: no accumulator needed. |
-| 13 | `heating.power.production.current` | `value` | W | FC | **Adv only** | `measure_power.produced` (Q6) | Power produced | ✓ / ✓ | Real measurement (734 W in the dump). |
-| 14 | `heating.power.purchase.cumulative` | `value` | kWh | FC | Basic + Adv | `meter_power.imported` (Q7) | Grid import | ✓ / – | Appears to be measured at the household grid connection, not the device. |
-| 15 | `heating.power.purchase.current` | `value` | W | FC | Basic + Adv | `measure_power.imported` (Q7) | Grid import power | ✓ / – | As #14. |
-| 16 | `heating.power.sold.cumulative` | `value` | kWh | FC | Basic + Adv | `meter_power.exported` (Q7) | Grid export | ✓ / – | As #14. |
-| 17 | `heating.power.sold.current` | `value` | W | FC | Basic + Adv | `measure_power.exported` (Q7) | Grid export power | ✓ / – | As #14. |
-| 18 | `fuelCell.power.production` | `day[]` … `year[]` | kWh | FC | Adv only | none | — | — | Same quantity as #12, which is Basic and already cumulative. Use only if #12 is missing. |
+| # | Viessmann feature | Properties used | Unit | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | UI | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `heating.gas.consumption.total` | `year[]`, `yearValueReadAt` | m³ on E3, **kWh on the legacy boiler** | Gas 3/3, FC | Basic | `meter_gas` | Gas consumption | ✓ / ✓ | sensor · ind | Accumulator below. Only when `unit === 'cubicMeter'` (Q4). |
+| 2 | `heating.gas.consumption.heating` | as #1 | as #1 | Gas 3/3, FC | Basic | `meter_gas.heating` | Gas for heating | ✓ / – | sensor · ind | Optional split (Q5). |
+| 3 | `heating.gas.consumption.dhw` | as #1 | as #1 | Gas 3/3, FC | Basic | `meter_gas.dhw` | Gas for hot water | ✓ / – | sensor · ind | Optional split (Q5). |
+| 4 | `heating.power.consumption.total` | `year[]`, `yearValueReadAt` | kWh | Gas 3/3, FC | Basic | `meter_power` | Energy | ✓ / ✓ | sensor · ind | The device's own electricity. On the gas boilers that is fan, pump and controller (0.3–1.8 kWh/day in the dumps); on E3 heat pumps it would be the main consumption (not in our heat-pump dump). |
+| 5 | `heating.power.consumption.heating` | as #4 | kWh | Gas 2/3 (E3), FC | Basic | `meter_power.heating` | Energy for heating | ✓ / – | sensor · ind | Optional split (Q5). |
+| 6 | `heating.power.consumption.dhw` | as #4 | kWh | Gas 2/3 (E3), FC | Basic | `meter_power.dhw` | Energy for hot water | ✓ / – | sensor · ind | Optional split (Q5). |
+| 7 | `heating.gas.consumption.summary.heating` | `currentYear`, `lastYear` | m³ | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | — | Fallback for #2 if the arrays are missing. No timestamps. |
+| 8 | `heating.gas.consumption.summary.dhw` | `currentYear`, `lastYear` | m³ | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | — | Fallback for #3. |
+| 9 | `heating.power.consumption.summary.heating` | `currentYear`, `lastYear` | kWh | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | — | Fallback for #5. |
+| 10 | `heating.power.consumption.summary.dhw` | `currentYear`, `lastYear` | kWh | Gas 2/3 (E3), FC | Basic | none (source only) | — | — | — | Fallback for #6. |
+| 11 | `heating.gas.consumption.fuelCell` | as #1 | m³ | FC | **Adv only** | `meter_gas.fuelCell` | Gas for fuel cell | ✓ / – | sensor · ind | Q1, Q8. |
+| 12 | `heating.power.production.cumulative` | `value` | kWh, already cumulative | FC | Basic + Adv | `meter_power.produced` (Q6) | Electricity produced | ✓ / ✓ | sensor · ind | A real counter: no accumulator needed. |
+| 13 | `heating.power.production.current` | `value` | W | FC | **Adv only** | `measure_power.produced` (Q6) | Power produced | ✓ / ✓ | sensor · ind | Real measurement (734 W in the dump). |
+| 14 | `heating.power.purchase.cumulative` | `value` | kWh | FC | Basic + Adv | `meter_power.imported` (Q7) | Grid import | ✓ / – | sensor · ind | Appears to be measured at the household grid connection, not the device. |
+| 15 | `heating.power.purchase.current` | `value` | W | FC | Basic + Adv | `measure_power.imported` (Q7) | Grid import power | ✓ / – | sensor · ind | As #14. |
+| 16 | `heating.power.sold.cumulative` | `value` | kWh | FC | Basic + Adv | `meter_power.exported` (Q7) | Grid export | ✓ / – | sensor · ind | As #14. |
+| 17 | `heating.power.sold.current` | `value` | W | FC | Basic + Adv | `measure_power.exported` (Q7) | Grid export power | ✓ / – | sensor · ind | As #14. |
+| 18 | `fuelCell.power.production` | `day[]` … `year[]` | kWh | FC | Adv only | none | — | — | — | Same quantity as #12, which is Basic and already cumulative. Use only if #12 is missing. |
 
 ### From day/month/year arrays to a cumulative meter
 
@@ -163,44 +164,44 @@ Homey Energy counts a device's `meter_power` as consumption unless the driver's 
 
 Added only while the device setting **Show diagnostic sensors** *(proposed, default off)* is on. What happens when it is switched off again is Q12.
 
-| # | Viessmann feature | Property | Unit / type | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | Notes |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | `heating.circuits.N.frostprotection` ⓒ | `status` | `on`/`off` → boolean | HP, Gas 3/3, FC | Basic | `measure_frost_active.circuit0` | Frost protection | ✓ / – | |
-| 2 | `heating.boiler.temperature` | `value` | °C | Gas 3/3 | Basic | `measure_temperature.boilerTarget` (Q9) | Boiler set temperature | ✓ / – | Values 5 °C and 15 °C in the dumps look like a set point, not a measurement. |
-| 3 | `heating.compressors.N.sensors.temperature.inlet` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorInlet` | Compressor inlet temperature | ✓ / – | Replaces deprecated `heating.sensors.temperature.suctionGas`. |
-| 4 | `heating.compressors.N.sensors.temperature.outlet` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorOutlet` | Compressor outlet temperature | ✓ / – | Replaces deprecated `heating.sensors.temperature.hotGas`. |
-| 5 | `heating.compressors.N.sensors.temperature.ambient` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorAmbient` | Compressor ambient temperature | ✓ / – | |
-| 6 | `heating.compressors.N.sensors.temperature.overheat` | `value` | °C (a difference, K) | HP (2025+) | Basic | `measure_temperature.compressorOverheat` | Compressor superheat | ✓ / – | A temperature difference although the API says celsius. |
-| 7 | `heating.evaporators.N.sensors.temperature.overheat` | `value` | °C (a difference, K) | HP (2025+) | Basic | `measure_temperature.evaporatorOverheat` | Evaporator superheat | ✓ / – | As #6. |
-| 8 | `heating.compressors.N.sensors.pressure.inlet` | `value` | bar | HP (2025+) | Basic | `measure_pressure.compressorInlet` | Compressor inlet pressure | ✓ / – | Replaces deprecated `heating.sensors.pressure.suctionGas`. Units as Q2. |
-| 9 | `heating.compressors.N.statistics.load` | `hoursLoadClassOne` … `hoursLoadClassFive` | hours | HP (2025+) | Basic | `measure_compressor_number.compressorLoadClass1Hours` … `compressorLoadClass5Hours` | Compressor hours load class 1 … 5 | – / – | Five counters. |
-| 10 | `heating.primaryCircuit.sensors.rotation` | `value` | % | HP (2025+) | Basic | `measure_pump_number.primaryRotation` | Primary circuit speed | ✓ / – | ID from roadmap 2.6, but Viessmann describes it as *fan* speed, which fits this air-source unit (Q3). |
-| 11 | `heating.device.mainECU` | `runtime` | seconds → hours (÷ 3600) | HP (2025+) | Basic | `measure_controller_number.mainEcuHours` | Controller runtime | – / – | A growing counter, so it is polled here rather than read once (the roadmap lists it under "read once"). |
-| 12 | `heating.cop.cooling` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.cooling` | COP cooling | ✓ / – | 0 on this installation. |
-| 13 | `heating.cop.photovoltaic` | `value` | number | HP (2026 only) | Basic | `measure_cop_number.photovoltaic` | COP photovoltaic | ✓ / – | Replaces deprecated `heating.cop.green`. 0 on this installation. |
-| 14 | `heating.dhw.pumps.primary` | `status` | `on`/`off` → boolean | HP (2024 only), Gas 1/3 (legacy) | Basic | `measure_pump_active.dhwPrimary` | Hot water primary pump | ✓ / – | Gone from the heat pump after 2024. |
-| 15 | `heating.circuits.N.circulation.secondaryPump` ⓒ | `status` | `on`/`off` → boolean | FC | Basic | `measure_pump_active.circuit0Secondary` | Secondary circulation pump | ✓ / – | |
-| 16 | `heating.sensors.temperature.allengra` | `value` | °C | FC | Basic + Adv | `measure_temperature.allengraReturn` | Return temperature (flow sensor) | ✓ / – | Return temperature measured by the flow sensor. |
-| 17 | `heating.sensors.volumetricFlow.allengra` | `value` | l/h → L/min (÷ 60) | FC | Basic | `measure_water.volumetricFlow` | Return flow | ✓ / – | `measure_water` is a flow in L/min. |
+| # | Viessmann feature | Property | Unit / type | Seen in | Plan | Capability ID *(proposed)* | Title (en) | Insights / tag | UI | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `heating.circuits.N.frostprotection` ⓒ | `status` | `on`/`off` → boolean | HP, Gas 3/3, FC | Basic | `measure_frost_active.circuit0` | Frost protection | ✓ / – | sensor · ind · uiState off | |
+| 2 | `heating.boiler.temperature` | `value` | °C | Gas 3/3 | Basic | `measure_temperature.boilerTarget` (Q9) | Boiler set temperature | ✓ / – | sensor · ind | Values 5 °C and 15 °C in the dumps look like a set point, not a measurement. |
+| 3 | `heating.compressors.N.sensors.temperature.inlet` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorInlet` | Compressor inlet temperature | ✓ / – | sensor · ind | Replaces deprecated `heating.sensors.temperature.suctionGas`. |
+| 4 | `heating.compressors.N.sensors.temperature.outlet` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorOutlet` | Compressor outlet temperature | ✓ / – | sensor · ind | Replaces deprecated `heating.sensors.temperature.hotGas`. |
+| 5 | `heating.compressors.N.sensors.temperature.ambient` | `value` | °C | HP (2025+) | Basic | `measure_temperature.compressorAmbient` | Compressor ambient temperature | ✓ / – | sensor · ind | |
+| 6 | `heating.compressors.N.sensors.temperature.overheat` | `value` | °C (a difference, K) | HP (2025+) | Basic | `measure_temperature.compressorOverheat` | Compressor superheat | ✓ / – | sensor · ind | A temperature difference although the API says celsius. |
+| 7 | `heating.evaporators.N.sensors.temperature.overheat` | `value` | °C (a difference, K) | HP (2025+) | Basic | `measure_temperature.evaporatorOverheat` | Evaporator superheat | ✓ / – | sensor · ind | As #6. |
+| 8 | `heating.compressors.N.sensors.pressure.inlet` | `value` | bar | HP (2025+) | Basic | `measure_pressure.compressorInlet` | Compressor inlet pressure | ✓ / – | sensor · ind | Replaces deprecated `heating.sensors.pressure.suctionGas`. Units as Q2. |
+| 9 | `heating.compressors.N.statistics.load` | `hoursLoadClassOne` … `hoursLoadClassFive` | hours | HP (2025+) | Basic | `measure_compressor_number.compressorLoadClass1Hours` … `compressorLoadClass5Hours` | Compressor hours load class 1 … 5 | – / – | sensor · ind | Five counters. |
+| 10 | `heating.primaryCircuit.sensors.rotation` | `value` | % | HP (2025+) | Basic | `measure_pump_number.primaryRotation` | Primary circuit speed | ✓ / – | sensor · ind | ID from roadmap 2.6, but Viessmann describes it as *fan* speed, which fits this air-source unit (Q3). |
+| 11 | `heating.device.mainECU` | `runtime` | seconds → hours (÷ 3600) | HP (2025+) | Basic | `measure_controller_number.mainEcuHours` | Controller runtime | – / – | sensor · ind | A growing counter, so it is polled here rather than read once (the roadmap lists it under "read once"). |
+| 12 | `heating.cop.cooling` | `value` | number | HP (2025+) | Basic + Adv | `measure_cop_number.cooling` | COP cooling | ✓ / – | sensor · ind | 0 on this installation. |
+| 13 | `heating.cop.photovoltaic` | `value` | number | HP (2026 only) | Basic | `measure_cop_number.photovoltaic` | COP photovoltaic | ✓ / – | sensor · ind | Replaces deprecated `heating.cop.green`. 0 on this installation. |
+| 14 | `heating.dhw.pumps.primary` | `status` | `on`/`off` → boolean | HP (2024 only), Gas 1/3 (legacy) | Basic | `measure_pump_active.dhwPrimary` | Hot water primary pump | ✓ / – | sensor · ind · uiState off | Gone from the heat pump after 2024. |
+| 15 | `heating.circuits.N.circulation.secondaryPump` ⓒ | `status` | `on`/`off` → boolean | FC | Basic | `measure_pump_active.circuit0Secondary` | Secondary circulation pump | ✓ / – | sensor · ind · uiState off | |
+| 16 | `heating.sensors.temperature.allengra` | `value` | °C | FC | Basic + Adv | `measure_temperature.allengraReturn` | Return temperature (flow sensor) | ✓ / – | sensor · ind | Return temperature measured by the flow sensor. |
+| 17 | `heating.sensors.volumetricFlow.allengra` | `value` | l/h → L/min (÷ 60) | FC | Basic | `measure_water.volumetricFlow` | Return flow | ✓ / – | sensor · ind | `measure_water` is a flow in L/min. |
 
 ## 2d. Controls (later, Flow actions)
 
 Commands seen in the dumps. Ranges differ between devices, so the app must read `params.*.constraints` and `isExecutable` from the feature at runtime, never hard-code them (roadmap 1.5). Ordered by installation coverage.
 
-| # | Viessmann feature | Command(s) → params (constraints) | Seen in (executable) | Plan | Proposed exposure | Notes |
-|---|---|---|---|---|---|---|
-| 1 | `heating.circuits.N.heating.curve` ⓒ | `setCurve(slope, shift)`: slope 0–3.5 (HP) or 0.2–3.5 (gas, FC), step 0.1; shift −15…40 (HP) or −13…40 (gas, FC), step 1; both required | HP, Gas 3/3, FC (all) | Basic + Ctrl | Actions "Set curve shift to X", "Adjust curve shift by ±N", "Set curve slope to X"; read-back `measure_curve_number.circuit0Shift`, `.circuit0Slope` *(proposed)* | Roadmap 3.2. Send the current value of the other parameter. Rate-limit: it writes to the controller. |
-| 2 | `heating.circuits.N.operating.programs.reduced` ⓒ | `setTemperature(targetTemperature)`: 10–30 (HP) or 3–37 (gas, FC), step 1 | HP, Gas 3/3, FC (all) | Basic + Ctrl | `target_temperature.heatingReduced` *(proposed)* + action | Same pattern as `target_temperature.heating`; reads `temperature`. |
-| 3 | `heating.circuits.N.operating.programs.comfort` ⓒ | `activate(temperature?)`, `deactivate()`, `setTemperature(targetTemperature)`: ranges as #2 (4–37 on the legacy boiler) | HP, Gas 3/3, FC; `activate`/`deactivate` **not executable** on E3 gas and FC | Basic + Ctrl | `target_temperature.heatingComfort` *(proposed)*; actions "Start / stop comfort program" | Roadmap 3.3. |
-| 4 | `heating.circuits.N.operating.programs.eco` ⓒ | `activate()`, `deactivate()` | HP, Gas 1/3 (legacy); E3 gas lists the program without commands | Basic + Ctrl | Actions "Start / stop eco program" | Roadmap 3.3. |
-| 5 | `heating.operating.programs.holiday` | `schedule(start, end)`: dates `YYYY-MM-DD`, `sameDayAllowed` false (HP, legacy gas) / true (E3); `unschedule()`; `changeEndDate(end)` | All; `changeEndDate` not executable anywhere | Basic + Ctrl | Actions "Schedule holiday from … to …", "Cancel holiday"; condition "Holiday program is active" (reads `active`) | Roadmap 3.3. |
-| 6 | `heating.operating.programs.holidayAtHome` | as #5 | Gas 2/3 (E3), FC | Basic + Ctrl | As #5, "at home" variant | Has priority over holiday when both overlap (official description). |
-| 7 | `heating.circuits.N.operating.programs.forcedLastFromSchedule` ⓒ | `activate()`, `deactivate()` | Gas 2/3 (E3), FC | Basic + Ctrl | Actions "Keep current schedule program" / "Resume schedule" (titles to be refined) | Keeps the last scheduled program until deactivated. |
-| 8 | `heating.dhw.operating.modes.active` | `setMode(mode)`: enum `balanced`, `off` in the dumps; the official list also has `efficient`, `efficientWithMinComfort` | Gas 2/3 (E3), FC | Basic + Ctrl | `thermostat_mode.hotWater` *(proposed)*, values from the command's enum; action with autocomplete | Like roadmap 1.8 (autocomplete, no static dropdown). Enum `values` in `capabilitiesOptions` need Homey ≥ 12.0.1. |
-| 9 | `heating.dhw.hygiene` | `enable()`, `disable()`, `activate()`; executability follows the current state | Gas 2/3 (E3), FC | Basic + Ctrl | `measure_dhw_active.hygiene` *(proposed)* from `active`; actions "Run hot water hygiene now", "Enable / disable hygiene function" | Anti-legionella heating to the hygiene set point. |
-| 10 | `heating.dhw.temperature.hysteresis` | `setHysteresis(hysteresis)`: 1–10 K, step 0.5; `setHysteresisSwitchOnValue(hysteresis)`: same; `setHysteresisSwitchOffValue`: not executable | HP | Basic + Ctrl | Action "Set hot water hysteresis" | Roadmap 3.3. |
-| 11 | `heating.dhw.temperature.hygiene` | `setTemperature(targetTemperature)`: 10–85, step 1 | Gas 1/3 (E3) | Basic + Ctrl | `target_temperature.hotWaterHygiene` *(proposed)*, low priority | |
-| 12 | `heating.increasedReturn.temperature` | `setTargetTemperature(temperature)`: 10–95, step 1 | FC | Basic + Ctrl | None for now | Installer-level return-temperature set point; low value for Flows. |
+| # | Viessmann feature | Command(s) → params (constraints) | Seen in (executable) | Plan | Proposed exposure | UI | Notes |
+|---|---|---|---|---|---|---|---|
+| 1 | `heating.circuits.N.heating.curve` ⓒ | `setCurve(slope, shift)`: slope 0–3.5 (HP) or 0.2–3.5 (gas, FC), step 0.1; shift −15…40 (HP) or −13…40 (gas, FC), step 1; both required | HP, Gas 3/3, FC (all) | Basic + Ctrl | Actions "Set curve shift to X", "Adjust curve shift by ±N", "Set curve slope to X"; read-back `measure_curve_number.circuit0Shift`, `.circuit0Slope` *(proposed)* | read-back: sensor · ind | Roadmap 3.2. Send the current value of the other parameter. Rate-limit: it writes to the controller. |
+| 2 | `heating.circuits.N.operating.programs.reduced` ⓒ | `setTemperature(targetTemperature)`: 10–30 (HP) or 3–37 (gas, FC), step 1 | HP, Gas 3/3, FC (all) | Basic + Ctrl | `target_temperature.heatingReduced` *(proposed)* + action | thermostat (unpaired, see 5b) | Same pattern as `target_temperature.heating`; reads `temperature`. |
+| 3 | `heating.circuits.N.operating.programs.comfort` ⓒ | `activate(temperature?)`, `deactivate()`, `setTemperature(targetTemperature)`: ranges as #2 (4–37 on the legacy boiler) | HP, Gas 3/3, FC; `activate`/`deactivate` **not executable** on E3 gas and FC | Basic + Ctrl | `target_temperature.heatingComfort` *(proposed)*; actions "Start / stop comfort program" | thermostat (unpaired, see 5b) | Roadmap 3.3. |
+| 4 | `heating.circuits.N.operating.programs.eco` ⓒ | `activate()`, `deactivate()` | HP, Gas 1/3 (legacy); E3 gas lists the program without commands | Basic + Ctrl | Actions "Start / stop eco program" | — | Roadmap 3.3. |
+| 5 | `heating.operating.programs.holiday` | `schedule(start, end)`: dates `YYYY-MM-DD`, `sameDayAllowed` false (HP, legacy gas) / true (E3); `unschedule()`; `changeEndDate(end)` | All; `changeEndDate` not executable anywhere | Basic + Ctrl | Actions "Schedule holiday from … to …", "Cancel holiday"; condition "Holiday program is active" (reads `active`) | — | Roadmap 3.3. |
+| 6 | `heating.operating.programs.holidayAtHome` | as #5 | Gas 2/3 (E3), FC | Basic + Ctrl | As #5, "at home" variant | — | Has priority over holiday when both overlap (official description). |
+| 7 | `heating.circuits.N.operating.programs.forcedLastFromSchedule` ⓒ | `activate()`, `deactivate()` | Gas 2/3 (E3), FC | Basic + Ctrl | Actions "Keep current schedule program" / "Resume schedule" (titles to be refined) | — | Keeps the last scheduled program until deactivated. |
+| 8 | `heating.dhw.operating.modes.active` | `setMode(mode)`: enum `balanced`, `off` in the dumps; the official list also has `efficient`, `efficientWithMinComfort` | Gas 2/3 (E3), FC | Basic + Ctrl | `thermostat_mode.hotWater` *(proposed)*, values from the command's enum; action with autocomplete | picker (titles ≤ 3 words, see 5c) | Like roadmap 1.8 (autocomplete, no static dropdown). Enum `values` in `capabilitiesOptions` need Homey ≥ 12.0.1. |
+| 9 | `heating.dhw.hygiene` | `enable()`, `disable()`, `activate()`; executability follows the current state | Gas 2/3 (E3), FC | Basic + Ctrl | `measure_dhw_active.hygiene` *(proposed)* from `active`; actions "Run hot water hygiene now", "Enable / disable hygiene function" | read-back: sensor · ind · uiState off | Anti-legionella heating to the hygiene set point. |
+| 10 | `heating.dhw.temperature.hysteresis` | `setHysteresis(hysteresis)`: 1–10 K, step 0.5; `setHysteresisSwitchOnValue(hysteresis)`: same; `setHysteresisSwitchOffValue`: not executable | HP | Basic + Ctrl | Action "Set hot water hysteresis" | — | Roadmap 3.3. |
+| 11 | `heating.dhw.temperature.hygiene` | `setTemperature(targetTemperature)`: 10–85, step 1 | Gas 1/3 (E3) | Basic + Ctrl | `target_temperature.hotWaterHygiene` *(proposed)*, low priority | thermostat (unpaired, see 5b) | |
+| 12 | `heating.increasedReturn.temperature` | `setTargetTemperature(temperature)`: 10–95, step 1 | FC | Basic + Ctrl | None for now | — | Installer-level return-temperature set point; low value for Flows. |
 
 Commands seen but not worth exposing: `heating.compressors.N` `setActive` / `setPhase` (not executable on legacy), `heating.circuits.N.temperature.levels` `setMin` / `setMax` / `setLevels` (installer limits; not executable on E3), `heating.circuits.N` / `.name` `setName`, `heating.dhw.hygiene.trigger` `triggerDaily` / `triggerOncePerWeek`, schedule `setSchedule` / `resetSchedule` / `resetDay`, `device.serial` `setPrin`.
 
@@ -390,7 +391,114 @@ Sketches in the style of `.homeycompose/capabilities/*.json`. The first three ar
 
 System capabilities reused (no new definition): `measure_temperature`, `target_temperature`, `thermostat_mode`, `measure_pressure` (unit override, Q2), `measure_water`, `measure_power`, `meter_power`, `meter_gas`. Existing custom bases reused: `measure_compressor_number`.
 
-## 5. Open questions
+The boolean sketches leave out `uiState` on purpose: none of them should drive the device tile ([5a](#5a-tile-state-uistate-for-running-booleans)), and with today's `compatibility: ">=10.0.0"` the key fails publish validation.
+
+## 5. UI improvements for existing and new capabilities
+
+Source: [Homey SDK: Capabilities](https://apps.developer.homey.app/the-basics/devices/capabilities) (sections Custom capabilities, Device indicators, UI components, Maintenance actions), read 2026-11-25. "Validated" below means: checked with `homey app validate --level publish` (Homey CLI 4.4.0) on a scratch copy of the app with today's `compatibility: ">=10.0.0"`, options declared in the driver's static `capabilitiesOptions`. Nothing was run on a Homey, so runtime behavior is marked *to verify*.
+
+Facts that shape every item below:
+
+- The driver declares no capabilities statically; every capability is added at runtime (`setCapabilityOptions` + `addCapability` in `initializeCapabilities`). Static manifest options never reach existing devices; runtime options are the lever.
+- Today `initializeCapabilities` removes every capability that no `PATHS` entry produces. Buttons and alarms that are not tied to a feature path therefore depend on the roadmap's add-only fix (principle 2), or they are removed again at the next app start.
+- Device indicators are chosen by the user in the Homey app. Numbers starting with `measure_`/`meter_` show with their unit, `alarm_*` booleans are grouped behind a warning icon, custom booleans and numbers can also be indicators; strings cannot. Class `heater` is not one of the classes with a fixed indicator.
+- Sub-capabilities get no automatic Flow cards; every trigger, condition and action for them is defined explicitly.
+
+### 5a. Tile state (`uiState`) for "running" booleans
+
+**Proposal.** `uiState: true` on `measure_compressor_active` and `measure_burner_active`, so the device tile shows the device as active while the heat generator runs. Not on `measure_pump_active`, `measure_dhw_active` or `measure_frost_active`: the circuit pump runs for most of the heating season, so the tile would be "on" almost permanently. Fuel cell: no `active` datapoint in the dumps; the existing but unused base `measure_fuelcell_active` could be fed from `fuelCell.operating.phase` (e.g. `generation` → true) and get `uiState` too (Q20). When several booleans have `uiState: true`, Homey uses the first one in the device's capability list. Here that is the order in which capabilities were added (compressor before burner in `PATHS`), which suits hybrid systems.
+
+**Non-breaking.** IDs, Flows and Insights are unchanged; only the tile changes. No capability is the tile state today (all booleans have `uiQuickAction: false`), so nothing is displaced.
+
+**Version.** `uiState` exists from Homey v13.5.0. Validated: `uiState` in the capability JSON or in static `capabilitiesOptions` fails publish validation ("requires a compatibility of at least >=13.5.0"). Two ways forward:
+
+1. Raise `compatibility` to `>=13.5.0`. Users on older Homey versions stay on the last compatible app version (roadmap Phase 4, "Raising compatibility").
+2. Keep `>=10.0.0` and set it at runtime with `setCapabilityOptions(id, { ...options, uiState: true })` only when `this.homey.version` is at least 13.5.0. The validator does not see runtime options. *To verify:* whether Homey below 13.5.0 ignores or rejects the unknown option (wrap it in try/catch either way), and whether the option takes effect on an existing capability without re-adding it.
+
+Recommendation: option 2 now, option 1 when compatibility is raised for other reasons (Q14).
+
+### 5b. Thermostat pairing by dot suffix
+
+The thermostat component pairs `target_temperature.X` with `measure_temperature.X`; the suffixes must be identical.
+
+| Set point | Measured value | State |
+|---|---|---|
+| `target_temperature.hotWater` | `measure_temperature.hotWater` | Paired. |
+| `target_temperature.hotWater2` | — | Unpaired. Temp 2 is a second set point for the same cylinder; pairing would need a duplicate. Leave as is. |
+| `target_temperature.heating` | room temperature is `measure_temperature.circuit0_room` | Unpaired: the heating dial shows no current temperature. |
+| `target_temperature.heatingReduced`, `.heatingComfort`, `.hotWaterHygiene` *(proposed, 2d)* | — | Would be unpaired, and each adds another dial. |
+
+Renaming is ruled out: both heating IDs are frozen. Options for heating:
+
+- **A. Additive.** New `measure_temperature.heating` *(proposed)*, fed from the same path as `circuit0_room` (`heating.circuits.N.sensors.temperature.room`) and added only where that sensor is connected (2 of 5 installations in the dumps). Set `preventInsights: true` and `preventTag: true` on it, so Insights and Flow tokens are not doubled; `circuit0_room` keeps its history. Trade-off: the same value appears twice on the device, one more ID is frozen forever, and "set/read capability" style Flows offer two room temperatures. *To verify:* whether `uiComponent: null` on the duplicate keeps it in the dial but out of the sensor list.
+- **B. Leave unpaired** (today).
+- **New circuit devices** (roadmap 3.1 step 2) have no frozen IDs yet: pair them from the start.
+
+Two related notes. `target_temperature.heating` is the set point of the *normal* program; while reduced or comfort runs it is not the current target, which the dial does not show. For the proposed reduced, comfort and hygiene set points, Flow actions without a dial (or `uiComponent: null`, see 5g) avoid three extra dials (Q15).
+
+### 5c. Picker titles (at most 3 words)
+
+Picker value titles must fit on one line and be at most 3 words. Only titles change; value IDs, which saved Flows store, stay the same, and `thermostat_mode` has Insights prevented.
+
+| Capability | Value ID | Title today | Proposed title |
+|---|---|---|---|
+| `thermostat_mode.heating` | `dhw` | Hot water | Hot water only (matches the Flow card) |
+| | `heating` | Heating | Heating only (matches the Flow card) |
+| | `dhwAndHeating` | Hot water and heating (4 words; "Hot water and Heating" on devices migrated from 1.0.2) | Heating & hot water |
+| | `standby` | Standby | unchanged |
+| | `forcedNormal` | Forced Normal (generated) | Always normal (meaning to confirm) |
+| | `forcedReduced` | Forced Reduced (generated) | Always reduced (meaning to confirm) |
+| | `normalStandby` | Normal Standby (generated) | Standby (normal) (meaning to confirm) |
+| `thermostat_mode.hotWaterOneTimeCharge` | `activate` / `deactivate` | Active / Inactive | unchanged |
+| `thermostat_mode.fuelCell` | all five | Standby, Maintenance, Heat controlled, Economical, Ecological | unchanged |
+| `thermostat_mode.hotWater` *(proposed)* | `balanced`, `off`, `efficient`, `efficientWithMinComfort` | — | Balanced, Off, Efficient, Efficient, min comfort |
+
+How titles reach devices: `config.js` titles are applied only when a capability is added. `initializeOperatingModes` keeps the titles already on the device and appends modes from the store with titles generated at pairing (`formatString` in `driver.js`: "Forced Normal", "Normal Standby"). Existing devices therefore need a one-time migration in `checkUpgradeSpecifics` that rewrites the `title` of known value IDs and leaves unknown IDs alone. One title map in `config.js` should feed the capability values, the stored `operatingModes` and the autocomplete of the planned `set-operating-mode-v2` card (roadmap 1.8). Q19.
+
+### 5d. "Heat hot water now" button
+
+**Proposal.** `button.dhwBoost` *(proposed)*: a stateless button (system `button`, setable, not getable) titled "Heat hot water now" that sends `heating.dhw.oneTimeCharge` → `activate` (executable on every installation in the dumps). Added only where `heating.dhw.oneTimeCharge` exists. Validated. The existing Flow action `do-one-time-hot-water-charge` already covers Flows, so the button only serves the device view; it needs no Flow card of its own.
+
+**Coexistence.** `thermostat_mode.hotWaterOneTimeCharge` (picker Active/Inactive) stays: it also shows whether a charge is running and can cancel it.
+
+**What retiring the old picker later would take:**
+
+1. It is frozen; removal only through `RETIRED_CAPABILITIES` with a comment, guarded by the registry test (roadmap principles 2 and 5).
+2. The Flow action `do-one-time-hot-water-charge` finds its feature path *through this capability's entry in `FEATURES`* (action listener in `driver.js`). Rewire it to the path first, or the card stops working.
+3. If the card gets a `$filter` on this capability (roadmap 1.12), change the filter too, or the card disappears from devices without the capability and saved Flows break.
+4. Users' Advanced Flows, scripts and dashboards that use the capability directly break. Insights loses nothing (`preventInsights: true`).
+5. The picker is the only place that shows a running charge on E3 devices; `measure_dhw_active.charging` (2a #4) covers that only on the heat pump and the legacy boiler.
+
+Lower-risk alternative: never remove it; hide it with `uiComponent: null` (5g) once the button exists (Q16).
+
+### 5e. Maintenance action "Refresh Viessmann features"
+
+**Proposal** (roadmap 3.5). `button.refreshFeatures` *(proposed)* with options `{ "maintenanceAction": true, "title": { "en": "Refresh Viessmann features" }, "desc": { "en": "Reads the datapoints from Viessmann again and adds new sensors. Nothing is removed." } }`. It appears under *Device settings > Maintenance actions*, not in the device view. Needs Homey 3.1.0 or later. Validated.
+
+**Listener.** Fetch the features unfiltered (roadmap 1.2), merge `features`, `constraints` and `operatingModes` into the store as a union (principle 3), re-read the static configuration (2e), run the add-only capability init and re-apply the operating modes. Throw an `Error` with a readable message on failure; the user sees it. Rate-limit it (e.g. once per 10 minutes), because each refresh uses API calls from the daily quota.
+
+**Rollout.** Add it at runtime for all devices in `onOAuth2Init`, with the options set through `setCapabilityOptions`. *To verify:* that `maintenanceAction` is accepted as a runtime option. Otherwise declare it in `driver.compose.json` (`capabilities` + `capabilitiesOptions`) for new pairings and add it in a migration for existing devices. Depends on the add-only fix. Non-breaking: a new capability only.
+
+### 5f. Alarms
+
+`alarm_*` booleans get the grouped warning indicator and flash red in the sensor list while true. Validated as sub-capabilities.
+
+| Capability *(proposed)* | Source | Seen in | Notes |
+|---|---|---|---|
+| `alarm_generic.fault` | `device.messages.errors.raw`: true while `entries[]` is non-empty | HP (2024 only), Gas 3/3, FC | Not in the official list, and gone from the newer heat-pump snapshots. Candidates for newer devices: `device.messages.status.raw`, `.service.raw`, `.info.raw`, `heating.burners.N.errorStatus` (official list, not yet in a dump). Error codes as trigger tokens; ties in with the logbook trigger (roadmap 3.4). |
+| `alarm_generic.lowPressure` | `heating.sensors.pressure.supply` below a threshold set in the device settings | Gas 1/3 (E3), FC | Compares a real measurement, but the threshold is the app's choice, not Viessmann's; a wrong default gives false alarms. Alternative: only a Flow condition "System pressure is below X bar" on `measure_pressure.system`. |
+
+Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm turned on / off") and a condition ("Fault alarm is on") explicitly, with a `$filter`. Alarm booleans are logged in Insights by default, which is useful here. `alarm_generic.lowPressure` is not produced by a feature path, so it depends on the add-only fix (Q17).
+
+### 5g. Hiding diagnostic capabilities (`uiComponent: null`)
+
+`uiComponent: null` hides a capability's UI component; the value stays available to Insights and Flows (whether it can still be an indicator is *to verify*). It complements the **Show diagnostic sensors** setting:
+
+- **Custom bases:** the SDK documents `uiComponent` in the capability definition, which applies to *every* sub-capability of that base. `measure_compressor_number` carries both everyday values (hours, starts, modulation) and proposed diagnostic ones (load classes), so hiding at base level would also hide tiles that show today: not breaking for IDs, but a visible change. A diagnostic-only base such as `measure_controller_number` can set it in its definition.
+- **System capabilities** (`measure_temperature.compressorInlet`, `measure_pressure.compressorInlet`, `measure_water.volumetricFlow`, …) have no definition of their own, so it would have to be a per-device option. The SDK page does not show `uiComponent` in `capabilitiesOptions`, but the CLI accepts it there for a `measure_temperature.*` sub-capability (validated). *To verify:* whether `setCapabilityOptions` applies it at runtime, per device, which is what this app needs.
+- **If it works per device**, the setting could have three values: Off (not added), Insights only (added with `uiComponent: null`), Show (added and visible). If it does not, keep the two-state setting (Q18).
+
+## 6. Open questions
 
 1. **Advanced-only datapoints** that do appear in real dumps (flue temperature, current fuel-cell production, fuel-cell gas): map them "where present", or leave them out because Advanced packages are discontinued?
 2. **Pressure in bar:** `measure_pressure` with units overridden to `bar` (proposed), convert to the system unit mbar, or a custom `measure_pressure_number`?
@@ -405,6 +513,13 @@ System capabilities reused (no new definition): `measure_temperature`, `target_t
 11. **Roadmap correction:** `heating.configuration.temperature.outside.DampingFactor` and `heating.configuration.heatingRod.*` are flagged deprecated in the 2026-11 dump. Remove them from "read once at pairing"?
 12. **Diagnostic setting switched off:** remove the diagnostic capabilities (user-initiated, Insights history is lost; warn in the setting hint) or keep them and stop updating? Principle 2 only covers automatic removal.
 13. **Program as `string` or `enum`:** string (proposed) tolerates unknown program ids but is not logged in Insights and gives no dropdown in Flows; enum needs a per-device value list and Homey ≥ 12.0.1.
+14. **Tile state:** set `uiState` at runtime only on Homey ≥ 13.5.0 (recommended), or raise `compatibility` to `>=13.5.0`?
+15. **Heating thermostat:** add a duplicate `measure_temperature.heating` (Insights and tag prevented) so the dial shows the room temperature, or leave it unpaired? And should the reduced, comfort and hygiene set points get dials at all, or be Flow-only?
+16. **One-time charge:** once `button.dhwBoost` exists, keep the picker, hide it, or retire it (steps in 5d)?
+17. **Alarms:** `alarm_generic.lowPressure` with which default threshold, or only a Flow condition? Which datapoint should drive `alarm_generic.fault` on devices without `device.messages.errors.raw`?
+18. **Diagnostic visibility:** a three-level setting (Off / Insights only / Show) if per-device `uiComponent: null` works at runtime?
+19. **Mode titles:** confirm the meaning and English wording of `forcedNormal`, `forcedReduced` and `normalStandby`. Is "Heating & hot water" acceptable under the 3-word rule?
+20. **Fuel-cell tile state:** feed `measure_fuelcell_active` from `fuelCell.operating.phase`, and which phases count as running?
 
 ## Refreshing this catalogue
 

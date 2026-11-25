@@ -3,7 +3,7 @@
 'use strict';
 
 /*
- * Keeps scripts/featureCoverage.js (used to refresh docs/DATAPOINTS.md) working against the
+ * Keeps scripts/featureCoverage.js (used to keep the datapoint catalogue up to date) working against the
  * anonymized fixtures and the current drivers/vicare/config.js.
  */
 

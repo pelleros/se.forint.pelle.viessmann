@@ -33,11 +33,13 @@ module.exports = {
   },
 
   async getFeatures({ homey, body }) {
-    console.log('Received body:', body);
+    if (process.env.DEBUG) {
+      homey.log('getFeatures API body:', body);
+    }
     try {
       const { deviceId } = body;
       if (!deviceId) throw new Error('Device ID is required');
-      
+
       const driver = homey.drivers.getDriver('vicare');
       const devices = driver.getDevices();
       const device = devices.find((d) => d.getData().id === deviceId);

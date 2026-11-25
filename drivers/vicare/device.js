@@ -358,7 +358,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     };
   }
 
-  async onFeaturesUpdated(rawResponse, extendedResponse) {
+  async onFeaturesUpdated(rawResponse, extendedResponse, { triggers = true } = {}) {
     try {
       const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
       const commands = { ...this._commands };
@@ -422,7 +422,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
             if (process.env.DEBUG) {
               // this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
             }
-            await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+            await this.setCapabilityValueIfPossible(capability.capabilityName, value, { trigger: triggers });
           } else if (process.env.DEBUG) {
             this.log(`No value found for capability: ${capability.capabilityName}, path: ${capability.propertyPath}`);
           }
@@ -502,7 +502,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return null;
   }
 
-  async setCapabilityValueIfPossible(capabilityName, value) {
+  // `trigger: false` updates the value without firing its trigger card
+  async setCapabilityValueIfPossible(capabilityName, value, { trigger = true } = {}) {
     try {
       if (this.hasCapability(capabilityName)) {
         const capability = this.getConfigCapabilityByName(capabilityName);
@@ -520,6 +521,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           }
 
           await this.setCapabilityValue(capabilityName, processedValue);
+          if (!trigger) return;
 
           try {
             const triggerCard = this.driver.getTriggerCard(capabilityName);
@@ -608,15 +610,38 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       operatingModes: this._operatingModes,
       commandMetadata: this._commands,
     };
+    const circuitChanged = metadata.heatingCircuitId !== previous.heatingCircuitId;
     try {
       await this.applyCircuitMetadata(metadata);
-      // Show the new circuit's values now, without waiting for (or adding) a poll
-      await this.onFeaturesUpdated(response, false);
+      if (circuitChanged) await this.clearValuesNotReportedBy(fresh.features);
+      // Show the new circuit's values now, without waiting for (or adding) a poll. A different
+      // mode on the new circuit is not a mode change, so heating-mode-changed does not fire.
+      await this.onFeaturesUpdated(response, false, { triggers: !circuitChanged });
     } catch (error) {
       await this.applyCircuitMetadata(previous);
       throw error;
     } finally {
       this.resumePolling();
+    }
+  }
+
+  /*
+    After switching circuits, per-circuit capabilities whose feature the new circuit does not
+    report would keep showing the old circuit's values. Their values become unknown (null);
+    the capabilities themselves stay.
+  */
+  async clearValuesNotReportedBy(reportedFeatures = []) {
+    for (const [path, feature] of Object.entries(FEATURES)) {
+      if (!path.startsWith('heating.circuits.0.') || reportedFeatures.includes(path)) continue;
+      for (const { capabilityName } of feature.capabilities) {
+        if (this.hasCapability(capabilityName) && this.getCapabilityValue(capabilityName) !== null) {
+          try {
+            await this.setCapabilityValue(capabilityName, null);
+          } catch (error) {
+            this.error(`Could not clear ${capabilityName}:`, error);
+          }
+        }
+      }
     }
   }
 

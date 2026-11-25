@@ -338,16 +338,16 @@ describe('a device that is deleted or unloaded while it initialises', () => {
 describe('switching the heating circuit while the device polls', () => {
   const HOUR = 60 * 60 * 1000;
 
-  // Circuits 0 and 1; circuit 1 is in reduced mode at 18 °C
-  function twoCircuits() {
+  // Circuits 0 and 1; circuit 1 is in reduced mode at 18 °C and has no room sensor
+  function twoCircuits({ modeOfCircuitOne = 'forcedReduced' } = {}) {
     const response = currentFeatures();
     const circuitOne = response.data
       .filter((item) => item.feature.startsWith('heating.circuits.0.'))
       .map((item) => JSON.parse(JSON.stringify({ ...item, feature: item.feature.replace('heating.circuits.0.', 'heating.circuits.1.') })));
-    circuitOne.find((item) => item.feature.endsWith('operating.modes.active')).properties.value.value = 'forcedReduced';
+    circuitOne.find((item) => item.feature.endsWith('operating.modes.active')).properties.value.value = modeOfCircuitOne;
     circuitOne.find((item) => item.feature.endsWith('operating.programs.normal')).properties.temperature.value = 18;
     response.data[0] = feature('heating.circuits', { enabled: { type: 'array', value: ['0', '1'] } });
-    response.data.push(...circuitOne);
+    response.data.push(feature(PATHS.HEATING_CIRCUIT_0_ROOM_TEMPERATURE, temperature(20.5)), ...circuitOne);
     return response;
   }
 
@@ -424,5 +424,43 @@ describe('switching the heating circuit while the device polls', () => {
     await jest.advanceTimersByTimeAsync(0);
     expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
     expect(pollCalls(device)).toHaveLength(2);
+  });
+
+  test('clears what the new circuit does not report and fires no mode trigger for the switch', async () => {
+    const state = { modeOfCircuitOne: 'forcedReduced' };
+    const { driver, device } = await pollingDevice(async () => twoCircuits(state));
+    const trigger = jest.fn(async () => {});
+    driver._triggerCards.set('thermostat_mode.heating', { trigger });
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBe(20.5);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhwAndHeating');
+
+    await switchToCircuitOne(device);
+
+    // Circuit 1 has no room sensor: the value is unknown now, the capability stays
+    expect(device.hasCapability('measure_temperature.circuit0_room')).toBe(true);
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBeNull();
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    // Values circuit 1 reports are shown, but the different mode is not a mode change
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('forcedReduced');
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(trigger).not.toHaveBeenCalled();
+
+    // A real mode change on circuit 1 later does fire the trigger
+    state.modeOfCircuitOne = 'dhw';
+    await jest.advanceTimersByTimeAsync(2 * 60 * 1000);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhw');
+    expect(trigger).toHaveBeenCalledTimes(1);
+    expect(trigger).toHaveBeenCalledWith(device, { mode: 'dhw' }, {});
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBeNull();
+  });
+
+  test('choosing the circuit it already uses clears nothing', async () => {
+    const { device } = await pollingDevice(async () => twoCircuits());
+
+    await device.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '0' } });
+
+    expect(device.getStoreValue('heatingCircuitId')).toBe('0');
+    expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBe(20.5);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhwAndHeating');
   });
 });

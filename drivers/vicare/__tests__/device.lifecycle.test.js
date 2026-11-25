@@ -246,7 +246,10 @@ describe('ViessmannDevice feature discovery on extended poll', () => {
   });
 
   test('stores a role-gated feature but only adds its capability when the role matches', async () => {
-    const device = await createInitializedDevice({ features: [PATHS.HOT_WATER_TEMP] });
+    // A boiler: its own role tag is trusted, so a compressor does not make it a heat pump
+    const device = await createInitializedDevice({
+      features: [PATHS.HOT_WATER_TEMP], roles: ['type:heating', 'type:dhw', 'type:boiler'],
+    });
 
     await device.onFeaturesUpdated({
       data: [feature(PATHS.COMPRESSOR, { active: { type: 'boolean', value: true } })],

@@ -23,6 +23,7 @@
 const { OAuth2Device } = require('homey-oauth2app');
 const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
+const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
@@ -105,13 +106,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       return;
     }
 
+    const roles = this.getRoles();
+    // Inferred roles (see roles.js) only ever add capabilities: without role tags of its own,
+    // a device keeps every capability whose feature is stored
+    const keepAllowed = (path) => !hasRoleTags(this._roles) || this.hasRequiredRole(path, roles);
+
     // Remove capabilities that are no longer in config or don't match device roles
     for (const existingCap of this.getCapabilities()) {
       let shouldKeep = false;
       for (const path of Object.values(PATHS)) {
         try {
           const capabilities = getAllCapabilities(path);
-          if (capabilities.some((cap) => cap.capabilityName === existingCap) && this.hasRequiredRole(path)) {
+          if (capabilities.some((cap) => cap.capabilityName === existingCap) && keepAllowed(path)) {
             if (this._features.includes(path)) {
               shouldKeep = true;
               break;
@@ -130,7 +136,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     // Add configured capabilities if device has required role and feature is enabled
     for (const path of Object.values(PATHS)) {
-      if (!this.hasRequiredRole(path) || !this._features.includes(path)) continue;
+      if (!this.hasRequiredRole(path, roles) || !this._features.includes(path)) continue;
 
       try {
         const capabilities = getAllCapabilities(path);
@@ -385,6 +391,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       if (extendedResponse) {
         await this.addNewFeatures(response);
       }
+      await this.addInferredRoles(response.data);
 
       for (const [capabilityName, reading] of this.readCapabilityValues(response)) {
         if (reading.value !== undefined) {
@@ -417,7 +424,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   readCapabilityValues(response) {
     const reported = new Map(response.data.map((feature) => [feature.feature, feature]));
     const absenceCounts = response.data.some((feature) => FEATURES[feature.feature]);
-    const roleAllows = ({ requireRole }) => !requireRole || (Array.isArray(this._roles) && this._roles.includes(requireRole));
+    const roles = this.getRoles();
+    const roleAllows = ({ requireRole }) => !requireRole || roles.includes(requireRole);
     const entries = Object.entries(FEATURES)
       .filter(([, featureConfig]) => roleAllows(featureConfig))
       .sort(([, a], [, b]) => Number(Boolean(a.fallbackFor)) - Number(Boolean(b.fallbackFor)));
@@ -494,9 +502,38 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  hasRequiredRole(featurePath) {
+  /*
+    Roles to check `requireRole` against: the stored roles or, when they contain no role tag
+    that FEATURES uses (newer models), roles inferred from the stored features and from
+    responses (see roles.js).
+  */
+  getRoles() {
+    return effectiveRoles(this._roles, [...inferRoles(this._features), ...(this._responseRoles || [])]);
+  }
+
+  hasRequiredRole(featurePath, roles = this.getRoles()) {
     const feature = FEATURES[featurePath];
-    return !feature.requireRole || this._roles.includes(feature.requireRole);
+    return !feature?.requireRole || roles.includes(feature.requireRole);
+  }
+
+  /*
+    A response can show a role that the stored features do not (e.g. `heating.compressors`
+    listing a compressor): remember it and add the capabilities it allows. Like addNewFeatures,
+    a failure is logged and must not make the device unavailable.
+  */
+  async addInferredRoles(featureData) {
+    try {
+      if (hasRoleTags(this._roles)) return;
+      const known = this.getRoles();
+      const learned = inferRoles([], featureData).filter((role) => !known.includes(role));
+      if (learned.length === 0) return;
+      this.log('Roles inferred from the features:', learned);
+      this._responseRoles = [...(this._responseRoles || []), ...learned];
+      await this.initializeCapabilities();
+      await this.registerCapabilityListeners();
+    } catch (error) {
+      this.error('Error adding capabilities for inferred roles:', error);
+    }
   }
 
   getConfigCapabilityByName(capabilityName) {

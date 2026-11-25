@@ -266,6 +266,20 @@ describe('Config funktioner', () => {
           },
         }],
       },
+      'heating.bufferCylinder.sensors.temperature.top': {
+        fallbackFor: 'heating.bufferCylinder.sensors.temperature.main',
+        capabilities: [{
+          capabilityName: 'measure_temperature.buffer',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'Buffer cylinder temperature' },
+            units: '°C',
+            decimals: 1,
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
       'heating.primaryCircuit.sensors.temperature.supply': {
         capabilities: [{
           capabilityName: 'measure_temperature.supply',
@@ -384,6 +398,7 @@ describe('Config funktioner', () => {
           if (expectedFeature.requireRole) {
             expect(actualFeature.requireRole).toBe(expectedFeature.requireRole);
           }
+          expect(actualFeature.fallbackFor).toBe(expectedFeature.fallbackFor);
 
           // Testa capabilities
           expect(actualFeature.capabilities).toHaveLength(expectedFeature.capabilities.length);

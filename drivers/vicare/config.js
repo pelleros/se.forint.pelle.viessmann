@@ -34,6 +34,7 @@ const PATHS = {
   HEATING_CIRCUIT_0_TEMPERATURE: 'heating.circuits.0.temperature',
   HEATING_CIRCUIT_0_SUPPLY_TEMPERATURE: 'heating.circuits.0.sensors.temperature.supply',
   BUFFER_TEMP: 'heating.bufferCylinder.sensors.temperature.main',
+  BUFFER_TEMP_TOP: 'heating.bufferCylinder.sensors.temperature.top',
   RETURN_TEMP: 'heating.sensors.temperature.return',
   PRIMARY_CIRCUIT_SUPPLY_TEMP: 'heating.primaryCircuit.sensors.temperature.supply',
   PRIMARY_CIRCUIT_RETURN_TEMP: 'heating.primaryCircuit.sensors.temperature.return',
@@ -226,6 +227,11 @@ module.exports = {
       capabilities: [createTemperatureCapability('outside', 'Outside temperature')],
     },
     [PATHS.BUFFER_TEMP]: {
+      capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
+    },
+    // Read only when the main sensor reports no value
+    [PATHS.BUFFER_TEMP_TOP]: {
+      fallbackFor: PATHS.BUFFER_TEMP,
       capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
     },
     [PATHS.HOT_WATER_TARGET]: {

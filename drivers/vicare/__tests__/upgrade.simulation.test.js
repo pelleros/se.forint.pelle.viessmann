@@ -65,11 +65,43 @@ function pairedStore1014(response) {
   return { features, constraints, operatingModes };
 }
 
-// drivers/vicare/device.js initializeCapabilities in 1.0.14: the capabilities of every
-// stored feature that passes the role check (config.js is unchanged since 1.0.14)
-function capabilitiesFor({ features, roles }) {
+// The feature paths config.js mapped in 1.0.14. Their capabilities and roles have not changed
+// since; paths added later must not count as capabilities a 1.0.14 device had.
+const PATHS_1014 = [
+  'heating.dhw.sensors.temperature.dhwCylinder',
+  'heating.dhw.temperature.main',
+  'heating.dhw.temperature.temp2',
+  'heating.circuits.0.operating.programs.normal',
+  'heating.dhw.oneTimeCharge',
+  'heating.circuits.0.operating.modes.active',
+  'heating.sensors.temperature.outside',
+  'heating.circuits.0.sensors.temperature.room',
+  'heating.circuits.0.temperature',
+  'heating.circuits.0.sensors.temperature.supply',
+  'heating.bufferCylinder.sensors.temperature.main',
+  'heating.sensors.temperature.return',
+  'heating.primaryCircuit.sensors.temperature.supply',
+  'heating.primaryCircuit.sensors.temperature.return',
+  'heating.secondaryCircuit.sensors.temperature.supply',
+  'heating.boiler.sensors.temperature.main',
+  'heating.boiler.sensors.temperature.commonSupply',
+  'heating.compressors.0',
+  'heating.compressors.0.statistics',
+  'heating.burners.0',
+  'heating.burners.0.modulation',
+  'heating.burners.0.statistics',
+  'fuelCell.sensors.temperature.return',
+  'fuelCell.sensors.temperature.supply',
+  'fuelCell.statistics',
+  'fuelCell.operating.phase',
+  'fuelCell.operating.modes.active',
+];
+
+// The capabilities of every stored feature that passes the role check: what
+// initializeCapabilities gives the device, with the given feature paths mapped
+function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS)) {
   const capabilities = new Set();
-  for (const featurePath of Object.values(PATHS)) {
+  for (const featurePath of featurePaths) {
     const capabilityConfigs = getAllCapabilities(featurePath);
     const { requireRole } = ViessmannDevice.FEATURES[featurePath];
     if (features.includes(featurePath) && (!requireRole || roles.includes(requireRole))) {
@@ -78,6 +110,9 @@ function capabilitiesFor({ features, roles }) {
   }
   return [...capabilities].sort();
 }
+
+// drivers/vicare/device.js initializeCapabilities in 1.0.14
+const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014);
 
 // Installation id, gateway serial and device id from the feature URIs, roles from the
 // installations dump (the gateway with that serial, else the first heating device)
@@ -230,7 +265,7 @@ const scenarios = [...fixtureScenarios(), ...documentationScenarios()];
 async function upgrade(scenario, { refreshFails = false } = {}) {
   const identity = deviceIdentity(scenario.before, scenario.installations);
   const store = { ...identity, ...pairedStore1014(scenario.before), version: '1.0.14' };
-  const capabilitiesBefore = capabilitiesFor(store);
+  const capabilitiesBefore = capabilitiesFor1014(store);
   const data = { id: `${identity.installationId}-${identity.gatewaySerial}-${identity.deviceId}` };
 
   const driver = new ViessmannDriver();
@@ -269,7 +304,7 @@ test('test/fixtures provides the installation types to simulate', () => {
 describe.each(scenarios.map((scenario) => [scenario.name, scenario]))('upgrade from 1.0.14: %s', (_, scenario) => {
   test('the 1.0.14 device has capabilities to lose', () => {
     const store = { ...deviceIdentity(scenario.before, scenario.installations), ...pairedStore1014(scenario.before) };
-    expect(capabilitiesFor(store).length).toBeGreaterThan(0);
+    expect(capabilitiesFor1014(store).length).toBeGreaterThan(0);
   });
 
   test.each([
@@ -304,7 +339,9 @@ describe.each(scenarios.map((scenario) => [scenario.name, scenario]))('upgrade f
     expect(device.getAvailable()).toBe(true);
 
     if (refreshFails) {
-      expect(capabilitiesAfter).toEqual(capabilitiesBefore);
+      // The stored features unchanged; features mapped after 1.0.14 can add capabilities
+      expect(device.getStoreValue('features')).toEqual(store.features);
+      expect(capabilitiesAfter).toEqual(capabilitiesFor(store));
       expect(device.getStoreValue('heatingCircuitId')).toBeUndefined();
       expect(device.error).toHaveBeenCalledWith(expect.stringContaining('retrying on the next start'), expect.any(Error));
     } else {

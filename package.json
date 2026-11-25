@@ -10,8 +10,7 @@
     "homey:install": "npm run generate && homey app install",
     "homey:validate": "npm run generate && homey app validate --level publish",
     "homey:publish": "npm run generate && homey app publish",
-    "fixtures": "node scripts/generateFixtures.js",
-    "build": "tsc --project tsconfig.build.json"
+    "fixtures": "node scripts/generateFixtures.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",

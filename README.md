@@ -14,8 +14,6 @@ Heating circuit support:
 
 After installing this version, verify the operating mode and heating target temperature against ViCare. Test both the device controls and existing Flow actions. Automated tests use mocked API responses; hardware validation is still required.
 
-See [reliability improvements and testing instructions](docs/reliability-improvements.md) for circuit selection, command validation, authentication handling and polling behavior.
-
 ## Development
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how the app works.

@@ -18,6 +18,7 @@ const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const { apiError } = require('../../../lib/apiError');
 const { PATHS, getAllCapabilities } = require('../config');
+const { effectiveRoles, inferRoles } = require('../roles');
 const registry = require('./registry.json');
 
 const FIXTURES_DIR = path.join(__dirname, '../../../test/fixtures');
@@ -98,13 +99,16 @@ const PATHS_1014 = [
 ];
 
 // The capabilities of every stored feature that passes the role check: what
-// initializeCapabilities gives the device, with the given feature paths mapped
-function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS)) {
+// initializeCapabilities gives the device, with the given feature paths mapped. The current
+// code checks the roles from roles.js (aliases, and roles inferred from the features when the
+// device reports no role tag); 1.0.14 checked the stored roles as they are.
+function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false } = {}) {
+  const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
     const capabilityConfigs = getAllCapabilities(featurePath);
     const { requireRole } = ViessmannDevice.FEATURES[featurePath];
-    if (features.includes(featurePath) && (!requireRole || roles.includes(requireRole))) {
+    if (features.includes(featurePath) && (!requireRole || allowed.includes(requireRole))) {
       capabilityConfigs.forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
@@ -112,7 +116,7 @@ function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS
 }
 
 // drivers/vicare/device.js initializeCapabilities in 1.0.14
-const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014);
+const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014, { storedRolesOnly: true });
 
 // Installation id, gateway serial and device id from the feature URIs, roles from the
 // installations dump (the gateway with that serial, else the first heating device)

@@ -89,6 +89,37 @@ describe.each(Object.entries(ADDED_SINCE_1014))('upgrade from 1.0.14: PyViCare %
   });
 });
 
+// A hot water heat pump whose roles say type:dhwHeatpump instead of type:heatpump: 1.0.14 gave
+// it no compressor capabilities although it reports a compressor and its statistics
+describe('upgrade from 1.0.14: PyViCare Vitocal262A_T2H-R290.json (type:dhwHeatpump)', () => {
+  const { dump } = fixtures.find((fixture) => fixture.name === 'Vitocal262A_T2H-R290.json');
+  const COMPRESSOR = {
+    measure_compressor_active: false,
+    'measure_compressor_number.compressorHours': 1256,
+    'measure_compressor_number.compressorStarts': 330,
+  };
+
+  test('reports type:dhwHeatpump, not type:heatpump, and a compressor', () => {
+    const { roles } = identityOf(dump);
+    expect(roles).toContain('type:dhwHeatpump');
+    expect(roles).not.toContain('type:heatpump');
+    expect(featureOf(dump, PATHS.COMPRESSOR)?.isEnabled).toBe(true);
+    expect(featureOf(dump, PATHS.COMPRESSOR_STATS)?.isEnabled).toBe(true);
+  });
+
+  test.each([
+    ['the refresh succeeds', false],
+    ['the refresh call throws', true],
+  ])('when %s: gets measure_compressor_active and the compressor statistics, and nothing is removed', async (_, refreshFails) => {
+    const { device, capabilitiesBefore } = await upgradeFrom1014({ identity: identityOf(dump), before: dump, refreshFails });
+
+    Object.keys(COMPRESSOR).forEach((id) => expect(capabilitiesBefore).not.toContain(id));
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(device.getCapabilities()).toEqual(expect.arrayContaining([...capabilitiesBefore, ...Object.keys(COMPRESSOR)]));
+    for (const [id, value] of Object.entries(COMPRESSOR)) expect(device.getCapabilityValue(id)).toBe(value);
+  });
+});
+
 describe.each(fixtures.map(({ name, dump }) => [name, dump]))('upgrade from 1.0.14: PyViCare %s', (name, dump) => {
   const identity = identityOf(dump);
 

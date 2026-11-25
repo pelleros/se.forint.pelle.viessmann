@@ -539,6 +539,18 @@
       "step": 1,
       "icon": "/assets/compressor.svg"
     },
+    "measure_cop_number": {
+      "type": "number",
+      "title": {
+        "en": "COP"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/compressor.svg"
+    },
     "measure_fuelcell_active": {
       "type": "boolean",
       "title": {

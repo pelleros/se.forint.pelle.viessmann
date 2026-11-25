@@ -27,6 +27,10 @@ const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
 
+// Reads a dot path such as 'value.value' from a feature's properties
+const getPropertyValue = (properties, propertyPath) => propertyPath.split('.')
+  .reduce((value, part) => (value == null ? undefined : value[part]), properties);
+
 module.exports = class ViessmannDevice extends OAuth2Device {
 
   static FEATURES = FEATURES;
@@ -374,58 +378,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         await this.addNewFeatures(response);
       }
 
-      for (const feature of response.data) {
-        if (!feature.isEnabled || !feature.properties || feature.properties?.status?.value === 'notConnected') {
-          if (process.env.DEBUG && !extendedResponse) {
-            this.log(`Skipping disabled/empty feature: ${feature.feature}`);
-          }
-          continue;
-        }
-
-        const featureConfig = FEATURES[feature.feature];
-        if (!featureConfig) {
-          if (process.env.DEBUG && !extendedResponse) {
-            this.log(`Skipping unknown feature: ${feature.feature}`);
-          }
-          continue;
-        }
-
-        // Check if device has required role for this feature
-        if (featureConfig.requireRole && !this._roles.includes(featureConfig.requireRole)) {
-          if (process.env.DEBUG && !extendedResponse) {
-            this.log(`Skipping feature due to missing role: ${feature.feature}, required role: ${featureConfig.requireRole}`);
-          }
-          continue;
-        }
-
-        if (process.env.DEBUG && !extendedResponse) {
-          // this.log(`Processing feature: ${feature.feature}`);
-        }
-
-        // Helper function to safely get nested property values
-        const getValue = (obj, path) => {
-          // if error, return undefined
-          try {
-            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-          } catch (error) {
-            if (process.env.DEBUG) {
-              this.log(`Error getting value for path: ${path}, error:`, error);
-            }
-            return undefined;
-          }
-        };
-
-        // Update all capabilities associated with this feature
-        for (const capability of featureConfig.capabilities) {
-          const value = getValue(feature.properties, capability.propertyPath);
-          if (value !== undefined) {
-            if (process.env.DEBUG) {
-              // this.log(`Setting capability: ${capability.capabilityName} = ${value} (from ${capability.propertyPath})`);
-            }
-            await this.setCapabilityValueIfPossible(capability.capabilityName, value, { trigger: triggers });
-          } else if (process.env.DEBUG) {
-            this.log(`No value found for capability: ${capability.capabilityName}, path: ${capability.propertyPath}`);
-          }
+      for (const [capabilityName, reading] of this.readCapabilityValues(response)) {
+        if (reading.value !== undefined) {
+          await this.setCapabilityValueIfPossible(capabilityName, reading.value, { trigger: triggers });
+        } else if (reading.gone && this.hasCapability(capabilityName) && this.getCapabilityValue(capabilityName) !== null) {
+          // The last value would stay on screen and in Insights for good; the capability stays
+          this.log(`${capabilityName} is no longer reported, clearing its value`);
+          await this.setCapabilityValueIfPossible(capabilityName, null, { trigger: false });
         }
       }
 
@@ -438,6 +397,44 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       this.error('Error processing features update:', error);
       await this.setAvailabilitySafely(false, error);
     }
+  }
+
+  /*
+    Reads every capability's value from a (circuit-normalized) features response. A capability
+    can be fed by more than one feature path: paths with `fallbackFor` are read only when the
+    other paths give no value. Returns capabilityName => { value, gone }: `value` is undefined
+    when no path gives one, and `gone` is true when none of the paths is reported as an enabled,
+    connected feature (a response without any mapped feature clears nothing).
+  */
+  readCapabilityValues(response) {
+    const reported = new Map(response.data.map((feature) => [feature.feature, feature]));
+    const absenceCounts = response.data.some((feature) => FEATURES[feature.feature]);
+    const roleAllows = ({ requireRole }) => !requireRole || (Array.isArray(this._roles) && this._roles.includes(requireRole));
+    const entries = Object.entries(FEATURES)
+      .filter(([, featureConfig]) => roleAllows(featureConfig))
+      .sort(([, a], [, b]) => Number(Boolean(a.fallbackFor)) - Number(Boolean(b.fallbackFor)));
+
+    const readings = new Map();
+    for (const [path, featureConfig] of entries) {
+      const feature = reported.get(path);
+      const connected = Boolean(feature?.isEnabled && feature.properties
+        && feature.properties.status?.value !== 'notConnected');
+      for (const { capabilityName, propertyPath } of featureConfig.capabilities) {
+        const reading = readings.get(capabilityName) || { value: undefined, gone: true };
+        readings.set(capabilityName, reading);
+        if (reading.value !== undefined) continue;
+        if (connected) {
+          reading.value = getPropertyValue(feature.properties, propertyPath);
+          reading.gone = false;
+          if (reading.value === undefined && process.env.DEBUG) {
+            this.log(`No value found for capability: ${capabilityName}, path: ${propertyPath}`);
+          }
+        } else if (!feature && !absenceCounts) {
+          reading.gone = false;
+        }
+      }
+    }
+    return readings;
   }
 
   // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was

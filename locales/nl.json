@@ -42,7 +42,7 @@
     },
     "troubleshooting": {
       "title": "Probleemoplossing",
-      "description": "Deze hulpmiddelen tonen de ruwe gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. De gegevens kunnen serienummers bevatten, dus bekijk ze voordat je ze openbaar deelt.",
+      "description": "Deze hulpmiddelen tonen de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur de gegevens toch liever privé naar de ontwikkelaar dan ze openbaar te delen.",
       "installations": {
         "title": "Installatiegegevens",
         "description": "Toont details over je Viessmann-installatie en de gekoppelde apparaten",

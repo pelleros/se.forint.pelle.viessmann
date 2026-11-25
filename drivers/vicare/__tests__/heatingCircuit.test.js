@@ -93,10 +93,11 @@ test('updates readings only from the selected circuit without mutating API data'
   const target = device('1');
   const input = response(['0', '1']);
   await target.onFeaturesUpdated(input, false);
-  expect(target.setCapabilityValueIfPossible.mock.calls).toEqual([
+  expect(target.setCapabilityValueIfPossible.mock.calls).toHaveLength(2);
+  expect(target.setCapabilityValueIfPossible.mock.calls).toEqual(expect.arrayContaining([
     ['thermostat_mode.heating', 'forcedReduced', { trigger: true }],
     ['target_temperature.heating', 20, { trigger: true }],
-  ]);
+  ]));
   expect(input.data[3].feature).toContain('heating.circuits.1.');
 });
 

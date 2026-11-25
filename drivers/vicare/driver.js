@@ -185,6 +185,18 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     await poller.stop();
   }
 
+  // Keeps the poller (and its backoff and Retry-After state) while it is paused
+  async _pausePolling(deviceKey) {
+    await this._devicePollers.get(deviceKey)?.pause();
+  }
+
+  // Returns false when the device has no poller
+  _resumePolling(deviceKey) {
+    const poller = this._devicePollers.get(deviceKey);
+    poller?.resume();
+    return Boolean(poller);
+  }
+
   // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
   // deleted meanwhile; log that instead of letting the rejection escape the poll timer
   async _setDeviceAvailability(device, deviceKey, available, message) {
@@ -266,7 +278,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       gatewaySerial,
       deviceId,
     });
+    return this._readDeviceMetadata(rawResponse, selectedCircuit);
+  }
 
+  // What a device stores from an unfiltered features response, for the selected circuit
+  _readDeviceMetadata(rawResponse, selectedCircuit = 'auto') {
     const heatingCircuitId = detectHeatingCircuit(rawResponse.data, selectedCircuit);
     const response = normalizeCircuitFeatures(rawResponse, heatingCircuitId);
     const features = [];

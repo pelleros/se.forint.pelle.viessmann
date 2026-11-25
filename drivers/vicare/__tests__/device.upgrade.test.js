@@ -12,6 +12,8 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const { PATHS } = require('../config');
+const { apiError } = require('../../../lib/apiError');
+const { STOP_TIMEOUT } = require('../../../lib/DevicePoller');
 
 const POLLING_KEY = '123456-0000000000000000-0';
 
@@ -330,5 +332,97 @@ describe('a device that is deleted or unloaded while it initialises', () => {
 
     expect(keyDuringMigration).toBe(POLLING_KEY);
     expect(device.driver._devicePollers.has(POLLING_KEY)).toBe(true);
+  });
+});
+
+describe('switching the heating circuit while the device polls', () => {
+  const HOUR = 60 * 60 * 1000;
+
+  // Circuits 0 and 1; circuit 1 is in reduced mode at 18 °C
+  function twoCircuits() {
+    const response = currentFeatures();
+    const circuitOne = response.data
+      .filter((item) => item.feature.startsWith('heating.circuits.0.'))
+      .map((item) => JSON.parse(JSON.stringify({ ...item, feature: item.feature.replace('heating.circuits.0.', 'heating.circuits.1.') })));
+    circuitOne.find((item) => item.feature.endsWith('operating.modes.active')).properties.value.value = 'forcedReduced';
+    circuitOne.find((item) => item.feature.endsWith('operating.programs.normal')).properties.temperature.value = 18;
+    response.data[0] = feature('heating.circuits', { enabled: { type: 'array', value: ['0', '1'] } });
+    response.data.push(...circuitOne);
+    return response;
+  }
+
+  async function pollingDevice(poll) {
+    const { driver, device } = createDevice({
+      getFeatures: async (request) => (isRefresh(request) ? twoCircuits() : poll(request)),
+    });
+    driver.homey = { setTimeout, clearTimeout, error: jest.fn() };
+    await device.onOAuth2Init();
+    return { driver, device, poller: driver._devicePollers.get(POLLING_KEY) };
+  }
+
+  const switchToCircuitOne = (device) => device.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '1' } });
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
+
+  test('keeps a pending Retry-After and the backoff, and adds no poll', async () => {
+    const { device, poller } = await pollingDevice(async () => {
+      throw apiError({ status: 429, headers: { get: () => String(HOUR / 1000) } });
+    });
+    expect(poller.failures).toBe(1);
+    const { retryAt } = poller;
+    await jest.advanceTimersByTimeAsync(10 * 60 * 1000);
+
+    await switchToCircuitOne(device);
+
+    expect(device.driver._devicePollers.get(POLLING_KEY)).toBe(poller);
+    expect(poller.failures).toBe(1);
+    expect(poller.retryAt).toBe(retryAt);
+    expect(pollCalls(device)).toHaveLength(1);
+    // The new circuit's values come from the settings request
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('forcedReduced');
+
+    await jest.advanceTimersByTimeAsync(retryAt - Date.now() - 1);
+    expect(pollCalls(device)).toHaveLength(1);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(pollCalls(device)).toHaveLength(2);
+    expect(pollCalls(device)[1][0].filter).toContain('heating.circuits.1.operating.modes.active');
+  });
+
+  test('a poll that hangs does not hold up the switch, and its old values are not applied', async () => {
+    let answerPoll;
+    let polls = 0;
+    const { device, poller } = await pollingDevice(() => {
+      polls += 1;
+      if (polls === 1) return currentFeatures();
+      return new Promise((resolve) => {
+        answerPoll = resolve;
+      });
+    });
+    await jest.advanceTimersByTimeAsync(2 * 60 * 1000);
+    expect(poller.running).toBeTruthy();
+
+    let switched = false;
+    switchToCircuitOne(device).then(() => {
+      switched = true;
+    }, () => {});
+    await jest.advanceTimersByTimeAsync(STOP_TIMEOUT);
+    expect(switched).toBe(true);
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+
+    // The poll that hung answers late (here with data that would change circuit 1): ignored
+    const late = twoCircuits();
+    late.data.find((item) => item.feature === 'heating.circuits.1.operating.programs.normal').properties.temperature.value = 25;
+    answerPoll(late);
+    await jest.advanceTimersByTimeAsync(0);
+    expect(device.getCapabilityValue('target_temperature.heating')).toBe(18);
+    expect(pollCalls(device)).toHaveLength(2);
   });
 });

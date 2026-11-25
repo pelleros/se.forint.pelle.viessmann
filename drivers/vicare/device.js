@@ -586,19 +586,20 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
       throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
     }
+    // One unfiltered read gives both the new circuit's metadata and its current values
+    const response = await this.getFeatures();
     let fresh;
     try {
-      fresh = await this.driver._getEnabledFeaturesAndOpModes(
-        this.oAuth2Client, this._installationId, this._gatewaySerial, this._deviceId, selectedCircuit,
-      );
+      fresh = this.driver._readDeviceMetadata(response, selectedCircuit);
     } catch (error) {
       // Homey shows the message and keeps the previous value; nothing has changed yet
       if (error.code === 'heating_circuit_not_available') throw new Error(this.circuitNotAvailableMessage(error));
       throw error;
     }
     const metadata = this.mergeRefreshedMetadata(fresh);
-    const deviceKey = this.getPollingKey();
-    await this.driver._stopPolling(deviceKey);
+    // Pausing (not replacing) the poller keeps its backoff and Retry-After; a poll still in
+    // progress for the old circuit is dropped
+    await this.driver._pausePolling(this.getPollingKey());
     const previous = {
       heatingCircuitId: this._heatingCircuitId,
       // The feature list only grows, also when the switch is rolled back
@@ -609,11 +610,21 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     };
     try {
       await this.applyCircuitMetadata(metadata);
+      // Show the new circuit's values now, without waiting for (or adding) a poll
+      await this.onFeaturesUpdated(response, false);
     } catch (error) {
       await this.applyCircuitMetadata(previous);
       throw error;
     } finally {
-      await this.driver._startPolling(this, deviceKey);
+      this.resumePolling();
+    }
+  }
+
+  resumePolling() {
+    if (this._uninitialized) return;
+    const key = this.getPollingKey();
+    if (!this.driver._resumePolling(key)) {
+      this.driver._startPolling(this, key).catch((error) => this.error('Could not start polling:', error));
     }
   }
 

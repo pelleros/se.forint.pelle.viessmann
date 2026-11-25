@@ -34,6 +34,7 @@ const PATHS = {
   HEATING_CIRCUIT_0_TEMPERATURE: 'heating.circuits.0.temperature',
   HEATING_CIRCUIT_0_SUPPLY_TEMPERATURE: 'heating.circuits.0.sensors.temperature.supply',
   BUFFER_TEMP: 'heating.bufferCylinder.sensors.temperature.main',
+  BUFFER_TEMP_TOP: 'heating.bufferCylinder.sensors.temperature.top',
   RETURN_TEMP: 'heating.sensors.temperature.return',
   PRIMARY_CIRCUIT_SUPPLY_TEMP: 'heating.primaryCircuit.sensors.temperature.supply',
   PRIMARY_CIRCUIT_RETURN_TEMP: 'heating.primaryCircuit.sensors.temperature.return',
@@ -42,6 +43,10 @@ const PATHS = {
   BOILER_COMMON_SUPPLY_TEMP: 'heating.boiler.sensors.temperature.commonSupply',
   COMPRESSOR: 'heating.compressors.0',
   COMPRESSOR_STATS: 'heating.compressors.0.statistics',
+  COMPRESSOR_POWER: 'heating.compressors.0.sensors.power',
+  COP_TOTAL: 'heating.cop.total',
+  COP_HEATING: 'heating.cop.heating',
+  COP_DHW: 'heating.cop.dhw',
   BURNER: 'heating.burners.0',
   BURNER_MODULATION: 'heating.burners.0.modulation',
   BURNER_STATS: 'heating.burners.0.statistics',
@@ -109,6 +114,18 @@ const createActiveCapability = (name, title, options = {}) => ({
     title: { en: title },
     ...CAPABILITY_TEMPLATES.activeState,
     ...options,
+  },
+});
+
+// Coefficient of performance (no unit)
+const createCopCapability = (name, title) => ({
+  capabilityName: `measure_cop_number.${name}`,
+  propertyPath: 'value.value',
+  capabilityOptions: {
+    title: { en: title },
+    decimals: 1,
+    preventInsights: false,
+    preventTag: false,
   },
 });
 
@@ -228,6 +245,11 @@ module.exports = {
     [PATHS.BUFFER_TEMP]: {
       capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
     },
+    // Read only when the main sensor reports no value
+    [PATHS.BUFFER_TEMP_TOP]: {
+      fallbackFor: PATHS.BUFFER_TEMP,
+      capabilities: [createTemperatureCapability('buffer', 'Buffer cylinder temperature')],
+    },
     [PATHS.HOT_WATER_TARGET]: {
       capabilities: [createThermostatCapability('hotWater', 'Hot water Normal')],
     },
@@ -262,6 +284,19 @@ module.exports = {
     [PATHS.COMPRESSOR_STATS]: {
       requireRole: 'type:heatpump',
       capabilities: createStatisticsCapabilities('compressor', 'Compressor'),
+    },
+    [PATHS.COMPRESSOR_POWER]: {
+      requireRole: 'type:heatpump',
+      capabilities: [createModulationCapability('compressor', 'Compressor load')],
+    },
+    [PATHS.COP_TOTAL]: {
+      capabilities: [createCopCapability('total', 'COP total')],
+    },
+    [PATHS.COP_HEATING]: {
+      capabilities: [createCopCapability('heating', 'COP heating')],
+    },
+    [PATHS.COP_DHW]: {
+      capabilities: [createCopCapability('dhw', 'COP hot water')],
     },
     [PATHS.BURNER_STATS]: {
       capabilities: createStatisticsCapabilities('burner', 'Burner'),

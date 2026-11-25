@@ -253,7 +253,70 @@ describe('Config funktioner', () => {
           },
         }],
       },
+      'heating.compressors.0.sensors.power': {
+        requireRole: 'type:heatpump',
+        capabilities: [{
+          capabilityName: 'measure_compressor_number.compressorModulation',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'Compressor load' },
+            units: '%',
+            preventInsights: false,
+            preventTag: true,
+          },
+        }],
+      },
+      'heating.cop.total': {
+        capabilities: [{
+          capabilityName: 'measure_cop_number.total',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'COP total' },
+            decimals: 1,
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
+      'heating.cop.heating': {
+        capabilities: [{
+          capabilityName: 'measure_cop_number.heating',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'COP heating' },
+            decimals: 1,
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
+      'heating.cop.dhw': {
+        capabilities: [{
+          capabilityName: 'measure_cop_number.dhw',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'COP hot water' },
+            decimals: 1,
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
       'heating.bufferCylinder.sensors.temperature.main': {
+        capabilities: [{
+          capabilityName: 'measure_temperature.buffer',
+          propertyPath: 'value.value',
+          capabilityOptions: {
+            title: { en: 'Buffer cylinder temperature' },
+            units: '°C',
+            decimals: 1,
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
+      'heating.bufferCylinder.sensors.temperature.top': {
+        fallbackFor: 'heating.bufferCylinder.sensors.temperature.main',
         capabilities: [{
           capabilityName: 'measure_temperature.buffer',
           propertyPath: 'value.value',
@@ -384,6 +447,7 @@ describe('Config funktioner', () => {
           if (expectedFeature.requireRole) {
             expect(actualFeature.requireRole).toBe(expectedFeature.requireRole);
           }
+          expect(actualFeature.fallbackFor).toBe(expectedFeature.fallbackFor);
 
           // Testa capabilities
           expect(actualFeature.capabilities).toHaveLength(expectedFeature.capabilities.length);

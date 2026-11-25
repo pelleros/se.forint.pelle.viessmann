@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+
 'use strict';
 
 module.exports = {
@@ -5,4 +7,4 @@ module.exports = {
   FlowCardTriggerDevice: class {},
   FlowCardCondition: class {},
   FlowCardAction: class {},
-}; 
+};

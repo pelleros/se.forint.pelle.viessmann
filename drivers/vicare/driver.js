@@ -24,6 +24,10 @@ const { OAuth2Driver } = require('homey-oauth2app');
 const { FEATURES, PATHS } = require('./config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
+// ViessmannOAuth2Client.onHandleNotOK throws 'Unauthorized - check credentials' for HTTP 401
+const isAuthenticationError = (error) => error?.status === 401
+  || /unauthorized/i.test(typeof error?.message === 'string' ? error.message : '');
+
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
   static FEATURES = FEATURES;
@@ -165,7 +169,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
           if (device.getAvailable()) {
             if (consecutiveErrors >= 3) {
               device.setUnavailable('Multiple communication errors');
-            } else if (error.message.includes('unauthorized')) {
+            } else if (isAuthenticationError(error)) {
               device.setUnavailable('Authentication failed');
             }
           }

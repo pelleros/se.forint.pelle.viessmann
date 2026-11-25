@@ -42,7 +42,7 @@
       },
       "troubleshooting": {
         "title": "Troubleshooting",
-        "description": "These tools show the raw data the app gets from Viessmann, which helps the developer when something does not work. They need at least one added device. The data can contain serial numbers, so check it before you post it publicly.",
+        "description": "These tools show the data the app gets from Viessmann, which helps the developer when something does not work. They need at least one added device. Serial numbers, IDs, your address and similar details are anonymized automatically and show up as placeholders such as \"anonymized-serial-1\". Still, it is best to send the data to the developer privately rather than post it publicly.",
         "installations": {
           "title": "Installation Information",
           "description": "Shows details about your Viessmann installation and connected devices",

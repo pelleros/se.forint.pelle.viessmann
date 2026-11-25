@@ -8,7 +8,7 @@ Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`]
 
 ## Sources and how to read the tables
 
-- **Real dumps.** Eight feature dumps from five real installations (kept outside the repository; they contain serial numbers and IDs):
+- **Real dumps.** Eight feature dumps from five real installations. The raw dumps stay outside the repository (they contain serial numbers and IDs); anonymized versions of six of them are in [`test/fixtures/`](../test/fixtures/README.md) (all but the 2025-10 and 2026-05 heat-pump snapshots), and they give the same list of features as the eight raw dumps (see [Refreshing this catalogue](#refreshing-this-catalogue)):
 
   | Short name | Installation | Gateway | Snapshots |
   |---|---|---|---|
@@ -527,8 +527,22 @@ Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm tur
 
 `scripts/featureCoverage.js` lists every feature that is usable in at least one dump, not deprecated, and not mapped in `config.js`, with a state per dump and the plan from the official list. It prints only feature names, no property values.
 
+Against the anonymized fixtures in the repository (the default when no input is given):
+
 ```bash
-node scripts/featureCoverage.js <dump-dir-or-file>... --official <viessmann-datapoints.json>
+node scripts/featureCoverage.js
 ```
 
-Directories are scanned recursively for `*_features.json`; other file names can be passed directly. `--all` includes mapped features, `--exact` keeps indexes (`circuits.1`) instead of `N`, `--json` gives machine-readable output, and a warning is printed if a mapped path is flagged deprecated anywhere. New rows in the output are features to classify here.
+Against a local folder of raw dumps, for example the untracked `documentation/json-example-files/`, alone or together with the fixtures:
+
+```bash
+node scripts/featureCoverage.js documentation/json-example-files test/fixtures
+```
+
+- Directories are scanned recursively for `*_features.json`, so the `*_installations.json` fixtures are skipped; other file names (such as a raw `myvies.json`) can be passed directly.
+- The official datapoint list is picked up automatically from the newest local `documentation/viessmann-datapoints-*.json`. Use `--official <file>` to choose one, or `--no-official` to skip it. Without it, officially deprecated features are not filtered: `heating.boiler.serial` then shows up as a 107th row.
+- `--all` includes mapped features, `--exact` keeps indexes (`circuits.1`) instead of `N`, and `--json` gives machine-readable output. A warning is printed if a mapped path is flagged deprecated anywhere.
+- The fixtures with the 2026-11-25 official list give exactly the 106 features classified above, the same set as the eight raw dumps.
+- `test/featureCoverage.test.js` runs the script's analysis on the fixtures in `npm test`, so it keeps working as `config.js` and the fixtures change.
+
+New rows in the output are features to classify here. After a new dump is turned into a fixture (`npm run fixtures`, see `test/fixtures/README.md`), the plain command is enough.

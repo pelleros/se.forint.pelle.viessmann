@@ -28,19 +28,26 @@
  * Reads Viessmann feature dumps (the JSON returned by the features endpoint, `{ "data": [...] }`)
  * and lists every feature that is usable in at least one dump but not mapped in
  * drivers/vicare/config.js. "Usable" means: isEnabled, not flagged deprecated, status not
- * "notConnected", and at least one property.
+ * "notConnected", and at least one property. A feature flagged deprecated in any dump (or in the
+ * official list) is never listed.
  *
  * Usage:
- *   node scripts/featureCoverage.js <dir-or-file>... [--official <datapoints.json>] [--exact] [--all] [--json]
+ *   node scripts/featureCoverage.js [<dir-or-file>...] [--official <datapoints.json>] [--no-official]
+ *                                   [--exact] [--all] [--json]
  *
- *   <dir>       scanned recursively for files named *_features.json
- *   <file>      used as given, whatever its name
- *   --official  Viessmann's datapoint list ({ "features": [{ feature, plans, deprecated }] });
- *               adds the plan column and treats officially deprecated features as deprecated
- *   --exact     compare exact feature names (default: indexes are normalised to N, so
- *               heating.circuits.1.x and heating.circuits.0.x are one row)
- *   --all       also list features that are already mapped
- *   --json      machine-readable output
+ *   <dir>          scanned recursively for files named *_features.json
+ *   <file>         used as given, whatever its name
+ *                  Without inputs, the anonymized fixtures in test/fixtures/ are used. Raw dumps
+ *                  (e.g. the untracked documentation/json-example-files/) can be passed instead
+ *                  or in addition.
+ *   --official     Viessmann's datapoint list ({ "features": [{ feature, plans, deprecated }] });
+ *                  adds the plan column and treats officially deprecated features as deprecated.
+ *                  Default: the newest documentation/viessmann-datapoints-*.json, if present.
+ *   --no-official  do not use an official list
+ *   --exact        compare exact feature names (default: indexes are normalised to N, so
+ *                  heating.circuits.1.x and heating.circuits.0.x are one row)
+ *   --all          also list features that are already mapped
+ *   --json         machine-readable output
  *
  * Only feature names are printed, never property values, so the output is safe to share.
  * No dependencies; plain Node.
@@ -50,19 +57,28 @@ const fs = require('fs');
 const path = require('path');
 const { PATHS } = require('../drivers/vicare/config');
 
+const REPO_ROOT = path.join(__dirname, '..');
+const DEFAULT_INPUT = path.join(REPO_ROOT, 'test', 'fixtures');
+const LOCAL_DOCUMENTATION = path.join(REPO_ROOT, 'documentation');
+
+const USAGE = 'Usage: node scripts/featureCoverage.js [<dir-or-file>...] [--official <datapoints.json>] '
+  + '[--no-official] [--exact] [--all] [--json]';
+
 const normalise = (feature) => feature.replace(/\.(\d+)(?=\.|$)/g, '.N');
 
 function parseArgs(argv) {
   const args = {
-    inputs: [], official: null, exact: false, all: false, json: false,
+    inputs: [], official: null, noOfficial: false, exact: false, all: false, json: false, help: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--official') args.official = argv[++i];
+    else if (arg === '--no-official') args.noOfficial = true;
     else if (arg === '--exact') args.exact = true;
     else if (arg === '--all') args.all = true;
     else if (arg === '--json') args.json = true;
     else if (arg === '--help' || arg === '-h') args.help = true;
+    else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}\n${USAGE}`);
     else args.inputs.push(arg);
   }
   return args;
@@ -84,11 +100,22 @@ function collectFiles(inputs) {
   return files.sort();
 }
 
-function featureList(file) {
-  const json = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const list = Array.isArray(json) ? json : json.data;
-  if (!Array.isArray(list)) throw new Error(`${file}: expected { "data": [...] } or an array`);
-  return list;
+function loadDumps(files) {
+  return files.map((file) => {
+    const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const features = Array.isArray(json) ? json : json.data;
+    if (!Array.isArray(features)) throw new Error(`${file}: expected { "data": [...] } or an array`);
+    return { file: path.relative(process.cwd(), file), features };
+  });
+}
+
+// The newest local copy of Viessmann's datapoint list, if there is one (documentation/ is untracked).
+function findOfficialList() {
+  if (!fs.existsSync(LOCAL_DOCUMENTATION)) return null;
+  const candidates = fs.readdirSync(LOCAL_DOCUMENTATION)
+    .filter((name) => /^viessmann-datapoints-.*\.json$/.test(name))
+    .sort();
+  return candidates.length > 0 ? path.join(LOCAL_DOCUMENTATION, candidates[candidates.length - 1]) : null;
 }
 
 // One letter per dump: x usable, d deprecated, n notConnected, - disabled, e enabled but empty, . absent
@@ -104,42 +131,36 @@ const RANK = {
   x: 5, d: 4, n: 3, e: 2, '-': 1, '.': 0,
 };
 
-function main() {
-  const args = parseArgs(process.argv.slice(2));
-  if (args.help || args.inputs.length === 0) {
-    console.log('Usage: node scripts/featureCoverage.js <dir-or-file>... [--official <datapoints.json>] [--exact] [--all] [--json]');
-    process.exit(args.help ? 0 : 1);
-  }
-
-  const key = args.exact ? (f) => f : normalise;
-  const files = collectFiles(args.inputs);
-  if (files.length === 0) {
-    console.error('No feature dumps found.');
-    process.exit(1);
-  }
+/**
+ * @param {{ file: string, features: object[] }[]} dumps
+ * @param {object} [options]
+ * @param {object[]|null} [options.officialFeatures] entries of Viessmann's datapoint list
+ * @param {boolean} [options.exact] compare exact names instead of normalising indexes to N
+ * @param {boolean} [options.all] also return mapped features
+ * @param {string[]} [options.mappedPaths] defaults to the PATHS of drivers/vicare/config.js
+ */
+function analyse(dumps, options = {}) {
+  const {
+    officialFeatures = null, exact = false, all = false, mappedPaths = Object.values(PATHS),
+  } = options;
+  const key = exact ? (feature) => feature : normalise;
 
   const official = {};
-  if (args.official) {
-    for (const entry of JSON.parse(fs.readFileSync(args.official, 'utf8')).features) {
-      official[key(entry.feature)] = entry;
-    }
-  }
+  for (const entry of officialFeatures || []) official[key(entry.feature)] = entry;
 
-  const mapped = new Set(Object.values(PATHS).map(key));
-  const dumps = files.map((file, index) => ({
-    id: `D${index + 1}`,
-    file: path.relative(process.cwd(), file),
-  }));
+  const mapped = new Set(mappedPaths.map(key));
+  const ids = dumps.map((dump, index) => `D${index + 1}`);
 
   // rows[featureKey] = { states: { D1: 'x', ... }, deprecated: bool }
   const rows = {};
   dumps.forEach((dump, index) => {
-    for (const feature of featureList(files[index])) {
+    const id = ids[index];
+    for (const feature of dump.features) {
       const k = key(feature.feature);
       rows[k] = rows[k] || { states: {}, deprecated: false };
       const state = stateOf(feature);
-      const previous = rows[k].states[dump.id] || '.';
-      if (RANK[state] > RANK[previous]) rows[k].states[dump.id] = state;
+      const previous = rows[k].states[id] || '.';
+      if (RANK[state] > RANK[previous]) rows[k].states[id] = state;
       if (feature.deprecated) rows[k].deprecated = true;
     }
   });
@@ -147,44 +168,46 @@ function main() {
     if (official[k]?.deprecated) row.deprecated = true;
   }
 
-  const result = Object.entries(rows)
+  const features = Object.entries(rows)
     .map(([feature, row]) => ({
       feature,
       mapped: mapped.has(feature),
       deprecated: row.deprecated,
-      usableIn: dumps.filter((d) => row.states[d.id] === 'x').map((d) => d.id),
-      states: dumps.map((d) => row.states[d.id] || '.').join(''),
+      usableIn: ids.filter((id) => row.states[id] === 'x'),
+      states: ids.map((id) => row.states[id] || '.').join(''),
       plans: official[feature]?.plans || null,
-      inOfficialList: args.official ? Boolean(official[feature]) : null,
+      inOfficialList: officialFeatures ? Boolean(official[feature]) : null,
     }))
-    .filter((r) => r.usableIn.length > 0 && !r.deprecated && (args.all || !r.mapped))
+    .filter((r) => r.usableIn.length > 0 && !r.deprecated && (all || !r.mapped))
     .sort((a, b) => b.usableIn.length - a.usableIn.length || a.feature.localeCompare(b.feature));
 
-  const perDump = dumps.map((d) => {
-    const usable = Object.entries(rows).filter(([, row]) => row.states[d.id] === 'x' && !row.deprecated);
+  const perDump = dumps.map((dump, index) => {
+    const id = ids[index];
+    const usable = Object.entries(rows).filter(([, row]) => row.states[id] === 'x' && !row.deprecated);
     const unmapped = usable.filter(([feature]) => !mapped.has(feature));
     return {
-      ...d, usable: usable.length, mapped: usable.length - unmapped.length, unmapped: unmapped.length,
+      id, file: dump.file, usable: usable.length, mapped: usable.length - unmapped.length, unmapped: unmapped.length,
     };
   });
 
   const deprecatedMapped = [...mapped].filter((feature) => rows[feature]?.deprecated);
 
-  if (args.json) {
-    console.log(JSON.stringify({ dumps: perDump, features: result, deprecatedMapped }, null, 2));
-    return;
-  }
+  return { dumps: perDump, features, deprecatedMapped };
+}
 
+function printReport(report, { all, officialFile }) {
+  console.log(`Official list: ${officialFile ? path.relative(process.cwd(), officialFile) : 'none'}`);
+  console.log('');
   console.log('Dumps');
-  for (const d of perDump) {
+  for (const d of report.dumps) {
     console.log(`  ${d.id}  usable ${String(d.usable).padStart(3)}  mapped ${String(d.mapped).padStart(3)}  unmapped ${String(d.unmapped).padStart(3)}  ${d.file}`);
   }
   console.log('');
-  console.log(`States per dump (${dumps.map((d) => d.id).join(' ')}): x usable, d deprecated, n notConnected, - disabled, e empty, . absent`);
+  console.log(`States per dump (${report.dumps.map((d) => d.id).join(' ')}): x usable, d deprecated, n notConnected, - disabled, e empty, . absent`);
   console.log('');
   const planText = (plans) => (plans ? plans.map((p) => p.replace(/^(View|Control) (Basic|Advanced).*$/, '$1 $2')).join(', ') : '');
-  const width = Math.max(...result.map((r) => r.feature.length), 10);
-  for (const r of result) {
+  const width = Math.max(...report.features.map((r) => r.feature.length), 10);
+  for (const r of report.features) {
     const flags = [
       r.mapped ? 'mapped' : '',
       r.inOfficialList === false ? 'not in official list' : '',
@@ -193,10 +216,46 @@ function main() {
     console.log(`  ${r.feature.padEnd(width)}  ${r.states}  ${String(r.usableIn.length).padStart(2)}  ${flags}`);
   }
   console.log('');
-  console.log(`${result.length} feature(s) listed${args.all ? '' : ' (usable, not deprecated, not mapped in config.js)'}.`);
-  if (deprecatedMapped.length > 0) {
-    console.log(`WARNING: mapped feature(s) flagged deprecated: ${deprecatedMapped.join(', ')}`);
+  console.log(`${report.features.length} feature(s) listed${all ? '' : ' (usable, not deprecated, not mapped in config.js)'}.`);
+  if (report.deprecatedMapped.length > 0) {
+    console.log(`WARNING: mapped feature(s) flagged deprecated: ${report.deprecatedMapped.join(', ')}`);
   }
 }
 
-main();
+function main(argv) {
+  try {
+    const args = parseArgs(argv);
+    if (args.help) {
+      console.log(USAGE);
+      return 0;
+    }
+
+    const files = collectFiles(args.inputs.length > 0 ? args.inputs : [DEFAULT_INPUT]);
+    if (files.length === 0) {
+      console.error('No feature dumps found.');
+      return 1;
+    }
+
+    const officialFile = args.noOfficial ? null : (args.official || findOfficialList());
+    const officialFeatures = officialFile ? JSON.parse(fs.readFileSync(officialFile, 'utf8')).features : null;
+
+    const report = analyse(loadDumps(files), { officialFeatures, exact: args.exact, all: args.all });
+    if (args.json) {
+      console.log(JSON.stringify({ officialList: officialFile ? path.relative(process.cwd(), officialFile) : null, ...report }, null, 2));
+    } else {
+      printReport(report, { all: args.all, officialFile });
+    }
+    return 0;
+  } catch (error) {
+    console.error(error.message);
+    return 1;
+  }
+}
+
+module.exports = {
+  analyse, collectFiles, loadDumps, normalise,
+};
+
+if (require.main === module) {
+  process.exitCode = main(process.argv.slice(2));
+}

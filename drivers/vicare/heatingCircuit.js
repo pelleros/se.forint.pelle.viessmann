@@ -5,7 +5,16 @@ function resolveCircuitPath(path, circuitId = '0') {
   return path.replace(/^heating\.circuits\.0\./, `heating.circuits.${circuitId}.`);
 }
 
-function detectHeatingCircuit(data, selectedCircuit = 'auto') {
+// The feature entries of a response that the app can read; anything else (null, no feature
+// name) is ignored instead of breaking the whole response
+function featureEntries(data) {
+  return Array.isArray(data)
+    ? data.filter((item) => item && typeof item === 'object' && typeof item.feature === 'string')
+    : [];
+}
+
+function detectHeatingCircuit(rawData, selectedCircuit = 'auto') {
+  const data = featureEntries(rawData);
   const circuits = data.find((item) => item.feature === 'heating.circuits' && item.isEnabled);
   const enabled = circuits?.properties?.enabled?.value;
   const candidates = Array.isArray(enabled)
@@ -32,7 +41,7 @@ function detectHeatingCircuit(data, selectedCircuit = 'auto') {
 function normalizeCircuitFeatures(response, circuitId = '0') {
   return {
     ...response,
-    data: response.data.filter((item) => {
+    data: featureEntries(response?.data).filter((item) => {
       const match = item.feature.match(/^heating\.circuits\.(\d+)(?:\.|$)/);
       return !match || match[1] === String(circuitId);
     }).map((item) => ({
@@ -42,4 +51,6 @@ function normalizeCircuitFeatures(response, circuitId = '0') {
   };
 }
 
-module.exports = { resolveCircuitPath, detectHeatingCircuit, normalizeCircuitFeatures };
+module.exports = {
+  resolveCircuitPath, detectHeatingCircuit, normalizeCircuitFeatures, featureEntries,
+};

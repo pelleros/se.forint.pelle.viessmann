@@ -28,8 +28,14 @@ const {
 } = require('./config');
 
 // Reads a dot path such as 'value.value' from a feature's properties
-const getPropertyValue = (properties, propertyPath) => propertyPath.split('.')
-  .reduce((value, part) => (value == null ? undefined : value[part]), properties);
+// A property value a capability can take: a string, a boolean, a finite number or null.
+// Anything else (objects, NaN, ...) counts as no value, so the capability keeps its last value.
+const getPropertyValue = (properties, propertyPath) => {
+  const value = propertyPath.split('.')
+    .reduce((current, part) => (current == null ? undefined : current[part]), properties);
+  if (value === null || ['string', 'boolean'].includes(typeof value)) return value;
+  return Number.isFinite(value) ? value : undefined;
+};
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -364,11 +370,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
   async onFeaturesUpdated(rawResponse, extendedResponse, { triggers = true } = {}) {
     try {
+      // Not a features response at all. Single odd entries or values in one are skipped below.
+      if (!Array.isArray(rawResponse?.data)) throw new Error('Invalid features response: no feature list');
       const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
       const commands = { ...this._commands };
       for (const feature of response.data) {
         if (!feature.isEnabled) commands[feature.feature] = {};
-        else if (feature.commands) commands[feature.feature] = feature.commands;
+        else if (feature.commands && typeof feature.commands === 'object') commands[feature.feature] = feature.commands;
       }
       this._commands = commands;
       if (process.env.DEBUG) {

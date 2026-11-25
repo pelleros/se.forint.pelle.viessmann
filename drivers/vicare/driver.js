@@ -333,12 +333,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         features.push(feature.feature);
 
         // Save constraints separately
-        if (feature.commands) {
+        if (feature.commands && typeof feature.commands === 'object') {
           commandMetadata[feature.feature] = feature.commands;
           constraints[feature.feature] = {};
           Object.values(feature.commands).forEach((command) => {
-            Object.entries(command.params || {}).forEach(([paramName, param]) => {
-              if (param.constraints) {
+            Object.entries(command?.params || {}).forEach(([paramName, param]) => {
+              if (param?.constraints) {
                 constraints[feature.feature][paramName] = param.constraints;
               }
             });

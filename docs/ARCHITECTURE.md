@@ -44,6 +44,7 @@ The design choice that shapes everything: **there is one device type for every V
 ├── scripts/
 │   ├── generateFlowCompose.js   # Writes driver.flow.compose.json
 │   ├── anonymizeDump.js         # Turns a raw API dump into an anonymized fixture (CLI for lib/anonymize.js)
+│   ├── checkPackage.js          # Fails if development files end up in the built app package (CI)
 │   └── generateFixtures.js      # Regenerates test/fixtures/ from local dumps (maintainer); keeps fixtures whose dump is gone
 ├── test/
 │   ├── fixtures/                # Anonymized feature/installation dumps, one per installation type
@@ -65,7 +66,7 @@ Both are committed. CI fails if `driver.flow.compose.json` is out of date. The f
 
 ## Commands and packaging
 
-`npm install`/`npm ci` only install dependencies (use `--ignore-scripts`). Anything that talks to a Homey goes through `npm run homey:run`, `homey:install`, `homey:validate` or `homey:publish`, which first run `npm run generate`. The Homey CLI packages the app folder minus the patterns in `.homeyignore` (`documentation/`, `test/`, `docs/`, `scripts/`, `__mocks__/`, `__tests__/`, `*.md`, …) and its own defaults (dotfiles, `node_modules`, `*.compose.json`, `env.json`).
+`npm install`/`npm ci` only install dependencies (use `--ignore-scripts`). Anything that talks to a Homey goes through `npm run homey:run`, `homey:install`, `homey:validate` or `homey:publish`, which first run `npm run generate`. The Homey CLI packages the app folder minus the patterns in `.homeyignore` (`documentation/`, `test/`, `docs/`, `scripts/`, `__mocks__/`, `__tests__/`, `*.md`, `package-lock.json`, …) and its own defaults (dotfiles, `node_modules`, `*.compose.json`, `env.json`), then adds the production dependencies. CI runs `homey app build` and `scripts/checkPackage.js`, which prints the package size and fails if tests, fixtures, documentation, scripts, Markdown files or the lockfile end up in the package; when you add such files somewhere new, add them to `.homeyignore`.
 
 ## `drivers/vicare/config.js`
 

@@ -26,9 +26,7 @@ const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
-// API errors carry the HTTP status (lib/apiError.js); older messages said 'Unauthorized'
-const isAuthenticationError = (error) => error?.status === 401
-  || /unauthorized/i.test(typeof error?.message === 'string' ? error.message : '');
+const { isAuthenticationFailure, REPAIR_MESSAGE } = require('../../lib/apiError');
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
@@ -162,8 +160,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       },
       onError: async (error, consecutiveErrors) => {
         this.error(`Error polling device ${deviceKey}:`, error);
-        if (isAuthenticationError(error)) {
-          await this._setDeviceAvailability(device, deviceKey, false, 'Authentication failed');
+        // Only a new login helps: say so right away. Everything else is retried with backoff.
+        if (isAuthenticationFailure(error)) {
+          await this._setDeviceAvailability(device, deviceKey, false, REPAIR_MESSAGE);
         } else if (consecutiveErrors >= 3) {
           // API errors carry a safe, redacted message; network errors can contain request URLs
           const message = error?.status && error.message ? error.message : 'Multiple communication errors';

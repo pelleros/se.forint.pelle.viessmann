@@ -40,7 +40,9 @@ jest.mock('homey-oauth2app', () => ({
 
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
-const { apiError } = require('../../../lib/apiError');
+const { apiError, tokenError } = require('../../../lib/apiError');
+
+const REPAIR = 'Authentication failed, open the device and choose Repair';
 const { PATHS } = require('../config');
 
 const DEVICE_KEY = '123456-0000000000000000-0';
@@ -177,7 +179,7 @@ describe('ViessmannDriver polling errors', () => {
     await startPolling(driver, device);
 
     expect(device.setUnavailable).toHaveBeenCalledTimes(1);
-    expect(device.setUnavailable).toHaveBeenCalledWith('Authentication failed');
+    expect(device.setUnavailable).toHaveBeenCalledWith(REPAIR);
   });
 
   test('recognises a 401 status even when the message differs', async () => {
@@ -187,7 +189,41 @@ describe('ViessmannDriver polling errors', () => {
 
     await startPolling(driver, device);
 
-    expect(device.setUnavailable).toHaveBeenCalledWith('Authentication failed');
+    expect(device.setUnavailable).toHaveBeenCalledWith(REPAIR);
+  });
+
+  test.each([
+    ['invalid_grant (HTTP 400)', { status: 400, body: { error: 'invalid_grant', error_description: 'Invalid grant' } }],
+    ['invalid_client (HTTP 401)', { status: 401, body: { error: 'invalid_client' } }],
+    ['no stored refresh token', { status: 401, body: { message: 'No refresh token stored' } }],
+  ])('a refresh token the IdP rejects (%s) asks for Repair right away', async (_, response) => {
+    const driver = createDriver();
+    const device = createPolledDevice();
+    device.getFeatures.mockRejectedValue(tokenError(response));
+
+    await startPolling(driver, device);
+
+    expect(device.setUnavailable).toHaveBeenCalledTimes(1);
+    expect(device.setUnavailable).toHaveBeenCalledWith(REPAIR);
+  });
+
+  test.each([
+    ['the IdP answers HTTP 503', () => tokenError({ status: 503, statusText: 'Service Unavailable', body: '<html></html>' })],
+    ['the IdP answers another 4xx', () => tokenError({ status: 400, body: { error: 'invalid_request' } })],
+    ['the token request times out', () => Object.assign(new Error('network timeout at: https://iam.example/token'), { type: 'request-timeout' })],
+    ['the token request has no network', () => Object.assign(new Error('request to https://iam.example/token failed, reason: ENOTFOUND'), { code: 'ENOTFOUND' })],
+  ])('a temporary refresh failure (%s) backs off without a Repair prompt', async (_, createError) => {
+    const driver = createDriver();
+    const device = createPolledDevice();
+    device.getFeatures.mockRejectedValue(createError());
+
+    const nextPoll = await startPolling(driver, device);
+    expect(pollTimers(driver).pop().ms).toBe(2 * POLL_INTERVAL);
+    await nextPoll();
+    expect(device.setUnavailable).not.toHaveBeenCalled();
+    await nextPoll();
+    expect(device.setUnavailable).toHaveBeenCalledTimes(1);
+    expect(device.setUnavailable.mock.calls[0][0]).not.toMatch(/Repair|Authentication failed/);
   });
 
   test('other errors only make the device unavailable after three failures in a row', async () => {

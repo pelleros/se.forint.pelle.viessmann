@@ -90,8 +90,8 @@ your login has probably expired: see the next problem.
 
 **Cause:** your Viessmann login for Homey has expired or been revoked, for example after a password
 change, after you deleted or changed the client in the developer portal, or after a long time
-without contact. In a diagnostic report this often shows up as `invalid_grant`. An error that ends
-in "repair the device to sign in again" means the same.
+without contact. In a diagnostic report this often shows up as `invalid_grant`; the device then says
+"Authentication failed, open the device and choose Repair".
 
 **Fix:** open the device in Homey, go to its settings (gear icon), choose **Repair** and log in with
 your ViCare account again. Your flows and settings stay as they are.

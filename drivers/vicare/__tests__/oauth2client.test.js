@@ -35,7 +35,7 @@ async function errorFor(response) {
 
 describe('ViessmannOAuth2Client.onHandleNotOK', () => {
   test.each([
-    [401, 'Authentication failed; repair the device to sign in again'],
+    [401, 'Authentication failed, open the device and choose Repair'],
     [403, 'Write access or API permission denied'],
     [404, 'Device, circuit or feature not found'],
     [429, 'API rate limit exceeded'],

@@ -10,6 +10,7 @@
     "homey:install": "npm run generate && homey app install",
     "homey:validate": "npm run generate && homey app validate --level publish",
     "homey:publish": "npm run generate && homey app publish",
+    "homey:twin": "node scripts/devTwin.js",
     "fixtures": "node scripts/generateFixtures.js"
   },
   "devDependencies": {

@@ -5,12 +5,11 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
     "test": "jest --config jest.config.js",
-    "homey:install": "node scripts/homey.js install",
-    "homey:run": "node scripts/homey.js run",
-    "homey:validate": "node scripts/homey.js validate",
-    "homey:publish": "node scripts/homey.js publish",
-    "doc": "node scripts/restoreDocumentation.js",
-    "nodoc": "node scripts/moveDocumentation.js",
+    "generate": "node scripts/generateFlowCompose.js",
+    "homey:run": "npm run generate && homey app run",
+    "homey:install": "npm run generate && homey app install",
+    "homey:validate": "npm run generate && homey app validate --level publish",
+    "homey:publish": "npm run generate && homey app publish",
     "fixtures": "node scripts/generateFixtures.js"
   },
   "devDependencies": {

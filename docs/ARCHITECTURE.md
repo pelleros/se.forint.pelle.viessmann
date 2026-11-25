@@ -27,10 +27,15 @@ The design choice that shapes everything: **there is one device type for every V
 │   ├── device.js                # OAuth2Device: dynamic capabilities, commands, store migrations
 │   ├── driver.js                # OAuth2Driver: pairing, Flow card registration, polling
 │   ├── flowCards.js             # Flow conditions/actions/triggers as JS objects
+│   ├── heatingCircuit.js        # Heating circuit detection and circuit-0 path mapping
 │   ├── driver.compose.json      # Driver manifest (edited by hand; no static capabilities)
 │   ├── driver.flow.compose.json # GENERATED from flowCards.js + locales (npm run generate)
 │   └── __tests__/               # Device, driver, OAuth client and registry tests
-├── lib/ViessmannOAuth2Client.js # OAuth2 client (PKCE) and all REST calls
+├── lib/
+│   ├── ViessmannOAuth2Client.js # OAuth2 client (PKCE) and all REST calls
+│   ├── apiError.js              # Errors for failed API responses (status, safe details, Retry-After)
+│   ├── DevicePoller.js          # Per-device polling loop: no overlap, backoff, Retry-After
+│   └── commandValidation.js     # Checks a command against the API's command metadata
 ├── locales/*.json               # Runtime, settings page and Flow card strings
 ├── settings/index.html          # Client ID + troubleshooting page
 ├── scripts/
@@ -39,6 +44,7 @@ The design choice that shapes everything: **there is one device type for every V
 │   └── generateFixtures.js      # Regenerates test/fixtures/ from local dumps (maintainer)
 ├── test/
 │   ├── fixtures/                # Anonymized feature/installation dumps, one per installation type
+│   ├── helpers/                 # In-memory fake of homey-oauth2app for device/driver tests
 │   └── *.test.js                # Anonymizer and fixture privacy tests
 ├── __mocks__/homey.js           # Jest mock for the "homey" module
 ├── .homeyignore                 # Keeps dev files out of the app package
@@ -80,10 +86,18 @@ Each capability entry has:
 
 `driver.compose.json` declares no capabilities; `device.js` shapes each device at runtime.
 
-1. **Pairing** (`driver.js` → `onPairListDevices`): lists installations, gateways and devices of type `heating`, fetches each device's features once (`_getEnabledFeaturesAndOpModes`) and stores per device: `features` (enabled, not `notConnected`), `constraints` (min/max/step/enum per command parameter), `operatingModes` (from `setMode` on `heating.circuits.0.operating.modes.active`), `roles` and `version`.
-2. **Init** (`device.js` → `onOAuth2Init`): `checkUpgradeSpecifics()` runs store migrations; `initializeCapabilities()` adds the capabilities of every stored feature that passes the role check (merging API constraints into `min`/`max`/`step`) and, today, removes capabilities that no longer map to a stored feature; `initializeOperatingModes()` sets the `values` of `thermostat_mode.heating` to the device's modes; `registerCapabilityListeners()` registers one listener per writable capability.
-3. **Polling** (`driver.js` → `_startPolling`): every `2 minutes × number of devices`. About 3 % of polls request all features instead of only `PATHS`; new enabled features are then added to the stored list (it only grows) and get capabilities and listeners. Deleting a device stops its poller.
-4. **Updating values** (`onFeaturesUpdated`): for each feature in `FEATURES`, read every capability's `propertyPath` and call `setCapabilityValueIfPossible`, which also fires the matching trigger card.
+1. **Pairing** (`driver.js` → `onPairListDevices`): lists installations, gateways and devices of type `heating`, fetches each device's features once (`_getEnabledFeaturesAndOpModes`) and stores per device: `heatingCircuitId` (see below), `features` (enabled, not `notConnected`), `constraints` (min/max/step/enum per command parameter), `commandMetadata` (the API's `commands` per feature), `operatingModes` (from `setMode` on the circuit's `operating.modes.active`), `roles` and `version`.
+2. **Init** (`device.js` → `onOAuth2Init`): `checkUpgradeSpecifics()` runs store migrations, including a one-time metadata refresh for pairings without `heatingCircuitId`/`commandMetadata` (the stored feature list becomes the union of the old and the fresh list; a failure is logged and retried on the next start); `initializeCapabilities()` adds the capabilities of every stored feature that passes the role check (merging API constraints into `min`/`max`/`step`) and, today, removes capabilities that no longer map to a stored feature; `updateCapabilityOptions()` reapplies the options from `config.js` and the constraints on every start; `initializeOperatingModes()` sets the `values` of `thermostat_mode.heating` to the device's modes; `registerCapabilityListeners()` registers one listener per writable capability.
+3. **Polling** (`driver.js` → `_startPolling`, `lib/DevicePoller.js`): every `2 minutes × number of devices`, counted from the end of the previous poll, so polls never overlap. Failures back off (doubling, at most 30 minutes) and honour `Retry-After`. A 401 makes the device unavailable with "Authentication failed", three failures in a row with the API error (or "Multiple communication errors"); the next successful poll makes it available again. About 3 % of polls request all features instead of only `PATHS`; new enabled features are then added to the stored list (it only grows) and get capabilities and listeners. Deleting a device stops its poller and drops a poll still in progress.
+4. **Updating values** (`onFeaturesUpdated`): refreshes the command metadata from the response, then, for each feature in `FEATURES`, read every capability's `propertyPath` and call `setCapabilityValueIfPossible`, which also fires the matching trigger card.
+
+## Heating circuits
+
+`config.js`, capability IDs and Flow cards only know `heating.circuits.0.*`. Each device works on one heating circuit, `heatingCircuitId`: circuit 0 when it is enabled, otherwise the first enabled circuit, or the number in the advanced device setting `heatingCircuit` (`auto` by default). `heatingCircuit.js` maps the API's `heating.circuits.<id>.*` features to `heating.circuits.0.*` when reading (and drops other circuits), and back to `<id>` for the poll filter and commands. A device on circuit 1 therefore has the same capability IDs as one on circuit 0. Changing the setting re-reads the metadata (merging the feature list) and restarts polling.
+
+## Commands
+
+`executeCommand` checks the command against `commandMetadata` (`lib/commandValidation.js`: exists, `isExecutable`, required parameters, type, enum, min/max/stepping) and, for the operating mode, against the device's modes, before calling the API. A response with `data.success: false` is an error, and the capability value is only updated after a successful command. Polls keep the metadata current; until a device has any (no refresh and no poll yet), the check is skipped.
 
 ## Flow cards
 
@@ -99,7 +113,8 @@ Homey also generates threshold triggers for number capabilities (e.g. "Hot water
 
 - `CLIENT_ID` comes from `homey.settings.get('clientId')`; pairing fails with `pair.no_client_id` when it is missing.
 - PKCE: `code_challenge` (S256) on the authorization URL, `code_verifier` on the token request.
-- `onHandleNotOK` maps 401/403/404/429 to fixed messages and other errors to the HTTP status plus Viessmann's `errorType`/`message` (never `extendedPayload`, which can contain IDs). Errors carry `status`.
+- `onHandleNotOK` and `onIsRateLimited` return errors from `lib/apiError.js`: `Viessmann HTTP <status>: <description> — <details>`, where the details are Viessmann's `errorType`/`message` or the IdP's `error`/`error_description` (never `extendedPayload`, which can contain IDs; tokens are redacted). Errors carry `status`, `apiCode`, `requestId` and, for 429, `retryAfterMs`. A 401 that is still there after the SDK refreshed the token keeps its status.
+- `onRefreshToken` only replaces the stored token when the response contains a valid access token; a missing refresh token in the response keeps the old one. `debug` output is redacted.
 - `getFeatures` always adds `skipDisabled=true`; with a filter it requests only the given paths.
 - `getInstallations` blanks `address` and `description` before the data reaches the troubleshooting page.
 
@@ -110,8 +125,9 @@ Homey also generates threshold triggers for number capabilities (e.g. "Hot water
 ## Tests
 
 - `drivers/vicare/__tests__/device.test.js`: feeds every `*_features.json` in `test/fixtures/` (and local dumps in `documentation/json-example-files/`, when present) through `onFeaturesUpdated` and checks that each `propertyPath` resolves.
-- `drivers/vicare/__tests__/registry.test.js` + `registry.json`: guards released capability IDs and Flow cards.
-- Lifecycle, polling and OAuth client tests next to them; anonymizer and fixture privacy tests in `test/`.
+- `drivers/vicare/__tests__/registry.test.js` + `registry.json`: guards released capability IDs, Flow cards and device settings.
+- `drivers/vicare/__tests__/upgrade.simulation.test.js`: pairs a device from each fixture the way 1.0.14 did and starts it on the current code, with a working and a failing refresh; nothing may be removed and polling must start. `device.upgrade.test.js` covers the refresh in detail.
+- Lifecycle, polling, heating circuit and OAuth client tests next to them, tests for `lib/` in `lib/__tests__/`; anonymizer and fixture privacy tests in `test/`.
 - `config.test.js` is a golden copy of `FEATURES`; update it when `config.js` changes.
 
 ## Versions and migrations

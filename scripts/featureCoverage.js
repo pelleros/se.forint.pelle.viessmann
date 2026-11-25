@@ -23,7 +23,7 @@
 'use strict';
 
 /*
- * Feature coverage report, used to refresh docs/DATAPOINTS.md.
+ * Feature coverage report, used by the maintainer to keep the datapoint catalogue up to date.
  *
  * Reads Viessmann feature dumps (the JSON returned by the features endpoint, `{ "data": [...] }`)
  * and lists every feature that is usable in at least one dump but not mapped in

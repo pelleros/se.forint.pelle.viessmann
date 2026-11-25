@@ -1,7 +1,9 @@
 name: CI
 
 on:
+  # Branch pushes are covered by their pull request; only run on push for main.
   push:
+    branches: [main]
   pull_request:
 
 permissions:

@@ -60,11 +60,11 @@
           }
         },
         "heating_temp": {
-          "title": "Set heating target temperature to [[temperature]] Â°C",
+          "title": "Set heating target temperature to [[temperature]] °C",
           "temperature": "Temperature"
         },
         "dhw_temp": {
-          "title": "Set hot water Normal target temperature to [[temperature]] Â°C",
+          "title": "Set hot water Normal target temperature to [[temperature]] °C",
           "temperature": "Temperature"
         },
         "dhw_charge": {
@@ -76,7 +76,7 @@
           }
         },
         "hot_water_temp2": {
-          "title": "Set hot water Temp 2 target temperature to [[temperature]] Â°C"
+          "title": "Set hot water Temp 2 target temperature to [[temperature]] °C"
         },
         "temperature": {
           "title": "Temperature"

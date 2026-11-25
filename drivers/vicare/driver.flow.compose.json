@@ -87,10 +87,10 @@
     {
       "id": "set-heating-thermostat",
       "title": {
-        "en": "Set heating target temperature to [[temperature]] Â°C"
+        "en": "Set heating target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set heating target temperature to [[temperature]] Â°C"
+        "en": "Set heating target temperature to [[temperature]] °C"
       },
       "args": [
         {
@@ -108,10 +108,10 @@
     {
       "id": "set-hot-water-thermostat",
       "title": {
-        "en": "Set hot water Normal target temperature to [[temperature]] Â°C"
+        "en": "Set hot water Normal target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set hot water Normal target temperature to [[temperature]] Â°C"
+        "en": "Set hot water Normal target temperature to [[temperature]] °C"
       },
       "args": [
         {
@@ -158,10 +158,10 @@
     {
       "id": "set-hot-water-thermostat2",
       "title": {
-        "en": "Set hot water Temp 2 target temperature to [[temperature]] Â°C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
       },
       "titleFormatted": {
-        "en": "Set hot water Temp 2 target temperature to [[temperature]] Â°C"
+        "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
       },
       "args": [
         {

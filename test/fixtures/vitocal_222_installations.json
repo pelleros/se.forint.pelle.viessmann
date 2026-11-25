@@ -1,0 +1,122 @@
+{
+  "cursor": {
+    "next": ""
+  },
+  "data": [
+    {
+      "id": 900001,
+      "description": "anonymized",
+      "address": {},
+      "gateways": [
+        {
+          "serial": "9999000000000001",
+          "version": "2.8.0.0",
+          "firmwareUpdateFailureCounter": 0,
+          "autoUpdate": false,
+          "createdAt": "2000-01-01T00:00:00.000Z",
+          "producedAt": "2000-01-01T00:00:00.000Z",
+          "lastStatusChangedAt": "2000-01-01T00:00:00.000Z",
+          "aggregatedStatus": "WorksProperly",
+          "targetRealm": "DC",
+          "gatewayType": "VitoconnectOptolink",
+          "installationId": 900001,
+          "registeredAt": "2000-01-01T00:00:00.000Z",
+          "description": null,
+          "otaOngoing": false,
+          "devices": [
+            {
+              "gatewaySerial": "9999000000000001",
+              "id": "gateway",
+              "boilerSerial": null,
+              "boilerSerialEditor": null,
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "Heatbox1",
+              "status": "Online",
+              "deviceType": "vitoconnect",
+              "roles": [
+                "interface:telemetryControlUnit",
+                "type:gateway;VitoconnectOpto1",
+                "type:gatewayConfiguration",
+                "type:legacy",
+                "type:product;VitoconnectOpto1",
+                "type:productFamily;VitoconnectOpto"
+              ],
+              "isBoilerSerialEditable": true,
+              "brand": null,
+              "translationKey": "Heatbox1",
+              "description": null,
+              "materialNumber": null
+            },
+            {
+              "gatewaySerial": "9999000000000001",
+              "id": "0",
+              "boilerSerial": "9999000000000002",
+              "boilerSerialEditor": "DeviceCommunication",
+              "bmuSerial": "9999000000000003",
+              "bmuSerialEditor": "DeviceCommunication",
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "CU401B_S_64",
+              "status": "Online",
+              "deviceType": "heating",
+              "roles": [
+                "capability:consumptionReport;electric",
+                "capability:monetization;AdvancedReport",
+                "capability:productionReport;electric",
+                "capability:productionReport;thermal",
+                "capability:service;AdvancedReport",
+                "interface:bufferCylinder",
+                "interface:building",
+                "interface:burner",
+                "interface:circuit;heating",
+                "interface:circuit;primary",
+                "interface:circuit;secondary",
+                "interface:compressor",
+                "interface:dateTime",
+                "interface:domesticHotWater",
+                "interface:heating",
+                "interface:heatingRod",
+                "interface:messages",
+                "interface:outsideTemperature",
+                "interface:smartGrid",
+                "interface:solar",
+                "interface:ventilation",
+                "type:brand;Viessmann",
+                "type:businessDomain;heating",
+                "type:cooling;integrated",
+                "type:dhw;integrated",
+                "type:heating;integrated",
+                "type:heatpump",
+                "type:legacy",
+                "type:product;CU401B"
+              ],
+              "isBoilerSerialEditable": false,
+              "brand": "Viessmann",
+              "translationKey": "CU401B_S",
+              "description": null,
+              "materialNumber": "9900001"
+            }
+          ]
+        }
+      ],
+      "registeredAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "aggregatedStatus": "WorksProperly",
+      "servicedBy": null,
+      "heatingType": null,
+      "ownedByMaintainer": false,
+      "endUserWlanCommissioned": true,
+      "withoutViCareUser": false,
+      "installationType": "Residential",
+      "buildingName": null,
+      "buildingEmail": null,
+      "buildingPhone": null,
+      "accessLevel": "Owner",
+      "ownershipType": "ResidentialEndUser",
+      "brand": "Viessmann"
+    }
+  ]
+}

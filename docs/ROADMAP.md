@@ -91,17 +91,20 @@ All of these have been seen in real installation dumps and are available in Vies
 | 2.7 | Condition cards for temperatures | n/a | For example "Hot water is above X °C". | `planned` |
 | 2.8 | Heating rod runtime | `heatingRods.heatGeneration.N.runtime` | Waiting for a dump that contains the new path. The old `heating.heatingRod.runtime` is deprecated and past its removal date. | `planned` |
 | 2.9 | Raise `compatibility` to `>=13.5.0` | n/a | Decided. Needed statically for `uiState`; it also provides Node 22, widgets and enum `values` in `capabilitiesOptions` (used for operating modes). Release 1.0.15 keeps `>=10.0.0` so the bug fixes reach everyone. Users on older Homey versions keep the app version they have installed and receive no further updates; the change is announced in the forum and the changelog. | `planned` |
+| 2.10 | Poll interval setting and per-account quota | n/a | A device setting for the poll interval that shows the resulting calls per day, and counting devices per Viessmann account (OAuth session) instead of per Homey, so devices on different accounts don't slow each other down. The default stays at about 720 calls/day per account. Decided. | `planned` |
+| 2.11 | Cooling | `heating.circuits.N.operating.modes.*` (e.g. `cooling`, `heatingCooling`), `heating.cop.cooling` | No separate cooling feature: installations that support cooling expose it as operating modes, so the device-specific operating-mode card (1.8) makes cooling selectable in Flows. Also read "cooling active" and cooling COP where present. Dedicated cooling set points only if users ask. Decided. | `planned` |
+| 2.12 | Standard thermostat | `target_temperature`, `measure_temperature` (no suffix) | Add Homey's standard thermostat pair, mirroring the heating set point and the room temperature (where a room sensor exists), so the device opens on heating instead of hot water and works in Homey's Climate view. Additive: existing capabilities stay. Verified first on the dev twin, in particular the order on existing devices. | `planned` |
 
 ## Phase 3: Larger improvements (releases 1.2.x)
 
 | # | Feature | What and why | Status |
 |---|---|---|---|
 | 3.1a | Multiple heating circuits, step 1 (#4) | Requested by many users. Automatically pick the active circuit when circuit 0 does not exist. Installations with only circuit 1 currently get no circuit capabilities at all, so nothing can be lost for them. Low risk. | `in progress` |
-| 3.1b | Multiple heating circuits, step 2 | One Homey device per extra circuit (a new driver, e.g. `vicare_circuit`, paired against the same Viessmann device), sharing one poll per Viessmann device so the API quota is unaffected. Each circuit then becomes its own thermostat in the right zone. Requires moving polling from the Homey device to the Viessmann device. | `planned` |
+| 3.1b | Multiple heating circuits, step 2 | **Decided direction:** one Homey device per *extra* circuit. The existing device keeps everything it has today (heat generator, hot water, outside temperature and circuit 0, or the circuit chosen in step 1), so no IDs change. Each additional enabled circuit can be added as its own device (`data.id` suffix `-circuit-N`), at pairing and later for existing users, with the circuit's own set point, operating mode, programs, heating curve and supply/room temperatures. It becomes its own thermostat in the right zone and in Homey's Climate view. Polling happens once per Viessmann device and is shared by all its Homey devices, so the API quota and the update frequency are unaffected (the quota counts Viessmann devices, not Homey devices). The same pattern can later serve radiator valves and room sensors. | `planned` |
 | 3.2 | Heating curve (shift and slope) | `heating.circuits.N.heating.curve` with `setCurve` (shift -15 to 40, slope 0 to 3.5). Flow cards "Set curve shift to X" and "Adjust shift by ±N", with rate limiting because this writes to the controller. Useful with hourly prices and power-based tariffs. Direct compressor control (`setActive`/`setPhase`) is `isExecutable: false` on legacy installations. Newer E3 devices expose `device.power.consumption.limitation` and `heating.device.smartGrid` (SG Ready), which suit such tariffs better; they will be added data-driven once we have dumps to test against. | `planned` |
 | 3.3 | Programs and holiday | `…programs.comfort`/`eco` (`activate`/`deactivate`), `…programs.reduced`/`normal` (`setTemperature`), `heating.operating.programs.holiday` (`schedule`/`unschedule`), `heating.dhw.temperature.hysteresis` (`setHysteresis`) as Flow actions. | `planned` |
 | 3.4 | Alarm / logbook trigger | `device.messages.logbook` (`entries[]` with `event`, `status`, `actor`, `timestamp`): trigger "New logbook entry" with tokens, remembering the last seen timestamp in the store. Complemented by `device.messages.errors.counter.*`. | `planned` |
-| 3.5 | Device settings and maintenance | Poll interval (showing the resulting calls per day), circuit selection, and a "Refresh Viessmann features" maintenance action (a `maintenanceAction` on a button capability). | `planned` |
+| 3.5 | Device settings and maintenance | Circuit selection (the poll interval moved to 2.10), and a "Refresh Viessmann features" maintenance action (a `maintenanceAction` on a button capability). | `planned` |
 | 3.6 | Better pairing | Enter the Client ID in the pairing flow instead of app settings (also required for Homey Cloud). Clear errors: 401 → wrong Client ID or redirect URI, 429 → quota used up, network error. Name the device after the model (`translationKey`/`modelId`) or installation description instead of `Viessmann (<installationId>)`. | `planned` |
 | 3.7 | Translations | German (Viessmann is German), Dutch and Swedish first; contributions welcome. Flow card translations live inline in `driver.flow.compose.json`; runtime and settings strings live in `locales/*.json`. | `planned` |
 
@@ -142,12 +145,14 @@ No decisions yet; feedback is welcome in issues.
 | Dashboard widget | Supported from Homey 12.3 (covered by the `compatibility` raise in 1.1.0), not on Homey Cloud. Would show compressor, COP, temperatures and pumps; makes sense after Phase 2. |
 | Homey Cloud | Has platform constraints: no custom settings pages (the Client ID must move into the pairing flow, see 3.6), no Web API (`api.js`), and unhandled promise rejections crash the app. To be revisited after 3.6. |
 | Radiator valves and room sensors | Separate devices inside the installation with their own feature calls. The quota is not enough for several valves at a 2-minute poll, so this needs per-Viessmann-device polling (3.1) first, then slower polling for valves. |
+| Photovoltaic values (`photovoltaic.*`) | Waiting for a feature dump from an installation with Viessmann PV before deciding how a producing device appears in Homey Energy. |
+| Hot water heat pumps (e.g. Vitocal 262-A) | Owners will be asked for a dump with the next test version. It may already pair if the API reports it as a `heating` device; otherwise it needs its own device type. |
+| Hiding capabilities per user | Not planned for now: Homey can't hide a single sub-capability, so hiding means removing it (and its history). The diagnostic tier keeps the default view tidy; a few group switches (e.g. statistics) can follow if users ask. |
 
 ## Ideas / later
 
 Not scheduled; listed so they are not lost.
 
-- **Cooling:** `heating.circuits.N.cooling.*`, `heating.circuits.N.operating.modes.heatingCooling` and `heating.cop.cooling`, with a cooling capability and a longer operating-mode list.
 - **Schedules:** read-only first (`heating.circuits.N.heating.schedule`, `heating.dhw.schedule`), writing later.
 - **Hot water:** a "boost now" button (`oneTimeCharge.activate`), set DHW comfort and reduced temperature.
 - **Solar:** `heating.solar.*` sensors (collector and buffer temperature, sun hours).
@@ -169,6 +174,6 @@ Not scheduled; listed so they are not lost.
 |---|---|---|
 | none | Phase 0 (tests, CI, fixtures, cleanup) | None; no behavior change |
 | **1.0.15** | Phase 1 bug fixes; `compatibility` stays `>=10.0.0` so the fixes reach everyone | Low if the registry test is green; 1-2 weeks in the test channel |
-| **1.1.0** | Phase 2: pumps, COP, compressor load, temperatures, condition cards; raises `compatibility` to `>=13.5.0` | Low; additions only. Users on older Homey versions stay on their installed version |
+| **1.1.0** | Phase 2: pumps, COP, compressor load, temperatures, condition cards, poll interval setting, cooling via operating modes, standard thermostat; raises `compatibility` to `>=13.5.0` | Low; additions only. Users on older Homey versions stay on their installed version |
 | **1.2.x** | Phase 3: circuit step 1, heating curve, programs, logbook trigger, settings, pairing, translations | Medium; some of it writes to the controller |
 | later | Circuits as separate devices, energy (if a source exists), widget, possibly Homey Cloud | Medium |

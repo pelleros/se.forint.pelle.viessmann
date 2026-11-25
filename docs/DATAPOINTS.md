@@ -547,13 +547,13 @@ Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm tur
 12. **Diagnostic setting switched off:** remove the diagnostic capabilities (user-initiated, Insights history is lost; warn in the setting hint) or keep them and stop updating? Principle 2 only covers automatic removal.
 13. **Program as `string` or `enum`:** string (proposed) tolerates unknown program ids but is not logged in Insights and gives no dropdown in Flows; enum needs a per-device value list (its Homey 12.0.1 requirement is covered from 1.1.0).
 14. ~~**Tile state:** set `uiState` at runtime, or raise `compatibility`?~~ **Decided:** 1.1.0 raises `compatibility` to `>=13.5.0` (1.0.15 stays `>=10.0.0`); `uiState` goes statically into the capability definitions (5a).
-15. **Heating thermostat:** add a duplicate `measure_temperature.heating` (Insights and tag prevented) so the dial shows the room temperature, or leave it unpaired? And should the reduced, comfort and hygiene set points get dials at all, or be Flow-only?
+15. **Heating thermostat:** ~~duplicate `measure_temperature.heating`~~ **Replaced** by roadmap 2.12: Homey's standard thermostat pair without suffix (`target_temperature` + `measure_temperature`) mirroring the heating set point and room temperature, verified on the dev twin first. Still open: should the reduced, comfort and hygiene set points get dials at all, or be Flow-only?
 16. **One-time charge:** once `button.dhwBoost` exists, keep the picker, hide it, or retire it (steps in 5d)?
 17. **Alarms:** `alarm_generic.lowPressure` with which default threshold, or only a Flow condition? Which datapoint should drive `alarm_generic.fault` on devices without `device.messages.errors.raw`?
 18. **Diagnostic visibility:** a three-level setting (Off / Insights only / Show) if per-device `uiComponent: null` works at runtime?
 19. **Mode titles:** confirm the meaning and English wording of `forcedNormal`, `forcedReduced` and `normalStandby`. Is "Heating & hot water" acceptable under the 3-word rule?
 20. **Fuel-cell tile state:** feed `measure_fuelcell_active` from `fuelCell.operating.phase`, and which phases count as running?
-21. **IDs for index ≥ 1** (ID rule 7): append the unit and index to the sub-ID (`…Compressor1`, `…Burner1`, proposed) or put the index inside it (`compressor1Hours`)? Decide together with #4. With one Homey device per circuit (roadmap 3.1 step 2) circuit capabilities may never need an index suffix, but compressors, burners and evaporators on the same device would.
+21. *(Circuits decided in roadmap 3.1b: one Homey device per extra circuit, so circuit capabilities need no index suffix; still open for compressors, burners and evaporators.)* **IDs for index ≥ 1** (ID rule 7): append the unit and index to the sub-ID (`…Compressor1`, `…Burner1`, proposed) or put the index inside it (`compressor1Hours`)? Decide together with #4. With one Homey device per circuit (roadmap 3.1 step 2) circuit capabilities may never need an index suffix, but compressors, burners and evaporators on the same device would.
 
 ## Refreshing this catalogue
 

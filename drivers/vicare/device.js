@@ -243,7 +243,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       const reason = error instanceof Error ? error.message : String(error);
       throw new Error(`Error executing command: ${reason}`, { cause: error });
     }
-    // Uppdate capability value 
+    // Update capability value
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
     return true;
   }

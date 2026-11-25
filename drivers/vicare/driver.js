@@ -41,7 +41,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     try {
       this.log('Starting onOAuth2Init');
 
-      // Registrera alla triggers från flowCards.js
+      // Register all triggers from flowCards.js
       await this._registerTriggerCards();
 
       // Register Flow Cards
@@ -57,14 +57,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _registerTriggerCards() {
-    // Registrera alla triggers från FLOW_TRIGGERS
+    // Register all triggers from FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       this._triggerCards.set(trigger.capability, triggerCard);
     }
   }
 
-  // Hjälpmetod för att hämta trigger card baserat på capability
+  // Helper to get the trigger card for a capability
   getTriggerCard(capabilityName) {
     const triggerCard = this._triggerCards.get(capabilityName);
     if (!triggerCard) {
@@ -98,12 +98,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Hitta path och capability från FEATURES
+          // Find the path and capability in FEATURES
           for (const [path, feature] of Object.entries(FEATURES)) {
             const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
             if (capability) {
-              // Använd executeCommand med path och capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // Hämta värdet från första argumentet
+              // Use executeCommand with the path and capability
+              const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
               return device.executeCommand(path, capability, value);
             }
           }
@@ -328,7 +328,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         throw new Error(this.homey.__('pair.no_client_id'));
       }
 
-      // Anropa parent onPair med socket
+      // Call the parent onPair with the socket
       const result = await super.onPair(socket);
       this.log('Pairing process completed');
 

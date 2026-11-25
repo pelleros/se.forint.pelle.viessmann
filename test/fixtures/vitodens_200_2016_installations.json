@@ -1,0 +1,99 @@
+[
+  {
+    "id": 900003,
+    "description": "anonymized",
+    "address": {
+      "street": "anonymized",
+      "houseNumber": "anonymized",
+      "zip": "anonymized",
+      "city": "anonymized",
+      "region": null,
+      "country": "anonymized",
+      "phoneNumber": null,
+      "faxNumber": null,
+      "geolocation": {
+        "latitude": 0,
+        "longitude": 0,
+        "timeZone": "anonymized"
+      }
+    },
+    "gateways": [
+      {
+        "serial": "9999000000000006",
+        "version": "2.8.0.0",
+        "firmwareUpdateFailureCounter": 0,
+        "autoUpdate": false,
+        "createdAt": "2000-01-01T00:00:00.000Z",
+        "producedAt": "2000-01-01T00:00:00.000Z",
+        "lastStatusChangedAt": "2000-01-01T00:00:00.000Z",
+        "aggregatedStatus": "WorksProperly",
+        "targetRealm": "DC",
+        "gatewayType": "VitoconnectOptolink",
+        "installationId": 900003,
+        "registeredAt": "2000-01-01T00:00:00.000Z",
+        "description": null,
+        "otaOngoing": false,
+        "devices": [
+          {
+            "gatewaySerial": "9999000000000006",
+            "id": "0",
+            "boilerSerial": "9999000000000007",
+            "boilerSerialEditor": "DeviceCommunication",
+            "bmuSerial": "9999000000000008",
+            "bmuSerialEditor": "DeviceCommunication",
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "VScotHO1_200_11",
+            "status": "Online",
+            "deviceType": "heating",
+            "roles": [
+              "capability:consumptionReport;electric",
+              "capability:consumptionReport;thermal",
+              "capability:monetization;AdvancedReport",
+              "capability:monetization;DhwSavingsCalculator",
+              "capability:productionReport;electric",
+              "type:boiler",
+              "type:dhw;integrated",
+              "type:heating;integrated",
+              "type:legacy",
+              "type:product;VScotHO1"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000006",
+            "id": "gateway",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "Heatbox1",
+            "status": "Online",
+            "deviceType": "vitoconnect",
+            "roles": [
+              "type:gateway;VitoconnectOpto1",
+              "type:legacy"
+            ],
+            "isBoilerSerialEditable": false
+          }
+        ]
+      }
+    ],
+    "registeredAt": "2000-01-01T00:00:00.000Z",
+    "updatedAt": "2000-01-01T00:00:00.000Z",
+    "aggregatedStatus": "WorksProperly",
+    "servicedBy": null,
+    "heatingType": null,
+    "ownedByMaintainer": false,
+    "endUserWlanCommissioned": true,
+    "withoutViCareUser": false,
+    "installationType": "Residential",
+    "buildingName": null,
+    "buildingEmail": null,
+    "buildingPhone": null,
+    "accessLevel": "Owner",
+    "ownershipType": "ResidentialEndUser"
+  }
+]

@@ -4,4 +4,6 @@
 /troubleshooting/
 **/.DS_Store
 .DS_Store
-app.json
+# Raw API dumps from real installations (serials, ids, addresses). Never commit them;
+# use scripts/anonymizeDump.js to create fixtures in test/fixtures/ instead.
+documentation/

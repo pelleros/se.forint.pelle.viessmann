@@ -1,0 +1,342 @@
+[
+  {
+    "id": 900002,
+    "description": "anonymized",
+    "address": {
+      "street": "anonymized",
+      "houseNumber": "anonymized",
+      "zip": "anonymized",
+      "city": "anonymized",
+      "region": null,
+      "country": "anonymized",
+      "phoneNumber": null,
+      "faxNumber": null,
+      "geolocation": {
+        "latitude": 0,
+        "longitude": 0,
+        "timeZone": "anonymized"
+      }
+    },
+    "gateways": [
+      {
+        "serial": "9999000000000004",
+        "version": "506.2340.8.0",
+        "firmwareUpdateFailureCounter": 0,
+        "autoUpdate": false,
+        "createdAt": "2000-01-01T00:00:00.000Z",
+        "producedAt": "2000-01-01T00:00:00.000Z",
+        "lastStatusChangedAt": "2000-01-01T00:00:00.000Z",
+        "aggregatedStatus": "WorksProperly",
+        "targetRealm": "DC",
+        "gatewayType": "SA1800019WiFi",
+        "installationId": 900002,
+        "registeredAt": "2000-01-01T00:00:00.000Z",
+        "description": null,
+        "otaOngoing": false,
+        "devices": [
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "0",
+            "boilerSerial": "9999000000000005",
+            "boilerSerialEditor": "DeviceCommunication",
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_Vitodens_200_0821",
+            "status": "Online",
+            "deviceType": "heating",
+            "roles": [
+              "capability:backup;0002_HMU_VD2",
+              "capability:consumptionReport;electric",
+              "capability:consumptionReport;thermal",
+              "capability:monetization;AdvancedReport",
+              "capability:monetization;DhwSavingsCalculator",
+              "capability:productionReport;electric",
+              "capability:productionReport;thermal",
+              "type:E3",
+              "type:boiler",
+              "type:dhw;integrated",
+              "type:heating;integrated",
+              "type:product;Vitodens_200"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "RoomControl-1",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RoomControl_One_19_03",
+            "status": "Online",
+            "deviceType": "roomControl",
+            "roles": [
+              "capability:monetization;FTDC",
+              "capability:monetization;OWD",
+              "capability:zigbeeCoordinator",
+              "type:E3",
+              "type:virtual;smartRoomControl"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "TCU",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_TCU19_x05",
+            "status": "Online",
+            "deviceType": "tcu",
+            "roles": [
+              "capability:zigbeeCoordinator",
+              "type:E3",
+              "type:gateway;TCU200"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000001",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RoomSensor",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:climateSensor",
+              "type:sensor",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000002",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000003",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000004",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000005",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000006",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000007",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000008",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000009",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RadiatorActuator",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:actuator",
+              "type:radiator",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000010",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_RoomSensor",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:climateSensor",
+              "type:sensor",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          },
+          {
+            "gatewaySerial": "9999000000000004",
+            "id": "zigbee-fa4e000000000011",
+            "boilerSerial": null,
+            "boilerSerialEditor": null,
+            "bmuSerial": null,
+            "bmuSerialEditor": null,
+            "createdAt": "2000-01-01T00:00:00.000Z",
+            "editedAt": "2000-01-01T00:00:00.000Z",
+            "modelId": "E3_Repeater",
+            "status": "Online",
+            "deviceType": "zigbee",
+            "roles": [
+              "type:E3",
+              "type:repeater",
+              "type:smartRoomDevice"
+            ],
+            "isBoilerSerialEditable": false
+          }
+        ]
+      }
+    ],
+    "registeredAt": "2000-01-01T00:00:00.000Z",
+    "updatedAt": "2000-01-01T00:00:00.000Z",
+    "aggregatedStatus": "WorksProperly",
+    "servicedBy": null,
+    "heatingType": null,
+    "ownedByMaintainer": false,
+    "endUserWlanCommissioned": true,
+    "withoutViCareUser": false,
+    "installationType": "Residential",
+    "buildingName": null,
+    "buildingEmail": null,
+    "buildingPhone": null,
+    "accessLevel": "Owner",
+    "ownershipType": "ResidentialEndUser"
+  }
+]

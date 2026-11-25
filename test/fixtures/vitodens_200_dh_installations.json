@@ -1,0 +1,129 @@
+{
+  "cursor": {
+    "next": ""
+  },
+  "data": [
+    {
+      "id": 900004,
+      "description": "anonymized",
+      "address": {
+        "street": "anonymized",
+        "houseNumber": "anonymized",
+        "zip": "anonymized",
+        "city": "anonymized",
+        "region": null,
+        "country": "anonymized",
+        "phoneNumber": null,
+        "faxNumber": null,
+        "geolocation": {
+          "latitude": "anonymized",
+          "longitude": "anonymized",
+          "timeZone": "anonymized"
+        }
+      },
+      "gateways": [
+        {
+          "serial": "9999000000000009",
+          "version": "506.2340.8.0",
+          "firmwareUpdateFailureCounter": 0,
+          "autoUpdate": false,
+          "createdAt": "2000-01-01T00:00:00.000Z",
+          "producedAt": "2000-01-01T00:00:00.000Z",
+          "lastStatusChangedAt": "2000-01-01T00:00:00.000Z",
+          "aggregatedStatus": "WorksProperly",
+          "targetRealm": "DC",
+          "gatewayType": "SA1800019WiFi",
+          "installationId": 900004,
+          "registeredAt": "2000-01-01T00:00:00.000Z",
+          "description": null,
+          "otaOngoing": false,
+          "devices": [
+            {
+              "gatewaySerial": "9999000000000009",
+              "id": "0",
+              "boilerSerial": "9999000000000010",
+              "boilerSerialEditor": "DeviceCommunication",
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_Vitodens_200_0821",
+              "status": "Online",
+              "deviceType": "heating",
+              "roles": [
+                "capability:backup;0002_HMU_VD2",
+                "capability:consumptionReport;electric",
+                "capability:consumptionReport;thermal",
+                "capability:monetization;AdvancedReport",
+                "capability:monetization;DhwSavingsCalculator",
+                "capability:productionReport;electric",
+                "capability:productionReport;thermal",
+                "type:E3",
+                "type:boiler",
+                "type:dhw;integrated",
+                "type:heating;integrated",
+                "type:product;Vitodens_200"
+              ],
+              "isBoilerSerialEditable": false
+            },
+            {
+              "gatewaySerial": "9999000000000009",
+              "id": "TCU",
+              "boilerSerial": null,
+              "boilerSerialEditor": null,
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_TCU19_x05",
+              "status": "Online",
+              "deviceType": "tcu",
+              "roles": [
+                "capability:src",
+                "capability:zigbeeCoordinator",
+                "type:E3",
+                "type:gateway;TCU200"
+              ],
+              "isBoilerSerialEditable": false
+            },
+            {
+              "gatewaySerial": "9999000000000009",
+              "id": "RoomControl-1",
+              "boilerSerial": null,
+              "boilerSerialEditor": null,
+              "bmuSerial": null,
+              "bmuSerialEditor": null,
+              "createdAt": "2000-01-01T00:00:00.000Z",
+              "editedAt": "2000-01-01T00:00:00.000Z",
+              "modelId": "E3_RoomControl_One_19_03",
+              "status": "Online",
+              "deviceType": "roomControl",
+              "roles": [
+                "capability:monetization;FTDC",
+                "capability:monetization;OWD",
+                "capability:zigbeeCoordinator",
+                "type:E3",
+                "type:virtual;smartRoomControl"
+              ],
+              "isBoilerSerialEditable": false
+            }
+          ]
+        }
+      ],
+      "registeredAt": "2000-01-01T00:00:00.000Z",
+      "updatedAt": "2000-01-01T00:00:00.000Z",
+      "aggregatedStatus": "WorksProperly",
+      "servicedBy": null,
+      "heatingType": null,
+      "ownedByMaintainer": false,
+      "endUserWlanCommissioned": true,
+      "withoutViCareUser": false,
+      "installationType": "Residential",
+      "buildingName": null,
+      "buildingEmail": null,
+      "buildingPhone": null,
+      "accessLevel": "Owner",
+      "ownershipType": "ResidentialEndUser"
+    }
+  ]
+}

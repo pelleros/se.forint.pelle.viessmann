@@ -1,4 +1,4 @@
-Koppla din Viessmann-värme till Homey. Oavsett om du har värmepump, gaspanna eller bränslecell kan du följa temperaturer, driftläge och energiförbrukning, ändra inställningar för värme och varmvatten och låta dina Flows sköta resten.
+Koppla din Viessmann-värme till Homey. Oavsett om du har värmepump, gaspanna eller bränslecell kan du följa temperaturer, driftläge och om kompressorn eller brännaren går (med drifttimmar och antal starter), ändra inställningar för värme och varmvatten och låta dina Flows sköta resten.
 
 Viessmann kräver att varje användare skapar ett eget, kostnadsfritt Client ID, så det tar ungefär fem minuter att komma igång:
 1. Installera appen och öppna dess inställningar i Homey. Där finns en länk till Viessmanns utvecklarportal och redirect URI:n, klar att kopiera.

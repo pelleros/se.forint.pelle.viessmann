@@ -1,4 +1,4 @@
-Hol deine Viessmann-Heizung in Homey. Ob Wärmepumpe, Gasheizung oder Brennstoffzelle: Du siehst Temperaturen, Betriebszustand und Energieverbrauch, änderst Einstellungen für Heizung und Warmwasser und überlässt den Rest deinen Flows.
+Hol deine Viessmann-Heizung in Homey. Ob Wärmepumpe, Gasheizung oder Brennstoffzelle: Du siehst Temperaturen, die Betriebsart und ob Verdichter oder Brenner laufen (mit Betriebsstunden und Starts), änderst Einstellungen für Heizung und Warmwasser und überlässt den Rest deinen Flows.
 
 Viessmann verlangt, dass jeder Nutzer eine eigene, kostenlose Client ID anlegt. Die Einrichtung dauert etwa fünf Minuten:
 1. Installiere die App und öffne ihre Einstellungen in Homey. Dort findest du einen Link zum Viessmann-Entwicklerportal und die Redirect URI zum Kopieren.

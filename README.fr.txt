@@ -1,4 +1,4 @@
-Intégrez votre chauffage Viessmann à Homey. Que vous ayez une pompe à chaleur, une chaudière à gaz ou une pile à combustible, vous pouvez suivre les températures, l'état de fonctionnement et la consommation d'énergie, modifier les réglages du chauffage et de l'eau chaude, et laisser vos Flows faire le reste.
+Intégrez votre chauffage Viessmann à Homey. Que vous ayez une pompe à chaleur, une chaudière à gaz ou une pile à combustible, vous pouvez suivre les températures, le mode de fonctionnement et savoir si le compresseur ou le brûleur tourne (avec heures de fonctionnement et nombre de démarrages), modifier les réglages du chauffage et de l'eau chaude, et laisser vos Flows faire le reste.
 
 Viessmann demande à chaque utilisateur de créer son propre Client ID gratuit. La mise en route prend donc environ cinq minutes :
 1. Installez l'app et ouvrez ses paramètres dans Homey. Vous y trouverez un lien vers le portail développeur de Viessmann et l'URI de redirection (Redirect URI), prête à être copiée.

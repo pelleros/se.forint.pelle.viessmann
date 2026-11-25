@@ -148,7 +148,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         try {
           // get features with extended response every 30th poll (statisticaly)
           const extendedRequest = Math.random() < 0.03;
-          const features = await device.getFeatures({ useFilter: !extendedRequest });
+          // device.getFeatures(useFilter) takes a boolean: false requests all features
+          const features = await device.getFeatures(!extendedRequest);
 
           consecutiveErrors = 0;
           if (!device.getAvailable()) {

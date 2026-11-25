@@ -16,3 +16,6 @@
 
 # Repository docs (README.txt is the app store description and stays)
 *.md
+
+# Not needed at runtime (dependencies are copied into the package by the Homey CLI)
+/package-lock.json

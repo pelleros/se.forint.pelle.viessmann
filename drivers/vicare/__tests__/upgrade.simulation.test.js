@@ -375,3 +375,48 @@ describe.each(scenarios.map((scenario) => [scenario.name, scenario]))('upgrade f
     });
   }
 });
+
+// The installation from issue #7: paired on 1.0.14 while the main buffer sensor was connected,
+// and the top sensor took over later
+describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sensor', () => {
+  const withoutTop = (dump) => ({ ...clone(dump), data: dump.data.filter((feature) => feature.feature !== PATHS.BUFFER_TEMP_TOP) });
+  const scenario = {
+    before: withoutTop(readJson(FIXTURES_DIR, 'vitocal_222_2024_features.json')),
+    after: readJson(FIXTURES_DIR, 'vitocal_222_features.json'),
+    installations: readJson(FIXTURES_DIR, 'vitocal_222_installations.json'),
+  };
+  const ADDED = [
+    'measure_compressor_number.compressorModulation',
+    'measure_cop_number.dhw',
+    'measure_cop_number.heating',
+    'measure_cop_number.total',
+  ];
+
+  test('the 1.0.14 device has the buffer capability from the main sensor and no COP', async () => {
+    const { store, capabilitiesBefore } = await upgrade(scenario);
+    expect(store.features).toContain(PATHS.BUFFER_TEMP);
+    expect(store.features).not.toContain(PATHS.BUFFER_TEMP_TOP);
+    expect(capabilitiesBefore).toContain('measure_temperature.buffer');
+    ADDED.forEach((id) => expect(capabilitiesBefore).not.toContain(id));
+  });
+
+  test('after the upgrade refresh the buffer reads the top sensor and COP and compressor load are added', async () => {
+    const { device, capabilitiesBefore } = await upgrade(scenario);
+
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED].sort());
+    expect(device.getStoreValue('features')).toEqual(expect.arrayContaining([
+      PATHS.BUFFER_TEMP, PATHS.BUFFER_TEMP_TOP, PATHS.COMPRESSOR_POWER, PATHS.COP_TOTAL, PATHS.COP_HEATING, PATHS.COP_DHW,
+    ]));
+    expect(device.getCapabilityValue('measure_temperature.buffer')).toBe(34.5);
+    expect(ADDED.map((id) => device.getCapabilityValue(id))).toEqual([42, 3, 3.4, 3.3]);
+  });
+
+  test('when the refresh fails the buffer still reads the top sensor and nothing is added or removed', async () => {
+    const { device, capabilitiesBefore } = await upgrade(scenario, { refreshFails: true });
+
+    expect(device.removeCapability).not.toHaveBeenCalled();
+    expect(device.getCapabilities().sort()).toEqual(capabilitiesBefore);
+    expect(device.getCapabilityValue('measure_temperature.buffer')).toBe(34.5);
+  });
+});

@@ -43,6 +43,10 @@ const PATHS = {
   BOILER_COMMON_SUPPLY_TEMP: 'heating.boiler.sensors.temperature.commonSupply',
   COMPRESSOR: 'heating.compressors.0',
   COMPRESSOR_STATS: 'heating.compressors.0.statistics',
+  COMPRESSOR_POWER: 'heating.compressors.0.sensors.power',
+  COP_TOTAL: 'heating.cop.total',
+  COP_HEATING: 'heating.cop.heating',
+  COP_DHW: 'heating.cop.dhw',
   BURNER: 'heating.burners.0',
   BURNER_MODULATION: 'heating.burners.0.modulation',
   BURNER_STATS: 'heating.burners.0.statistics',
@@ -110,6 +114,18 @@ const createActiveCapability = (name, title, options = {}) => ({
     title: { en: title },
     ...CAPABILITY_TEMPLATES.activeState,
     ...options,
+  },
+});
+
+// Coefficient of performance (no unit)
+const createCopCapability = (name, title) => ({
+  capabilityName: `measure_cop_number.${name}`,
+  propertyPath: 'value.value',
+  capabilityOptions: {
+    title: { en: title },
+    decimals: 1,
+    preventInsights: false,
+    preventTag: false,
   },
 });
 
@@ -268,6 +284,19 @@ module.exports = {
     [PATHS.COMPRESSOR_STATS]: {
       requireRole: 'type:heatpump',
       capabilities: createStatisticsCapabilities('compressor', 'Compressor'),
+    },
+    [PATHS.COMPRESSOR_POWER]: {
+      requireRole: 'type:heatpump',
+      capabilities: [createModulationCapability('compressor', 'Compressor load')],
+    },
+    [PATHS.COP_TOTAL]: {
+      capabilities: [createCopCapability('total', 'COP total')],
+    },
+    [PATHS.COP_HEATING]: {
+      capabilities: [createCopCapability('heating', 'COP heating')],
+    },
+    [PATHS.COP_DHW]: {
+      capabilities: [createCopCapability('dhw', 'COP hot water')],
     },
     [PATHS.BURNER_STATS]: {
       capabilities: createStatisticsCapabilities('burner', 'Burner'),

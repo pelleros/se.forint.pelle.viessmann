@@ -40,11 +40,11 @@ function respond(dump, filter) {
   A device with the capabilities of `features`, the given current values and a
   heating-mode-changed trigger card that records its calls.
 */
-async function deviceWith(features, values = {}) {
+async function deviceWith(features, values = {}, roles = HEAT_PUMP_ROLES) {
   const modeChanged = { trigger: jest.fn(async () => {}) };
   const device = new ViessmannDevice();
   device.driver = { getTriggerCard: jest.fn((id) => (id === 'thermostat_mode.heating' ? modeChanged : null)) };
-  device._roles = HEAT_PUMP_ROLES;
+  device._roles = roles;
   device._features = features;
   await device.initializeCapabilities();
   for (const [id, value] of Object.entries(values)) device.__values.set(id, value);
@@ -199,5 +199,44 @@ describe('values of features that are no longer reported', () => {
     await device.onFeaturesUpdated({ data: [outside] }, false);
 
     expect(device.getCapabilityValue('measure_temperature.outside')).toBe(4.2);
+  });
+});
+
+describe('COP and compressor load', () => {
+  const COP = ['measure_cop_number.total', 'measure_cop_number.heating', 'measure_cop_number.dhw'];
+  const LOAD = 'measure_compressor_number.compressorModulation';
+  const pairedFeatures = (dump) => new ViessmannDriver()._readDeviceMetadata(clone(dump)).features;
+
+  test('a heat pump that reports them gets the capabilities and their values', async () => {
+    const { device } = await deviceWith(pairedFeatures(HEAT_PUMP));
+
+    await device.onFeaturesUpdated(HEAT_PUMP, false);
+
+    expect(COP.map((id) => device.getCapabilityValue(id))).toEqual([3.3, 3.4, 3]);
+    expect(device.getCapabilityValue(LOAD)).toBe(42);
+    expect(COP.map((id) => device.__options.get(id).title.en)).toEqual(['COP total', 'COP heating', 'COP hot water']);
+    expect(device.__options.get(LOAD)).toMatchObject({ title: { en: 'Compressor load' }, units: '%' });
+  });
+
+  test.each([
+    ['vitocal_222_2024_features.json', HEAT_PUMP_ROLES],
+    ['vitodens_200_2016_features.json', ['type:boiler']],
+    ['vitodens_200_e3_features.json', ['type:boiler']],
+    ['vitodens_200_dh_features.json', ['type:boiler']],
+    ['vitovalor_pt2_features.json', ['type:boiler']],
+  ])('an installation that does not report them does not get them (%s)', async (name, roles) => {
+    const dump = fixture(name);
+    const { device } = await deviceWith(pairedFeatures(dump), {}, roles);
+
+    await device.onFeaturesUpdated(dump, false);
+
+    expect(device.getCapabilities().filter((id) => COP.includes(id) || id === LOAD)).toEqual([]);
+  });
+
+  test('compressor load needs the heat pump role, COP does not', async () => {
+    const { device } = await deviceWith(pairedFeatures(HEAT_PUMP), {}, ['type:boiler']);
+
+    expect(device.hasCapability(LOAD)).toBe(false);
+    expect(COP.every((id) => device.hasCapability(id))).toBe(true);
   });
 });

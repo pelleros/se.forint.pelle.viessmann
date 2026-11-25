@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "title": { "en": "COP" },
+    "getable": true,
+    "setable": false,
+    "insights": true,
+    "uiComponent": "sensor",
+    "decimals": 1,
+    "icon": "/assets/compressor.svg"
+}

@@ -2,7 +2,10 @@
 
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const config = require('../config');
+const registry = require('./registry.json');
 
 describe('Config funktioner', () => {
   // Testa varje feature och dess capabilities
@@ -172,6 +175,18 @@ describe('Config funktioner', () => {
           propertyPath: 'active.value',
           capabilityOptions: {
             title: { en: 'Compressor running' },
+            titleTrue: {
+              en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',
+            },
+            titleFalse: {
+              en: 'No', de: 'Nein', nl: 'Nee', fr: 'Non', sv: 'Nej',
+            },
+            insightsTitleTrue: {
+              en: 'Compressor started', de: 'Verdichter gestartet', nl: 'Compressor gestart', fr: 'Compresseur démarré', sv: 'Kompressorn startade',
+            },
+            insightsTitleFalse: {
+              en: 'Compressor stopped', de: 'Verdichter gestoppt', nl: 'Compressor gestopt', fr: 'Compresseur arrêté', sv: 'Kompressorn stannade',
+            },
             preventInsights: false,
             preventTag: false,
           },
@@ -185,8 +200,8 @@ describe('Config funktioner', () => {
             propertyPath: 'hours.value',
             capabilityOptions: {
               title: { en: 'Compressor runtime' },
-              units: 'hours',
-              preventInsights: true,
+              units: 'h',
+              preventInsights: false,
               preventTag: true,
             },
           },
@@ -195,8 +210,11 @@ describe('Config funktioner', () => {
             propertyPath: 'starts.value',
             capabilityOptions: {
               title: { en: 'Compressor starts' },
-              units: 'times',
-              preventInsights: true,
+              units: {
+                en: 'starts', de: 'Starts', nl: 'starts', fr: 'démarrages', sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
               preventTag: true,
             },
           },
@@ -208,10 +226,18 @@ describe('Config funktioner', () => {
           propertyPath: 'active.value',
           capabilityOptions: {
             title: { en: 'Burner running' },
-            titleTrue: { en: 'Yes' },
-            titleFalse: { en: 'No' },
-            insightsTitleTrue: { en: 'Yes' },
-            insightsTitleFalse: { en: 'No' },
+            titleTrue: {
+              en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',
+            },
+            titleFalse: {
+              en: 'No', de: 'Nein', nl: 'Nee', fr: 'Non', sv: 'Nej',
+            },
+            insightsTitleTrue: {
+              en: 'Burner started', de: 'Brenner gestartet', nl: 'Brander gestart', fr: 'Brûleur démarré', sv: 'Brännaren startade',
+            },
+            insightsTitleFalse: {
+              en: 'Burner stopped', de: 'Brenner gestoppt', nl: 'Brander gestopt', fr: 'Brûleur arrêté', sv: 'Brännaren stannade',
+            },
             preventInsights: false,
             preventTag: false,
           },
@@ -224,8 +250,8 @@ describe('Config funktioner', () => {
             propertyPath: 'hours.value',
             capabilityOptions: {
               title: { en: 'Burner runtime' },
-              units: 'hours',
-              preventInsights: true,
+              units: 'h',
+              preventInsights: false,
               preventTag: true,
             },
           },
@@ -234,8 +260,48 @@ describe('Config funktioner', () => {
             propertyPath: 'starts.value',
             capabilityOptions: {
               title: { en: 'Burner starts' },
-              units: 'times',
-              preventInsights: true,
+              units: {
+                en: 'starts', de: 'Starts', nl: 'starts', fr: 'démarrages', sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: true,
+            },
+          },
+        ],
+      },
+      'fuelCell.statistics': {
+        capabilities: [
+          {
+            capabilityName: 'measure_fuelcell_number.operationHours',
+            propertyPath: 'operationHours.value',
+            capabilityOptions: {
+              title: { en: 'Fuel cell operation hours' },
+              units: 'h',
+              preventInsights: false,
+              preventTag: true,
+            },
+          },
+          {
+            capabilityName: 'measure_fuelcell_number.productionHours',
+            propertyPath: 'productionHours.value',
+            capabilityOptions: {
+              title: { en: 'Fuel cell production hours' },
+              units: 'h',
+              preventInsights: false,
+              preventTag: true,
+            },
+          },
+          {
+            capabilityName: 'measure_fuelcell_number.productionStarts',
+            propertyPath: 'productionStarts.value',
+            capabilityOptions: {
+              title: { en: 'Fuel cell starts' },
+              units: {
+                en: 'starts', de: 'Starts', nl: 'starts', fr: 'démarrages', sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
               preventTag: true,
             },
           },
@@ -503,4 +569,89 @@ describe('Config funktioner', () => {
       }).toThrow('No capability options found for: invalid.capability');
     });
   });
+});
+
+describe('Running state texts', () => {
+  const CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/capabilities');
+  const LANGUAGES = fs.readdirSync(path.join(__dirname, '../../../locales'))
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => path.basename(file, '.json'));
+  const RETIRED_BASES = new Set(Object.keys(registry.retiredCapabilities).map((id) => id.split('.')[0]));
+  const TEXT_KEYS = ['titleTrue', 'titleFalse', 'insightsTitleTrue', 'insightsTitleFalse'];
+
+  // The base capabilities of the boolean "running" states, without the retired ones
+  const runningBases = fs.readdirSync(CAPABILITIES_DIR)
+    .filter((file) => /^measure_\w+_active\.json$/.test(file))
+    .map((file) => path.basename(file, '.json'))
+    .filter((base) => !RETIRED_BASES.has(base));
+  const definition = (base) => JSON.parse(fs.readFileSync(path.join(CAPABILITIES_DIR, `${base}.json`), 'utf8'));
+
+  test('the app languages and the running capabilities are found', () => {
+    expect(LANGUAGES.sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
+    expect(runningBases.sort()).toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_fuelcell_active']);
+  });
+
+  test.each(runningBases)('%s is translated into every app language and names the change on the timeline', (base) => {
+    const capability = definition(base);
+    for (const key of TEXT_KEYS) {
+      expect(Object.keys(capability[key]).sort()).toEqual([...LANGUAGES].sort());
+      for (const text of Object.values(capability[key])) expect(text).toEqual(expect.any(String));
+    }
+    for (const key of ['insightsTitleTrue', 'insightsTitleFalse']) {
+      expect(capability[key].en).not.toMatch(/^(Yes|No)$/);
+    }
+    expect(capability.insightsTitleTrue.en).toMatch(/ started$/);
+    expect(capability.insightsTitleFalse.en).toMatch(/ stopped$/);
+  });
+
+  const mappedRunningCapabilities = Object.values(config.FEATURES)
+    .flatMap((feature) => feature.capabilities)
+    .filter((capability) => runningBases.includes(capability.capabilityName));
+
+  test('the compressor and the burner are mapped', () => {
+    expect(mappedRunningCapabilities.map((capability) => capability.capabilityName).sort())
+      .toEqual(['measure_burner_active', 'measure_compressor_active']);
+  });
+
+  // Devices that already have the capability get the texts from config.js, new devices also
+  // from the definition: both must show the same
+  test.each(mappedRunningCapabilities.map((capability) => [capability.capabilityName, capability]))(
+    '%s has the same texts in config.js as in its capability definition',
+    (name, capability) => {
+      const capabilityDefinition = definition(name);
+      for (const key of TEXT_KEYS) expect(capability.capabilityOptions[key]).toEqual(capabilityDefinition[key]);
+    },
+  );
+});
+
+describe('Statistics counters', () => {
+  const counters = Object.entries(config.FEATURES)
+    .filter(([featurePath]) => /(^|\.)statistics$/.test(featurePath))
+    .flatMap(([, feature]) => feature.capabilities);
+
+  test('are the starts and hours of the compressor, the burner and the fuel cell', () => {
+    expect(counters.map((capability) => capability.capabilityName).sort()).toEqual([
+      'measure_burner_number.burnerHours',
+      'measure_burner_number.burnerStarts',
+      'measure_compressor_number.compressorHours',
+      'measure_compressor_number.compressorStarts',
+      'measure_fuelcell_number.operationHours',
+      'measure_fuelcell_number.productionHours',
+      'measure_fuelcell_number.productionStarts',
+    ]);
+  });
+
+  test.each(counters.map((capability) => [capability.capabilityName, capability.capabilityOptions]))(
+    '%s is logged in Insights, without a Flow tag',
+    (name, options) => {
+      expect(options.preventInsights).toBe(false);
+      expect(options.preventTag).toBe(true);
+      if (/Hours$/.test(name)) {
+        expect(options.units).toBe('h');
+      } else {
+        expect(options.decimals).toBe(0);
+        expect(options.units.en).toBe('starts');
+      }
+    },
+  );
 });

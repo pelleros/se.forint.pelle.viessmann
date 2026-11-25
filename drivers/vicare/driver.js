@@ -26,7 +26,21 @@ const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
-const { isAuthenticationFailure, REPAIR_MESSAGE } = require('../../lib/apiError');
+const {
+  isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
+} = require('../../lib/apiError');
+const { apiStateMessage } = require('../../lib/errorMessages');
+
+// Least time between polls while one of these states lasts. A paid package does not appear
+// by itself; a gateway is often back within minutes, and a successful poll clears the state.
+const STATE_RETRY_DELAYS = {
+  [API_STATES.PACKAGE_NOT_PAID]: 6 * 60 * 60 * 1000,
+  [API_STATES.GATEWAY_OFFLINE]: 5 * 60 * 1000,
+};
+
+// The installation list reports the gateway or the device as offline
+const reportedOffline = (gateway, device) => [gateway?.aggregatedStatus, device?.status]
+  .some((status) => typeof status === 'string' && status.toLowerCase() === 'offline');
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
@@ -158,10 +172,18 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         }
         await device.onFeaturesUpdated(features, extendedRequest);
       },
-      onError: async (error, consecutiveErrors) => {
+      retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
+      onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${deviceKey}:`, error);
-        // Only a new login helps: say so right away. Everything else is retried with backoff.
-        if (isAuthenticationFailure(error)) {
+        // Say right away what the user should know: a paid API package is required, the quota
+        // is used up (when its reset is known), the gateway is offline, or only a new login
+        // helps. Everything else is retried with backoff.
+        const stateMessage = apiStateMessage(this.homey, error, {
+          retryAt: Number.isFinite(error?.retryAfterMs) ? nextPollAt : undefined,
+        });
+        if (stateMessage) {
+          await this._setDeviceAvailability(device, deviceKey, false, stateMessage);
+        } else if (isAuthenticationFailure(error)) {
           await this._setDeviceAvailability(device, deviceKey, false, REPAIR_MESSAGE);
         } else if (consecutiveErrors >= 3) {
           // API errors carry a safe, redacted message; network errors can contain request URLs
@@ -238,9 +260,19 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 
+              let metadata;
+              try {
+                metadata = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
+              } catch (error) {
+                // Without a clearer cause, the installation list may already say why
+                if (!apiErrorState(error) && reportedOffline(gateway, device)) {
+                  throw Object.assign(new Error(`Gateway offline: ${error?.message}`, { cause: error }), { apiReason: 'GATEWAY_OFFLINE' });
+                }
+                throw error;
+              }
               const {
                 features, constraints, operatingModes, heatingCircuitId, commandMetadata,
-              } = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
+              } = metadata;
 
               devices.push({
                 name: `Viessmann (${gateway.installationId})`,
@@ -268,8 +300,15 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       return devices;
     } catch (error) {
       this.error('Error in onPairListDevices:', error);
-      throw error;
+      throw this._pairingError(error);
     }
+  }
+
+  // The error to show while adding a device: a translated message for a known API state
+  _pairingError(error) {
+    const retryAt = Number.isFinite(error?.retryAfterMs) ? Date.now() + error.retryAfterMs : undefined;
+    const message = apiStateMessage(this.homey, error, { retryAt, pairing: true });
+    return message ? new Error(message, { cause: error }) : error;
   }
 
   async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId, selectedCircuit = 'auto') {

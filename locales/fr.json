@@ -64,7 +64,13 @@
     }
   },
   "pair": {
-    "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil."
+    "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil.",
+    "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__."
+  },
+  "errors": {
+    "package_not_paid": "Viessmann exige un forfait API payant pour ce compte, aucune donnée ne peut donc être lue. L'app ne peut rien y changer ; veuillez contacter Viessmann.",
+    "gateway_offline": "La passerelle Viessmann est hors ligne. Vérifiez qu'elle est alimentée et connectée à Internet.",
+    "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__."
   },
   "device_settings": {
     "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."

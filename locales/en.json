@@ -67,7 +67,13 @@
       "heating_circuit_not_available": "Heating circuit __circuit__ is not available on this installation. Available circuits: __available__."
     },
     "pair": {
-      "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again."
+      "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again.",
+      "api_limit": "The Viessmann API limit has been reached. Try again after __time__."
+    },
+    "errors": {
+      "package_not_paid": "Viessmann requires a paid API package for this account, so no data can be read. The app cannot change this; please contact Viessmann.",
+      "gateway_offline": "The Viessmann gateway is offline. Check that it has power and an internet connection.",
+      "api_limit": "Viessmann API limit reached, updates resume at __time__."
     },
     "flow": {
       "conditions": {

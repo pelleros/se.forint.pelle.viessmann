@@ -64,7 +64,13 @@
     }
   },
   "pair": {
-    "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu."
+    "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu.",
+    "api_limit": "Das Limit der Viessmann-API ist erreicht. Versuche es nach __time__ Uhr erneut."
+  },
+  "errors": {
+    "package_not_paid": "Viessmann verlangt für dieses Konto ein kostenpflichtiges API-Paket, daher können keine Daten gelesen werden. Die App kann das nicht ändern; bitte wende dich an Viessmann.",
+    "gateway_offline": "Das Viessmann-Gateway ist offline. Prüfe, ob es Strom und eine Internetverbindung hat.",
+    "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert."
   },
   "device_settings": {
     "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."

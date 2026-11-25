@@ -64,7 +64,13 @@
     }
   },
   "pair": {
-    "no_client_id": "Er is nog geen Viessmann Client ID opgeslagen. Open de instellingen van de app Viessmann ViCare, maak daar volgens de stappen een Client ID aan, sla hem op en voeg het apparaat daarna opnieuw toe."
+    "no_client_id": "Er is nog geen Viessmann Client ID opgeslagen. Open de instellingen van de app Viessmann ViCare, maak daar volgens de stappen een Client ID aan, sla hem op en voeg het apparaat daarna opnieuw toe.",
+    "api_limit": "De limiet van de Viessmann-API is bereikt. Probeer het na __time__ opnieuw."
+  },
+  "errors": {
+    "package_not_paid": "Viessmann vereist voor dit account een betaald API-pakket, daarom kunnen er geen gegevens worden gelezen. De app kan dit niet veranderen; neem contact op met Viessmann.",
+    "gateway_offline": "De Viessmann-gateway is offline. Controleer of hij stroom en een internetverbinding heeft.",
+    "api_limit": "Limiet van de Viessmann-API bereikt, updates worden om __time__ hervat."
   },
   "device_settings": {
     "heating_circuit_not_available": "Circuit __circuit__ bestaat niet in deze installatie. Beschikbare circuits: __available__."

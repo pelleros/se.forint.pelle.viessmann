@@ -10,11 +10,13 @@ const fs = require('fs');
 const path = require('path');
 const registry = require('./registry.json');
 const flowCompose = require('../driver.flow.compose.json');
+const driverCompose = require('../driver.compose.json');
 const { FEATURES } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
 const FLOW_COMPOSE_FILE = 'drivers/vicare/driver.flow.compose.json';
+const DRIVER_COMPOSE_FILE = 'drivers/vicare/driver.compose.json';
 const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/capabilities');
 
 // Homey system capabilities this app builds sub-capabilities on
@@ -39,6 +41,12 @@ const describeFlowCard = (card) => ({
   }])),
   tokens: Object.fromEntries((card.tokens || []).map((token) => [token.name, token.type])),
 });
+
+// Device settings as { id: type }, including settings inside groups
+const collectSettings = (settings = []) => settings.flatMap((setting) => (setting.type === 'group'
+  ? collectSettings(setting.children)
+  : [[setting.id, setting.type]]));
+const shippedSettings = Object.fromEntries(collectSettings(driverCompose.settings));
 
 const shippedFlowCards = Object.fromEntries(Object.keys(RUNTIME_FLOW_CARDS)
   .map((group) => [group, Object.fromEntries((flowCompose[group] || [])
@@ -172,5 +180,24 @@ describe('flow card registry', () => {
         + `registering them in driver.js fails: ${undefinedInCompose.join(', ')}`);
     }
     expectNone(problems, 'Flow cards in the compose file and flowCards.js do not match:');
+  });
+});
+
+describe('device settings registry', () => {
+  test('every registered device setting still exists with the same type', () => {
+    expectNone(
+      Object.entries(registry.deviceSettings)
+        .filter(([id, type]) => shippedSettings[id] !== type)
+        .map(([id, type]) => (shippedSettings[id] ? `'${id}' changed type from '${type}' to '${shippedSettings[id]}'` : `'${id}'`)),
+      `Breaking change: ${DRIVER_COMPOSE_FILE} no longer provides these registered device settings. Existing `
+      + 'users would lose the value they set. Restore them:',
+    );
+  });
+
+  test('every device setting in the driver compose file is registered', () => {
+    expectNone(
+      Object.keys(shippedSettings).filter((id) => !(id in registry.deviceSettings)),
+      `New device settings in ${DRIVER_COMPOSE_FILE}: add them to "deviceSettings" in ${REGISTRY_FILE}:`,
+    );
   });
 });

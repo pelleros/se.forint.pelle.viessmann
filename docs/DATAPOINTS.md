@@ -21,7 +21,7 @@ Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`]
 - Indexes are written as `N` (`heating.circuits.N.…`). ⓒ marks a per-circuit feature, described for circuit 0 / "the selected circuit". How several circuits are exposed depends on the multi-circuit design in [#4](https://github.com/pelleros/se.forint.pelle.viessmann/issues/4) (roadmap 3.1); the `.circuit0` suffixes below follow the existing IDs and the roadmap and must be confirmed together with that design.
 - **Insights / tag** gives the proposed `preventInsights` / `preventTag` defaults as ✓ (on) or – (prevented), following the templates in `drivers/vicare/config.js`: temperatures ✓/✓ (diagnostic ones ✓/–), on/off states ✓/✓, modulation ✓/–, counters –/–.
 - **UI** gives the proposed `uiComponent` (`sensor`, `picker`, `thermostat`, …); *ind* means the user can choose it as a device indicator (numbers starting with `measure_`/`meter_`, custom booleans and numbers; not strings); for booleans it says whether the value should drive the device tile (`uiState`, see [5a](#5a-tile-state-uistate-for-running-booleans)).
-- Some features real devices deliver are missing from the official list (`heating.burners.N`, `heating.compressors.N`, `heating.circuits.N`, `heating.circuits.N.name`, `device.messages.errors.raw`). Missing from the list is not a reason to drop a mapping; the app already relies on two of them.
+- Some features real devices deliver are missing from the official list (`heating.burners.N`, `heating.compressors.N`, `heating.circuits.N`, `heating.circuits.N.name`, `device.messages.errors.raw`). Missing from the list is not a reason to drop a mapping; the app already relies on two of them (see [Undocumented but relied on](#undocumented-but-relied-on)).
 
 **Totals.** 142 features are usable in at least one dump. 26 of them are mapped today (the 27th mapped path, `heating.primaryCircuit.sensors.temperature.return`, is not connected in any dump). Of the 116 unmapped ones, 10 are deprecated; the remaining **106** are classified below: 14 everyday, 18 energy, 17 diagnostic, 12 controls, 15 static configuration, 30 not planned.
 
@@ -32,7 +32,7 @@ Snapshot: 2026-11-25. Refresh it per release with [`scripts/featureCoverage.js`]
 3. **Reuse a base capability when meaning and unit match**: Homey system capabilities (`measure_temperature`, `target_temperature`, `thermostat_mode`, `measure_pressure`, `measure_water`, `measure_power`, `meter_power`, `meter_gas`) or the app's own (`measure_compressor_number`, `measure_burner_number`, `measure_fuelcell_number`, …). New custom bases follow the existing pattern `measure_<thing>_<kind>` (`_active` for booleans, `_number` for numbers).
 4. **One ID, one meaning, forever.** Never reuse a shipped ID for another datapoint. A fallback path that reads the *same physical sensor* is fine (e.g. buffer `.top` for `measure_temperature.buffer`, roadmap 1.4). Suffixes are unique per base on the device: `measure_temperature.supply` is already the *primary-circuit* supply, so other supply temperatures need other suffixes.
 5. **Never use a deprecated path**, whether it is flagged in the official list or in any dump (the dumps flag some paths the official list does not). Use the named replacement.
-6. **Never derive one value from another** (roadmap principle 6): no power from nominal compressor power, no gas m³ from kWh with a guessed calorific value.
+6. **Never derive one value from another** (roadmap principle 6): no power from nominal compressor power, no gas m³ from kWh with a guessed calorific value. The one deliberate exception is the running-state fallback in [Undocumented but relied on](#undocumented-but-relied-on). It reads the same component's own measured load, so it reports the same physical state; it is not an estimate.
 
 ## Tiers
 
@@ -82,6 +82,25 @@ Implementation needs, beyond today's `config.js` (none exist yet): a `tier` fiel
 | `fuelCell.operating.modes.active` | `value` → `setMode` | `thermostat_mode.fuelCell` | Fuel cell mode |
 
 None of these paths is flagged deprecated in the official list or in any dump.
+
+### Undocumented but relied on
+
+`heating.compressors.N` and `heating.burners.N` are not in Viessmann's datapoint list: it documents only the enabled-list features `heating.compressors` / `heating.burners` and children such as `heating.burners.N.modulation` or `heating.compressors.N.statistics`. (Checked against the 2026-11-25 copy; the maintainer confirmed the same on the live page.) Yet every real dump reports them, including the 2026-11-25 heat-pump dump (`active`, `phase`). The app maps their `active.value` to `measure_compressor_active` and `measure_burner_active`, which the Flow conditions `compressor-is-running` and `burner-is-running` read.
+
+**Risk.** An undocumented feature can disappear or change without a `deprecated` flag or `removalDate`, so the deprecation checks (`scripts/featureCoverage.js`, roadmap 0.6) would not warn in advance. The capability would freeze on its last value (or turn unknown once roadmap 1.4 lands) and those Flow conditions would stop working.
+
+**Fallback** (proposed). Feed the **same** capability IDs from a documented datapoint of the same component, only when the primary feature is missing or not usable:
+
+| Capability (frozen) | Primary (undocumented) | Fallback (documented, Basic) | Fallback seen in |
+|---|---|---|---|
+| `measure_compressor_active` | `heating.compressors.N` → `active` | `heating.compressors.N.sensors.power` → `value` > 0 % | HP (2025+), not in the 2024 snapshot |
+| `measure_burner_active` | `heating.burners.N` → `active` | `heating.burners.N.modulation` → `value` > 0 % | Gas 3/3, FC |
+
+All eight dumps agree with the rule: `active` is true exactly where the load is above 0, with one running snapshot of each (compressor 42 %, burner 15.1 %). That is a small sample. Phases such as defrost, or a burner at minimum load, should be checked in the test channel before the fallback ships. The fallback needs the multiple-sources mechanism of roadmap 1.4 plus a small transform (number > 0 → true). The primary and fallback sources are never mixed while the primary is usable. The unmapped `phase` property of `heating.compressors.N` (`heating`, `pause`, `preparing`, `off`, …) is a candidate for a later string capability.
+
+### Deprecated names in older dumps
+
+Dumps often contain an old, flagged name next to its replacement, with identical values. Examples: `heating.fuelCell.*` next to `fuelCell.*` (11 features in the fuel-cell dump), `heating.buffer.sensors.temperature.{main,top}` next to `heating.bufferCylinder.…`, and `heating.dhw.sensors.temperature.hotWaterStorage{,.top,.bottom}` next to `heating.dhw.sensors.temperature.dhwCylinder{,.top,.bottom}`. All of them carry `removalDate: 2024-09-15` but were still delivered. The app reads only the new names. The catalogue and `scripts/featureCoverage.js` ignore every flagged name, so the duplicates neither show up as candidates nor count as mapped.
 
 ## 2a. Everyday (added automatically)
 

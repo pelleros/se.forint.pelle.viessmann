@@ -1,4 +1,4 @@
-Koppel je Viessmann-verwarming aan Homey. Of je nu een warmtepomp, een cv-ketel of een brandstofcel hebt: je ziet temperaturen, bedrijfsstatus en energieverbruik, past instellingen voor verwarming en warm water aan en laat de rest over aan je Flows.
+Koppel je Viessmann-verwarming aan Homey. Of je nu een warmtepomp, een gasketel of een brandstofcel hebt: je ziet temperaturen, bedrijfsstatus en energieverbruik, past instellingen voor verwarming en warm water aan en laat de rest over aan je Flows.
 
 Viessmann vraagt elke gebruiker om een eigen, gratis Client ID aan te maken. Het instellen duurt ongeveer vijf minuten:
 1. Installeer de app en open de app-instellingen in Homey. Daar vind je een link naar het Viessmann-ontwikkelaarsportaal en de redirect URI, klaar om te kopiëren.

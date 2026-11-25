@@ -28,9 +28,9 @@ const {
   FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
 } = require('./config');
 
-// Reads a dot path such as 'value.value' from a feature's properties
-// A property value a capability can take: a string, a boolean, a finite number or null.
-// Anything else (objects, NaN, ...) counts as no value, so the capability keeps its last value.
+// Reads a dot path such as 'value.value' from a feature's properties. Only a string, a boolean,
+// a finite number or null is a value a capability can take; anything else (objects, NaN, ...)
+// counts as no value, so the capability keeps its last value.
 const getPropertyValue = (properties, propertyPath) => {
   const value = propertyPath.split('.')
     .reduce((current, part) => (current == null ? undefined : current[part]), properties);

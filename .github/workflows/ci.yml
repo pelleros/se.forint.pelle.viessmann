@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # --ignore-scripts: never run install-time scripts from dependencies (or this package).
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Lint
+        run: npm run lint
+
+      # Uses the anonymized fixtures in test/fixtures/; documentation/ is never in the repo.
+      - name: Test
+        run: npm test
+
+      - name: Check that driver.flow.compose.json is up to date
+        run: |
+          node scripts/generateFlowCompose.js
+          git diff --exit-code drivers/vicare/driver.flow.compose.json || {
+            echo "::error file=drivers/vicare/driver.flow.compose.json::Stale generated file. Run 'node scripts/generateFlowCompose.js' and commit the result."
+            exit 1
+          }
+
+      - name: Validate Homey app
+        run: npx --yes homey@4.4.0 app validate --level publish

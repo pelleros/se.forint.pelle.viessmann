@@ -10,3 +10,6 @@ documentation/
 
 # Claude Code session worktrees (full copies of this repo)
 /.claude/worktrees/
+
+# Private maintainer notes for Claude Code (never committed)
+/CLAUDE.md

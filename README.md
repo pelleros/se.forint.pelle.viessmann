@@ -7,6 +7,8 @@ Get it set up:
 
 ## Development
 
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how the app works.
+
 Requirements: Node.js 22 and the Homey CLI (`npm install --global homey`).
 
 | Command | What it does |

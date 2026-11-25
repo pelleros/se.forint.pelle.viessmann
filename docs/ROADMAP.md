@@ -30,7 +30,7 @@ Status values used below: `in progress`, `planned`. Capability IDs marked *(prop
 
 4. **Releases go through the test channel first**, for at least a week, with testers who have different installation types.
 
-5. **A registry test guards the IDs.** A checked-in list of every capability ID and flow card ID ever shipped; the test fails if one can no longer be produced. Adding is fine; removing means moving the entry to `RETIRED_CAPABILITIES` with a comment.
+5. **A registry test guards the IDs.** A checked-in list of every capability ID and flow card ID ever shipped; the test fails if one is no longer defined. Adding is fine; removing means moving the entry to `RETIRED_CAPABILITIES` with a comment.
 
 6. **Datapoints are optional and never guessed.** The app is data-driven: a capability appears only where Viessmann reports the datapoint. We do not estimate one value from an unrelated one (for example, power from nominal compressor power).
 
@@ -44,30 +44,36 @@ Status values used below: `in progress`, `planned`. Capability IDs marked *(prop
 | 0.2 | Repository hygiene | Keep raw API dumps (`documentation/`) and `.DS_Store` out of git; decide whether the generated `app.json` is tracked (today it is both committed and ignored). | `in progress` |
 | 0.3 | CI | GitHub Actions on push and PR: `npm ci`, lint, tests, `homey app validate --level publish`. There is no CI yet, so outside PRs cannot be assessed reliably. | `in progress` |
 | 0.4 | Fix lint | `eslint-config-athom` needs `eslint-plugin-homey-app`, which is not installed, so lint does not run. | `in progress` |
-| 0.5 | Registry and upgrade tests | The registry test from principle 5, plus upgrade tests ("a device paired on 1.0.14 keeps at least the same capabilities after `onOAuth2Init`"). Replace the 442-line golden copy of `FEATURES` in `config.test.js` with invariants: every base capability exists in `.homeycompose/capabilities/` or is a system capability, every `PATHS` entry has a `FEATURES` entry, every flow card resolves. | `in progress` |
-| 0.6 | Deprecation guard | A script that lists features flagged `deprecated` in the fixtures and warns when one is used in `PATHS`. Viessmann has started flagging datapoints with a `removalDate`, and the flags change between API snapshots. | `in progress` |
-| 0.7 | Dependencies and tooling | Update `homey-oauth2app` and `@types/homey`. Decide whether to adopt TypeScript properly (gradually, in `lib/` and `config.js`) or remove the unused scaffolding. Apps run on Node 22 from Homey 12.9. | `in progress` |
-| 0.8 | Dead code | Unused helpers (`isCompressorRunning`, `getCompressors`, `_updateAllPollingIntervals`, the commented-out `updateFeaturePaths`), `scripts/generateDriverCompose.js` (it only writes empty lists) and leftover `measure_something_*` capability definitions (once the registry test confirms they are retired). | `in progress` |
+| 0.5a | Registry test | The registry test from principle 5. | `in progress` |
+| 0.5b | Upgrade tests and invariants | Upgrade tests ("a device paired on 1.0.14 keeps at least the same capabilities after `onOAuth2Init`"). Replace the 442-line golden copy of `FEATURES` in `config.test.js` with invariants: every base capability exists in `.homeycompose/capabilities/` or is a system capability, every `PATHS` entry has a `FEATURES` entry, every flow card resolves. | `planned` |
+| 0.6 | Deprecation guard | A script that lists features flagged `deprecated` in the fixtures and warns when one is used in `PATHS`. Viessmann has started flagging datapoints with a `removalDate`, and the flags change between API snapshots. | `planned` |
+| 0.7 | Dependencies and tooling | Update `homey-oauth2app` and `@types/homey`. Decide whether to adopt TypeScript properly (gradually, in `lib/` and `config.js`) or remove the unused scaffolding. Apps run on Node 22 from Homey 12.9. | `planned` |
+| 0.8a | Remove obsolete scripts | Remove `scripts/generateDriverCompose.js` (it only writes empty lists) and the documentation move/restore scripts (`scripts/moveDocumentation.js`, `scripts/restoreDocumentation.js`; see 0.10). | `in progress` |
+| 0.8b | Remaining dead code | Unused helpers (`isCompressorRunning`, `getCompressors`, `_updateAllPollingIntervals`, the commented-out `updateFeaturePaths`) and leftover `measure_something_*` capability definitions (once the registry test confirms they are retired). | `planned` |
+| 0.9 | Remove the flow card generator | Remove `scripts/generateFlowCompose.js`. `drivers/vicare/driver.flow.compose.json` becomes the hand-edited source of truth (Homey's standard layout, translations inline) and `flowCards.js` keeps only the runtime mapping from flow card to capability. One less generated file to keep in sync. | `planned` |
+| 0.10 | Packaging and npm scripts | Exclude development files (such as `documentation/`) from the app package with `.homeyignore` instead of moving them out of the tree before publishing. Rename the npm scripts to `homey:run`, `homey:install`, `homey:validate` and `homey:publish`. | `in progress` |
 
 ## Phase 1: Bug fixes (release 1.0.15, no new capabilities)
 
-Ordered by impact on users.
+Roughly ordered by impact on users.
 
 | # | Fix and impact | Where | Status |
 |---|---|---|---|
 | 1.1 | `this.setStore(...)` does not exist (should be `setStoreValue`). When an extended poll finds a new feature, an error is thrown, the device is unavailable until the next poll, and the feature is not persisted. As a result, existing devices can never gain new capabilities. **Prerequisite for Phase 2.** | `onFeaturesUpdated` in `device.js` | `in progress` |
 | 1.2 | `getFeatures({ useFilter })` passes an object where a boolean is expected, so the filter is always on and the "extended" poll never sees features outside `PATHS`. | `_startPolling` in `driver.js`, `getFeatures` in `device.js` | `in progress` |
-| 1.3 | One-time refresh of the stored `features`, `constraints` and `operatingModes` on upgrade, as a union of old and new (principle 3). Devices paired before the endpoint change have outdated lists. | `checkUpgradeSpecifics` in `device.js` | `in progress` |
-| 1.4 | Values get stuck when a sensor turns `notConnected` (#7). Read `heating.bufferCylinder.sensors.temperature.top` as a fallback for the same `measure_temperature.buffer` capability when `.main` is `notConnected`, and set the capability to `null` (shown as unknown) when no source is left. Insights currently stays flat on an old value. | `onFeaturesUpdated` in `device.js`, `config.js` | `in progress` |
-| 1.5 | The cause of a failed command is swallowed (`throw new Error('Error executing command', error)`), so users only see "Error" or "Unknown error" (#2). Show the HTTP status and Viessmann's message, and check `isExecutable` and constraints before sending. | command execution in `device.js` | `in progress` |
+| 1.3 | One-time refresh of the stored `features`, `constraints` and `operatingModes` on upgrade, as a union of old and new (principle 3). Devices paired before the endpoint change have outdated lists. | `checkUpgradeSpecifics` in `device.js` | `planned` |
+| 1.4 | Values get stuck when a sensor turns `notConnected` (#7). Read `heating.bufferCylinder.sensors.temperature.top` as a fallback for the same `measure_temperature.buffer` capability when `.main` is `notConnected`, and set the capability to `null` (shown as unknown) when no source is left. Insights currently stays flat on an old value. | `onFeaturesUpdated` in `device.js`, `config.js` | `planned` |
+| 1.5a | The cause of a failed command is swallowed (`throw new Error('Error executing command', error)`), so users only see "Error" or "Unknown error" (#2). Show the HTTP status and Viessmann's message. | command execution in `device.js` | `in progress` |
+| 1.5b | Check `isExecutable` and constraints before sending a command, so impossible commands fail early with a clear message. | command execution in `device.js` | `planned` |
 | 1.6 | `'unauthorized'` is compared in lower case against `'Unauthorized - check credentials'`, so a 401 never marks the device "Authentication failed" and users are not told to repair it. | `_startPolling` in `driver.js` | `in progress` |
-| 1.7 | `onRefreshToken` does not check `res.ok`; an error response from the identity provider can be saved as a token. | `lib/ViessmannOAuth2Client.js` | `in progress` |
-| 1.8 | The `set-operating-mode` flow card has a static dropdown with four values, so `forcedNormal`, `forcedReduced` and `normalStandby` are missing. The existing card is **not** converted (saved Flows would break). Instead: add a new card `set-operating-mode-v2` with autocomplete from the device's `operatingModes`, and mark the old one `deprecated: true` (hidden in the picker, existing Flows keep working). | `flowCards.js` | `in progress` |
+| 1.7 | `onRefreshToken` does not check `res.ok`; an error response from the identity provider can be saved as a token. | `lib/ViessmannOAuth2Client.js` | `planned` |
+| 1.8 | The `set-operating-mode` flow card has a static dropdown with four values, so `forcedNormal`, `forcedReduced` and `normalStandby` are missing. The existing card is **not** converted (saved Flows would break). Instead: add a new card `set-operating-mode-v2` with autocomplete from the device's `operatingModes`, and mark the old one `deprecated: true` (hidden in the picker, existing Flows keep working). | `driver.flow.compose.json` (+ `flowCards.js` mapping) | `planned` |
 | 1.9 | `initializeOperatingModes` calls `splice` on an array while iterating over it, so one of two adjacent modes to remove can be skipped. | `device.js` | `in progress` |
-| 1.10 | Polling robustness: the `device_add` listener is registered on every pairing attempt, including aborted ones; no backoff on 429/5xx; fixed interval even when a call takes 30 s. Planned: schedule the next poll after the previous one completes, exponential backoff, respect `Retry-After`. This protects the daily API quota (about 1,450 calls per user). | `onPair`, `_startPolling` in `driver.js` | `in progress` |
-| 1.11 | Generate the PKCE verifier and challenge (SHA-256) per login instead of using static constants, and rename the misnamed `CLIENT_SECRET` field. Does not affect existing tokens. | `lib/ViessmannOAuth2Client.js` | `in progress` |
-| 1.12 | Flow cards have no `$filter`, so heat pump owners see "Burner is running" and "Set fuel cell mode". Add `$filter: "capabilities=..."` per card. | `flowCards.js` (generates `driver.flow.compose.json`) | `in progress` |
-| 1.13 | Reorder `PATHS` so `HEATING_CIRCUIT_0_TARGET` comes before `HOT_WATER_TARGET`: newly paired devices then open on the heating thermostat instead of "Hot water Normal". Existing devices keep their order (reordering would mean removing and re-adding capabilities). | `config.js` | `in progress` |
+| 1.10 | Polling robustness: the `device_add` listener is registered on every pairing attempt, including aborted ones; no backoff on 429/5xx; fixed interval even when a call takes 30 s. Planned: schedule the next poll after the previous one completes, exponential backoff, respect `Retry-After`. This protects the daily API quota (about 1,450 calls per user). | `onPair`, `_startPolling` in `driver.js` | `planned` |
+| 1.11 | Generate the PKCE verifier and challenge (SHA-256) per login instead of using static constants, and rename the misnamed `CLIENT_SECRET` field. Does not affect existing tokens. | `lib/ViessmannOAuth2Client.js` | `planned` |
+| 1.12 | Flow cards have no `$filter`, so heat pump owners see "Burner is running" and "Set fuel cell mode". Add `$filter: "capabilities=..."` per card. | `driver.flow.compose.json` (+ `flowCards.js` mapping) | `planned` |
+| 1.13 | Reorder `PATHS` so `HEATING_CIRCUIT_0_TARGET` comes before `HOT_WATER_TARGET`: newly paired devices then open on the heating thermostat instead of "Hot water Normal". Existing devices keep their order (reordering would mean removing and re-adding capabilities). | `config.js` | `planned` |
+| 1.14 | `registerCapabilityListeners` de-duplicates by feature path instead of capability name, so a capability added later to a path that already has a listener never gets one. | `registerCapabilityListeners` in `device.js` | `in progress` |
 
 ## Phase 2: New read-only datapoints (release 1.1.0)
 
@@ -79,7 +85,7 @@ All of these have been seen in real installation dumps and are available in Vies
 | 2.2 | DHW circulation pump on/off | `heating.dhw.pumps.circulation` | `measure_pump_active.dhwCirculation` *(proposed)*. It can only be controlled indirectly via the schedule, so control is out of scope for the first step. | `planned` |
 | 2.3 | COP | `heating.cop.total`, `.heating`, `.dhw` (also `.cooling`, `.photovoltaic`) | New base `measure_cop_number` *(proposed)* with `measure_cop_number.total`, `.heating`, `.dhw` *(proposed)*; the IDs match the proposal in #7. Values seem to be long-term averages that update rarely, so they are described as seasonal COP, not instantaneous. `heating.cop.green` is deprecated (replaced by `.photovoltaic`). | `planned` |
 | 2.4 | Compressor load in % | `heating.compressors.0.sensors.power` | `measure_compressor_number.compressorModulation` *(proposed)*, unit `%`. Useful in Insights. | `planned` |
-| 2.5 | More temperatures | `heating.bufferCylinder.sensors.temperature.top`, `heating.dhw.sensors.temperature.dhwCylinder.top`/`.bottom`, `heating.circuits.N.sensors.temperature.supply`, `heating.compressors.0.sensors.temperature.{inlet,outlet,ambient,overheat}`, `heating.evaporators.0.sensors.temperature.overheat` | Use the `compressors.N.sensors.*` paths, not the deprecated `heating.sensors.temperature.hotGas`/`suctionGas` or `heating.sensors.pressure.*`. Diagnostic values get `preventTag: true`. | `planned` |
+| 2.5 | More temperatures | `heating.bufferCylinder.sensors.temperature.top`, `heating.dhw.sensors.temperature.dhwCylinder.top`/`.bottom`, `heating.circuits.N.sensors.temperature.supply`, `heating.compressors.0.sensors.temperature.{inlet,outlet,ambient,overheat}`, `heating.evaporators.0.sensors.temperature.overheat` | Use the `compressors.N.sensors.*` paths, not the deprecated `heating.sensors.temperature.hotGas`/`suctionGas` or `heating.sensors.pressure.hotGas`/`suctionGas`. Diagnostic values get `preventTag: true`. | `planned` |
 | 2.6 | Primary circuit pump speed | `heating.primaryCircuit.sensors.rotation` (%) | `measure_pump_number.primaryRotation` *(proposed)*. | `planned` |
 | 2.7 | Condition cards for temperatures | n/a | For example "Hot water is above X °C". | `planned` |
 | 2.8 | Heating rod runtime | `heatingRods.heatGeneration.N.runtime` | Waiting for a dump that contains the new path. The old `heating.heatingRod.runtime` is deprecated and past its removal date. | `planned` |
@@ -94,19 +100,24 @@ All of these have been seen in real installation dumps and are available in Vies
 | 3.4 | Alarm / logbook trigger | `device.messages.logbook` (`entries[]` with `event`, `status`, `actor`, `timestamp`): trigger "New logbook entry" with tokens, remembering the last seen timestamp in the store. Complemented by `device.messages.errors.counter.*`. | `planned` |
 | 3.5 | Device settings and maintenance | Poll interval (showing the resulting calls per day), circuit selection, and a "Refresh Viessmann features" maintenance action (a `maintenanceAction` on a button capability). | `planned` |
 | 3.6 | Better pairing | Enter the Client ID in the pairing flow instead of app settings (also required for Homey Cloud). Clear errors: 401 → wrong Client ID or redirect URI, 429 → quota used up, network error. Name the device after the model (`translationKey`/`modelId`) or installation description instead of `Viessmann (<installationId>)`. | `planned` |
-| 3.7 | Translations | German (Viessmann is German), Dutch and Swedish first; contributions welcome. `scripts/generateFlowCompose.js` already picks up new files in `locales/`. | `planned` |
+| 3.7 | Translations | German (Viessmann is German), Dutch and Swedish first; contributions welcome. Flow card translations live inline in `driver.flow.compose.json`; runtime and settings strings live in `locales/*.json`. | `planned` |
 
 ## Viessmann API notes
 
-For contributors working on datapoints. The live reference is <https://api.viessmann-climatesolutions.com/documentation/data-points>.
+For contributors working on datapoints. The live reference is <https://api.viessmann-climatesolutions.com/documentation/data-points>. A full datapoint catalogue with proposed capability IDs is being prepared in [DATAPOINTS.md](DATAPOINTS.md) and will land separately.
 
-**Deprecated datapoints.** Viessmann marks datapoints with `deprecated` and a `removalDate`; the flags change between API snapshots. None of the app's current `PATHS` entries is flagged yet (Phase 0.6 will watch for it). Do not build on:
+**Deprecated datapoints.** Viessmann marks datapoints with `deprecated` and a `removalDate` in API responses; the flags change between API snapshots and may not always match what the live documentation shows, so check both. None of the app's current `PATHS` entries is flagged yet (Phase 0.6 will watch for it). Do not build on:
 
 | Deprecated | Use instead | Removal |
 |---|---|---|
 | `heating.heatingRod.runtime` | `heatingRods.heatGeneration.N.runtime` | 2026-09-30 (passed) |
+| `heating.configuration.heatingRod.{dhw,heating}` | `heatingRods.heatGeneration.N` | 2026-09-30 (passed) |
+| `heating.configuration.temperature.outside.DampingFactor` | `heating.configuration.temperature.outside.dampingFactor` | 2026-12-31 |
+| `heating.buffer.*` | `heating.bufferCylinder.*` | see live docs |
+| `heating.dhw.sensors.temperature.hotWaterStorage*` | `heating.dhw.sensors.temperature.dhwCylinder*` | see live docs |
+| `heating.scop.*` | `heating.spf.*` | see live docs |
 | `heating.sensors.temperature.hotGas`, `.suctionGas` | `heating.compressors.N.sensors.temperature.{inlet,outlet}` | see live docs |
-| `heating.sensors.pressure.*` | `heating.compressors.N.sensors.pressure.{inlet,outlet}` | see live docs |
+| `heating.sensors.pressure.hotGas`, `.suctionGas` | `heating.compressors.N.sensors.pressure.inlet` | see live docs |
 | `heating.cop.green` | `heating.cop.photovoltaic` | see live docs |
 
 **`heating.compressors.N.power` is not a measurement.** The documentation describes it as the compressor power with a command to set it manually: it is the configured (nominal) power and stays constant whether the compressor runs or not. Do not map it to `measure_power`; Homey Energy would then show invented numbers. For real consumption, see Phase 4.
@@ -139,14 +150,14 @@ Not scheduled; listed so they are not lost.
 - **Hot water:** a "boost now" button (`oneTimeCharge.activate`), set DHW comfort and reduced temperature.
 - **Solar:** `heating.solar.*` sensors (collector and buffer temperature, sun hours).
 - **Gas consumption:** `meter_gas` from `heating.gas.consumption.summary.{heating,dhw}` where present.
-- **Read once at pairing and cache** (not polled): `heating.configuration.flow.temperature.min`/`max` (to set `min`/`max` on `target_temperature.heating` instead of hardcoded values), `heating.configuration.buffer.temperature.max`, `heating.configuration.temperature.outside.DampingFactor`, heating rod `useApproved` flags, `heating.coolingCircuits.0.type`, `heating.device.mainECU.runtime`.
+- **Read once at pairing and cache** (not polled): `heating.configuration.flow.temperature.min`/`max` (to set `min`/`max` on `target_temperature.heating` instead of hardcoded values), `heating.configuration.buffer.temperature.max`, `heating.configuration.temperature.outside.dampingFactor`, heating rod settings under `heatingRods.heatGeneration.N`, `heating.coolingCircuits.0.type`, `heating.device.mainECU.runtime`.
 - **Statistics:** `heating.compressors.0.statistics.load` (hours per load class) and `heating.compressors.0.sensors.pressure.inlet`, better suited to the troubleshooting view than to polled capabilities.
 - **Triggers:** outdoor temperature "dropped below X for Y minutes".
 - **Support snapshot:** a button that produces a shareable, anonymized dump (installations, features, roles, store). Extend the anonymization to serial numbers (`device.serial`, `boilerSerial`, `bmuSerial`, `heating.*.serial`).
 - **Quota indicator** in the settings page (from `X-RateLimit-*` headers if available, otherwise an internal counter).
 - **Refactoring:** a pure `FeatureMapper` (features JSON → capability values, easy to test with fixtures), a `CapabilityReconciler` that only adds, and one `Poller` per Viessmann device.
 - **Broader tests:** pairing and polling in `driver.js`, flow card resolution, `ViessmannOAuth2Client` error mapping and token refresh (with an HTTP mock), a coverage threshold in CI.
-- **Small cleanups:** ungated `console.log` and an unverified `homey.error` call in `api.js`; `registerCapabilityListeners` de-duplicates by path instead of capability name; `getValue` is redefined per feature in `onFeaturesUpdated`; the empty try/catch in `onOAuth2Init`; `checkUpgradeSpecifics` should bump `version` after migrations; `storeVersionBefore` is a naive semver comparison.
+- **Small cleanups:** ungated `console.log` and an unverified `homey.error` call in `api.js`; `getValue` is redefined per feature in `onFeaturesUpdated`; the empty try/catch in `onOAuth2Init`; `checkUpgradeSpecifics` should bump `version` after migrations; `storeVersionBefore` is a naive semver comparison.
 - **Documentation:** a fuller README, a readable `CHANGELOG.md` mirroring `.homeychangelog.json`, a short note on what `api.js` exposes (settings page only), how several installations per account behave, and why `preventInsights` is set where it is.
 - **More languages:** Danish and Norwegian after the first three.
 

@@ -1,0 +1,18 @@
+# Files the Homey CLI must not package into the app (gitignore syntax, relative to the app root).
+# The CLI already skips dotfiles, node_modules (it copies production dependencies itself),
+# env.json, tsconfig.json, *.ts and *.compose.json.
+
+# Local raw API dumps from real installations (never committed either)
+/documentation/
+
+# Development and test files
+/test/
+/docs/
+/scripts/
+/coverage/
+/__mocks__/
+**/__tests__/
+/jest.config.js
+
+# Repository docs (README.txt is the app store description and stays)
+*.md

@@ -61,8 +61,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
-    const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-    await this.driver._startPolling(this, deviceKey);
+    await this.driver._startPolling(this, this.getPollingKey());
   }
 
   async onInit() {
@@ -142,29 +141,31 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async initializeOperatingModes() {
     // Not that bad if this fails, we can just use the default operating modes
     try {
+      const deviceModes = Array.isArray(this._operatingModes) ? this._operatingModes : [];
+      // Without known device modes, keep whatever the capability offers today
+      if (deviceModes.length === 0) return;
+
       const { capabilityName } = getCapability(PATHS.HEATING_CIRCUIT_0_MODE);
-      const operatingModesCapOpt = this.getCapabilityOptions(capabilityName);
-      const capabilityOperatingModes = operatingModesCapOpt.values;
+      if (!this.hasCapability(capabilityName)) return;
 
-      for (const opMode of capabilityOperatingModes) {
-        if (!this._operatingModes.some((mode) => mode.id === opMode.id)) {
-          capabilityOperatingModes.splice(capabilityOperatingModes.indexOf(opMode), 1);
-          if (process.env.DEBUG) {
-            this.log('[ViessmannDevice::onInit] Removed operating mode:', opMode);
-          }
+      const capabilityOptions = this.getCapabilityOptions(capabilityName) || {};
+      const currentModes = Array.isArray(capabilityOptions.values) ? capabilityOptions.values : [];
+
+      // Existing values the device supports (in their current order), then device modes not yet present
+      const supportedIds = new Set(deviceModes.map((mode) => mode.id));
+      const values = currentModes.filter((mode) => supportedIds.has(mode.id));
+      const presentIds = new Set(values.map((mode) => mode.id));
+      for (const mode of deviceModes) {
+        if (!presentIds.has(mode.id)) {
+          values.push(mode);
+          presentIds.add(mode.id);
         }
       }
 
-      for (const opMode of this._operatingModes) {
-        if (!capabilityOperatingModes.some((mode) => mode.id === opMode.id)) {
-          capabilityOperatingModes.push(opMode);
-          if (process.env.DEBUG) {
-            this.log('[ViessmannDevice::onInit] Added operating mode:', opMode);
-          }
-        }
+      if (process.env.DEBUG) {
+        this.log('[ViessmannDevice::initializeOperatingModes] Operating modes:', values.map((mode) => mode.id));
       }
-      operatingModesCapOpt.values = capabilityOperatingModes;
-      await this.setCapabilityOptions(capabilityName, operatingModesCapOpt);
+      await this.setCapabilityOptions(capabilityName, { ...capabilityOptions, values });
     } catch (err) {
       if (process.env.DEBUG) {
         this.log('Error initializing operating modes:', err);
@@ -173,15 +174,17 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async registerCapabilityListeners() {
+    if (!Array.isArray(this._listeners)) this._listeners = [];
+
     for (const path of Object.values(PATHS)) {
       try {
         const capabilities = getAllCapabilities(path);
 
         for (const capability of capabilities) {
           // Skip if no command is defined or listener already exists
-          if (!capability.command || this._listeners.includes(path)) continue;
+          if (!capability.command || this._listeners.includes(capability.capabilityName)) continue;
 
-          this.registerCapabilityListenerIfPossible(
+          const registered = this.registerCapabilityListenerIfPossible(
             capability.capabilityName,
             async (value) => {
               if (process.env.DEBUG) {
@@ -192,7 +195,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
             },
           );
 
-          this._listeners.push(path);
+          // Only remember capabilities that really got a listener, so a capability
+          // added later (e.g. by feature discovery) gets one on the next run
+          if (registered) {
+            this._listeners.push(capability.capabilityName);
+          }
         }
       } catch (err) {
         this.error(`Error setting up listener for ${path}:`, err);
@@ -230,11 +237,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         });
       }
     } catch (error) {
-      this.log('Error executing command:', error);
-      // throw error with message
-      throw new Error('Error executing command', error);
+      this.error('Error executing command:', error);
+      // Keep the API's reason (status, Viessmann error type/message) visible to the user
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error executing command: ${reason}`, { cause: error });
     }
-    // Uppdate capability value 
+    // Update capability value
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
     return true;
   }
@@ -289,25 +297,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
       if (extendedResponse) {
-        // get all enabled features from the response
-        const enabledFeatures = [];
-        for (const feature of response.data) {
-          if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
-            enabledFeatures.push(feature.feature);
-          }
-        }
-        // find features in the response that are not in the device store
-        const newFeatures = enabledFeatures.filter((feature) => !this._features.includes(feature));
-        if (newFeatures.length > 0) {
-          this.log('New features found:', newFeatures);
-          // add new features to this._features
-          this._features = [...this._features, ...newFeatures];
-          // update the store
-          this.setStore('features', this._features);
-          // Initialize capabilities and listeners
-          await this.initializeCapabilities();
-          await this.registerCapabilityListeners();
-        }
+        await this.addNewFeatures(response);
       }
 
       for (const feature of response.data) {
@@ -369,10 +359,59 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         this.log('Feature update processing completed');
       }
 
-      this.setAvailable();
+      await this.setAvailabilitySafely(true);
     } catch (error) {
       this.error('Error processing features update:', error);
-      this.setUnavailable(error);
+      await this.setAvailabilitySafely(false, error);
+    }
+  }
+
+  // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
+  // deleted meanwhile; log that instead of letting the rejection go unhandled
+  async setAvailabilitySafely(available, message) {
+    try {
+      if (available) {
+        await this.setAvailable();
+      } else {
+        await this.setUnavailable(message);
+      }
+    } catch (error) {
+      this.error(`Could not mark device as ${available ? 'available' : 'unavailable'}:`, error);
+    }
+  }
+
+  /*
+    Store features that an extended (unfiltered) poll reports as enabled but the device
+    does not know yet, then add their capabilities and listeners. The stored list only
+    ever grows: a feature that is missing or notConnected in one response is kept.
+    Failures are logged and retried on the next extended poll; they must not make the
+    device unavailable.
+  */
+  async addNewFeatures(response) {
+    try {
+      const knownFeatures = Array.isArray(this._features) ? this._features : [];
+      const newFeatures = [];
+      for (const feature of response?.data || []) {
+        if (
+          feature.isEnabled
+          && feature.properties?.status?.value !== 'notConnected'
+          && !knownFeatures.includes(feature.feature)
+          && !newFeatures.includes(feature.feature)
+        ) {
+          newFeatures.push(feature.feature);
+        }
+      }
+      if (newFeatures.length === 0) return;
+
+      this.log('New features found:', newFeatures);
+      const features = [...knownFeatures, ...newFeatures];
+      await this.setStoreValue('features', features);
+      this._features = features;
+
+      await this.initializeCapabilities();
+      await this.registerCapabilityListeners();
+    } catch (error) {
+      this.error('Error adding new features:', error);
     }
   }
 
@@ -423,12 +462,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
+  // Returns true when the listener was registered
   registerCapabilityListenerIfPossible(capabilityName, listener) {
     if (this.hasCapability(capabilityName)) {
       this.registerCapabilityListener(capabilityName, listener);
-    } else {
-      this.log(`Capability ${capabilityName} not found, skipping listener registration`);
+      return true;
     }
+    this.log(`Capability ${capabilityName} not found, skipping listener registration`);
+    return false;
   }
 
   async getGatewayFeatures() {
@@ -459,10 +500,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return this.getCapabilityValue(capabilityName);
   }
 
+  // Key of this device's poller in the driver
+  getPollingKey() {
+    return `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
+  }
+
   async onOAuth2Uninit() {
     // Stop polling for this device
-    const deviceKey = `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-    this.driver._stopPolling(deviceKey);
+    this.driver._stopPolling(this.getPollingKey());
+  }
+
+  async onOAuth2Deleted() {
+    // Stop polling right away: a poll that runs after deletion fails with device_not_found
+    this.driver._stopPolling(this.getPollingKey());
   }
 
   // Method to handle dynamic feature paths based on installation

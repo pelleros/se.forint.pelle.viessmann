@@ -42,11 +42,36 @@ const describeFlowCard = (card) => ({
   tokens: Object.fromEntries((card.tokens || []).map((token) => [token.name, token.type])),
 });
 
-// Device settings as { id: type }, including settings inside groups
+// Device settings in the same shape as registry.deviceSettings, including settings inside groups
 const collectSettings = (settings = []) => settings.flatMap((setting) => (setting.type === 'group'
   ? collectSettings(setting.children)
-  : [[setting.id, setting.type]]));
+  : [[setting.id, {
+    type: setting.type,
+    ...(setting.values ? { values: setting.values.map((value) => value.id) } : {}),
+  }]]));
 const shippedSettings = Object.fromEntries(collectSettings(driverCompose.settings));
+
+/**
+ * Lists every device setting and dropdown value in `source` that `target` lacks.
+ * With `compareTypes`, settings whose type differs are listed too.
+ */
+function findMissingSettingParts(source, target, { compareTypes = false } = {}) {
+  const missing = [];
+  for (const [id, setting] of Object.entries(source)) {
+    const targetSetting = target[id];
+    if (!targetSetting) {
+      missing.push(`setting '${id}'`);
+      continue;
+    }
+    if (compareTypes && targetSetting.type !== setting.type) {
+      missing.push(`setting '${id}' changed type from '${setting.type}' to '${targetSetting.type}'`);
+    }
+    for (const value of setting.values || []) {
+      if (!(targetSetting.values || []).includes(value)) missing.push(`dropdown value '${value}' of setting '${id}'`);
+    }
+  }
+  return missing;
+}
 
 const shippedFlowCards = Object.fromEntries(Object.keys(RUNTIME_FLOW_CARDS)
   .map((group) => [group, Object.fromEntries((flowCompose[group] || [])
@@ -184,20 +209,18 @@ describe('flow card registry', () => {
 });
 
 describe('device settings registry', () => {
-  test('every registered device setting still exists with the same type', () => {
+  test('every registered device setting and dropdown value still exists unchanged', () => {
     expectNone(
-      Object.entries(registry.deviceSettings)
-        .filter(([id, type]) => shippedSettings[id] !== type)
-        .map(([id, type]) => (shippedSettings[id] ? `'${id}' changed type from '${type}' to '${shippedSettings[id]}'` : `'${id}'`)),
-      `Breaking change: ${DRIVER_COMPOSE_FILE} no longer provides these registered device settings. Existing `
-      + 'users would lose the value they set. Restore them:',
+      findMissingSettingParts(registry.deviceSettings, shippedSettings, { compareTypes: true }),
+      `Breaking change: ${DRIVER_COMPOSE_FILE} no longer provides these registered device setting parts. `
+      + 'Existing users would lose the value they set. Restore them:',
     );
   });
 
-  test('every device setting in the driver compose file is registered', () => {
+  test('every device setting and dropdown value in the driver compose file is registered', () => {
     expectNone(
-      Object.keys(shippedSettings).filter((id) => !(id in registry.deviceSettings)),
-      `New device settings in ${DRIVER_COMPOSE_FILE}: add them to "deviceSettings" in ${REGISTRY_FILE}:`,
+      findMissingSettingParts(shippedSettings, registry.deviceSettings),
+      `New device setting parts in ${DRIVER_COMPOSE_FILE}: add them to "deviceSettings" in ${REGISTRY_FILE}:`,
     );
   });
 });

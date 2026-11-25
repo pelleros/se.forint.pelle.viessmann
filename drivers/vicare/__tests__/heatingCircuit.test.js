@@ -194,7 +194,7 @@ test('pairing stores the discovered circuit with unchanged device identity', asy
 
 test('explicit circuit selection overrides automatic circuit 0 preference', () => {
   expect(detectHeatingCircuit(response(['0', '1']).data, '1')).toBe('1');
-  expect(() => detectHeatingCircuit(response(['0']).data, '1')).toThrow('not enabled');
+  expect(() => detectHeatingCircuit(response(['0']).data, '1')).toThrow('Heating circuit 1 is not available on this installation. Available circuits: 0.');
 });
 
 test('changing the circuit setting refreshes metadata and restarts polling', async () => {
@@ -224,7 +224,7 @@ test('changing the circuit setting refreshes metadata and restarts polling', asy
 test('invalid circuit settings leave the current device untouched', async () => {
   const target = device('0');
   target.driver = { _stopPolling: jest.fn() };
-  await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '../1' } })).rejects.toThrow('Enter auto');
+  await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '../1' } })).rejects.toThrow('Unknown heating circuit setting');
   expect(target._heatingCircuitId).toBe('0');
   expect(target.driver._stopPolling).not.toHaveBeenCalled();
 });
@@ -239,4 +239,78 @@ test('unavailable commands and rejected API results never update the displayed s
   target.oAuth2Client.executeCommand.mockResolvedValue({ data: { success: false, reason: 'DEVICE_BUSY' } });
   await expect(target.executeCommand(PATHS.HEATING_CIRCUIT_0_MODE, capability, 'dhwAndHeating')).rejects.toThrow('DEVICE_BUSY');
   expect(target.setCapabilityValueIfPossible).not.toHaveBeenCalled();
+});
+
+describe('choosing a circuit the installation does not have', () => {
+  function deviceWithCircuits(circuitIds) {
+    const target = device('0');
+    const driver = new Driver();
+    target.driver = {
+      _getEnabledFeaturesAndOpModes: driver._getEnabledFeaturesAndOpModes.bind(driver),
+      _stopPolling: jest.fn(),
+      _startPolling: jest.fn(),
+    };
+    target.oAuth2Client.getFeatures.mockResolvedValue(response(circuitIds));
+    target.getStoreValue = jest.fn();
+    target.setStoreValue = jest.fn();
+    return target;
+  }
+
+  test('is refused in the user\'s language and changes nothing', async () => {
+    const target = deviceWithCircuits(['0', '1']);
+    const locale = { 'device_settings.heating_circuit_not_available': 'Heizkreis __circuit__ fehlt. Vorhanden: __available__.' };
+    target.homey = {
+      __: jest.fn((key, tags) => Object.entries(tags)
+        .reduce((text, [tag, value]) => text.replace(`__${tag}__`, value), locale[key])),
+    };
+
+    await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '3' } }))
+      .rejects.toThrow('Heizkreis 3 fehlt. Vorhanden: 0, 1.');
+    expect(target._heatingCircuitId).toBe('0');
+    expect(target.setStoreValue).not.toHaveBeenCalled();
+    expect(target.driver._stopPolling).not.toHaveBeenCalled();
+  });
+
+  test('falls back to the English message without a translation', async () => {
+    const target = deviceWithCircuits(['1']);
+    await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '0' } }))
+      .rejects.toThrow('Heating circuit 0 is not available on this installation. Available circuits: 1.');
+  });
+});
+
+describe('heatingCircuit device setting', () => {
+  // eslint-disable-next-line global-require
+  const { settings } = require('../driver.compose.json');
+  const setting = settings.find((item) => item.id === 'heatingCircuit');
+  const LANGUAGES = ['en', 'de', 'nl', 'fr', 'sv'];
+
+  test('is a dropdown with automatic as default and circuits 0 to 3', () => {
+    expect(setting.type).toBe('dropdown');
+    expect(setting.value).toBe('auto');
+    expect(setting.values.map((value) => value.id)).toEqual(['auto', '0', '1', '2', '3']);
+  });
+
+  test('label, hint and every value are translated into all app languages', () => {
+    for (const text of [setting.label, setting.hint, ...setting.values.map((value) => value.label)]) {
+      expect(Object.keys(text).sort()).toEqual([...LANGUAGES].sort());
+      LANGUAGES.forEach((language) => expect(text[language].trim()).not.toBe(''));
+    }
+  });
+
+  test.each(['auto', '0', '1', '2', '3'])('value %s passes the settings validation', async (value) => {
+    const target = device('0');
+    target.driver = {
+      _getEnabledFeaturesAndOpModes: jest.fn().mockResolvedValue({ heatingCircuitId: value === 'auto' ? '0' : value }),
+      _stopPolling: jest.fn(),
+      _startPolling: jest.fn(),
+    };
+    target.getStoreValue = jest.fn();
+    target.setStoreValue = jest.fn();
+    target.initializeCapabilities = jest.fn();
+    target.updateCapabilityOptions = jest.fn();
+    target.initializeOperatingModes = jest.fn();
+    target.registerCapabilityListeners = jest.fn();
+    await target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: value } });
+    expect(target.driver._getEnabledFeaturesAndOpModes.mock.calls[0][4]).toBe(value);
+  });
 });

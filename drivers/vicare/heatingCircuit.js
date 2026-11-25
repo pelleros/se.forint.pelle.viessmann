@@ -15,7 +15,14 @@ function detectHeatingCircuit(data, selectedCircuit = 'auto') {
       .filter((id) => id !== undefined);
 
   if (selectedCircuit !== 'auto') {
-    if (!candidates.includes(String(selectedCircuit))) throw new Error(`Heating circuit ${selectedCircuit} is not enabled on this device`);
+    if (!candidates.includes(String(selectedCircuit))) {
+      const error = new Error(`Heating circuit ${selectedCircuit} is not available on this installation. `
+        + `Available circuits: ${candidates.join(', ') || 'none'}.`);
+      error.code = 'heating_circuit_not_available';
+      error.circuit = String(selectedCircuit);
+      error.available = candidates;
+      throw error;
+    }
     return String(selectedCircuit);
   }
   // Preserve the previous choice when circuit 0 is available.

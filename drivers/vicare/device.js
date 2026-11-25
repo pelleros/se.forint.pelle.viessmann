@@ -573,11 +573,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     if (!changedKeys.includes('heatingCircuit')) return;
     const selectedCircuit = String(newSettings.heatingCircuit).trim();
     if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
-      throw new Error('Enter auto or an enabled heating circuit number');
+      throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
     }
-    const metadata = this.mergeRefreshedMetadata(await this.driver._getEnabledFeaturesAndOpModes(
-      this.oAuth2Client, this._installationId, this._gatewaySerial, this._deviceId, selectedCircuit,
-    ));
+    let fresh;
+    try {
+      fresh = await this.driver._getEnabledFeaturesAndOpModes(
+        this.oAuth2Client, this._installationId, this._gatewaySerial, this._deviceId, selectedCircuit,
+      );
+    } catch (error) {
+      // Homey shows the message and keeps the previous value; nothing has changed yet
+      if (error.code === 'heating_circuit_not_available') throw new Error(this.circuitNotAvailableMessage(error));
+      throw error;
+    }
+    const metadata = this.mergeRefreshedMetadata(fresh);
     const deviceKey = this.getPollingKey();
     await this.driver._stopPolling(deviceKey);
     const previous = {
@@ -596,6 +604,13 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     } finally {
       await this.driver._startPolling(this, deviceKey);
     }
+  }
+
+  // The error for a heating circuit the installation does not have, in the user's language
+  circuitNotAvailableMessage({ circuit, available, message }) {
+    const tags = { circuit, available: available.length > 0 ? available.join(', ') : '–' };
+    const translated = this.homey?.__?.('device_settings.heating_circuit_not_available', tags);
+    return typeof translated === 'string' && !translated.startsWith('device_settings.') ? translated : message;
   }
 
   async applyCircuitMetadata(metadata) {

@@ -65,5 +65,8 @@
   },
   "pair": {
     "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu."
+  },
+  "device_settings": {
+    "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."
   }
 }

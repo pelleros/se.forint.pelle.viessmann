@@ -93,7 +93,7 @@ Each capability entry has:
 
 ## Heating circuits
 
-`config.js`, capability IDs and Flow cards only know `heating.circuits.0.*`. Each device works on one heating circuit, `heatingCircuitId`: circuit 0 when it is enabled, otherwise the first enabled circuit, or the number in the advanced device setting `heatingCircuit` (`auto` by default). `heatingCircuit.js` maps the API's `heating.circuits.<id>.*` features to `heating.circuits.0.*` when reading (and drops other circuits), and back to `<id>` for the poll filter and commands. A device on circuit 1 therefore has the same capability IDs as one on circuit 0, and readings, operating mode, heating target temperature, commands and the poll filter all use the same circuit. Devices paired before circuit support get their circuit from the one-time upgrade refresh, without re-pairing and without touching Flows. Changing the setting re-reads the metadata (merging the feature list) and restarts polling.
+`config.js`, capability IDs and Flow cards only know `heating.circuits.0.*`. Each device works on one heating circuit, `heatingCircuitId`: circuit 0 when it is enabled, otherwise the first enabled circuit, or the circuit chosen in the advanced device setting `heatingCircuit` (dropdown: `auto`, the default, or `0`–`3`; a circuit the installation does not have is refused with a translated message from `locales/*.json` → `device_settings`, and nothing changes). `heatingCircuit.js` maps the API's `heating.circuits.<id>.*` features to `heating.circuits.0.*` when reading (and drops other circuits), and back to `<id>` for the poll filter and commands. A device on circuit 1 therefore has the same capability IDs as one on circuit 0, and readings, operating mode, heating target temperature, commands and the poll filter all use the same circuit. Devices paired before circuit support get their circuit from the one-time upgrade refresh, without re-pairing and without touching Flows. Changing the setting re-reads the metadata (merging the feature list) and restarts polling.
 
 ## Commands
 
@@ -125,7 +125,7 @@ Homey also generates threshold triggers for number capabilities (e.g. "Hot water
 ## Tests
 
 - `drivers/vicare/__tests__/device.test.js`: feeds every `*_features.json` in `test/fixtures/` (and local dumps in `documentation/json-example-files/`, when present) through `onFeaturesUpdated` and checks that each `propertyPath` resolves.
-- `drivers/vicare/__tests__/registry.test.js` + `registry.json`: guards released capability IDs, Flow cards and device settings.
+- `drivers/vicare/__tests__/registry.test.js` + `registry.json`: guards released capability IDs, Flow cards and device settings (type and dropdown values).
 - `drivers/vicare/__tests__/upgrade.simulation.test.js`: pairs a device from each fixture the way 1.0.14 did and starts it on the current code, with a working and a failing refresh; nothing may be removed and polling must start. `device.upgrade.test.js` covers the refresh in detail.
 - Lifecycle, polling, heating circuit and OAuth client tests next to them, tests for `lib/` in `lib/__tests__/`; anonymizer and fixture privacy tests in `test/`.
 - `config.test.js` is a golden copy of `FEATURES`; update it when `config.js` changes.

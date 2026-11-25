@@ -65,5 +65,8 @@
   },
   "pair": {
     "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil."
+  },
+  "device_settings": {
+    "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."
   }
 }

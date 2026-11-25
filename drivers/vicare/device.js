@@ -173,15 +173,17 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async registerCapabilityListeners() {
+    if (!Array.isArray(this._listeners)) this._listeners = [];
+
     for (const path of Object.values(PATHS)) {
       try {
         const capabilities = getAllCapabilities(path);
 
         for (const capability of capabilities) {
           // Skip if no command is defined or listener already exists
-          if (!capability.command || this._listeners.includes(path)) continue;
+          if (!capability.command || this._listeners.includes(capability.capabilityName)) continue;
 
-          this.registerCapabilityListenerIfPossible(
+          const registered = this.registerCapabilityListenerIfPossible(
             capability.capabilityName,
             async (value) => {
               if (process.env.DEBUG) {
@@ -192,7 +194,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
             },
           );
 
-          this._listeners.push(path);
+          // Only remember capabilities that really got a listener, so a capability
+          // added later (e.g. by feature discovery) gets one on the next run
+          if (registered) {
+            this._listeners.push(capability.capabilityName);
+          }
         }
       } catch (err) {
         this.error(`Error setting up listener for ${path}:`, err);
@@ -423,12 +429,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
+  // Returns true when the listener was registered
   registerCapabilityListenerIfPossible(capabilityName, listener) {
     if (this.hasCapability(capabilityName)) {
       this.registerCapabilityListener(capabilityName, listener);
-    } else {
-      this.log(`Capability ${capabilityName} not found, skipping listener registration`);
+      return true;
     }
+    this.log(`Capability ${capabilityName} not found, skipping listener registration`);
+    return false;
   }
 
   async getGatewayFeatures() {

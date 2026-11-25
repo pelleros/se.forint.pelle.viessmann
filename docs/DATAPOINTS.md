@@ -197,7 +197,7 @@ Commands seen in the dumps. Ranges differ between devices, so the app must read 
 | 5 | `heating.operating.programs.holiday` | `schedule(start, end)`: dates `YYYY-MM-DD`, `sameDayAllowed` false (HP, legacy gas) / true (E3); `unschedule()`; `changeEndDate(end)` | All; `changeEndDate` not executable anywhere | Basic + Ctrl | Actions "Schedule holiday from … to …", "Cancel holiday"; condition "Holiday program is active" (reads `active`) | — | Roadmap 3.3. |
 | 6 | `heating.operating.programs.holidayAtHome` | as #5 | Gas 2/3 (E3), FC | Basic + Ctrl | As #5, "at home" variant | — | Has priority over holiday when both overlap (official description). |
 | 7 | `heating.circuits.N.operating.programs.forcedLastFromSchedule` ⓒ | `activate()`, `deactivate()` | Gas 2/3 (E3), FC | Basic + Ctrl | Actions "Keep current schedule program" / "Resume schedule" (titles to be refined) | — | Keeps the last scheduled program until deactivated. |
-| 8 | `heating.dhw.operating.modes.active` | `setMode(mode)`: enum `balanced`, `off` in the dumps; the official list also has `efficient`, `efficientWithMinComfort` | Gas 2/3 (E3), FC | Basic + Ctrl | `thermostat_mode.hotWater` *(proposed)*, values from the command's enum; action with autocomplete | picker (titles ≤ 3 words, see 5c) | Like roadmap 1.8 (autocomplete, no static dropdown). Enum `values` in `capabilitiesOptions` need Homey ≥ 12.0.1. |
+| 8 | `heating.dhw.operating.modes.active` | `setMode(mode)`: enum `balanced`, `off` in the dumps; the official list also has `efficient`, `efficientWithMinComfort` | Gas 2/3 (E3), FC | Basic + Ctrl | `thermostat_mode.hotWater` *(proposed)*, values from the command's enum; action with autocomplete | picker (titles ≤ 3 words, see 5c) | Like roadmap 1.8 (autocomplete, no static dropdown). Enum `values` in `capabilitiesOptions` need Homey ≥ 12.0.1, covered by 1.1.0's `>=13.5.0`. |
 | 9 | `heating.dhw.hygiene` | `enable()`, `disable()`, `activate()`; executability follows the current state | Gas 2/3 (E3), FC | Basic + Ctrl | `measure_dhw_active.hygiene` *(proposed)* from `active`; actions "Run hot water hygiene now", "Enable / disable hygiene function" | read-back: sensor · ind · uiState off | Anti-legionella heating to the hygiene set point. |
 | 10 | `heating.dhw.temperature.hysteresis` | `setHysteresis(hysteresis)`: 1–10 K, step 0.5; `setHysteresisSwitchOnValue(hysteresis)`: same; `setHysteresisSwitchOffValue`: not executable | HP | Basic + Ctrl | Action "Set hot water hysteresis" | — | Roadmap 3.3. |
 | 11 | `heating.dhw.temperature.hygiene` | `setTemperature(targetTemperature)`: 10–85, step 1 | Gas 1/3 (E3) | Basic + Ctrl | `target_temperature.hotWaterHygiene` *(proposed)*, low priority | thermostat (unpaired, see 5b) | |
@@ -275,6 +275,7 @@ Sketches in the style of `.homeycompose/capabilities/*.json`. The first three ar
   "insightsTitleFalse": { "en": "Off" },
   "uiComponent": "sensor",
   "uiQuickAction": false,
+  "uiState": false,
   "icon": "/assets/pump.svg"
 }
 ```
@@ -337,6 +338,7 @@ Sketches in the style of `.homeycompose/capabilities/*.json`. The first three ar
   "insightsTitleFalse": { "en": "No" },
   "uiComponent": "sensor",
   "uiQuickAction": false,
+  "uiState": false,
   "icon": "/assets/hotwater.svg"
 }
 ```
@@ -354,6 +356,7 @@ Sketches in the style of `.homeycompose/capabilities/*.json`. The first three ar
   "insightsTitleFalse": { "en": "Off" },
   "uiComponent": "sensor",
   "uiQuickAction": false,
+  "uiState": false,
   "icon": "/assets/frost.svg"
 }
 ```
@@ -391,15 +394,17 @@ Sketches in the style of `.homeycompose/capabilities/*.json`. The first three ar
 
 System capabilities reused (no new definition): `measure_temperature`, `target_temperature`, `thermostat_mode`, `measure_pressure` (unit override, Q2), `measure_water`, `measure_power`, `meter_power`, `meter_gas`. Existing custom bases reused: `measure_compressor_number`.
 
-The boolean sketches leave out `uiState` on purpose: none of them should drive the device tile ([5a](#5a-tile-state-uistate-for-running-booleans)), and with today's `compatibility: ">=10.0.0"` the key fails publish validation.
+The boolean sketches set `"uiState": false` explicitly: none of them should drive the device tile ([5a](#5a-tile-state-uistate-for-running-booleans)). The key needs `compatibility` `>=13.5.0`, which 1.1.0 introduces.
 
 ## 5. UI improvements for existing and new capabilities
 
-Source: [Homey SDK: Capabilities](https://apps.developer.homey.app/the-basics/devices/capabilities) (sections Custom capabilities, Device indicators, UI components, Maintenance actions), read 2026-11-25. "Validated" below means: checked with `homey app validate --level publish` (Homey CLI 4.4.0) on a scratch copy of the app with today's `compatibility: ">=10.0.0"`, options declared in the driver's static `capabilitiesOptions`. Nothing was run on a Homey, so runtime behavior is marked *to verify*.
+Source: [Homey SDK: Capabilities](https://apps.developer.homey.app/the-basics/devices/capabilities) (sections Custom capabilities, Device indicators, UI components, Maintenance actions), read 2026-11-25. "Validated" below means: checked with `homey app validate --level publish` (Homey CLI 4.4.0) on a scratch copy of the app, options declared in the driver's static `capabilitiesOptions`, with `compatibility` `>=10.0.0` and, for `uiState`, `>=13.5.0`. Nothing was run on a Homey, so runtime behavior is marked *to verify*.
 
 Facts that shape every item below:
 
-- The driver declares no capabilities statically; every capability is added at runtime (`setCapabilityOptions` + `addCapability` in `initializeCapabilities`). Static manifest options never reach existing devices; runtime options are the lever.
+- **Homey version (decided).** 1.0.15 keeps `compatibility: ">=10.0.0"`; 1.1.0 raises it to `">=13.5.0"`. Everything proposed here ships in 1.1.0 or later, so version-gated features need no fallbacks: enum `values` in `capabilitiesOptions` (12.0.1), widgets (12.3.0), `uiState` (13.5.0). Users on older Homey versions stay on 1.0.15.
+
+- The driver declares no capabilities statically; every capability is added at runtime (`setCapabilityOptions` + `addCapability` in `initializeCapabilities`). Options in `driver.compose.json` therefore never reach existing devices; per-device changes go through runtime options. Custom capability definitions in `.homeycompose/capabilities/` are app-wide and do apply to existing devices.
 - Today `initializeCapabilities` removes every capability that no `PATHS` entry produces. Buttons and alarms that are not tied to a feature path therefore depend on the roadmap's add-only fix (principle 2), or they are removed again at the next app start.
 - Device indicators are chosen by the user in the Homey app. Numbers starting with `measure_`/`meter_` show with their unit, `alarm_*` booleans are grouped behind a warning icon, custom booleans and numbers can also be indicators; strings cannot. Class `heater` is not one of the classes with a fixed indicator.
 - Sub-capabilities get no automatic Flow cards; every trigger, condition and action for them is defined explicitly.
@@ -410,12 +415,9 @@ Facts that shape every item below:
 
 **Non-breaking.** IDs, Flows and Insights are unchanged; only the tile changes. No capability is the tile state today (all booleans have `uiQuickAction: false`), so nothing is displaced.
 
-**Version.** `uiState` exists from Homey v13.5.0. Validated: `uiState` in the capability JSON or in static `capabilitiesOptions` fails publish validation ("requires a compatibility of at least >=13.5.0"). Two ways forward:
+**How (decided, Q14).** Put `"uiState": true` statically in `.homeycompose/capabilities/measure_compressor_active.json` and `measure_burner_active.json`, and ship it with 1.1.0, which raises `compatibility` to `>=13.5.0`. Give the proposed booleans `"uiState": false` explicitly (section 4); `measure_fuelcell_active` waits for Q20. Validated: with `>=13.5.0` and these keys, publish validation passes; with `>=10.0.0` it fails ("requires a compatibility of at least >=13.5.0"). The definition is app-wide, so existing devices should pick up the tile state with the update, without a migration (*to verify* in the test channel).[^uistate-runtime]
 
-1. Raise `compatibility` to `>=13.5.0`. Users on older Homey versions stay on the last compatible app version (roadmap Phase 4, "Raising compatibility").
-2. Keep `>=10.0.0` and set it at runtime with `setCapabilityOptions(id, { ...options, uiState: true })` only when `this.homey.version` is at least 13.5.0. The validator does not see runtime options. *To verify:* whether Homey below 13.5.0 ignores or rejects the unknown option (wrap it in try/catch either way), and whether the option takes effect on an existing capability without re-adding it.
-
-Recommendation: option 2 now, option 1 when compatibility is raised for other reasons (Q14).
+[^uistate-runtime]: Not used after the decision: keeping `>=10.0.0` would have required setting `uiState` at runtime with `setCapabilityOptions` only on Homey ≥ 13.5.0, with unverified behavior on older versions.
 
 ### 5b. Thermostat pairing by dot suffix
 
@@ -473,7 +475,7 @@ Lower-risk alternative: never remove it; hide it with `uiComponent: null` (5g) o
 
 ### 5e. Maintenance action "Refresh Viessmann features"
 
-**Proposal** (roadmap 3.5). `button.refreshFeatures` *(proposed)* with options `{ "maintenanceAction": true, "title": { "en": "Refresh Viessmann features" }, "desc": { "en": "Reads the datapoints from Viessmann again and adds new sensors. Nothing is removed." } }`. It appears under *Device settings > Maintenance actions*, not in the device view. Needs Homey 3.1.0 or later. Validated.
+**Proposal** (roadmap 3.5). `button.refreshFeatures` *(proposed)* with options `{ "maintenanceAction": true, "title": { "en": "Refresh Viessmann features" }, "desc": { "en": "Reads the datapoints from Viessmann again and adds new sensors. Nothing is removed." } }`. It appears under *Device settings > Maintenance actions*, not in the device view. Validated.
 
 **Listener.** Fetch the features unfiltered (roadmap 1.2), merge `features`, `constraints` and `operatingModes` into the store as a union (principle 3), re-read the static configuration (2e), run the add-only capability init and re-apply the operating modes. Throw an `Error` with a readable message on failure; the user sees it. Rate-limit it (e.g. once per 10 minutes), because each refresh uses API calls from the daily quota.
 
@@ -512,8 +514,8 @@ Sub-capabilities get no automatic Flow cards: define a trigger ("Fault alarm tur
 10. **Roadmap correction:** `heating.configuration.flow.temperature.min/max` are supply-temperature limits, not the room set-point range; take `target_temperature.heating` min/max from the `setTemperature` constraints instead. Agree?
 11. **Roadmap correction:** `heating.configuration.temperature.outside.DampingFactor` and `heating.configuration.heatingRod.*` are flagged deprecated in the 2026-11 dump. Remove them from "read once at pairing"?
 12. **Diagnostic setting switched off:** remove the diagnostic capabilities (user-initiated, Insights history is lost; warn in the setting hint) or keep them and stop updating? Principle 2 only covers automatic removal.
-13. **Program as `string` or `enum`:** string (proposed) tolerates unknown program ids but is not logged in Insights and gives no dropdown in Flows; enum needs a per-device value list and Homey ≥ 12.0.1.
-14. **Tile state:** set `uiState` at runtime only on Homey ≥ 13.5.0 (recommended), or raise `compatibility` to `>=13.5.0`?
+13. **Program as `string` or `enum`:** string (proposed) tolerates unknown program ids but is not logged in Insights and gives no dropdown in Flows; enum needs a per-device value list (its Homey 12.0.1 requirement is covered from 1.1.0).
+14. ~~**Tile state:** set `uiState` at runtime, or raise `compatibility`?~~ **Decided:** 1.1.0 raises `compatibility` to `>=13.5.0` (1.0.15 stays `>=10.0.0`); `uiState` goes statically into the capability definitions (5a).
 15. **Heating thermostat:** add a duplicate `measure_temperature.heating` (Insights and tag prevented) so the dial shows the room temperature, or leave it unpaired? And should the reduced, comfort and hygiene set points get dials at all, or be Flow-only?
 16. **One-time charge:** once `button.dhwBoost` exists, keep the picker, hide it, or retire it (steps in 5d)?
 17. **Alarms:** `alarm_generic.lowPressure` with which default threshold, or only a Flow condition? Which datapoint should drive `alarm_generic.fault` on devices without `device.messages.errors.raw`?

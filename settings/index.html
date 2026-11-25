@@ -20,19 +20,69 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8" />
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <style>
+      .setup-steps {
+        margin: 0 0 16px;
+        padding-left: 20px;
+      }
+      .setup-steps li {
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+      .setup-link {
+        display: inline-block;
+        margin-top: 4px;
+        word-break: break-all;
+      }
+      .copy-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .copy-row .homey-form-input {
+        flex-grow: 1;
+        min-width: 0;
+        font-family: monospace;
+      }
+      .problem {
+        margin-bottom: 14px;
+      }
+      .problem-title {
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
   </head>
   <body>
     <header class="homey-header">
       <h1 class="homey-title" data-i18n="settings.title"></h1>
     </header>
 
-    <!-- Client ID Configuration -->
+    <!-- Client ID setup -->
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.subtitle"></legend>
       <p class="homey-form-hint" data-i18n="settings.bodytext"></p>
+      <ol class="setup-steps">
+        <li>
+          <span data-i18n="settings.steps.portal"></span><br />
+          <a id="portalLink" class="setup-link" href="https://app.developer.viessmann-climatesolutions.com/" target="_blank" rel="noopener">app.developer.viessmann-climatesolutions.com</a>
+        </li>
+        <li data-i18n="settings.steps.client"></li>
+        <li><strong data-i18n="settings.steps.recaptcha"></strong></li>
+        <li>
+          <span data-i18n="settings.steps.redirect"></span>
+          <div class="copy-row">
+            <input class="homey-form-input" id="redirectUri" type="text" value="https://callback.athom.com/oauth2/callback" readonly />
+            <button id="copyRedirectUri" class="homey-button-secondary" data-i18n="settings.steps.copy"></button>
+          </div>
+        </li>
+        <li data-i18n="settings.steps.client_id"></li>
+        <li data-i18n="settings.steps.pair"></li>
+      </ol>
       <div class="homey-form-group">
-        <label class="homey-form-label" for="clientId">Viessmann Client ID</label>
+        <label class="homey-form-label" for="clientId" data-i18n="settings.client_id_label">Viessmann Client ID</label>
         <input class="homey-form-input" id="clientId" type="text" value="" />
       </div>
       <div class="homey-form-buttons">
@@ -43,11 +93,36 @@
     <!-- Separator -->
     <div class="homey-form-group-separator"></div>
 
+    <!-- Common problems -->
+    <fieldset class="homey-form-fieldset">
+      <legend class="homey-form-legend" data-i18n="settings.problems.title"></legend>
+      <div class="problem">
+        <p class="problem-title" data-i18n="settings.problems.redirect.title"></p>
+        <p class="homey-form-hint" data-i18n="settings.problems.redirect.fix"></p>
+      </div>
+      <div class="problem">
+        <p class="problem-title" data-i18n="settings.problems.no_devices.title"></p>
+        <p class="homey-form-hint" data-i18n="settings.problems.no_devices.fix"></p>
+      </div>
+      <div class="problem">
+        <p class="problem-title" data-i18n="settings.problems.no_oauth2_client.title"></p>
+        <p class="homey-form-hint" data-i18n="settings.problems.no_oauth2_client.fix"></p>
+      </div>
+      <div class="problem">
+        <p class="problem-title" data-i18n="settings.problems.reauth.title"></p>
+        <p class="homey-form-hint" data-i18n="settings.problems.reauth.fix"></p>
+      </div>
+      <p class="homey-form-hint" data-i18n="settings.problems.report"></p>
+    </fieldset>
+
+    <!-- Separator -->
+    <div class="homey-form-group-separator"></div>
+
     <!-- Troubleshooting Section -->
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.troubleshooting.title"></legend>
       <p class="homey-form-hint" data-i18n="settings.troubleshooting.description"></p>
-      
+
       <!-- Installations -->
       <div class="homey-form-group">
         <label class="homey-form-label" for="installations" data-i18n="settings.troubleshooting.installations.title"></label>
@@ -88,6 +163,9 @@
       function onHomeyReady(Homey) {
         var clientIdElement = document.getElementById("clientId");
         var saveElement = document.getElementById("save");
+        var portalLinkElement = document.getElementById("portalLink");
+        var redirectUriElement = document.getElementById("redirectUri");
+        var copyRedirectUriElement = document.getElementById("copyRedirectUri");
         var copyInstallationsElement = document.getElementById("copyInstallations");
         var copyFeaturesElement = document.getElementById("copyFeatures");
         var refreshInstallationsElement = document.getElementById("refreshInstallations");
@@ -104,15 +182,57 @@
 
         saveElement.addEventListener("click", function (e) {
           const clientId = clientIdElement.value.trim();
-          
+
           if (!clientId || clientId.length < 5) {
             return Homey.alert(Homey.__("settings.error.invalid_client_id"));
           }
-          
+
           Homey.set("clientId", clientId, function (err) {
             if (err) return Homey.alert(err);
             Homey.alert(Homey.__("settings.saved"));
           });
+        });
+
+        // Open the developer portal in the system browser; fall back to the plain link
+        portalLinkElement.addEventListener("click", function (e) {
+          if (typeof Homey.openURL !== "function") return;
+          e.preventDefault();
+          Promise.resolve(Homey.openURL(portalLinkElement.href)).catch(function () {
+            window.open(portalLinkElement.href, "_blank");
+          });
+        });
+
+        // Copy the redirect URI. The Clipboard API is not available in every Homey
+        // web view, so fall back to selecting the text and using execCommand.
+        copyRedirectUriElement.addEventListener("click", function (e) {
+          var text = redirectUriElement.value;
+
+          function showCopied() {
+            copyRedirectUriElement.textContent = Homey.__("settings.steps.copied");
+            setTimeout(function () {
+              copyRedirectUriElement.textContent = Homey.__("settings.steps.copy");
+            }, 2000);
+          }
+
+          function copyBySelection() {
+            redirectUriElement.focus();
+            redirectUriElement.select();
+            redirectUriElement.setSelectionRange(0, text.length);
+            var copied = false;
+            try {
+              copied = document.execCommand("copy");
+            } catch (err) {
+              copied = false;
+            }
+            // If copying failed, the text stays selected so the user can copy it by hand
+            if (copied) showCopied();
+          }
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied, copyBySelection);
+          } else {
+            copyBySelection();
+          }
         });
 
         copyInstallationsElement.addEventListener("click", function (e) {
@@ -132,14 +252,14 @@
           });
         });
 
-        // Funktion för att populera device-dropdown
+        // Fill the device dropdown
         function populateDevices(devices) {
-          // Rensa existerande options förutom default
+          // Remove existing options except the default one
           while (deviceSelectElement.options.length > 1) {
             deviceSelectElement.remove(1);
           }
-          
-          // Lägg till nya devices
+
+          // Add the devices
           devices.forEach(device => {
             const option = document.createElement('option');
             option.value = device.deviceId;
@@ -148,7 +268,7 @@
           });
         }
 
-        // Hämta devices när man klickar på refresh
+        // Fetch devices when Refresh is clicked
         refreshDevicesElement.addEventListener("click", function (e) {
           Homey.api('GET', '/devices', null, function(err, result) {
             if (err) return Homey.alert(err);
@@ -156,14 +276,14 @@
           });
         });
 
-        // Uppdatera features-hämtning att använda vald device
+        // Fetch features for the selected device
         refreshFeaturesElement.addEventListener("click", function (e) {
           const selectedDevice = deviceSelectElement.options[deviceSelectElement.selectedIndex].value;
           if (!selectedDevice) {
             return Homey.alert(Homey.__("settings.error.no_device_selected"));
           }
 
-          // Använd POST istället för GET
+          // Use POST instead of GET
           Homey.api('POST', '/features', { deviceId: selectedDevice }, function(err, result) {
             if (err) return Homey.alert(err);
             featuresElement.textContent = JSON.stringify(result, null, 3);

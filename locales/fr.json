@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "title": "Compte développeur Viessmann",
+    "subtitle": "Viessmann Client ID",
+    "bodytext": "Avec l'offre API gratuite de Viessmann, chaque utilisateur doit créer son propre Client ID. Cela prend environ cinq minutes :",
+    "steps": {
+      "portal": "Ouvrez le portail développeur de Viessmann et connectez-vous avec votre compte ViCare (la même adresse e-mail et le même mot de passe que dans l'app ViCare) :",
+      "client": "Ajoutez un nouveau client et donnez-lui un nom, par exemple Homey.",
+      "recaptcha": "Désactivez Google reCAPTCHA pour ce client. Tant qu'il est activé, la connexion depuis Homey ne fonctionne pas.",
+      "redirect": "Saisissez exactement cette adresse comme URI de redirection (Redirect URI), sans caractère en plus ou en moins :",
+      "copy": "Copier",
+      "copied": "Copié",
+      "client_id": "Enregistrez le client dans le portail, copiez son Client ID, collez-le dans le champ ci-dessous et appuyez sur Enregistrer.",
+      "pair": "Ajoutez un nouvel appareil dans Homey, choisissez Viessmann ViCare et connectez-vous avec votre compte ViCare."
+    },
+    "client_id_label": "Viessmann Client ID",
+    "save": "Enregistrer",
+    "saved": "Client ID enregistré ! Vous pouvez maintenant ajouter votre appareil Viessmann dans Homey.",
+    "error": {
+      "invalid_client_id": "Veuillez saisir un Client ID valide",
+      "no_device_selected": "Veuillez d'abord sélectionner un appareil"
+    },
+    "problems": {
+      "title": "Problèmes fréquents",
+      "redirect": {
+        "title": "« Invalid redirection URI » sur la page de connexion Viessmann",
+        "fix": "L'URI de redirection de votre client Viessmann n'est pas tout à fait correcte. Ouvrez le client dans le portail développeur, collez à nouveau l'URI de redirection de l'étape 4, enregistrez et recommencez l'ajout de l'appareil."
+      },
+      "no_devices": {
+        "title": "La connexion fonctionne, mais aucun appareil n'est trouvé ou une erreur inconnue apparaît",
+        "fix": "Vérifiez que votre chauffage apparaît et est en ligne dans l'app ViCare. Assurez-vous que le Client ID ci-dessus était enregistré avant de commencer l'ajout de l'appareil. Si vous venez de l'enregistrer ou de le modifier, fermez la fenêtre d'ajout d'appareils et recommencez."
+      },
+      "no_oauth2_client": {
+        "title": "« No OAuth2 Client Found » dans les outils de dépannage",
+        "fix": "Les outils de dépannage ci-dessous utilisent la connexion d'un appareil déjà ajouté. Ajoutez d'abord un appareil Viessmann ViCare, puis réessayez."
+      },
+      "reauth": {
+        "title": "Appareil indisponible après des semaines ou des mois (« Authentication failed » ou connexion perdue)",
+        "fix": "Les courtes pannes chez Viessmann se résolvent d'elles-mêmes. Si l'appareil reste indisponible, votre connexion Viessmann a probablement expiré, par exemple après un changement de mot de passe. Ouvrez l'appareil, allez dans ses paramètres, choisissez Réparer et reconnectez-vous avec votre compte ViCare."
+      },
+      "report": "Le problème persiste ? Ouvrez l'app Viessmann ViCare dans Homey, envoyez un rapport de diagnostic et décrivez brièvement ce que vous avez fait et ce que vous avez vu."
+    },
+    "troubleshooting": {
+      "title": "Dépannage",
+      "description": "Ces outils affichent les données brutes que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les données peuvent contenir des numéros de série : vérifiez-les avant de les partager publiquement.",
+      "installations": {
+        "title": "Informations sur l'installation",
+        "description": "Affiche les détails de votre installation Viessmann et des appareils connectés",
+        "get": "Obtenir les données d'installation",
+        "copy": "Copier dans le presse-papiers"
+      },
+      "features": {
+        "title": "Fonctions de l'appareil",
+        "description": "Affiche les fonctions disponibles et les valeurs actuelles de votre appareil",
+        "get": "Obtenir les données des fonctions",
+        "copy": "Copier dans le presse-papiers"
+      },
+      "device": {
+        "title": "Choix de l'appareil",
+        "description": "Choisissez l'appareil dont vous voulez obtenir les fonctions",
+        "select": "Choisissez un appareil...",
+        "refresh": "Actualiser les appareils"
+      }
+    }
+  },
+  "pair": {
+    "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil."
+  }
+}

@@ -23,7 +23,24 @@ jest.mock('homey-oauth2app', () => ({
   },
 }));
 
-// Hjälpfunktion för att hämta värde från nested path
+// Anonymized feature dumps committed to the repo (see test/fixtures/README.md).
+const FIXTURES_DIR = path.join(__dirname, '../../../test/fixtures');
+// Raw feature dumps from real installations. Local only and never committed, so they are
+// used in addition to the fixtures when the folder exists and skipped otherwise.
+const DOCUMENTATION_DIR = path.join(__dirname, '../../../documentation/json-example-files');
+
+function loadFeatureDumps(dir, label) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((file) => file.endsWith('_features.json'))
+    .sort()
+    .map((file) => [`${label}/${file}`, JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))]);
+}
+
+const fixtureDumps = loadFeatureDumps(FIXTURES_DIR, 'fixtures');
+const exampleDumps = [...fixtureDumps, ...loadFeatureDumps(DOCUMENTATION_DIR, 'documentation')];
+
+// Helper to read a value from a nested path
 function getValueFromPath(obj, path) {
   try {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -39,9 +56,9 @@ describe('ViessmannDevice', () => {
     device._features = Object.values(device.constructor.PATHS);
     device._roles = ['type:heating', 'type:heatpump', 'type:boiler'];
 
-    // Lägg till mock för hasCapability som matchar alla capabilities från config
+    // Mock hasCapability so it matches every capability defined in config
     device.hasCapability = jest.fn().mockImplementation((capabilityName) => {
-      // Samla alla definierade capabilities från FEATURES
+      // Collect every capability defined in FEATURES
       const availableCapabilities = Object.values(FEATURES)
         .flatMap((feature) => feature.capabilities)
         .map((cap) => cap.capabilityName);
@@ -50,7 +67,7 @@ describe('ViessmannDevice', () => {
   });
 
   describe('onFeaturesUpdated', () => {
-    test('uppdaterar temperatur-capabilities korrekt', async () => {
+    test('updates temperature capabilities correctly', async () => {
       const features = [
         {
           feature: PATHS.HOT_WATER_TEMP,
@@ -95,7 +112,7 @@ describe('ViessmannDevice', () => {
       );
     });
 
-    test('uppdaterar active state capabilities korrekt', async () => {
+    test('updates active state capabilities correctly', async () => {
       const features = [
         {
           feature: PATHS.COMPRESSOR,
@@ -126,7 +143,7 @@ describe('ViessmannDevice', () => {
       );
     });
 
-    test('uppdaterar modulation capabilities korrekt', async () => {
+    test('updates modulation capabilities correctly', async () => {
       const features = [
         {
           feature: PATHS.BURNER_MODULATION,
@@ -146,7 +163,7 @@ describe('ViessmannDevice', () => {
       );
     });
 
-    test('uppdaterar statistik capabilities korrekt', async () => {
+    test('updates statistics capabilities correctly', async () => {
       const features = [
         {
           feature: PATHS.BURNER_STATS,
@@ -173,19 +190,16 @@ describe('ViessmannDevice', () => {
   });
 });
 
-describe('ViessmannDevice capability handling', () => {
-  const exampleFiles = fs
-    .readdirSync(path.join(__dirname, '../../../documentation/json-example-files'))
-    .filter((file) => file.endsWith('_features.json'))
-    .map((file) => jest.requireActual(
-      path.join(__dirname, '../../../documentation/json-example-files', file),
-    ));
+test('test/fixtures contains feature dumps', () => {
+  expect(fixtureDumps.length).toBeGreaterThan(0);
+});
 
+describe.each(exampleDumps)('ViessmannDevice capability handling with %s', (name, exampleFile) => {
   let device;
 
   beforeEach(() => {
     device = new ViessmannDevice();
-    // Mock nödvändiga metoder
+    // Mock the methods the device needs
     device.setCapabilityValue = jest.fn();
     device.hasCapability = jest.fn().mockReturnValue(true);
     device.log = jest.fn();
@@ -194,31 +208,29 @@ describe('ViessmannDevice capability handling', () => {
     device._roles = ['type:heating', 'type:heatpump', 'type:boiler'];
   });
 
-  test('should correctly set capability values from example responses', async () => {
-    for (const exampleFile of exampleFiles) {
-      for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
-        // Återställ mocken före varje feature-test
-        device.setCapabilityValue.mockClear();
+  test('should correctly set capability values from the example response', async () => {
+    for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
+      // Reset the mock before each feature
+      device.setCapabilityValue.mockClear();
 
-        const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
-        if (!exampleFeature) continue;
+      const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
+      if (!exampleFeature) continue;
 
-        await device.onFeaturesUpdated({ data: [exampleFeature] });
+      await device.onFeaturesUpdated({ data: [exampleFeature] });
 
-        // Testa varje capability individuellt
-        for (const capability of featureConfig.capabilities) {
-          const expectedValue = getValueFromPath(exampleFeature.properties, capability.propertyPath);
+      // Check each capability individually
+      for (const capability of featureConfig.capabilities) {
+        const expectedValue = getValueFromPath(exampleFeature.properties, capability.propertyPath);
 
-          if (expectedValue !== undefined) {
-            const mappedValue = capability.valueMapping
-              ? capability.valueMapping[expectedValue]
-              : expectedValue;
+        if (expectedValue !== undefined) {
+          const mappedValue = capability.valueMapping
+            ? capability.valueMapping[expectedValue]
+            : expectedValue;
 
-            expect(device.setCapabilityValue).toHaveBeenCalledWith(
-              capability.capabilityName,
-              mappedValue,
-            );
-          }
+          expect(device.setCapabilityValue).toHaveBeenCalledWith(
+            capability.capabilityName,
+            mappedValue,
+          );
         }
       }
     }
@@ -227,35 +239,39 @@ describe('ViessmannDevice capability handling', () => {
   describe('config property paths', () => {
     const testCases = [];
 
-    for (const exampleFile of exampleFiles) {
-      for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
-        const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
-        if (!exampleFeature) continue;
+    for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
+      const exampleFeature = exampleFile.data.find((f) => f.feature === featurePath);
+      if (!exampleFeature) continue;
 
-        // Skippa features som inte är enabled
-        if (!exampleFeature.isEnabled) continue;
+      // Skip features that are not enabled
+      if (!exampleFeature.isEnabled) continue;
 
-        // Skippa features som har status !== "connected" (om status finns)
-        const status = getValueFromPath(exampleFeature.properties, 'status.value');
-        if (status && status !== 'connected') continue;
+      // Skip features whose status (if there is one) is not "connected"
+      const status = getValueFromPath(exampleFeature.properties, 'status.value');
+      if (status && status !== 'connected') continue;
 
-        for (const capability of featureConfig.capabilities) {
-          testCases.push([
-            featurePath,
-            capability.capabilityName,
-            capability.propertyPath,
-            exampleFeature.properties,
-          ]);
-        }
+      for (const capability of featureConfig.capabilities) {
+        testCases.push([
+          featurePath,
+          capability.capabilityName,
+          capability.propertyPath,
+          exampleFeature.properties,
+        ]);
       }
     }
 
-    test.each(testCases)(
-      'Feature %s with capability %s should have property path %s',
-      (featurePath, capabilityName, propertyPath, properties) => {
-        const value = getValueFromPath(properties, propertyPath);
-        expect(value).toBeDefined();
-      },
-    );
+    test('the example covers at least one feature from config', () => {
+      expect(testCases.length).toBeGreaterThan(0);
+    });
+
+    if (testCases.length > 0) {
+      test.each(testCases)(
+        'Feature %s with capability %s should have property path %s',
+        (featurePath, capabilityName, propertyPath, properties) => {
+          const value = getValueFromPath(properties, propertyPath);
+          expect(value).toBeDefined();
+        },
+      );
+    }
   });
 });

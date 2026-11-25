@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "title": "Viessmann-ontwikkelaarsaccount",
+    "subtitle": "Viessmann Client ID",
+    "bodytext": "Met het gratis API-abonnement van Viessmann heeft elke gebruiker een eigen Client ID nodig. Dat kost ongeveer vijf minuten:",
+    "steps": {
+      "portal": "Open het Viessmann-ontwikkelaarsportaal en log in met je ViCare-account (hetzelfde e-mailadres en wachtwoord als in de ViCare-app):",
+      "client": "Voeg een nieuwe client toe en geef hem een naam, bijvoorbeeld Homey.",
+      "recaptcha": "Zet Google reCAPTCHA uit voor de client. Zolang het aan staat, werkt inloggen vanuit Homey niet.",
+      "redirect": "Stel als redirect URI precies dit adres in, zonder extra of ontbrekende tekens:",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "client_id": "Sla de client op in het portaal, kopieer de Client ID, plak hem in het veld hieronder en tik op Opslaan.",
+      "pair": "Voeg in Homey een nieuw apparaat toe, kies Viessmann ViCare en log in met je ViCare-account."
+    },
+    "client_id_label": "Viessmann Client ID",
+    "save": "Opslaan",
+    "saved": "Client ID opgeslagen! Je kunt nu je Viessmann-apparaat toevoegen in Homey.",
+    "error": {
+      "invalid_client_id": "Voer een geldige Client ID in",
+      "no_device_selected": "Kies eerst een apparaat"
+    },
+    "problems": {
+      "title": "Veelvoorkomende problemen",
+      "redirect": {
+        "title": "\"Invalid redirection URI\" op de inlogpagina van Viessmann",
+        "fix": "De redirect URI in je Viessmann-client klopt niet precies. Open de client in het ontwikkelaarsportaal, plak de redirect URI uit stap 4 opnieuw, sla op en voeg het apparaat opnieuw toe."
+      },
+      "no_devices": {
+        "title": "Inloggen lukt, maar er worden geen apparaten gevonden of er verschijnt een onbekende fout",
+        "fix": "Controleer of je verwarming in de ViCare-app staat en online is. Zorg dat de Client ID hierboven was opgeslagen voordat je begon met het toevoegen van het apparaat. Heb je hem net pas opgeslagen of gewijzigd? Sluit dan het venster voor het toevoegen van apparaten en begin opnieuw."
+      },
+      "no_oauth2_client": {
+        "title": "\"No OAuth2 Client Found\" bij de hulpmiddelen voor probleemoplossing",
+        "fix": "De hulpmiddelen hieronder gebruiken de login van een toegevoegd apparaat. Voeg eerst een Viessmann ViCare-apparaat toe en probeer het dan opnieuw."
+      },
+      "reauth": {
+        "title": "Apparaat na weken of maanden niet beschikbaar (\"Authentication failed\" of verbinding verbroken)",
+        "fix": "Korte storingen bij Viessmann lossen zichzelf op. Blijft het apparaat niet beschikbaar, dan is je Viessmann-login waarschijnlijk verlopen, bijvoorbeeld na een wachtwoordwijziging. Open het apparaat, ga naar de instellingen, kies Repareren en log opnieuw in met je ViCare-account."
+      },
+      "report": "Kom je er niet uit? Open de app Viessmann ViCare in Homey, stuur een diagnoserapport en beschrijf kort wat je deed en wat je zag."
+    },
+    "troubleshooting": {
+      "title": "Probleemoplossing",
+      "description": "Deze hulpmiddelen tonen de ruwe gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. De gegevens kunnen serienummers bevatten, dus bekijk ze voordat je ze openbaar deelt.",
+      "installations": {
+        "title": "Installatiegegevens",
+        "description": "Toont details over je Viessmann-installatie en de gekoppelde apparaten",
+        "get": "Installatiegegevens ophalen",
+        "copy": "Kopiëren naar klembord"
+      },
+      "features": {
+        "title": "Apparaatfuncties",
+        "description": "Toont de beschikbare functies en huidige waarden van je apparaat",
+        "get": "Functiegegevens ophalen",
+        "copy": "Kopiëren naar klembord"
+      },
+      "device": {
+        "title": "Apparaat kiezen",
+        "description": "Kies het apparaat waarvan je de functies wilt ophalen",
+        "select": "Kies een apparaat...",
+        "refresh": "Apparaten vernieuwen"
+      }
+    }
+  },
+  "pair": {
+    "no_client_id": "Er is nog geen Viessmann Client ID opgeslagen. Open de instellingen van de app Viessmann ViCare, maak daar volgens de stappen een Client ID aan, sla hem op en voeg het apparaat daarna opnieuw toe."
+  }
+}

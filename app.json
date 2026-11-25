@@ -8,10 +8,18 @@
     "local"
   ],
   "name": {
-    "en": "Viessmann ViCare"
+    "en": "Viessmann ViCare",
+    "de": "Viessmann ViCare",
+    "nl": "Viessmann ViCare",
+    "fr": "Viessmann ViCare",
+    "sv": "Viessmann ViCare"
   },
   "description": {
-    "en": "Save time and energy"
+    "en": "Save time and energy",
+    "de": "Zeit und Energie sparen",
+    "nl": "Bespaar tijd en energie",
+    "fr": "Gagnez du temps et économisez de l'énergie",
+    "sv": "Spara tid och energi"
   },
   "category": [
     "climate"

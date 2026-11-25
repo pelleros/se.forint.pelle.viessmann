@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "title": "Viessmann-utvecklarkonto",
+    "subtitle": "Viessmann Client ID",
+    "bodytext": "Med Viessmanns kostnadsfria API-abonnemang behöver varje användare ett eget Client ID. Det tar ungefär fem minuter:",
+    "steps": {
+      "portal": "Öppna Viessmanns utvecklarportal och logga in med ditt ViCare-konto (samma e-postadress och lösenord som i ViCare-appen):",
+      "client": "Lägg till en ny klient och ge den ett namn, till exempel Homey.",
+      "recaptcha": "Stäng av Google reCAPTCHA för klienten. Inloggningen från Homey fungerar inte så länge det är påslaget.",
+      "redirect": "Ange exakt den här adressen som redirect URI, utan extra eller saknade tecken:",
+      "copy": "Kopiera",
+      "copied": "Kopierat",
+      "client_id": "Spara klienten i portalen, kopiera dess Client ID, klistra in det i fältet nedan och tryck på Spara.",
+      "pair": "Lägg till en ny enhet i Homey, välj Viessmann ViCare och logga in med ditt ViCare-konto."
+    },
+    "client_id_label": "Viessmann Client ID",
+    "save": "Spara",
+    "saved": "Client ID:t är sparat! Nu kan du lägga till din Viessmann-enhet i Homey.",
+    "error": {
+      "invalid_client_id": "Ange ett giltigt Client ID",
+      "no_device_selected": "Välj en enhet först"
+    },
+    "problems": {
+      "title": "Vanliga problem",
+      "redirect": {
+        "title": "\"Invalid redirection URI\" på Viessmanns inloggningssida",
+        "fix": "Redirect URI:n i din Viessmann-klient stämmer inte exakt. Öppna klienten i utvecklarportalen, klistra in redirect URI:n från steg 4 igen, spara och lägg till enheten på nytt."
+      },
+      "no_devices": {
+        "title": "Inloggningen fungerar, men inga enheter hittas eller ett okänt fel visas",
+        "fix": "Kontrollera att din värmeanläggning syns och är online i ViCare-appen. Se till att Client ID:t ovan var sparat innan du började lägga till enheten. Om du nyss sparade eller ändrade det, stäng fönstret för att lägga till enheter och börja om."
+      },
+      "no_oauth2_client": {
+        "title": "\"No OAuth2 Client Found\" i felsökningsverktygen",
+        "fix": "Felsökningsverktygen nedan använder inloggningen från en tillagd enhet. Lägg till en Viessmann ViCare-enhet först och försök sedan igen."
+      },
+      "reauth": {
+        "title": "Enheten är otillgänglig efter veckor eller månader (\"Authentication failed\" eller tappad anslutning)",
+        "fix": "Korta driftstörningar hos Viessmann går över av sig själva. Om enheten förblir otillgänglig har din Viessmann-inloggning troligen gått ut, till exempel efter ett lösenordsbyte. Öppna enheten, gå till dess inställningar, välj Reparera och logga in med ditt ViCare-konto igen."
+      },
+      "report": "Kommer du inte vidare? Öppna appen Viessmann ViCare i Homey, skicka en diagnostikrapport och beskriv kort vad du gjorde och vad som hände."
+    },
+    "troubleshooting": {
+      "title": "Felsökning",
+      "description": "De här verktygen visar rådata som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Datan kan innehålla serienummer, så titta igenom den innan du delar den offentligt.",
+      "installations": {
+        "title": "Installationsinformation",
+        "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",
+        "get": "Hämta installationsdata",
+        "copy": "Kopiera till urklipp"
+      },
+      "features": {
+        "title": "Enhetens funktioner",
+        "description": "Visar tillgängliga funktioner och aktuella värden för din enhet",
+        "get": "Hämta funktionsdata",
+        "copy": "Kopiera till urklipp"
+      },
+      "device": {
+        "title": "Välj enhet",
+        "description": "Välj vilken enhet du vill hämta funktioner för",
+        "select": "Välj en enhet...",
+        "refresh": "Uppdatera enheter"
+      }
+    }
+  },
+  "pair": {
+    "no_client_id": "Inget Viessmann Client ID är sparat ännu. Öppna inställningarna för appen Viessmann ViCare, skapa och spara ett Client ID enligt stegen där och lägg sedan till enheten igen."
+  }
+}

@@ -42,7 +42,7 @@
     },
     "troubleshooting": {
       "title": "Fehlerbehebung",
-      "description": "Diese Werkzeuge zeigen die Rohdaten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Die Daten können Seriennummern enthalten, prüfe sie also, bevor du sie öffentlich teilst.",
+      "description": "Diese Werkzeuge zeigen die Daten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Seriennummern, IDs, deine Adresse und ähnliche Angaben werden automatisch anonymisiert und erscheinen als Platzhalter wie „anonymized-serial-1“. Schicke die Daten trotzdem am besten privat an den Entwickler, statt sie öffentlich zu posten.",
       "installations": {
         "title": "Installationsdaten",
         "description": "Zeigt Details zu deiner Viessmann-Installation und den verbundenen Geräten",

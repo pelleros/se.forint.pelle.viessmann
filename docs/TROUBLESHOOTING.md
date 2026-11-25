@@ -116,8 +116,11 @@ A good report makes the difference between a quick fix and a lot of guessing.
    This shows exactly what Viessmann sends to the app and is very useful when a value is missing or
    wrong.
 
-   The raw data can contain serial numbers, installation and gateway IDs and similar details. Skim
-   it before you post it publicly, and replace anything you do not want to share.
+   The app anonymizes this data before it shows it: serial numbers, installation, gateway and
+   device IDs, your address and similar details are replaced with placeholders such as
+   `anonymized-serial-1`. The same value always gets the same placeholder, so the data stays
+   useful. Still, it is best to send it privately, for example in a private message on the forum,
+   rather than post it publicly.
 3. **Where to ask:** the
    [Homey Community Forum topic](https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749)
    or [GitHub issues](https://github.com/pelleros/se.forint.pelle.viessmann/issues).

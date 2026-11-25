@@ -42,7 +42,7 @@
     },
     "troubleshooting": {
       "title": "Dépannage",
-      "description": "Ces outils affichent les données brutes que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les données peuvent contenir des numéros de série : vérifiez-les avant de les partager publiquement.",
+      "description": "Ces outils affichent les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux envoyer les données au développeur en privé plutôt que de les publier.",
       "installations": {
         "title": "Informations sur l'installation",
         "description": "Affiche les détails de votre installation Viessmann et des appareils connectés",

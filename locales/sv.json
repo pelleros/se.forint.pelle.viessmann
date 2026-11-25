@@ -42,7 +42,7 @@
     },
     "troubleshooting": {
       "title": "Felsökning",
-      "description": "De här verktygen visar rådata som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Datan kan innehålla serienummer, så titta igenom den innan du delar den offentligt.",
+      "description": "De här verktygen visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst datan privat till utvecklaren i stället för att dela den offentligt.",
       "installations": {
         "title": "Installationsinformation",
         "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",

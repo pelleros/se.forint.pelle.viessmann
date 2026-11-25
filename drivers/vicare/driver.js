@@ -28,6 +28,19 @@ const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 const { isAuthenticationFailure, REPAIR_MESSAGE } = require('../../lib/apiError');
 
+// What pairing found, for the log: counts, device types and models, no ids or personal data.
+// (The installations response contains serials, installation ids and the address.)
+function summarizeInstallations(response) {
+  const installations = Array.isArray(response?.data) ? response.data : [];
+  const gateways = installations.flatMap((installation) => installation.gateways || []);
+  const devices = gateways.flatMap((gateway) => gateway.devices || []);
+  const describe = (items, describeItem) => (items.length > 0 ? `: ${items.map(describeItem).join(', ')}` : '');
+  const gatewayType = (gateway) => gateway.gatewayType || 'unknown type';
+  const deviceType = (device) => [device.deviceType, device.modelId].filter(Boolean).join(' ') || 'unknown type';
+  return `${installations.length} installation(s), ${gateways.length} gateway(s)${describe(gateways, gatewayType)}, `
+    + `${devices.length} device(s)${describe(devices, deviceType)}`;
+}
+
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
   static FEATURES = FEATURES;
@@ -223,7 +236,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
       const result = await oAuth2Client.getInstallations();
 
-      this.log('[ViessmannDriver::onPairListDevices] Installations:', JSON.stringify(result, null, 3));
+      this.log('[ViessmannDriver::onPairListDevices] Found', summarizeInstallations(result));
 
       const devices = [];
       const { version } = this.homey.manifest;

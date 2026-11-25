@@ -21,7 +21,8 @@ Anonymized responses from the Viessmann IoT API, one set per installation type:
 ## Anonymization
 
 All files were produced from real dumps by `scripts/anonymizeDump.js` (via
-`scripts/generateFixtures.js`). Installation ids, gateway, boiler, BMU, device and controller
+`scripts/generateFixtures.js`), which uses the rules in `lib/anonymize.js` (the app anonymizes its
+troubleshooting data with the same rules, but with placeholders such as `anonymized-serial-1`). Installation ids, gateway, boiler, BMU, device and controller
 serials, material numbers, zigbee device ids, addresses, descriptions, building contact fields,
 service partner names and user-defined circuit names are replaced by obviously fake values
 (`900001`, `9999000000000001`, `zigbee-fa4e000000000001`, `anonymized`, `Heating circuit 0`, ...),
@@ -33,4 +34,14 @@ unchanged.
 fake ranges, so never edit these files by hand to add real data. To add a new installation type,
 put the raw dump in the untracked `documentation/json-example-files/` folder, add it to
 `scripts/generateFixtures.js` (or run `node scripts/anonymizeDump.js <raw.json> <fixture.json>`)
-and run `npm test`.
+and run `npm test`. Data copied from the troubleshooting section of the app's settings page works
+as input too; its placeholders become fake values.
+
+## Regenerating
+
+Most raw dumps from other users' installations have been deleted on purpose once their fixtures
+existed. `npm run fixtures` (`node scripts/generateFixtures.js`) regenerates the fixtures whose raw
+dumps are in `documentation/json-example-files/`; for every other fixture it keeps the committed
+file as it is and prints a note. The fake values the kept fixtures use are never handed out again,
+so a regenerated or new fixture cannot reuse them for another installation. With the same raw
+dumps, regenerated fixtures are byte-identical to the committed ones.

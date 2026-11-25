@@ -12,6 +12,11 @@
  * dumps that contain several installations are reduced to the installation that the paired
  * features dump belongs to.
  *
+ * Most raw dumps from other users' installations are deleted on purpose once their fixtures
+ * exist. When a raw dump of a fixture is missing, the committed fixture is kept as it is and a
+ * note is printed. The fake values the kept fixtures use are reserved, so a regenerated or new
+ * fixture never reuses them for another installation.
+ *
  * Review the output (and run `npm test`, which includes the privacy check) before committing.
  */
 
@@ -19,7 +24,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { Anonymizer, writeJson } = require('./anonymizeDump');
+const { Anonymizer, FAKE_PATTERNS } = require('../lib/anonymize');
+const { writeJson } = require('./anonymizeDump');
 
 const OLD = 'before api endpoint change';
 
@@ -70,24 +76,54 @@ function onlyInstallations(installationsDump, ids) {
   return { ...installationsDump, data: installationsDump.data.filter(belongs) };
 }
 
+// Every fake value in a fixture (also inside URIs), so a new mapping can avoid handing it out again.
+function fakeValuesIn(fixture) {
+  const values = new Set();
+  const visit = (node) => {
+    if (Array.isArray(node)) node.forEach(visit);
+    else if (node && typeof node === 'object') Object.values(node).forEach(visit);
+    else if (typeof node === 'string' || typeof node === 'number') {
+      for (const token of [String(node), ...String(node).split('/')]) {
+        if (Object.values(FAKE_PATTERNS).some((pattern) => pattern.test(token))) values.add(token);
+      }
+    }
+  };
+  visit(fixture);
+  return values;
+}
+
 function main([sourceDir = path.join(__dirname, '../documentation/json-example-files'), outputDir = path.join(__dirname, '../test/fixtures')]) {
   const raw = new Map();
-  const load = (file) => {
-    if (!raw.has(file)) {
-      const fullPath = path.join(sourceDir, file);
-      if (!fs.existsSync(fullPath)) throw new Error(`Missing raw dump: ${fullPath}`);
-      raw.set(file, JSON.parse(fs.readFileSync(fullPath, 'utf8')));
-    }
-    return raw.get(file);
-  };
-  const sources = FIXTURES.flatMap(({ features, installations }) => [features, installations].filter(Boolean));
-  sources.forEach(load);
+  for (const file of FIXTURES.flatMap(({ features, installations }) => [features, installations].filter(Boolean))) {
+    const fullPath = path.join(sourceDir, file);
+    if (!raw.has(file) && fs.existsSync(fullPath)) raw.set(file, JSON.parse(fs.readFileSync(fullPath, 'utf8')));
+  }
 
-  const anonymizer = new Anonymizer();
+  // A fixture is regenerated only when all of its raw dumps are there; otherwise it is kept.
+  const regenerate = [];
+  const reserved = new Set();
+  for (const fixture of FIXTURES) {
+    const missing = [fixture.features, fixture.installations].filter((file) => file && !raw.has(file));
+    if (missing.length === 0) {
+      regenerate.push(fixture);
+      continue;
+    }
+    const kept = [`${fixture.name}_features.json`, fixture.installations && `${fixture.name}_installations.json`]
+      .filter(Boolean)
+      .filter((file) => fs.existsSync(path.join(outputDir, file)));
+    const what = kept.length > 0 ? `keeping ${kept.join(' and ')}` : `skipping ${fixture.name} (no committed fixture either)`;
+    console.log(`Note: ${what}, raw dump not in ${sourceDir}: ${missing.join(', ')}`);
+    for (const file of kept) {
+      fakeValuesIn(JSON.parse(fs.readFileSync(path.join(outputDir, file), 'utf8'))).forEach((value) => reserved.add(value));
+    }
+  }
+
+  const sources = [...new Set(regenerate.flatMap(({ features, installations }) => [features, installations].filter(Boolean)))];
+  const anonymizer = new Anonymizer({ reserved });
   // First pass collects every identifier, so the safety net is complete in the second pass.
   sources.forEach((file) => anonymizer.anonymize(raw.get(file)));
 
-  for (const { name, features, installations } of FIXTURES) {
+  for (const { name, features, installations } of regenerate) {
     const featuresOut = anonymizer.anonymize(raw.get(features));
     writeJson(path.join(outputDir, `${name}_features.json`), featuresOut);
     console.log(`Wrote ${name}_features.json`);

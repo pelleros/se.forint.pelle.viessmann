@@ -178,51 +178,50 @@ function fixtureScenarios() {
   ];
 }
 
-// Raw dumps are local only (never committed); skipped when documentation/ is absent
+// Raw dumps are local only (never committed). A scenario whose dumps are not there is skipped,
+// so this runs with whatever subset of documentation/json-example-files/ exists.
 function documentationScenarios() {
-  if (!fs.existsSync(DOCUMENTATION_DIR)) return [];
+  const exists = (file) => fs.existsSync(path.join(DOCUMENTATION_DIR, file));
   const dump = (file) => readJson(DOCUMENTATION_DIR, file);
-  const boiler2016 = dump(`${OLD_API}/vitodens_200_2016_features.json`);
-  return [
+  const sameDump = (name, features, installations) => ({
+    name, files: [features, installations], before: features, after: features, installations,
+  });
+  const candidates = [
     {
       name: 'documentation: Vitocal 222 heat pump, 2024 dump to 2026-11-25 dump',
-      before: dump(`${OLD_API}/vitocal_222_features.json`),
-      after: dump('vitocal_222_2026-11-25_features.json'),
-      installations: dump('vitocal_222_2026-11-25_installations.json'),
+      files: [`${OLD_API}/vitocal_222_features.json`, 'vitocal_222_2026-11-25_features.json', 'vitocal_222_2026-11-25_installations.json'],
+      before: `${OLD_API}/vitocal_222_features.json`,
+      after: 'vitocal_222_2026-11-25_features.json',
+      installations: 'vitocal_222_2026-11-25_installations.json',
       keeps: ['measure_temperature.buffer'],
     },
-    {
-      name: 'documentation: Vitodens 200 E3 gas boiler',
-      before: dump(`${OLD_API}/vitodens_200_e3_features.json`),
-      after: dump(`${OLD_API}/vitodens_200_e3_features.json`),
-      installations: dump(`${OLD_API}/vitodens_200_e3_installations.json`),
-    },
-    {
-      name: 'documentation: Vitodens 200 gas boiler (2016, Optolink)',
-      before: boiler2016,
-      after: boiler2016,
-      installations: dump(`${OLD_API}/vitodens_200_2016_installations.json`),
-    },
-    {
-      name: 'documentation: Vitodens 200 E3 gas boiler (TCU)',
-      before: dump(`${OLD_API}/vitodens_200_DH_features.json`),
-      after: dump(`${OLD_API}/vitodens_200_DH_features.json`),
-      installations: dump(`${OLD_API}/vitodens_200_Vitovalor_PT2_installations.json`),
-    },
-    {
-      name: 'documentation: Vitovalor PT2 fuel cell',
-      before: dump(`${OLD_API}/vitovalor_PT2_features.json`),
-      after: dump(`${OLD_API}/vitovalor_PT2_features.json`),
-      installations: dump(`${OLD_API}/vitodens_200_Vitovalor_PT2_installations.json`),
-    },
-    {
-      name: 'documentation: gas boiler with only heating circuit 1',
-      before: onlyCircuitOne(boiler2016),
-      after: onlyCircuitOne(boiler2016),
-      installations: dump(`${OLD_API}/vitodens_200_2016_installations.json`),
-      circuit: '1',
-    },
+    sameDump('documentation: Vitodens 200 E3 gas boiler', `${OLD_API}/vitodens_200_e3_features.json`, `${OLD_API}/vitodens_200_e3_installations.json`),
+    sameDump('documentation: Vitodens 200 gas boiler (2016, Optolink)', `${OLD_API}/vitodens_200_2016_features.json`, `${OLD_API}/vitodens_200_2016_installations.json`),
+    sameDump('documentation: Vitodens 200 E3 gas boiler (TCU)', `${OLD_API}/vitodens_200_DH_features.json`, `${OLD_API}/vitodens_200_Vitovalor_PT2_installations.json`),
+    sameDump('documentation: Vitovalor PT2 fuel cell', `${OLD_API}/vitovalor_PT2_features.json`, `${OLD_API}/vitodens_200_Vitovalor_PT2_installations.json`),
   ];
+  const scenariosFound = candidates
+    .filter((candidate) => candidate.files.every(exists))
+    .map(({ files, ...candidate }) => ({
+      ...candidate, before: dump(candidate.before), after: dump(candidate.after), installations: dump(candidate.installations),
+    }));
+
+  // Only circuit 1: from the Optolink boiler dump, else from the current heat pump dump
+  const [circuitSource] = [
+    [`${OLD_API}/vitodens_200_2016_features.json`, `${OLD_API}/vitodens_200_2016_installations.json`],
+    ['vitocal_222_2026-11-25_features.json', 'vitocal_222_2026-11-25_installations.json'],
+  ].filter((files) => files.every(exists));
+  if (circuitSource) {
+    const source = dump(circuitSource[0]);
+    scenariosFound.push({
+      name: `documentation: only heating circuit 1 (from ${path.basename(circuitSource[0])})`,
+      before: onlyCircuitOne(source),
+      after: onlyCircuitOne(source),
+      installations: dump(circuitSource[1]),
+      circuit: '1',
+    });
+  }
+  return scenariosFound;
 }
 
 const scenarios = [...fixtureScenarios(), ...documentationScenarios()];

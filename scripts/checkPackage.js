@@ -25,6 +25,8 @@ const FORBIDDEN = [
   { pattern: /^coverage(\/|$)/, reason: 'coverage report' },
   { pattern: /\.md$/i, reason: 'Markdown file' },
   { pattern: /^jest\.config\.js$/, reason: 'test configuration' },
+  { pattern: /^tsconfig(\..+)?\.json$/, reason: 'type check configuration' },
+  { pattern: /^types(\/|$)/, reason: 'type declarations' },
   { pattern: /^package-lock\.json$/, reason: 'lockfile (not used at runtime)' },
   { pattern: /\.test\.js$/, reason: 'test file' },
   { pattern: /^fixtureMode(\/|$)/, reason: 'dev twin fixture mode' },

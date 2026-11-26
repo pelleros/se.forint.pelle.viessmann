@@ -42,9 +42,11 @@ describe('checkPackage', () => {
       'scripts/devTwin.js': 'x',
       'package-lock.json': '{}',
       'documentation/dump.json': '{}',
+      'tsconfig.check.json': '{}',
+      'types/homey-oauth2app.d.ts': 'x',
     });
     const { problems } = checkPackage(dir);
-    expect(problems).toHaveLength(7);
+    expect(problems).toHaveLength(9);
     expect(problems.join('\n')).toMatch(/test\/fixtures\/a_features\.json/);
     expect(problems.join('\n')).toMatch(/package-lock\.json/);
     expect(problems.join('\n')).toMatch(/documentation\/dump\.json/);

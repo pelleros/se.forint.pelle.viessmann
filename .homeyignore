@@ -13,6 +13,8 @@
 /__mocks__/
 **/__tests__/
 /jest.config.js
+/tsconfig.check.json
+/types/
 
 # Repository docs (README.txt is the app store description and stays)
 *.md

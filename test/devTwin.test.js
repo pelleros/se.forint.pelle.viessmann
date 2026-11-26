@@ -242,7 +242,7 @@ describe('fixture mode', () => {
   // The files of this checkout that fixture mode changes, in a temporary app directory
   function exportedApp() {
     const dir = makeTempDir();
-    for (const file of ['app.js', 'lib/ViessmannOAuth2Client.js', 'drivers/vicare/driver.compose.json']) {
+    for (const file of ['app.js', 'lib/ViessmannOAuth2Client.js', 'drivers/vicare/driver.compose.json', 'drivers/hot-water/driver.compose.json']) {
       writeFile(dir, file, fs.readFileSync(path.join(REPO_ROOT, file)));
     }
     return dir;
@@ -272,6 +272,10 @@ describe('fixture mode', () => {
     // The Client ID view leads to the credentials login (the twin saves a Client ID of its own)
     expect(driverCompose.pair[0].navigation).toEqual({ next: 'login_credentials' });
     expect(JSON.stringify(driverCompose)).not.toContain('login_oauth2');
+    // The extra devices' drivers too
+    const extraCompose = JSON.parse(fs.readFileSync(path.join(dir, 'drivers/hot-water/driver.compose.json'), 'utf8'));
+    expect(extraCompose.pair.map((view) => view.id)).toEqual(['intro', 'client_id', 'login_credentials', 'list_devices', 'add_devices']);
+    expect(JSON.stringify(extraCompose)).not.toContain('login_oauth2');
   });
 
   it('refuses a ref whose app does not use ViessmannOAuth2Client', () => {

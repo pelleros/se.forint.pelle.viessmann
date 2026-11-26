@@ -34,6 +34,7 @@ const { FEATURES } = require('./config');
 const { isGroupSetting, enabledGroups } = require('./optionalGroups');
 const { withinPlan, PLANNED_LIMIT } = require('./pollPlan');
 const { translate } = require('../../lib/errorMessages');
+const { circuitNumber } = require('./heatingCircuit');
 
 /**
  * Refuses settings that would plan more API calls a day than the account can spare (pollPlan.js).
@@ -86,16 +87,15 @@ function circuitSetting(setting) {
 }
 
 /**
- * The error for a heating circuit the installation does not have, in the user's language (the
- * error's own message when there is no translation).
+ * The error for a heating circuit the installation does not have, in the user's language (English
+ * when there is no translation), with the circuits numbered from 1 as users see them.
  * @param {any} homey
- * @param {{ circuit: string, available: string[], message: string }} error from detectHeatingCircuit
+ * @param {{ circuit: string, available: string[] }} error from detectHeatingCircuit
  * @returns {string}
  */
-function circuitNotAvailableMessage(homey, { circuit, available, message }) {
-  const tags = { circuit, available: available.length > 0 ? available.join(', ') : '–' };
-  const translated = homey?.__?.('device_settings.heating_circuit_not_available', tags);
-  return typeof translated === 'string' && !translated.startsWith('device_settings.') ? translated : message;
+function circuitNotAvailableMessage(homey, { circuit, available }) {
+  const tags = { circuit: circuitNumber(circuit), available: available.length > 0 ? available.map(circuitNumber).join(', ') : '–' };
+  return translate(homey, 'device_settings.heating_circuit_not_available', tags);
 }
 
 /**

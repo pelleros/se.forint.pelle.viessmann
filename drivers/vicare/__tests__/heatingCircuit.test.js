@@ -280,7 +280,7 @@ describe('choosing a circuit the installation does not have', () => {
     };
 
     await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '3' } }))
-      .rejects.toThrow('Heizkreis 3 fehlt. Vorhanden: 0, 1.');
+      .rejects.toThrow('Heizkreis 4 fehlt. Vorhanden: 1, 2.');
     expect(target._heatingCircuitId).toBe('0');
     expect(target.setStoreValue).not.toHaveBeenCalled();
     expect(target.driver._pausePolling).not.toHaveBeenCalled();
@@ -289,7 +289,7 @@ describe('choosing a circuit the installation does not have', () => {
   test('falls back to the English message without a translation', async () => {
     const target = deviceWithCircuits(['1']);
     await expect(target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: '0' } }))
-      .rejects.toThrow('Heating circuit 0 is not available on this installation. Available circuits: 1.');
+      .rejects.toThrow('Heating circuit 1 is not available on this installation. Available circuits: 2.');
   });
 });
 
@@ -299,10 +299,12 @@ describe('heatingCircuit device setting', () => {
   const setting = settings.find((item) => item.id === 'heatingCircuit');
   const LANGUAGES = ['en', 'de', 'nl', 'fr', 'sv'];
 
-  test('is a dropdown with automatic as default and circuits 0 to 3', () => {
+  test('is a dropdown with automatic as default and circuits 0 to 3, shown as circuits 1 to 4', () => {
     expect(setting.type).toBe('dropdown');
     expect(setting.value).toBe('auto');
     expect(setting.values.map((value) => value.id)).toEqual(['auto', '0', '1', '2', '3']);
+    expect(setting.values.slice(1).map((value) => value.label.en)).toEqual(['Circuit 1', 'Circuit 2', 'Circuit 3', 'Circuit 4']);
+    expect(setting.values.slice(1).map((value) => value.label.de)).toEqual(['Heizkreis 1', 'Heizkreis 2', 'Heizkreis 3', 'Heizkreis 4']);
   });
 
   test('label, hint and every value are translated into all app languages', () => {
@@ -329,4 +331,12 @@ describe('heatingCircuit device setting', () => {
     await target.onSettings({ changedKeys: ['heatingCircuit'], newSettings: { heatingCircuit: value } });
     expect(target.driver._readDeviceMetadata.mock.calls[0][1]).toBe(value);
   });
+});
+
+test('users see heating circuits counted from 1', () => {
+  // eslint-disable-next-line global-require
+  const { circuitNumber } = require('../heatingCircuit');
+  expect(circuitNumber('0')).toBe('1');
+  expect(circuitNumber(3)).toBe('4');
+  expect(circuitNumber('x')).toBe('x');
 });

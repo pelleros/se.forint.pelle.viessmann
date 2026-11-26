@@ -37,8 +37,9 @@ const { fireValueTriggers } = require('./flowHandlers');
 const { addNewFeatures, addInferredRoles } = require('./deviceMetadata');
 
 /**
- * Homey shows when the device was last heard from: after every successful update.
- * @param {any} device the ViessmannDevice
+ * Homey shows when the device was last heard from: after every successful update. A failure is
+ * logged and never makes the device unavailable (also for the extra devices, extraDevice.js).
+ * @param {any} device the ViessmannDevice, or an extra device
  */
 async function markSeen(device) {
   try {
@@ -51,7 +52,7 @@ async function markSeen(device) {
 /**
  * setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was deleted
  * meanwhile; that is logged instead of left unhandled.
- * @param {any} device the ViessmannDevice
+ * @param {any} device the ViessmannDevice, or an extra device
  * @param {boolean} available
  * @param {unknown} [message]
  */
@@ -155,4 +156,6 @@ async function showValue(device, capabilityName, value, { trigger = true } = {})
   }
 }
 
-module.exports = { applyFeaturesResponse, showValue };
+module.exports = {
+  applyFeaturesResponse, showValue, markSeen, setAvailabilitySafely,
+};

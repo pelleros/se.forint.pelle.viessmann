@@ -1,5 +1,12 @@
 'use strict';
 
+// The number users see for a heating circuit: the API counts from 0, people (and the ViCare app)
+// from 1. Only in texts: ids, setting values and data.ids keep the API's index
+function circuitNumber(circuitId) {
+  const index = Number(circuitId);
+  return Number.isInteger(index) && index >= 0 ? String(index + 1) : String(circuitId);
+}
+
 // Keep existing capability/Flow identifiers while resolving API paths per device.
 function resolveCircuitPath(path, circuitId = '0') {
   return path.replace(/^heating\.circuits\.0\./, `heating.circuits.${circuitId}.`);
@@ -13,15 +20,21 @@ function featureEntries(data) {
     : [];
 }
 
-function detectHeatingCircuit(rawData, selectedCircuit = 'auto') {
+// The heating circuits a features response reports as enabled: the list of `heating.circuits`,
+// or else the circuits with an enabled operating mode
+function enabledCircuits(rawData) {
   const data = featureEntries(rawData);
   const circuits = data.find((item) => item.feature === 'heating.circuits' && item.isEnabled);
   const enabled = circuits?.properties?.enabled?.value;
-  const candidates = Array.isArray(enabled)
+  return Array.isArray(enabled)
     ? enabled.map(String)
     : data.filter((item) => item.isEnabled)
       .map((item) => item.feature.match(/^heating\.circuits\.(\d+)\.operating\.modes\.active$/)?.[1])
       .filter((id) => id !== undefined);
+}
+
+function detectHeatingCircuit(rawData, selectedCircuit = 'auto') {
+  const candidates = enabledCircuits(rawData);
 
   if (selectedCircuit !== 'auto') {
     if (!candidates.includes(String(selectedCircuit))) {
@@ -52,5 +65,5 @@ function normalizeCircuitFeatures(response, circuitId = '0') {
 }
 
 module.exports = {
-  resolveCircuitPath, detectHeatingCircuit, normalizeCircuitFeatures, featureEntries,
+  resolveCircuitPath, detectHeatingCircuit, enabledCircuits, normalizeCircuitFeatures, featureEntries, circuitNumber,
 };

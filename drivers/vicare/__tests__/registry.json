@@ -6,6 +6,8 @@
     "argument, dropdown value or token breaks saved Flows. Device settings (driver.compose.json) are",
     "guarded the same way: renaming one, changing its type or removing a dropdown value resets the value",
     "users have set.",
+    "The extra devices' drivers (drivers) are guarded too: their id, class, data.id, capabilities and",
+    "store keys are frozen once released.",
     "New identifiers: add them here in the same change. Deliberately retiring a capability: move it",
     "from 'capabilities' to 'retiredCapabilities' with a note on why and what replaced it."
   ],
@@ -484,6 +486,26 @@
     },
     "diagnosticValues": {
       "type": "checkbox"
+    }
+  },
+  "drivers": {
+    "heating-circuit": {
+      "class": "thermostat",
+      "dataId": "<installationId>-<gatewaySerial>-<deviceId>-circuit-<part>",
+      "capabilities": ["target_temperature", "measure_temperature", "thermostat_mode"],
+      "store": ["installationId", "gatewaySerial", "deviceId", "roles", "heatingCircuitId", "features", "constraints", "commandMetadata", "operatingModes", "version"]
+    },
+    "hot-water": {
+      "class": "thermostat",
+      "dataId": "<installationId>-<gatewaySerial>-<deviceId>-hotwater",
+      "capabilities": ["target_temperature", "measure_temperature", "thermostat_mode"],
+      "store": ["installationId", "gatewaySerial", "deviceId", "roles", "heatingCircuitId", "features", "constraints", "commandMetadata", "version", "lastHotWaterMode"]
+    },
+    "room": {
+      "class": "sensor",
+      "dataId": "<installationId>-<gatewaySerial>-<deviceId>-room-<part>",
+      "capabilities": ["measure_temperature", "measure_humidity", "measure_temperature.setPoint"],
+      "store": ["installationId", "gatewaySerial", "deviceId", "roles", "roomId", "features", "constraints", "commandMetadata", "version"]
     }
   }
 }

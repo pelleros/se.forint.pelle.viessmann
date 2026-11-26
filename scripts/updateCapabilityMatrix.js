@@ -2,7 +2,8 @@
 
 /*
  * Regenerates drivers/vicare/__tests__/capabilityMatrix.json, the golden file of what a newly
- * paired device gets for every fixture (see test/helpers/capabilityMatrix.js):
+ * paired device gets for every fixture (see test/helpers/capabilityMatrix.js), and
+ * extraDevicesMatrix.json, the same for the extra devices (test/helpers/extraDevicesMatrix.js):
  *
  *   npm run matrix
  *
@@ -18,6 +19,7 @@ const JEST = require.resolve('jest/bin/jest');
 
 const result = spawnSync(process.execPath, [
   JEST, '--config', 'jest.config.js', '--runTestsByPath', 'drivers/vicare/__tests__/capabilityMatrix.test.js',
+  'drivers/vicare/__tests__/extraDevicesMatrix.test.js',
 ], {
   cwd: path.join(__dirname, '..'),
   stdio: 'inherit',

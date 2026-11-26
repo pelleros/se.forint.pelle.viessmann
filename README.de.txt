@@ -6,6 +6,8 @@ Viessmann verlangt, dass jeder Nutzer eine eigene, kostenlose Client ID anlegt. 
 3. Kopiere die Client ID in die App-Einstellungen und speichere sie.
 4. Füge ein neues Gerät hinzu, wähle Viessmann ViCare und melde dich mit deinem ViCare-Konto an.
 
+Optional: Unter „Gerät hinzufügen“ gibt es außerdem Heizkreis (Thermostat), Warmwasser (Thermostat) und Smart Climate Raum. Füge sie nur hinzu, wenn du sie brauchst, zum Beispiel um einen Heizkreis oder das Warmwasser mit Google Home oder per Sprache zu steuern, einem Heizkreis eine eigene Zone zu geben oder deine ViCare Smart Climate Räume zu sehen. Sie nutzen dieselbe Anmeldung und die Aktualisierungen deines ViCare-Geräts, du meldest dich also nicht erneut an.
+
 Falls etwas nicht klappt:
 - „Invalid redirection URI“ bei der Anmeldung: Die Redirect URI in deinem Viessmann-Client stimmt nicht. Füge sie erneut aus den App-Einstellungen ein.
 - Die Anmeldung klappt, aber es werden keine Geräte gefunden: Prüfe, ob deine Heizung in der ViCare-App erscheint und ob die Client ID gespeichert war, bevor du das Gerät hinzugefügt hast.

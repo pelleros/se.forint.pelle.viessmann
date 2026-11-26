@@ -24,10 +24,11 @@
 
 // How often a device is updated and how many API calls a day that plans for a Viessmann login:
 // the device settings `pollInterval` ("auto", or minutes) and `eventLog` ("off", or minutes).
-// Also what a poll asks for (the polled paths on the device's heating circuit, and now and then
-// all features) and the key of a device's poller. Pure; driver.js asks for a device's interval,
-// and deviceSettings.js refuses settings that plan too many calls (see lib/apiQuota.js). The wait
-// after a failed poll is lib/apiError.js → retryDelay.
+// Also what a poll asks for (the polled paths on the device's heating circuit, the paths the
+// extra devices sharing the poll need, and now and then all features) and the key of a device's
+// poller. Pure; driver.js asks for a device's interval, and deviceSettings.js refuses settings
+// that plan too many calls (see lib/apiQuota.js). The wait after a failed poll is
+// lib/apiError.js → retryDelay.
 
 const { callsPerDay, PLANNED_LIMIT } = require('../../lib/apiQuota');
 const { PATHS } = require('./config');
@@ -36,6 +37,9 @@ const { eventLogMinutes } = require('./eventLog');
 
 // Automatic: every 2 minutes per device, about 720 calls a day for all devices together
 const AUTO_INTERVAL_PER_DEVICE = 2 * 60 * 1000;
+// Rooms of ViCare Smart Climate: their own Viessmann device, read slowly (room values change
+// slowly), about 96 calls a day for all rooms together
+const ROOM_POLL_INTERVAL = 15 * 60 * 1000;
 
 /**
  * A device's poll interval in milliseconds: its setting in minutes (at least 2), or automatic.
@@ -62,6 +66,32 @@ function plannedCallsPerDay(settings, deviceCount) {
 }
 
 /**
+ * The interval extra devices ask for when their Viessmann device is polled for them alone (rooms
+ * are read slowly): the longest of them, or undefined for the automatic interval.
+ * @param {{ pollInterval?: () => number | undefined }[]} followers
+ * @returns {number | undefined}
+ */
+function followersInterval(followers) {
+  /** @type {number[]} */
+  const intervals = [];
+  for (const follower of followers) {
+    const interval = follower.pollInterval?.();
+    if (typeof interval === 'number' && Number.isFinite(interval)) intervals.push(interval);
+  }
+  return intervals.length > 0 ? Math.max(...intervals) : undefined;
+}
+
+/**
+ * The API calls a day of polls shared by extra devices without a main device (their Viessmann
+ * device is polled for them alone, see driver.js): one entry per poll, its interval in ms.
+ * @param {number[]} intervals
+ * @returns {number}
+ */
+function sharedPollCallsPerDay(intervals) {
+  return intervals.reduce((calls, interval) => calls + callsPerDay(interval / 60000), 0);
+}
+
+/**
  * True when planned calls leave enough of Viessmann's daily calls for everything else.
  * @param {number} calls
  * @returns {boolean}
@@ -79,13 +109,16 @@ const EXTENDED_POLL_SHARE = 0.03;
 const isExtendedPoll = (random = Math.random()) => random < EXTENDED_POLL_SHARE;
 
 /**
- * The paths a regular poll requests: every path in PATHS, on the device's heating circuit. A
- * feature without a PATHS constant is never polled.
+ * The paths a regular poll requests: every path in PATHS, on the device's heating circuit, then
+ * the `extraPaths` (already on their circuit) that extra devices sharing the poll need, each
+ * once. A feature without a PATHS constant is never polled for the device itself.
  * @param {string | undefined} heatingCircuitId
+ * @param {string[]} [extraPaths]
  * @returns {string}
  */
-function pollFilter(heatingCircuitId) {
-  return Object.values(PATHS).map((path) => resolveCircuitPath(path, heatingCircuitId)).join(',');
+function pollFilter(heatingCircuitId, extraPaths = []) {
+  const paths = Object.values(PATHS).map((path) => resolveCircuitPath(path, heatingCircuitId));
+  return [...new Set([...paths, ...extraPaths])].join(',');
 }
 
 /**
@@ -100,11 +133,14 @@ function pollingKey({ installationId, gatewaySerial, deviceId }) {
 module.exports = {
   pollInterval,
   plannedCallsPerDay,
+  sharedPollCallsPerDay,
+  followersInterval,
   withinPlan,
   isExtendedPoll,
   pollFilter,
   pollingKey,
   AUTO_INTERVAL_PER_DEVICE,
+  ROOM_POLL_INTERVAL,
   PLANNED_LIMIT,
   EXTENDED_POLL_SHARE,
 };

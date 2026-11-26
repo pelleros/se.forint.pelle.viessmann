@@ -22,15 +22,16 @@ test('the heating circuit setting is "auto" or a circuit number', () => {
   expect(() => circuitSetting('first')).toThrow('Unknown heating circuit setting: first');
 });
 
-test('a circuit the installation does not have is explained in the user\'s language, with the circuits it has', () => {
+test('a circuit the installation does not have is explained in the user\'s language, with the circuits it has, counted from 1', () => {
   const error = { circuit: '2', available: ['0', '1'], message: 'Heating circuit 2 is not available' };
   const homey = { __: jest.fn((key, tags) => `Circuit ${tags.circuit} not there, only ${tags.available}`) };
-  expect(circuitNotAvailableMessage(homey, error)).toBe('Circuit 2 not there, only 0, 1');
+  expect(circuitNotAvailableMessage(homey, error)).toBe('Circuit 3 not there, only 1, 2');
   circuitNotAvailableMessage(homey, { ...error, available: [] });
-  expect(homey.__).toHaveBeenLastCalledWith('device_settings.heating_circuit_not_available', { circuit: '2', available: '–' });
-  // No translation: the error's own message
-  expect(circuitNotAvailableMessage({ __: (key) => key }, error)).toBe(error.message);
-  expect(circuitNotAvailableMessage(undefined, error)).toBe(error.message);
+  expect(homey.__).toHaveBeenLastCalledWith('device_settings.heating_circuit_not_available', { circuit: '3', available: '–' });
+  // No translation: English
+  const english = 'Heating circuit 3 is not available on this installation. Available circuits: 1, 2.';
+  expect(circuitNotAvailableMessage({ __: (key) => key }, error)).toBe(english);
+  expect(circuitNotAvailableMessage(undefined, error)).toBe(english);
 });
 
 test('after a switch, only per-circuit capabilities the new circuit does not report lose their value', () => {

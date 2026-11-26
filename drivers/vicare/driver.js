@@ -20,8 +20,10 @@
 
 'use strict';
 
-// The one driver: it pairs devices, registers the Flow cards and polls every device. This class
-// holds the pollers and the trigger cards and wires them to the Homey SDK; the logic is in
+// The ViCare driver: it pairs the heating devices, registers the Flow cards and polls every
+// Viessmann device, also for the extra devices of the other drivers (heating circuits, hot water,
+// rooms; see extraDevice.js). This class holds the pollers and the trigger cards and wires them
+// to the Homey SDK; the logic is in
 //   pollPlan.js           how often a device is polled and what a poll asks for
 //   lib/DevicePoller.js   the polling loop: no overlap, backoff, Retry-After
 //   lib/apiError.js       how long a poll waits after an error (retryDelay)
@@ -42,10 +44,14 @@ const {
   PairSession, deviceName, checkInstallations, summarizeInstallations, heatingDevices, featureReadError, pairedDevice, pairingError,
 } = require('./pairSession');
 const {
-  pollInterval, plannedCallsPerDay, isExtendedPoll, pollingKey,
+  pollInterval, plannedCallsPerDay, sharedPollCallsPerDay, followersInterval, isExtendedPoll, pollingKey,
 } = require('./pollPlan');
 const { matchesEventCode } = require('./eventLog');
 const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
+
+// When an extra device joins a poll whose last response holds none of its values, the next poll
+// comes this soon (instead of an interval later)
+const JOIN_POLL_DELAY = 10 * 1000;
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
@@ -53,6 +59,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   static PATHS = PATHS;
 
   _devicePollers = new Map();
+  // The Homey devices that share each poller (see Polling below)
+  _pollTargets = new Map();
   _triggerCards = new Map();
   // Triggers the app fires for events (flowCards.js `event: true`), by card id
   _eventTriggerCards = new Map();
@@ -128,20 +136,72 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
   /* Polling */
 
+  /*
+    One poller per Viessmann device (its polling key), shared by the Homey devices that show it:
+    the device of this driver (`main`) and the extra devices of the other drivers (`followers`,
+    see extraDevice.js: heating circuits, hot water, rooms). A poll asks once for what all of
+    them need and hands the response to each, so an extra device costs no API calls of its own.
+    Without a main device the first follower makes the request, at the automatic interval or the
+    followers' own (rooms); a main device added later takes over, and when it is deleted the
+    followers keep polling.
+  */
+
+  // The Homey devices of a polling key: { main, followers, lastResponse }
+  _pollTarget(deviceKey) {
+    let target = this._pollTargets.get(deviceKey);
+    if (!target) {
+      target = { main: undefined, followers: new Set(), lastResponse: undefined };
+      this._pollTargets.set(deviceKey, target);
+    }
+    return target;
+  }
+
   // A device's poll interval: its setting, or automatic (see pollPlan.js)
   _calculatePollInterval(device) {
-    return pollInterval(device?.getPollSetting?.('pollInterval'), this.getDevices().length);
+    return pollInterval(device?.getPollSetting?.('pollInterval'), this._polledDeviceCount());
+  }
+
+  // Heating devices polled at the automatic interval: the devices of this driver, and the
+  // Viessmann devices polled only for extra devices (rooms have an interval of their own)
+  _polledDeviceCount() {
+    const devices = this.getDevices();
+    const keys = new Set(devices.map((device) => device.getPollingKey?.()).filter(Boolean));
+    let count = devices.length;
+    for (const [key, target] of this._pollTargets) {
+      const followers = [...target.followers];
+      if (!target.main && !keys.has(key) && followers.length > 0 && followersInterval(followers) === undefined) count += 1;
+    }
+    return count;
+  }
+
+  // The interval of a key's poller: its main device's, else the followers' own or automatic
+  _groupInterval(deviceKey) {
+    const target = this._pollTargets.get(deviceKey);
+    if (target?.main) return this._calculatePollInterval(target.main);
+    return followersInterval([...(target?.followers || [])]) ?? this._calculatePollInterval();
   }
 
   // The API calls a day the devices of a Viessmann login plan; `changed` holds the settings of a
-  // device whose change is being saved
+  // device whose change is being saved. Polls made only for extra devices count too
   plannedCallsPerDay(sessionId, changed = {}) {
     const settings = this.getDevices()
       .filter((device) => device.getStoreValue?.('OAuth2SessionId') === sessionId)
       .map((device) => (device === changed.device ? changed.settings : {
         pollInterval: device.getPollSetting?.('pollInterval'), eventLog: device.getPollSetting?.('eventLog'),
       }));
-    return plannedCallsPerDay(settings, this.getDevices().length);
+    const sharedPolls = [...this._pollTargets.entries()]
+      .filter(([, target]) => !target.main && [...target.followers][0]?.getStoreValue?.('OAuth2SessionId') === sessionId)
+      .map(([key]) => this._groupInterval(key));
+    return plannedCallsPerDay(settings, this._polledDeviceCount()) + sharedPollCallsPerDay(sharedPolls);
+  }
+
+  // The extra devices whose Viessmann device is polled for them alone (rooms, or heating circuits
+  // and hot water without a ViCare device), with that poll's interval: for the health on the
+  // settings page
+  sharedPollDevices() {
+    return [...this._pollTargets.entries()]
+      .filter(([, target]) => !target.main)
+      .flatMap(([key, target]) => [...target.followers].map((device) => ({ device, interval: this._groupInterval(key) })));
   }
 
   async _updateAllPollingIntervals() {
@@ -157,31 +217,59 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }));
   }
 
+  // Polls a device of this driver (and the extra devices that share its poll)
   async _startPolling(device, deviceKey) {
+    const target = this._pollTarget(deviceKey);
+    const takesOver = !target.main && target.followers.size > 0;
+    target.main = device;
     const existing = this._devicePollers.get(deviceKey);
     if (existing) {
-      existing.schedule();
+      // Polled only for extra devices so far: the device gets its values now, not an interval later
+      if (takesOver) await existing.pollNow();
+      else existing.schedule();
       return;
     }
+    await this._startPoller(deviceKey);
+  }
+
+  // An extra device shares the poll of its Viessmann device: the poll starts when it is the first
+  // device of that Viessmann device; otherwise it gets the last response at once, and when that
+  // holds none of its values (another heating circuit, or no poll yet), the next poll comes soon
+  // (devices joining together share it)
+  async follow(deviceKey, follower) {
+    const target = this._pollTarget(deviceKey);
+    target.followers.add(follower);
+    const poller = this._devicePollers.get(deviceKey);
+    if (!poller) {
+      await this._startPoller(deviceKey);
+      return;
+    }
+    const used = target.lastResponse ? await this._handTo(follower, target.lastResponse) : false;
+    if (!used) poller.pollSoon(JOIN_POLL_DELAY);
+  }
+
+  // An extra device no longer shares the poll (deleted or unloaded)
+  async unfollow(deviceKey, follower) {
+    const target = this._pollTargets.get(deviceKey);
+    if (!target?.followers.delete(follower)) return;
+    if (!target.main && target.followers.size === 0) await this._stopPoller(deviceKey);
+  }
+
+  async _startPoller(deviceKey) {
     const poller = new DevicePoller({
       homey: this.homey,
-      getInterval: () => this._calculatePollInterval(device),
-      poll: async (isStopped) => {
-        const extendedRequest = isExtendedPoll();
-        const features = await device.getFeatures({ useFilter: !extendedRequest });
-        // The device was deleted or its polling restarted while the request was running
-        if (isStopped()) return;
-        if (!device.getAvailable()) {
-          await this._setDeviceAvailability(device, deviceKey, true);
-        }
-        await device.onFeaturesUpdated(features, extendedRequest);
-      },
+      getInterval: () => this._groupInterval(deviceKey),
+      poll: async (isStopped) => this._poll(deviceKey, isStopped),
       retryDelay,
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
-        device.recordPollError?.(error);
+        const target = this._pollTargets.get(deviceKey);
         const message = pollErrorMessage(this.homey, error, consecutiveErrors, { nextPollAt });
-        if (message) await this._setDeviceAvailability(device, deviceKey, false, message);
+        for (const device of [target?.main, ...(target?.followers || [])]) {
+          if (!device) continue;
+          device.recordPollError?.(error);
+          if (message) await this._setDeviceAvailability(device, deviceKey, false, message);
+        }
       },
     });
     // Registered before the first poll, so that _stopPolling (e.g. when the device is
@@ -191,7 +279,54 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     await poller.start();
   }
 
+  // One request for every device of the key: the main device's (with the followers' paths), or
+  // the first follower's. Only the main device asks for all features now and then
+  async _poll(deviceKey, isStopped) {
+    const target = this._pollTargets.get(deviceKey);
+    const main = target?.main;
+    const followers = [...(target?.followers || [])];
+    const source = main || followers[0];
+    if (!source) return;
+    const extendedRequest = Boolean(main) && isExtendedPoll();
+    const extraPaths = [...new Set(followers.flatMap((follower) => follower.pollPaths()))];
+    const request = extraPaths.length > 0 ? { useFilter: !extendedRequest, extraPaths } : { useFilter: !extendedRequest };
+    const features = await source.getFeatures(request);
+    // The device was deleted or its polling restarted while the request was running
+    if (isStopped()) return;
+    target.lastResponse = features;
+    if (main && target.main === main) {
+      if (!main.getAvailable()) {
+        await this._setDeviceAvailability(main, deviceKey, true);
+      }
+      await main.onFeaturesUpdated(features, extendedRequest);
+    }
+    for (const follower of followers) {
+      if (target.followers.has(follower)) await this._handTo(follower, features);
+    }
+  }
+
+  // True when the follower found its values in the response. A follower handles its own errors;
+  // one that escapes must not fail the others' poll
+  async _handTo(follower, features) {
+    try {
+      return Boolean(await follower.onSharedFeatures(features));
+    } catch (error) {
+      this.error('An extra device could not use a poll:', error);
+      return false;
+    }
+  }
+
+  // The main device of the key stops (deleted or unloaded). Extra devices that share the poll
+  // keep it: the first of them makes the request from now on
   async _stopPolling(deviceKey) {
+    const target = this._pollTargets.get(deviceKey);
+    if (target) target.main = undefined;
+    if (target?.followers.size) return;
+    await this._stopPoller(deviceKey);
+  }
+
+  async _stopPoller(deviceKey) {
+    this._pollTargets.delete(deviceKey);
     const poller = this._devicePollers.get(deviceKey);
     if (!poller) return;
     this.log(`Stopping polling for device: ${maskDeviceKey(deviceKey)}`);

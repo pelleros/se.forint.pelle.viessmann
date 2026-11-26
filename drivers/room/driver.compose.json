@@ -1,0 +1,63 @@
+{
+  "id": "room",
+  "name": {
+    "en": "Smart Climate room",
+    "de": "Smart Climate Raum",
+    "nl": "Smart Climate-kamer",
+    "fr": "Pièce Smart Climate",
+    "sv": "Smart Climate-rum"
+  },
+  "class": "sensor",
+  "capabilities": [],
+  "capabilitiesOptions": {},
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "cloud"
+  ],
+  "images": {
+    "small": "/drivers/vicare/assets/images/small.png",
+    "large": "/drivers/vicare/assets/images/large.png",
+    "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "intro",
+      "navigation": {
+        "next": "client_id"
+      }
+    },
+    {
+      "id": "client_id",
+      "navigation": {
+        "prev": "intro",
+        "next": "login_oauth2"
+      }
+    },
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2",
+      "navigation": {
+        "next": "list_devices"
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "repair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    }
+  ]
+}

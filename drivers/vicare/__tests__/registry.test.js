@@ -8,11 +8,19 @@
 
 const fs = require('fs');
 const path = require('path');
+
+// The extra devices' pairing reaches homey-oauth2app through pairSession.js
+// eslint-disable-next-line global-require
+jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
+
 const registry = require('./registry.json');
 const flowCompose = require('../driver.flow.compose.json');
 const driverCompose = require('../driver.compose.json');
 const { FEATURES, DERIVED } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
+const { profileOf } = require('../extraProfiles');
+const { extraDataId, extraEntries, EXTRA_DRIVERS } = require('../extraPairing');
+const { findFixtureDevice } = require('../../../test/helpers/fixtureDevices');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
 const FLOW_COMPOSE_FILE = 'drivers/vicare/driver.flow.compose.json';
@@ -21,7 +29,7 @@ const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/cap
 
 // Homey system capabilities this app builds sub-capabilities on
 // (https://apps-sdk-v3.developer.homey.app/tutorial-device-capabilities.html).
-const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode', 'measure_power', 'alarm_problem', 'button'];
+const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode', 'measure_power', 'alarm_problem', 'button', 'measure_humidity'];
 
 // Runtime mapping in flowCards.js per card group of the compose file
 const RUNTIME_FLOW_CARDS = {
@@ -223,5 +231,54 @@ describe('device settings registry', () => {
       findMissingSettingParts(shippedSettings, registry.deviceSettings),
       `New device setting parts in ${DRIVER_COMPOSE_FILE}: add them to "deviceSettings" in ${REGISTRY_FILE}:`,
     );
+  });
+});
+
+describe('extra device drivers registry', () => {
+  const DRIVERS_DIR = path.join(__dirname, '../..');
+  const kinds = Object.entries(EXTRA_DRIVERS);
+  // Store keys the device writes itself, after pairing
+  const RUNTIME_STORE_KEYS = { 'hot-water': ['lastHotWaterMode'] };
+  // A fixture with each kind: two heating circuits and hot water, rooms
+  const FIXTURES = { circuit: 'pyvicare/Vitocal250A_TwoCircuits', hotWater: 'pyvicare/Vitocal250A_TwoCircuits', room: 'pyvicare/RoomControl' };
+  const pairedStore = (kind) => {
+    const { features, identity } = findFixtureDevice(FIXTURES[kind]);
+    const source = { gateway: { installationId: identity.installationId, serial: identity.gatewaySerial }, device: { id: identity.deviceId } };
+    const [entry] = extraEntries(kind, source, features, { t: (key) => key, version: '2.0.0' });
+    return Object.keys(entry.store);
+  };
+
+  test('every extra driver is registered, and every registered one still exists with its class', () => {
+    const folders = fs.readdirSync(DRIVERS_DIR).filter((name) => name !== 'vicare'
+      && fs.existsSync(path.join(DRIVERS_DIR, name, 'driver.compose.json')));
+    expect(folders.sort()).toEqual(Object.keys(registry.drivers).sort());
+    expect(kinds.map(([, id]) => id).sort()).toEqual(Object.keys(registry.drivers).sort());
+    for (const [id, driver] of Object.entries(registry.drivers)) {
+      // eslint-disable-next-line global-require, import/no-dynamic-require
+      const compose = require(path.join(DRIVERS_DIR, id, 'driver.compose.json'));
+      expect({ id: compose.id, class: compose.class }).toEqual({ id, class: driver.class });
+    }
+  });
+
+  test.each(kinds)('%s keeps its data.id, capabilities and store keys', (kind, id) => {
+    const registered = registry.drivers[id];
+    const ids = { installationId: '<installationId>', gatewaySerial: '<gatewaySerial>', deviceId: '<deviceId>' };
+    expect(extraDataId(/** @type {any} */ (kind), ids, '<part>')).toBe(registered.dataId);
+    const produced = profileOf(/** @type {any} */ (kind), { roomId: '0' }).map((capability) => capability.name);
+    expectNone(registered.capabilities.filter((name) => !produced.includes(name)),
+      `Breaking change: the ${id} devices no longer get these registered capabilities:`);
+    expectNone(produced.filter((name) => !registered.capabilities.includes(name)),
+      `New capabilities of the ${id} devices: add them to "drivers" in ${REGISTRY_FILE}:`);
+    const stored = [...pairedStore(kind), ...(RUNTIME_STORE_KEYS[id] || [])];
+    expectNone(registered.store.filter((key) => !stored.includes(key)),
+      `Breaking change: the ${id} devices no longer store these registered keys:`);
+    expectNone(stored.filter((key) => !registered.store.includes(key)),
+      `New store keys of the ${id} devices: add them to "drivers" in ${REGISTRY_FILE}:`);
+  });
+
+  test('the capabilities of the extra devices are Homey system capabilities or sub-capabilities of them', () => {
+    const all = Object.values(registry.drivers).flatMap((driver) => driver.capabilities);
+    expectNone(all.filter((id) => !HOMEY_SYSTEM_CAPABILITIES.includes(id.split('.')[0])),
+      'Extra devices use Homey system capabilities (Google Home and the Matter bridge read only those):');
   });
 });

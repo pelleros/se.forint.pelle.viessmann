@@ -301,13 +301,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
-  // All features, or (`useFilter`) only the paths the app polls, on the device's heating circuit
-  async getFeatures({ useFilter = false } = {}) {
+  // All features, or (`useFilter`) only the paths the app polls, on the device's heating circuit,
+  // and the `extraPaths` of the extra devices that share the poll (driver.js)
+  async getFeatures({ useFilter = false, extraPaths = [] } = {}) {
     return this.oAuth2Client.getFeatures({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
-      filter: useFilter ? pollFilter(this._heatingCircuitId) : undefined,
+      filter: useFilter ? pollFilter(this._heatingCircuitId, extraPaths) : undefined,
     });
   }
 

@@ -43,6 +43,10 @@
       "title": "Probleemoplossing",
       "description": "Het rapport hieronder toont de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur het toch liever privé naar de ontwikkelaar dan het openbaar te delen."
     },
+    "extra_devices": {
+      "title": "Optionele extra apparaten",
+      "text": "Naast ViCare vind je bij \"Apparaat toevoegen\" Verwarmingscircuit (thermostaat), Warm water (thermostaat) en Smart Climate-kamer. Voeg ze alleen toe als je ze nodig hebt: een verwarmingscircuit als eigen thermostaat (andere zone, Google Home, spraak), warm water voor Google Home of spraak, of je ViCare Smart Climate-kamers (alleen lezen). Verwarmingscircuits en warm water gebruiken de updates van het ViCare-apparaat en kosten geen extra API-aanroepen; kamers worden elke 15 minuten gelezen, ongeveer 96 aanroepen per dag voor alle kamers samen."
+    },
     "health": {
       "title": "Status",
       "description": "De API-aanroepen die de app vandaag per Viessmann-account heeft gebruikt, en de laatste update van elk apparaat. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde account gebruiken, en begint om middernacht UTC opnieuw te tellen.",
@@ -90,6 +94,30 @@
       "report_link": "Apparaat niet gevonden of ontbreken er waarden? Gegevens voor de ontwikkelaar voorbereiden",
       "close": "Sluiten zonder een apparaat toe te voegen",
       "no_login": "Log eerst in bij Viessmann en probeer het dan opnieuw."
+    },
+    "extra": {
+      "next": "Volgende",
+      "circuit_name": "__model__ verwarmingscircuit __circuit__",
+      "hot_water_name": "__model__ warm water",
+      "room_name": "Smart Climate-kamer __room__",
+      "circuit": {
+        "title": "Verwarmingscircuit als thermostaat",
+        "who": "Voeg dit toe voor elk verwarmingscircuit dat je als eigen thermostaat wilt: in een andere zone, in het klimaatoverzicht van Homey of om met Google Home of met spraak te bedienen. Anders heb je het niet nodig: het ViCare-apparaat toont en bedient de verwarming al.",
+        "shared": "Het gebruikt de Viessmann-aanmelding en de updates van het ViCare-apparaat: geen tweede aanmelding en geen extra API-aanroepen. Het werkt ook zonder het ViCare-apparaat.",
+        "none": "Dit Viessmann-account heeft geen verwarmingscircuit dat de app als thermostaat kan toevoegen."
+      },
+      "hotWater": {
+        "title": "Warm water als thermostaat",
+        "who": "Voeg dit toe als je warm water met Google Home of met spraak wilt bedienen, of in het klimaatoverzicht van Homey wilt zien: het verschijnt als thermostaat met de gewenste en de gemeten warmwatertemperatuur. Geef het een eigen zone en een duidelijke naam, zodat een opdracht voor alle thermostaten het niet verandert en de temperatuur niet als kamertemperatuur telt.",
+        "shared": "Het gebruikt de Viessmann-aanmelding en de updates van het ViCare-apparaat: geen tweede aanmelding en geen extra API-aanroepen. Het werkt ook zonder het ViCare-apparaat.",
+        "none": "Dit Viessmann-account heeft geen warm water met een gewenste temperatuur dat de app kan toevoegen."
+      },
+      "room": {
+        "title": "ViCare Smart Climate-kamers",
+        "who": "Voeg dit toe voor elke ViCare Smart Climate-kamer die je in Homey wilt zien: temperatuur, luchtvochtigheid en ingestelde temperatuur, alleen lezen (de gratis API van Viessmann kan kamers niet wijzigen).",
+        "shared": "Het gebruikt de Viessmann-aanmelding van de app. Bij Viessmann zijn de kamers een eigen apparaat: ze worden elke 15 minuten gelezen, ongeveer 96 API-aanroepen per dag voor alle kamers samen.",
+        "none": "Dit Viessmann-account heeft geen ViCare Smart Climate-kamer met een temperatuur."
+      }
     }
   },
   "errors": {

@@ -6,6 +6,8 @@ Viessmann kräver att varje användare skapar ett eget, kostnadsfritt Client ID,
 3. Kopiera Client ID:t till appens inställningar och spara.
 4. Lägg till en ny enhet, välj Viessmann ViCare och logga in med ditt ViCare-konto.
 
+Valfritt: under "Lägg till enhet" finns också Värmekrets (termostat), Varmvatten (termostat) och Smart Climate-rum. Lägg bara till dem om du behöver dem, till exempel för att styra en värmekrets eller varmvattnet med Google Home eller med rösten, ge en värmekrets en egen zon eller se dina ViCare Smart Climate-rum. De använder samma inloggning och ViCare-enhetens uppdateringar, så du loggar inte in igen.
+
 Om något inte fungerar:
 - "Invalid redirection URI" vid inloggningen: redirect URI:n i din Viessmann-klient stämmer inte. Klistra in den igen från appens inställningar.
 - Inloggningen fungerar men inga enheter hittas: kontrollera att din värmeanläggning syns i ViCare-appen och att Client ID:t var sparat innan du lade till enheten.

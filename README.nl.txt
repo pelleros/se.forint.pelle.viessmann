@@ -6,6 +6,8 @@ Viessmann vraagt elke gebruiker om een eigen, gratis Client ID aan te maken. Het
 3. Kopieer de Client ID naar de app-instellingen en sla hem op.
 4. Voeg een nieuw apparaat toe, kies Viessmann ViCare en log in met je ViCare-account.
 
+Optioneel: bij "Apparaat toevoegen" vind je ook Verwarmingscircuit (thermostaat), Warm water (thermostaat) en Smart Climate-kamer. Voeg ze alleen toe als je ze nodig hebt, bijvoorbeeld om een verwarmingscircuit of het warme water met Google Home of met spraak te bedienen, een verwarmingscircuit een eigen zone te geven of je ViCare Smart Climate-kamers te zien. Ze gebruiken dezelfde aanmelding en de updates van je ViCare-apparaat, dus je logt niet opnieuw in.
+
 Lukt het niet?
 - "Invalid redirection URI" bij het inloggen: de redirect URI in je Viessmann-client klopt niet. Plak hem opnieuw vanuit de app-instellingen.
 - Inloggen lukt, maar er worden geen apparaten gevonden: controleer of je verwarming in de ViCare-app staat en of de Client ID was opgeslagen voordat je het apparaat toevoegde.

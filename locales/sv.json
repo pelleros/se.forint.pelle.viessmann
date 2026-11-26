@@ -65,7 +65,8 @@
   },
   "pair": {
     "no_client_id": "Inget Viessmann Client ID är sparat ännu. Öppna inställningarna för appen Viessmann ViCare, skapa och spara ett Client ID enligt stegen där och lägg sedan till enheten igen.",
-    "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__."
+    "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__.",
+    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport."
   },
   "errors": {
     "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; appen försöker igen varje timme. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",

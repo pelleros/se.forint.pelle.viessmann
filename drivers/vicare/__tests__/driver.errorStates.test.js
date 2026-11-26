@@ -28,6 +28,8 @@ const REPAIR = 'Authentication failed, open the device and choose Repair';
 const PACKAGE_NOT_PAID = "Viessmann is refusing access to this account's data. "
   + 'This is often a temporary problem at Viessmann; the app tries again every hour. '
   + "If it lasts, contact Viessmann's developer support.";
+const PACKAGE_NOT_PAID_PAIRING = "Viessmann is refusing access to this account's data. "
+  + "This is often a temporary problem at Viessmann; try again later. If it lasts, contact Viessmann's developer support.";
 const GATEWAY_OFFLINE = 'The Viessmann gateway is offline. Check that it has power and an internet connection.';
 const apiLimit = (time) => `Viessmann API limit reached, updates resume at ${time}.`;
 
@@ -266,7 +268,7 @@ describe('adding a device', () => {
     const driver = createDriver();
     const error = await driver.onPairListDevices({ oAuth2Client: createClient() }).catch((caught) => caught);
 
-    expect(error.message).toBe(PACKAGE_NOT_PAID);
+    expect(error.message).toBe(PACKAGE_NOT_PAID_PAIRING);
     expect(error.cause.status).toBe(402);
   });
 

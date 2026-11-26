@@ -68,7 +68,8 @@
     },
     "pair": {
       "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again.",
-      "api_limit": "The Viessmann API limit has been reached. Try again after __time__."
+      "api_limit": "The Viessmann API limit has been reached. Try again after __time__.",
+      "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; try again later. If it lasts, contact Viessmann's developer support."
     },
     "errors": {
       "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; the app tries again every hour. If it lasts, contact Viessmann's developer support.",

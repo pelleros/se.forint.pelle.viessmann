@@ -65,7 +65,8 @@
   },
   "pair": {
     "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil.",
-    "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__."
+    "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__.",
+    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; réessayez plus tard. Si cela persiste, contactez le support développeurs de Viessmann."
   },
   "errors": {
     "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; l'app réessaie toutes les heures. Si cela persiste, contactez le support développeurs de Viessmann.",

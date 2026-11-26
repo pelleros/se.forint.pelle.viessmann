@@ -128,8 +128,8 @@ same day, and newly created accounts got it for several weeks in the spring. The
 it.
 
 **Fix:** wait. The app checks again every hour, and the device becomes available again by itself;
-restarting the app checks right away. If it lasts longer than a day, contact Viessmann's developer
-support about your account's API access.
+restarting the app checks right away. If it happens while you add a device, try again later. If it
+lasts longer than a day, contact Viessmann's developer support about your account's API access.
 
 ### "The Viessmann gateway is offline"
 

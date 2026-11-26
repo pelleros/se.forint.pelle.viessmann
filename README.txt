@@ -6,6 +6,8 @@ Viessmann asks every user to create their own free Client ID, so getting started
 3. Copy the Client ID into the app settings and save it.
 4. Add a new device, choose Viessmann ViCare and log in with your ViCare account.
 
+Optional: "Add device" also offers Heating circuit (thermostat), Hot water (thermostat) and Smart Climate room. Add them only if you need them, for example to control a heating circuit or the hot water with Google Home or by voice, to give a heating circuit a zone of its own, or to see your ViCare Smart Climate rooms. They use the same login and the updates of your ViCare device, so you don't log in again.
+
 If something goes wrong:
 - "Invalid redirection URI" when logging in: the redirect URI in your Viessmann client does not match. Paste it again from the app settings.
 - Login works but no devices are found: check that your heating system shows up in the ViCare app and that the Client ID was saved before you added the device.

@@ -37,6 +37,28 @@ step and takes about five minutes.
 Save the Client ID before you start adding a device. If you change it later, open each device and
 choose Repair so it logs in with the new Client ID.
 
+### Optional extra devices
+
+Besides *ViCare* (your heating system with everything it reports), "Add device" offers three
+optional devices. You don't need them unless one of these fits:
+
+- **Heating circuit (thermostat):** add it for each heating circuit you want as a thermostat of its
+  own, for example in another zone, in Homey's Climate view, or to control with Google Home or by
+  voice. It has the circuit's set point, heat/off (cool and auto only where the circuit can cool)
+  and the room temperature where the circuit has a room sensor.
+- **Hot water (thermostat):** add it if you want to control hot water with Google Home or by voice:
+  it appears as a thermostat with the hot water set point and temperature, and heat/off where your
+  system can switch hot water off. Give it a zone of its own and a clear name, so that a command for
+  all thermostats doesn't change it and its temperature doesn't count as a room temperature.
+- **Smart Climate room:** the rooms of ViCare Smart Climate, read-only: temperature, humidity and
+  set point (Viessmann's free API cannot change rooms).
+
+They use the Viessmann login the app already has, so there is no second login. Heating circuits
+and hot water share the updates of the ViCare device and cost no extra API calls; they also work
+without the ViCare device. Rooms are a device of their own at Viessmann and are read every 15
+minutes, about 96 calls a day for all rooms together. If the list is empty, the app says why: for
+example, the account has no Smart Climate rooms.
+
 ## Common problems
 
 ### The developer portal shows no way to add a client
@@ -241,6 +263,9 @@ two devices, each is updated every 4 minutes, and so on. That is roughly 720 cal
 few more for commands from flows, adding devices and the report for the developer. A change is not
 sent when the calls left today are needed for the regular updates, or after 20 changes to the
 account within 10 minutes.
+
+The optional heating circuit and hot water devices share these updates and add no calls; Smart
+Climate rooms add about 96 calls a day (see [Optional extra devices](#optional-extra-devices)).
 
 You can choose a fixed interval per device in its settings (Updates and API calls); each choice
 shows the calls a day it needs, and a choice that would leave too few calls for your account is

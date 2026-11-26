@@ -6,6 +6,8 @@ Viessmann demande à chaque utilisateur de créer son propre Client ID gratuit. 
 3. Copiez le Client ID dans les paramètres de l'app et enregistrez-le.
 4. Ajoutez un nouvel appareil, choisissez Viessmann ViCare et connectez-vous avec votre compte ViCare.
 
+En option : « Ajouter un appareil » propose aussi Circuit de chauffage (thermostat), Eau chaude (thermostat) et Pièce Smart Climate. Ajoutez-les seulement si vous en avez besoin, par exemple pour piloter un circuit de chauffage ou l'eau chaude avec Google Home ou à la voix, donner une zone à part à un circuit de chauffage ou voir vos pièces ViCare Smart Climate. Ils utilisent la même connexion et les mises à jour de votre appareil ViCare : pas besoin de vous reconnecter.
+
 En cas de problème :
 - « Invalid redirection URI » lors de la connexion : l'URI de redirection de votre client Viessmann ne correspond pas. Collez-la à nouveau depuis les paramètres de l'app.
 - La connexion fonctionne, mais aucun appareil n'est trouvé : vérifiez que votre chauffage apparaît dans l'app ViCare et que le Client ID était enregistré avant l'ajout de l'appareil.

@@ -134,8 +134,8 @@ and the warning clear by themselves when the heating system no longer reports th
 
 ### "The heating system did not take the change"
 
-**Cause:** Viessmann accepted a change (for example a new hot water temperature), but a minute
-or more later the heating system still reports the old value. This can happen when the heating
+**Cause:** Viessmann accepted a change (for example a new hot water temperature), but two
+updates in a row, a minute or more later, still report another value. This can happen when the heating
 system is in a mode that overrides the setting, or when Viessmann does not pass the change on.
 
 **Fix:** check the setting in the ViCare app and try again. The message goes away when the value

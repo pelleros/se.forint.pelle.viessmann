@@ -59,7 +59,7 @@
       "description": "Votre appareil est introuvable ou des valeurs manquent ? Ceci rassemble en une étape, anonymisé, ce que Viessmann indique pour votre installation et ses appareils. Cela utilise quelques appels API. Rien n'est envoyé tant que vous ne l'envoyez pas vous-même.",
       "prepare": "Préparer le rapport",
       "copy": "Copier dans le presse-papiers",
-      "how_to_send": "Le rapport est prêt. Pour l'envoyer, ouvrez l'application Viessmann ViCare dans l'application Homey (Plus > Apps), choisissez Envoyer un rapport de diagnostic et indiquez dans le message qu'il s'agit de valeurs manquantes (les __lines__ lignes du résumé y figurent), ou copiez-le et envoyez-le au développeur, par exemple dans un ticket GitHub."
+      "how_to_send": "Le rapport est prêt. Pour l'envoyer, ouvrez l'application Viessmann ViCare dans l'application Homey (Plus > Apps), choisissez Envoyer un rapport de diagnostic et indiquez dans le message qu'il s'agit de valeurs manquantes (les __lines__ lignes du résumé y figurent), ou copiez-le et envoyez-le au développeur en privé, par exemple par message privé sur le forum Homey Community."
     }
   },
   "pair": {

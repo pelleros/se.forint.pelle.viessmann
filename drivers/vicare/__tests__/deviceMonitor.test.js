@@ -129,20 +129,57 @@ test('values that stop updating set the alarm and a warning with advice', async 
 });
 
 describe('writes', () => {
-  test('a write the next poll does not show is told to the user; a later match clears it', async () => {
+  test('a write two polls in a row do not show is told to the user once; a later match clears it', async () => {
     const { device } = await createDevice();
     await device.__listeners.get('target_temperature.hotWater')(50);
     expect(device.getCapabilityValue('target_temperature.hotWater')).toBe(50);
 
     jest.setSystemTime(NOW + 2 * MINUTE);
     await device.onFeaturesUpdated({ data: [temperature(45), target(48)] });
+    expect(device.setWarning).not.toHaveBeenCalled();
+    expect(device.homey.notifications.createNotification).not.toHaveBeenCalled();
+
+    jest.setSystemTime(NOW + 4 * MINUTE);
+    await device.onFeaturesUpdated({ data: [temperature(45), target(48)] });
     expect(device.setWarning).toHaveBeenCalledWith(expect.stringContaining('Hot water Normal is 48 °C instead of 50 °C'));
+    expect(device.homey.notifications.createNotification).toHaveBeenCalledTimes(1);
     expect(device.homey.notifications.createNotification).toHaveBeenCalledWith({ excerpt: expect.stringContaining('did not take') });
     // Not an alarm: the heating system works, it just kept its value
     expect(device.getCapabilityValue('alarm_problem')).toBe(false);
 
     await device.onFeaturesUpdated({ data: [temperature(45), target(50)] });
     expect(device.unsetWarning).toHaveBeenCalled();
+  });
+
+  test('a stale first poll and then the written value: no message', async () => {
+    const { device } = await createDevice();
+    await device.__listeners.get('target_temperature.hotWater')(50);
+    jest.setSystemTime(NOW + 2 * MINUTE);
+    await device.onFeaturesUpdated({ data: [temperature(45), target(45)] });
+    jest.setSystemTime(NOW + 4 * MINUTE);
+    await device.onFeaturesUpdated({ data: [temperature(45), target(50)] });
+    jest.setSystemTime(NOW + 6 * MINUTE);
+    await device.onFeaturesUpdated({ data: [temperature(45), target(45)] });
+    expect(device.homey.notifications.createNotification).not.toHaveBeenCalled();
+    expect(device.setWarning).not.toHaveBeenCalled();
+  });
+
+  test('while the values are frozen a write is not judged: no message', async () => {
+    const { device } = await createDevice();
+    // The newest feature timestamp stays at 10:59 for longer than FROZEN_AFTER
+    await device.onFeaturesUpdated({ data: [temperature(45), target(45)] });
+    jest.setSystemTime(NOW + FROZEN_AFTER);
+    await device.onFeaturesUpdated({ data: [temperature(45), target(45)] });
+    expect(device.getCapabilityValue('alarm_problem')).toBe(true);
+    device.homey.notifications.createNotification.mockClear();
+
+    await device.__listeners.get('target_temperature.hotWater')(50);
+    for (let minutes = 2; minutes <= 10; minutes += 2) {
+      jest.setSystemTime(NOW + FROZEN_AFTER + minutes * MINUTE);
+      await device.onFeaturesUpdated({ data: [temperature(45), target(45)] });
+    }
+    expect(device.homey.notifications.createNotification).not.toHaveBeenCalled();
+    expect(device.setWarning).not.toHaveBeenCalledWith(expect.stringContaining('instead of'));
   });
 
   test('a write the poll shows is confirmed silently', async () => {

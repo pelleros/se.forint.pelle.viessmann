@@ -59,7 +59,7 @@
         "description": "Can't find your device, or are values missing? This collects what Viessmann reports for your installation and its devices in one step, anonymized. It uses a few API calls. Nothing is sent until you send it yourself.",
         "prepare": "Prepare report",
         "copy": "Copy to clipboard",
-        "how_to_send": "The report is ready. To send it, either open the Viessmann ViCare app in the Homey app (More > Apps), choose Send diagnostic report and say in the message that it is about missing values (the report's __lines__ summary lines are in it), or copy it and send it to the developer, for example in a GitHub issue."
+        "how_to_send": "The report is ready. To send it, either open the Viessmann ViCare app in the Homey app (More > Apps), choose Send diagnostic report and say in the message that it is about missing values (the report's __lines__ summary lines are in it), or copy it and send it to the developer privately, for example as a private message on the Homey Community forum."
       }
     },
     "device_settings": {

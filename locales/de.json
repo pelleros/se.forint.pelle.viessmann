@@ -59,7 +59,7 @@
       "description": "Dein Gerät fehlt oder es fehlen Werte? Das sammelt in einem Schritt und anonymisiert, was Viessmann für deine Anlage und ihre Geräte meldet. Es verbraucht einige API-Aufrufe. Es wird nichts gesendet, bis du es selbst sendest.",
       "prepare": "Bericht erstellen",
       "copy": "In die Zwischenablage kopieren",
-      "how_to_send": "Der Bericht ist fertig. Zum Senden öffne entweder die Viessmann-ViCare-App in der Homey-App (Mehr > Apps), wähle Diagnosebericht senden und schreib in die Nachricht, dass es um fehlende Werte geht (die __lines__ Zeilen der Zusammenfassung sind darin), oder kopiere ihn und sende ihn dem Entwickler, zum Beispiel in einem GitHub-Issue."
+      "how_to_send": "Der Bericht ist fertig. Zum Senden öffne entweder die Viessmann-ViCare-App in der Homey-App (Mehr > Apps), wähle Diagnosebericht senden und schreib in die Nachricht, dass es um fehlende Werte geht (die __lines__ Zeilen der Zusammenfassung sind darin), oder kopiere ihn und sende ihn dem Entwickler privat, zum Beispiel als private Nachricht im Homey-Community-Forum."
     }
   },
   "pair": {

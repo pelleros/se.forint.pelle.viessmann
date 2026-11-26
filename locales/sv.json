@@ -59,7 +59,7 @@
       "description": "Hittar du inte din enhet, eller saknas värden? Det här samlar i ett steg, anonymiserat, det som Viessmann rapporterar för din anläggning och dess enheter. Det använder några API-anrop. Inget skickas förrän du själv skickar det.",
       "prepare": "Förbered rapport",
       "copy": "Kopiera till urklipp",
-      "how_to_send": "Rapporten är klar. Skicka den genom att öppna Viessmann ViCare-appen i Homey-appen (Mer > Appar), välja Skicka diagnostikrapport och skriva i meddelandet att det gäller saknade värden (rapportens __lines__ sammanfattningsrader finns med), eller kopiera den och skicka den till utvecklaren, till exempel i ett GitHub-ärende."
+      "how_to_send": "Rapporten är klar. Skicka den genom att öppna Viessmann ViCare-appen i Homey-appen (Mer > Appar), välja Skicka diagnostikrapport och skriva i meddelandet att det gäller saknade värden (rapportens __lines__ sammanfattningsrader finns med), eller kopiera den och skicka den privat till utvecklaren, till exempel som ett privat meddelande på Homey Community-forumet."
     }
   },
   "pair": {

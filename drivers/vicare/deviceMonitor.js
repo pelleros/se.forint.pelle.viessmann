@@ -219,7 +219,8 @@ class DeviceMonitor {
       const value = readings.get(name)?.value;
       return value === undefined || value === null ? value : featureMapper.displayValue(name, value);
     };
-    const { rejected, confirmed } = this.writes.check(reported, now);
+    // Frozen values say nothing about a write (applyStatus has just updated the problem)
+    const { rejected, confirmed } = this.writes.check(reported, now, { frozen: this.problem.frozenSince !== null });
     for (const name of confirmed) this.writeProblems.delete(name);
     for (const { capabilityName, wanted, actual } of rejected) {
       this.writeProblems.set(capabilityName, { wanted, actual, at: now });

@@ -59,7 +59,7 @@
       "description": "Kun je je apparaat niet vinden of ontbreken er waarden? Dit verzamelt in één stap en geanonimiseerd wat Viessmann voor je installatie en de apparaten meldt. Het gebruikt enkele API-aanroepen. Er wordt niets verzonden tot je het zelf verstuurt.",
       "prepare": "Rapport maken",
       "copy": "Naar klembord kopiëren",
-      "how_to_send": "Het rapport is klaar. Om het te versturen open je de Viessmann ViCare-app in de Homey-app (Meer > Apps), kies je Diagnoserapport verzenden en vermeld je in het bericht dat het om ontbrekende waarden gaat (de __lines__ regels van de samenvatting zitten erin), of kopieer je het en stuur je het naar de ontwikkelaar, bijvoorbeeld in een GitHub-issue."
+      "how_to_send": "Het rapport is klaar. Om het te versturen open je de Viessmann ViCare-app in de Homey-app (Meer > Apps), kies je Diagnoserapport verzenden en vermeld je in het bericht dat het om ontbrekende waarden gaat (de __lines__ regels van de samenvatting zitten erin), of kopieer je het en stuur je het privé naar de ontwikkelaar, bijvoorbeeld als privébericht op het Homey Community-forum."
     }
   },
   "pair": {

@@ -22,15 +22,20 @@
 
 'use strict';
 
-// Writes that did not take: after a successful command, the first poll at least
-// WRITE_CHECK_AFTER later checks that the capability reports the value written. Pure and kept in
-// memory; whoever sends commands remembers the write, and the poll checks it.
+// Writes that did not take: after a successful command, the polls at least WRITE_CHECK_AFTER
+// later check that the capability reports the value written. One poll with the value confirms
+// the write. Viessmann's data can lag behind, so a write counts as not taken only when
+// REJECT_AFTER_POLLS polls in a row report another value; a poll without the value, or one while
+// the values count as frozen (frozenValues.js), judges nothing and starts the count again. Pure
+// and kept in memory; whoever sends commands remembers the write, and the poll checks it.
 
 const MINUTE = 60 * 1000;
 // Viessmann needs a moment before a poll shows a write
 const WRITE_CHECK_AFTER = MINUTE;
 // A write whose value no poll reports within this time is forgotten without a message
 const WRITE_CHECK_EXPIRY = 15 * MINUTE;
+// Polls in a row that must report another value before a write counts as not taken
+const REJECT_AFTER_POLLS = 2;
 
 /**
  * True when a reported value is the value written (numbers within rounding).
@@ -44,7 +49,7 @@ const sameValue = (wanted, actual) => (typeof wanted === 'number' && typeof actu
 class WriteChecks {
 
   constructor() {
-    /** @type {Map<string, { value: unknown, at: number }>} */
+    /** @type {Map<string, { value: unknown, at: number, mismatches: number }>} */
     this.writes = new Map();
   }
 
@@ -55,7 +60,7 @@ class WriteChecks {
    * @param {number} now
    */
   remember(capabilityName, value, now) {
-    this.writes.set(capabilityName, { value, at: now });
+    this.writes.set(capabilityName, { value, at: now, mismatches: 0 });
   }
 
   /**
@@ -63,21 +68,28 @@ class WriteChecks {
    * what it reports instead) and the ones it did.
    * @param {(capabilityName: string) => unknown} reportedValue the value the poll reports, or undefined
    * @param {number} now
+   * @param {{ frozen?: boolean }} [poll] `frozen`: the poll's values count as frozen
    * @returns {{ rejected: { capabilityName: string, wanted: unknown, actual: unknown }[], confirmed: string[] }}
    */
-  check(reportedValue, now) {
+  check(reportedValue, now, { frozen = false } = {}) {
     const rejected = [];
     const confirmed = [];
-    for (const [capabilityName, { value, at }] of this.writes) {
-      if (now - at < WRITE_CHECK_AFTER) continue;
-      const actual = reportedValue(capabilityName);
+    for (const [capabilityName, write] of this.writes) {
+      if (now - write.at < WRITE_CHECK_AFTER) continue;
+      const actual = frozen ? undefined : reportedValue(capabilityName);
       if (actual === undefined || actual === null) {
-        if (now - at > WRITE_CHECK_EXPIRY) this.writes.delete(capabilityName);
-        continue;
+        write.mismatches = 0;
+        if (now - write.at > WRITE_CHECK_EXPIRY) this.writes.delete(capabilityName);
+      } else if (sameValue(write.value, actual)) {
+        this.writes.delete(capabilityName);
+        confirmed.push(capabilityName);
+      } else {
+        write.mismatches += 1;
+        if (write.mismatches >= REJECT_AFTER_POLLS) {
+          this.writes.delete(capabilityName);
+          rejected.push({ capabilityName, wanted: write.value, actual });
+        }
       }
-      this.writes.delete(capabilityName);
-      if (sameValue(value, actual)) confirmed.push(capabilityName);
-      else rejected.push({ capabilityName, wanted: value, actual });
     }
     return { rejected, confirmed };
   }
@@ -85,5 +97,5 @@ class WriteChecks {
 }
 
 module.exports = {
-  WriteChecks, sameValue, WRITE_CHECK_AFTER, WRITE_CHECK_EXPIRY,
+  WriteChecks, sameValue, WRITE_CHECK_AFTER, WRITE_CHECK_EXPIRY, REJECT_AFTER_POLLS,
 };

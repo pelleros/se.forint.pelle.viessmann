@@ -57,7 +57,15 @@ const HEATING_TARGET = createThermostatCapability('heating', 'Heating thermostat
   max: 30,
 });
 const HEATING_TARGETS = [
-  HEATING_TARGET,
+  {
+    ...HEATING_TARGET,
+    capabilityOptions: {
+      ...HEATING_TARGET.capabilityOptions,
+      // Not shown on the device: the standard thermostat below is its control there. It stays
+      // for Flows and the existing Flow cards
+      uiComponent: null,
+    },
+  },
   {
     ...HEATING_TARGET,
     capabilityName: 'target_temperature',

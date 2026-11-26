@@ -43,7 +43,7 @@
     "measure_temperature.supply": {"title":{"en":"Primary supply temperature"},"units":"°C","decimals":1,"preventInsights":false,"preventTag":true},
     "target_hysteresis.hotWater": {"title":{"en":"Hot water hysteresis","de":"Warmwasser-Hysterese","nl":"Warmwaterhysterese","fr":"Hystérésis eau chaude","sv":"Varmvattenhysteres"},"units":"K","decimals":1,"min":1,"max":10,"step":0.5,"preventInsights":true},
     "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-    "target_temperature.heating": {"title":{"en":"Heating thermostat"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+    "target_temperature.heating": {"title":{"en":"Heating thermostat"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1,"uiComponent":null},
     "target_temperature.heatingComfort": {"title":{"en":"Comfort temperature","de":"Komforttemperatur","nl":"Comforttemperatuur","fr":"Température confort","sv":"Komforttemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
     "target_temperature.heatingReduced": {"title":{"en":"Reduced temperature","de":"Reduzierte Temperatur","nl":"Verlaagde temperatuur","fr":"Température réduite","sv":"Sänkt temperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
     "target_temperature.hotWater": {"title":{"en":"Hot water Normal"},"units":"°C","preventInsights":true,"min":10,"max":60,"step":1},

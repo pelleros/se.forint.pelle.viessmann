@@ -81,6 +81,7 @@ describe('Config funktioner', () => {
             max: 30,
             step: 1,
             preventInsights: true,
+            uiComponent: null,
           },
         }, {
           capabilityName: 'target_temperature',

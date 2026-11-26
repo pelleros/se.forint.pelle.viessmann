@@ -2,8 +2,8 @@ Koppel je Viessmann-verwarming aan Homey. Of je nu een warmtepomp, een gasketel 
 
 Viessmann vraagt elke gebruiker om een eigen, gratis Client ID aan te maken. Het instellen duurt ongeveer vijf minuten:
 1. Installeer de app en open de app-instellingen in Homey. Daar vind je een link naar het Viessmann-ontwikkelaarsportaal en de redirect URI, klaar om te kopiëren.
-2. Log in op het ontwikkelaarsportaal met je ViCare-account en voeg een nieuwe client toe. Noem hem Homey, zet Google reCAPTCHA uit en plak de redirect URI precies zoals hij wordt getoond.
-3. Kopieer de nieuwe Client ID naar de app-instellingen en sla hem op.
+2. Log in op het ontwikkelaarsportaal met je ViCare-account en voeg een nieuwe client toe. Noem hem Homey, zet Google reCAPTCHA uit en plak de redirect URI precies zoals hij wordt getoond. Viessmann staat maar één client per account toe: heb je er al een (bijvoorbeeld voor Home Assistant), gebruik die dan en voeg de redirect URI eraan toe.
+3. Kopieer de Client ID naar de app-instellingen en sla hem op.
 4. Voeg een nieuw apparaat toe, kies Viessmann ViCare en log in met je ViCare-account.
 
 Lukt het niet?

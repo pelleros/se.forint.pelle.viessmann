@@ -2,7 +2,7 @@
 
 'use strict';
 
-// What the user sees, and how often the app polls, when Viessmann requires a paid API package
+// What the user sees, and how often the app polls, when Viessmann refuses access to the account
 // (HTTP 402), the API quota is used up (HTTP 429) or the gateway is offline; while polling and
 // while adding a device.
 
@@ -25,7 +25,9 @@ const HOUR = 60 * MINUTE;
 const NOW = Date.parse('2026-01-15T12:00:00Z'); // 13:00 in Stockholm
 
 const REPAIR = 'Authentication failed, open the device and choose Repair';
-const PACKAGE_NOT_PAID = 'Viessmann requires a paid API package for this account, so no data can be read. The app cannot change this; please contact Viessmann.';
+const PACKAGE_NOT_PAID = "Viessmann is refusing access to this account's data. "
+  + 'This is often a temporary problem at Viessmann; the app tries again every hour. '
+  + "If it lasts, contact Viessmann's developer support.";
 const GATEWAY_OFFLINE = 'The Viessmann gateway is offline. Check that it has power and an internet connection.';
 const apiLimit = (time) => `Viessmann API limit reached, updates resume at ${time}.`;
 
@@ -94,8 +96,8 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-describe('polling: Viessmann requires a paid API package (HTTP 402)', () => {
-  test('says so right away and polls again only after six hours', async () => {
+describe('polling: Viessmann refuses access to the account (HTTP 402)', () => {
+  test('says so right away and polls again after an hour', async () => {
     const driver = createDriver();
     const device = createPolledDevice();
     device.getFeatures.mockRejectedValue(packageNotPaid());
@@ -104,11 +106,11 @@ describe('polling: Viessmann requires a paid API package (HTTP 402)', () => {
 
     expect(device.setUnavailable).toHaveBeenCalledTimes(1);
     expect(device.setUnavailable).toHaveBeenCalledWith(PACKAGE_NOT_PAID);
-    expect(lastDelay(driver)).toBe(6 * HOUR);
+    expect(lastDelay(driver)).toBe(HOUR);
 
     await nextPoll();
     expect(device.setUnavailable).toHaveBeenLastCalledWith(PACKAGE_NOT_PAID);
-    expect(lastDelay(driver)).toBe(6 * HOUR);
+    expect(lastDelay(driver)).toBe(HOUR);
     expect(device.getFeatures).toHaveBeenCalledTimes(2);
   });
 
@@ -260,7 +262,7 @@ describe('adding a device', () => {
   test.each([
     ['the features', () => client({ features: () => Promise.reject(packageNotPaid()) })],
     ['the installations', () => client({ installations: packageNotPaid() })],
-  ])('a paid API package required for %s is explained', async (_, createClient) => {
+  ])('access refused for %s is explained', async (_, createClient) => {
     const driver = createDriver();
     const error = await driver.onPairListDevices({ oAuth2Client: createClient() }).catch((caught) => caught);
 

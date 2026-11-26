@@ -22,7 +22,12 @@ step and takes about five minutes.
    - Google reCAPTCHA: **off**. Logging in from Homey does not work while it is on.
    - Redirect URI: exactly `https://callback.athom.com/oauth2/callback`, with no extra spaces,
      slashes or characters. The app's settings page has a copy button for it.
-4. **Copy the Client ID** of the new client.
+
+   Viessmann allows only one client per account. If you already have one, for example for Home
+   Assistant or ioBroker, use that client instead: add the redirect URI above to it (a client can
+   have several) and check that reCAPTCHA is off. Homey then shares the
+   [daily API limit](#viessmann-api-limits) of about 1,450 calls with that integration.
+4. **Copy the Client ID** of the client.
 5. **Open the app's settings** in Homey (More > Apps > Viessmann ViCare), paste the Client ID and
    press Save.
 6. **Add a device:** add a new device in Homey, choose Viessmann ViCare and log in with your
@@ -32,6 +37,15 @@ Save the Client ID before you start adding a device. If you change it later, ope
 choose Repair so it logs in with the new Client ID.
 
 ## Common problems
+
+### The developer portal shows no way to add a client
+
+**Cause:** Viessmann allows only one client per account. If you already have one, for example for
+Home Assistant or ioBroker, the portal does not let you add another. Sometimes the "Your clients"
+tile also fails to load for a while.
+
+**Fix:** use the client you already have and add Homey's redirect URI to it, as described in
+[setup](#setup) step 3. If the "Your clients" tile does not load, try again later.
 
 ### "Invalid redirection URI" on the Viessmann login page
 
@@ -103,14 +117,19 @@ your ViCare account again. Your flows and settings stay as they are.
 **Fix:** wait. The app pauses until the time shown (Homey's time) and then continues by itself.
 If it happens often, check whether other systems use the Viessmann API with your ViCare account.
 
-### "Viessmann requires a paid API package for this account"
+### "Viessmann is refusing access to this account's data"
 
-**Cause:** Viessmann answers that your account has no access to the device data without a paid API
-package (`PACKAGE_NOT_PAID_FOR` in a diagnostic report). Since early 2026 this has been reported
-for some newly created accounts. The app cannot change it.
+Test version 1.0.15 says "Viessmann requires a paid API package for this account" instead.
 
-**Fix:** contact Viessmann about your account's API access. The app checks again every six hours;
-restarting the app checks right away.
+**Cause:** Viessmann answers that your account has no access to the device data
+(`PACKAGE_NOT_PAID_FOR` in a diagnostic report). Despite that name, this is often a temporary fault
+at Viessmann rather than a paid package you are missing: in 2026 it happened twice and was fixed the
+same day, and newly created accounts got it for several weeks in the spring. The app cannot change
+it.
+
+**Fix:** wait. The app checks again every hour, and the device becomes available again by itself;
+restarting the app checks right away. If it lasts longer than a day, contact Viessmann's developer
+support about your account's API access.
 
 ### "The Viessmann gateway is offline"
 
@@ -159,8 +178,8 @@ devices, each is updated every 4 minutes, and so on. That is roughly 720 calls p
 more for commands from flows, adding devices and the troubleshooting tools.
 
 Because the limit is per user, other systems that use the Viessmann API with your ViCare account
-(for example Home Assistant, ioBroker or your own scripts) share it with Homey, even if each has its
-own client. If you hit the limit, make those systems poll less often.
+(for example Home Assistant, ioBroker or your own scripts) share it with Homey, whether or not they
+use the same client. If you hit the limit, make those systems poll less often.
 
 ## Viessmann outages and maintenance
 

@@ -2,8 +2,8 @@ Intégrez votre chauffage Viessmann à Homey. Que vous ayez une pompe à chaleur
 
 Viessmann demande à chaque utilisateur de créer son propre Client ID gratuit. La mise en route prend donc environ cinq minutes :
 1. Installez l'app et ouvrez ses paramètres dans Homey. Vous y trouverez un lien vers le portail développeur de Viessmann et l'URI de redirection (Redirect URI), prête à être copiée.
-2. Connectez-vous au portail développeur avec votre compte ViCare et ajoutez un nouveau client. Nommez-le Homey, désactivez Google reCAPTCHA et collez l'URI de redirection exactement telle qu'elle est affichée.
-3. Copiez le nouveau Client ID dans les paramètres de l'app et enregistrez-le.
+2. Connectez-vous au portail développeur avec votre compte ViCare et ajoutez un nouveau client. Nommez-le Homey, désactivez Google reCAPTCHA et collez l'URI de redirection exactement telle qu'elle est affichée. Viessmann n'autorise qu'un seul client par compte : si vous en avez déjà un (par exemple pour Home Assistant), utilisez-le et ajoutez-y l'URI de redirection.
+3. Copiez le Client ID dans les paramètres de l'app et enregistrez-le.
 4. Ajoutez un nouvel appareil, choisissez Viessmann ViCare et connectez-vous avec votre compte ViCare.
 
 En cas de problème :

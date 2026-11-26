@@ -5,7 +5,7 @@
     "bodytext": "Avec l'offre API gratuite de Viessmann, chaque utilisateur doit créer son propre Client ID. Cela prend environ cinq minutes :",
     "steps": {
       "portal": "Ouvrez le portail développeur de Viessmann et connectez-vous avec votre compte ViCare (la même adresse e-mail et le même mot de passe que dans l'app ViCare) :",
-      "client": "Ajoutez un nouveau client et donnez-lui un nom, par exemple Homey.",
+      "client": "Ajoutez un nouveau client et donnez-lui un nom, par exemple Homey. Viessmann n'autorise qu'un seul client par compte : si vous en avez déjà un (par exemple pour Home Assistant), utilisez-le et ajoutez-y l'URI de redirection de l'étape 4.",
       "recaptcha": "Désactivez Google reCAPTCHA pour ce client. Tant qu'il est activé, la connexion depuis Homey ne fonctionne pas.",
       "redirect": "Saisissez exactement cette adresse comme URI de redirection (Redirect URI), sans caractère en plus ou en moins :",
       "copy": "Copier",
@@ -68,7 +68,7 @@
     "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__."
   },
   "errors": {
-    "package_not_paid": "Viessmann exige un forfait API payant pour ce compte, aucune donnée ne peut donc être lue. L'app ne peut rien y changer ; veuillez contacter Viessmann.",
+    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; l'app réessaie toutes les heures. Si cela persiste, contactez le support développeurs de Viessmann.",
     "gateway_offline": "La passerelle Viessmann est hors ligne. Vérifiez qu'elle est alimentée et connectée à Internet.",
     "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__."
   },

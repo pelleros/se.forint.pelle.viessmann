@@ -52,7 +52,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   static FEATURES = FEATURES;
   static PATHS = PATHS;
 
-  MIN_POLL_INTERVAL = 2 * 60 * 1000;
   _devicePollers = new Map();
   _triggerCards = new Map();
   // Triggers the app fires for events (flowCards.js `event: true`), by card id

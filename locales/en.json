@@ -88,7 +88,32 @@
     "pair": {
       "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again.",
       "api_limit": "The Viessmann API limit has been reached. Try again after __time__.",
-      "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; try again later. If it lasts, contact Viessmann's developer support."
+      "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; try again later. If it lasts, contact Viessmann's developer support.",
+      "no_installations": "No heating system was found for this Viessmann account. Check in the ViCare app that your heating system is set up for the account you logged in with.",
+      "no_heating_device": "This Viessmann account has no heating device the app can add (found: __types__). A report for the developer helps to add support for it.",
+      "device_name": {
+        "heat_pump": "Viessmann heat pump",
+        "boiler": "Viessmann boiler",
+        "fuel_cell": "Viessmann fuel cell",
+        "other": "Viessmann heating"
+      },
+      "client_id": {
+        "title": "Viessmann Client ID",
+        "intro": "Viessmann's free API plan needs a Client ID of your own. It takes about five minutes, and you only do it once:",
+        "step": "Save the client in the portal, copy its Client ID and paste it below.",
+        "continue": "Save and log in to Viessmann",
+        "invalid": "This does not look like a Client ID. Copy it from the client in the Viessmann developer portal; it has no spaces."
+      },
+      "check": {
+        "title": "Your Viessmann account",
+        "loading": "Looking for your heating system…",
+        "found": "Found:",
+        "continue": "Continue",
+        "retry": "Try again",
+        "report_link": "Can't find your device or values missing? Prepare data for the developer",
+        "close": "Close without adding a device",
+        "no_login": "Log in to Viessmann first, then try again."
+      }
     },
     "errors": {
       "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; the app tries again every hour. If it lasts, contact Viessmann's developer support.",

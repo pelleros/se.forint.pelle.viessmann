@@ -84,7 +84,32 @@
   "pair": {
     "no_client_id": "Inget Viessmann Client ID är sparat ännu. Öppna inställningarna för appen Viessmann ViCare, skapa och spara ett Client ID enligt stegen där och lägg sedan till enheten igen.",
     "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__.",
-    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport."
+    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",
+    "no_installations": "Inget värmesystem hittades för det här Viessmann-kontot. Kontrollera i ViCare-appen att ditt värmesystem är inställt för kontot du loggade in med.",
+    "no_heating_device": "Det här Viessmann-kontot har ingen värmeenhet som appen kan lägga till (hittade: __types__). En rapport till utvecklaren hjälper till att lägga till stöd för den.",
+    "device_name": {
+      "heat_pump": "Viessmann värmepump",
+      "boiler": "Viessmann panna",
+      "fuel_cell": "Viessmann bränslecell",
+      "other": "Viessmann värme"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Viessmanns kostnadsfria API-plan kräver ett eget Client ID. Det tar ungefär fem minuter och behövs bara en gång:",
+      "step": "Spara klienten i portalen, kopiera dess Client ID och klistra in det nedan.",
+      "continue": "Spara och logga in hos Viessmann",
+      "invalid": "Det här ser inte ut som ett Client ID. Kopiera det från klienten i Viessmanns utvecklarportal; det innehåller inga mellanslag."
+    },
+    "check": {
+      "title": "Ditt Viessmann-konto",
+      "loading": "Letar efter ditt värmesystem…",
+      "found": "Hittade:",
+      "continue": "Fortsätt",
+      "retry": "Försök igen",
+      "report_link": "Hittar du inte enheten eller saknas värden? Förbered data till utvecklaren",
+      "close": "Stäng utan att lägga till en enhet",
+      "no_login": "Logga in hos Viessmann först och försök sedan igen."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; appen försöker igen varje timme. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",

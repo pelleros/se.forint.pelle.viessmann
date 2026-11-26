@@ -84,7 +84,32 @@
   "pair": {
     "no_client_id": "Er is nog geen Viessmann Client ID opgeslagen. Open de instellingen van de app Viessmann ViCare, maak daar volgens de stappen een Client ID aan, sla hem op en voeg het apparaat daarna opnieuw toe.",
     "api_limit": "De limiet van de Viessmann-API is bereikt. Probeer het na __time__ opnieuw.",
-    "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; probeer het later opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann."
+    "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; probeer het later opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann.",
+    "no_installations": "Er is geen verwarming gevonden voor dit Viessmann-account. Controleer in de ViCare-app dat je verwarming is ingesteld voor het account waarmee je bent ingelogd.",
+    "no_heating_device": "Dit Viessmann-account heeft geen verwarmingsapparaat dat de app kan toevoegen (gevonden: __types__). Een rapport voor de ontwikkelaar helpt om ondersteuning toe te voegen.",
+    "device_name": {
+      "heat_pump": "Viessmann warmtepomp",
+      "boiler": "Viessmann ketel",
+      "fuel_cell": "Viessmann brandstofcel",
+      "other": "Viessmann verwarming"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Het gratis API-abonnement van Viessmann heeft een eigen Client ID nodig. Het duurt ongeveer vijf minuten en hoeft maar één keer:",
+      "step": "Sla de client op in het portaal, kopieer de Client ID en plak die hieronder.",
+      "continue": "Opslaan en inloggen bij Viessmann",
+      "invalid": "Dit lijkt geen Client ID. Kopieer hem uit de client in het Viessmann-ontwikkelaarsportaal; hij bevat geen spaties."
+    },
+    "check": {
+      "title": "Je Viessmann-account",
+      "loading": "Je verwarming wordt gezocht…",
+      "found": "Gevonden:",
+      "continue": "Doorgaan",
+      "retry": "Opnieuw proberen",
+      "report_link": "Apparaat niet gevonden of ontbreken er waarden? Gegevens voor de ontwikkelaar voorbereiden",
+      "close": "Sluiten zonder een apparaat toe te voegen",
+      "no_login": "Log eerst in bij Viessmann en probeer het dan opnieuw."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; de app probeert het elk uur opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann.",

@@ -30,7 +30,8 @@ const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
 } = require('../../lib/apiError');
-const { apiStateMessage } = require('../../lib/errorMessages');
+const { apiStateMessage, translate } = require('../../lib/errorMessages');
+const { collectReport, summarizeReport } = require('../../lib/report');
 const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
 const { callsPerDay } = require('../../lib/apiQuota');
 
@@ -57,6 +58,26 @@ function summarizeInstallations(response) {
   const deviceType = (device) => [device.deviceType, device.modelId].filter(Boolean).join(' ') || 'unknown type';
   return `${installations.length} installation(s), ${gateways.length} gateway(s)${describe(gateways, gatewayType)}, `
     + `${devices.length} device(s)${describe(devices, deviceType)}`;
+}
+
+// Homey's redirect URI for OAuth logins, which the user enters in the Viessmann client
+const DEFAULT_REDIRECT_URI = 'https://callback.athom.com/oauth2/callback';
+// The pairing check's result is reused by the device list for this long (no second API read)
+const PAIR_LIST_REUSE = 5 * 60 * 1000;
+
+/**
+ * A model name from a Viessmann model id: 'E3_Vitodens_200_0821' → 'Vitodens 200',
+ * 'E3_Vitovalor_PT2_0620' → 'Vitovalor PT2'. Undefined for ids that are no product name.
+ * @param {unknown} modelId
+ * @returns {string | undefined}
+ */
+function modelName(modelId) {
+  if (typeof modelId !== 'string') return undefined;
+  const parts = modelId.replace(/^E3_/i, '').split('_').filter(Boolean);
+  if (parts.length === 0 || !/^vito[a-z]+$/i.test(parts[0])) return undefined;
+  // A trailing date or variant code (0821, x05) is no part of the name
+  while (parts.length > 1 && /^(\d{4}|x\d+)$/i.test(parts[parts.length - 1])) parts.pop();
+  return parts.join(' ');
 }
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
@@ -287,6 +308,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async onPairListDevices({ oAuth2Client }) {
+    // The pairing check and report use the client of this pairing (see onPair)
+    if (this._pairContext) this._pairContext.client = oAuth2Client;
     try {
       if (process.env.DEBUG) {
         this.log('Starting onPairListDevices');
@@ -299,6 +322,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       const result = await oAuth2Client.getInstallations();
 
       this.log('[ViessmannDriver::onPairListDevices] Found', summarizeInstallations(result));
+      this._checkInstallations(result);
 
       const devices = [];
       const { version } = this.homey.manifest;
@@ -328,7 +352,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
               } = metadata;
 
               devices.push({
-                name: `Viessmann (${gateway.installationId})`,
+                name: this._deviceName(device, devices.map((paired) => paired.name)),
                 data: {
                   id: `${gateway.installationId}-${gateway.serial}-${device.id}`,
                 },
@@ -357,11 +381,105 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
   }
 
+  // Specific messages when the login works but there is nothing to add
+  _checkInstallations(result) {
+    const installations = Array.isArray(result?.data) ? result.data : [];
+    const devices = installations.flatMap((installation) => installation?.gateways || [])
+      .flatMap((gateway) => gateway?.devices || []);
+    if (installations.length === 0) throw new Error(translate(this.homey, 'pair.no_installations'));
+    if (!devices.some((device) => device?.deviceType === 'heating')) {
+      const types = [...new Set(devices.map((device) => [device?.deviceType, device?.modelId].filter(Boolean).join(' ')))];
+      throw new Error(translate(this.homey, 'pair.no_heating_device', { types: types.join(', ') || '–' }));
+    }
+  }
+
+  // A new device is named after its model, or after what it is; a second one of the same name gets a number
+  _deviceName(device, taken = []) {
+    const model = modelName(device?.modelId);
+    const roles = Array.isArray(device?.roles) ? device.roles.join(' ') : '';
+    let name;
+    if (model) name = `Viessmann ${model}`;
+    else if (/heatpump/i.test(roles)) name = translate(this.homey, 'pair.device_name.heat_pump');
+    else if (/fuelcell/i.test(roles)) name = translate(this.homey, 'pair.device_name.fuel_cell');
+    else if (/boiler/i.test(roles)) name = translate(this.homey, 'pair.device_name.boiler');
+    else name = translate(this.homey, 'pair.device_name.other');
+    let unique = name;
+    for (let number = 2; taken.includes(unique); number++) unique = `${name} ${number}`;
+    return unique;
+  }
+
   // The error to show while adding a device: a translated message for a known API state
   _pairingError(error) {
     const retryAt = Number.isFinite(error?.retryAfterMs) ? Date.now() + error.retryAfterMs : undefined;
     const message = apiStateMessage(this.homey, error, { retryAt, pairing: true });
     return message ? new Error(message, { cause: error }) : error;
+  }
+
+  // The SDK's device list, run once per pairing (the check and the list share the result)
+  async _pairListDevices(context, listDevices, data) {
+    if (context.result && Date.now() - context.at < PAIR_LIST_REUSE) {
+      const { devices, error } = context.result;
+      if (error) {
+        context.result = undefined;
+        throw error;
+      }
+      return devices;
+    }
+    this._pairContext = context;
+    let pending;
+    try {
+      // The SDK calls onPairListDevices right away, which takes the client from _pairContext
+      pending = listDevices(data);
+    } finally {
+      this._pairContext = undefined;
+    }
+    try {
+      const devices = await pending;
+      context.result = { devices };
+      context.at = Date.now();
+      return devices;
+    } catch (error) {
+      context.result = { error };
+      context.at = Date.now();
+      throw error;
+    }
+  }
+
+  _registerPairHandlers(socket, context, listDevices) {
+    socket.setHandler('get_client_id', async () => {
+      const clientId = this.homey.settings.get('clientId');
+      return {
+        saved: typeof clientId === 'string' && clientId.trim() !== '',
+        redirectUri: this.homey.app?.getConfig?.()?.redirectUrl || DEFAULT_REDIRECT_URI,
+      };
+    });
+    socket.setHandler('save_client_id', async (value) => {
+      const clientId = typeof value === 'string' ? value.trim() : '';
+      if (!/^[^\s]{8,128}$/.test(clientId)) throw new Error(translate(this.homey, 'pair.client_id.invalid'));
+      this.homey.settings.set('clientId', clientId);
+      return true;
+    });
+    // What the account has, before the device list: the devices found, or why there are none
+    socket.setHandler('pair_check', async () => {
+      context.result = undefined;
+      try {
+        const devices = await this._pairListDevices(context, listDevices(), undefined);
+        // The device list may read it once more
+        context.result = { devices };
+        return { devices: devices.map((device) => device.name), error: null };
+      } catch (error) {
+        context.result = undefined;
+        return { devices: [], error: error instanceof Error ? error.message : String(error) };
+      }
+    });
+    // The report for the developer, with only a login (no device needs to be added)
+    socket.setHandler('prepare_report', async () => {
+      if (!context.client) throw new Error(translate(this.homey, 'pair.check.no_login'));
+      const report = await collectReport(context.client, { appVersion: this.homey.manifest?.version });
+      const summary = summarizeReport(report);
+      for (const line of summary) this.log(line);
+      return { report, summaryLines: summary.length };
+    });
   }
 
   async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId, selectedCircuit = 'auto') {
@@ -388,16 +506,30 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     };
   }
 
+  /*
+    Pairing: the view client_id asks for the Client ID when none is saved, then the Viessmann
+    login, then pair_check lists what the account has (with a specific message when there is
+    nothing to add) and offers a report for the developer, then Homey's device list. The device
+    list reuses the check's result, so the API is read once.
+  */
   async onPair(socket) {
     try {
-      // Check if clientId is set
-      const clientId = await this.homey.settings.get('clientId');
-      if (!clientId || clientId.trim() === '') {
-        throw new Error(this.homey.__('pair.no_client_id'));
+      const context = { client: undefined, result: undefined, at: 0 };
+      // The SDK's device list handler, wrapped so that the check can use it and its client
+      let listDevices;
+      const setHandler = socket.setHandler.bind(socket);
+      socket.setHandler = (event, handler) => {
+        if (event !== 'list_devices') return setHandler(event, handler);
+        listDevices = handler;
+        return setHandler(event, (data) => this._pairListDevices(context, listDevices, data));
+      };
+      let result;
+      try {
+        result = await super.onPair(socket);
+      } finally {
+        socket.setHandler = setHandler;
       }
-
-      // Call the parent onPair with the socket
-      const result = await super.onPair(socket);
+      this._registerPairHandlers(socket, context, () => listDevices);
       this.log('Pairing process completed');
 
       // When a new device is added, start polling for it
@@ -416,3 +548,5 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
 };
+
+module.exports.modelName = modelName;

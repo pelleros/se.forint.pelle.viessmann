@@ -84,7 +84,32 @@
   "pair": {
     "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu.",
     "api_limit": "Das Limit der Viessmann-API ist erreicht. Versuche es nach __time__ Uhr erneut.",
-    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; versuche es später erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann."
+    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; versuche es später erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",
+    "no_installations": "Für dieses Viessmann-Konto wurde keine Heizung gefunden. Prüfe in der ViCare-App, dass deine Heizung für das Konto eingerichtet ist, mit dem du dich angemeldet hast.",
+    "no_heating_device": "Dieses Viessmann-Konto hat kein Heizgerät, das die App hinzufügen kann (gefunden: __types__). Ein Bericht für den Entwickler hilft, Unterstützung dafür hinzuzufügen.",
+    "device_name": {
+      "heat_pump": "Viessmann Wärmepumpe",
+      "boiler": "Viessmann Heizkessel",
+      "fuel_cell": "Viessmann Brennstoffzelle",
+      "other": "Viessmann Heizung"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Viessmanns kostenloser API-Plan braucht eine eigene Client ID. Das dauert etwa fünf Minuten und ist nur einmal nötig:",
+      "step": "Speichere den Client im Portal, kopiere seine Client ID und füge sie unten ein.",
+      "continue": "Speichern und bei Viessmann anmelden",
+      "invalid": "Das sieht nicht wie eine Client ID aus. Kopiere sie aus dem Client im Viessmann-Entwicklerportal; sie enthält keine Leerzeichen."
+    },
+    "check": {
+      "title": "Dein Viessmann-Konto",
+      "loading": "Deine Heizung wird gesucht…",
+      "found": "Gefunden:",
+      "continue": "Weiter",
+      "retry": "Erneut versuchen",
+      "report_link": "Gerät nicht gefunden oder fehlen Werte? Daten für den Entwickler vorbereiten",
+      "close": "Schließen, ohne ein Gerät hinzuzufügen",
+      "no_login": "Melde dich zuerst bei Viessmann an und versuche es dann erneut."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; die App versucht es jede Stunde erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",

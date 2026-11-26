@@ -84,7 +84,32 @@
   "pair": {
     "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil.",
     "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__.",
-    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; réessayez plus tard. Si cela persiste, contactez le support développeurs de Viessmann."
+    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; réessayez plus tard. Si cela persiste, contactez le support développeurs de Viessmann.",
+    "no_installations": "Aucun chauffage n'a été trouvé pour ce compte Viessmann. Vérifiez dans l'application ViCare que votre chauffage est configuré pour le compte avec lequel vous vous êtes connecté.",
+    "no_heating_device": "Ce compte Viessmann n'a aucun appareil de chauffage que l'application peut ajouter (trouvé : __types__). Un rapport pour le développeur aide à en ajouter la prise en charge.",
+    "device_name": {
+      "heat_pump": "Pompe à chaleur Viessmann",
+      "boiler": "Chaudière Viessmann",
+      "fuel_cell": "Pile à combustible Viessmann",
+      "other": "Chauffage Viessmann"
+    },
+    "client_id": {
+      "title": "Client ID Viessmann",
+      "intro": "L'offre API gratuite de Viessmann nécessite votre propre Client ID. Cela prend environ cinq minutes, une seule fois :",
+      "step": "Enregistrez le client dans le portail, copiez son Client ID et collez-le ci-dessous.",
+      "continue": "Enregistrer et se connecter à Viessmann",
+      "invalid": "Cela ne ressemble pas à un Client ID. Copiez-le depuis le client dans le portail développeur Viessmann ; il ne contient pas d'espaces."
+    },
+    "check": {
+      "title": "Votre compte Viessmann",
+      "loading": "Recherche de votre chauffage…",
+      "found": "Trouvé :",
+      "continue": "Continuer",
+      "retry": "Réessayer",
+      "report_link": "Appareil introuvable ou valeurs manquantes ? Préparer des données pour le développeur",
+      "close": "Fermer sans ajouter d'appareil",
+      "no_login": "Connectez-vous d'abord à Viessmann, puis réessayez."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; l'app réessaie toutes les heures. Si cela persiste, contactez le support développeurs de Viessmann.",

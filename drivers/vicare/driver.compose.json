@@ -19,8 +19,23 @@
   },
   "pair": [
     {
+      "id": "client_id",
+      "navigation": {
+        "next": "login_oauth2"
+      }
+    },
+    {
       "id": "login_oauth2",
-      "template": "login_oauth2"
+      "template": "login_oauth2",
+      "navigation": {
+        "next": "pair_check"
+      }
+    },
+    {
+      "id": "pair_check",
+      "navigation": {
+        "next": "list_devices"
+      }
     },
     {
       "id": "list_devices",

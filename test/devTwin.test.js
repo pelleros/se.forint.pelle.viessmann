@@ -231,9 +231,14 @@ describe('fixture mode', () => {
     const bundled = JSON.parse(fs.readFileSync(path.join(dir, FIXTURE_DIR, 'fixture.json'), 'utf8'));
     expect(bundled).toEqual({ name: 'vitodens_200_e3', installations: fixture.installations, features: fixture.features });
     const driverCompose = JSON.parse(fs.readFileSync(path.join(dir, 'drivers/vicare/driver.compose.json'), 'utf8'));
-    expect(driverCompose.pair[0]).toEqual({ id: 'login_credentials', template: 'login_credentials' });
+    expect(driverCompose.pair.find((view) => view.template === 'login_credentials')).toEqual({
+      id: 'login_credentials', template: 'login_credentials', navigation: { next: 'pair_check' },
+    });
     expect(driverCompose.repair).toEqual([{ id: 'login_credentials', template: 'login_credentials' }]);
-    expect(driverCompose.pair.slice(1).map((view) => view.id)).toEqual(['list_devices', 'add_devices']);
+    expect(driverCompose.pair.map((view) => view.id)).toEqual(['client_id', 'login_credentials', 'pair_check', 'list_devices', 'add_devices']);
+    // The Client ID view leads to the credentials login (the twin saves a Client ID of its own)
+    expect(driverCompose.pair[0].navigation).toEqual({ next: 'login_credentials' });
+    expect(JSON.stringify(driverCompose)).not.toContain('login_oauth2');
   });
 
   it('refuses a ref whose app does not use ViessmannOAuth2Client', () => {

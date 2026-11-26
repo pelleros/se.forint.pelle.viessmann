@@ -22,9 +22,10 @@
 
 'use strict';
 
-// Temperature sensors that do not belong to one heating circuit: hot water cylinder, outside,
-// buffer cylinder, return, primary/secondary circuit, boiler and fuel cell, and in the
-// diagnostic group the cylinder's top sensor and the compressor's sensors.
+// Temperature sensors that do not belong to one heating circuit: hot water cylinder (also its
+// middle and bottom sensors), outside, buffer cylinder, return, primary/secondary circuit, boiler
+// and fuel cell, and in the diagnostic group the cylinder's top sensor and the compressor's
+// sensors.
 
 const { createTemperatureCapability } = require('./templates');
 
@@ -43,11 +44,25 @@ const PATHS = {
   FUEL_CELL_RETURN_TEMP: 'fuelCell.sensors.temperature.return',
   FUEL_CELL_SUPPLY_TEMP: 'fuelCell.sensors.temperature.supply',
   HOT_WATER_BOTTOM_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder.bottom',
+  HOT_WATER_MIDDLE_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder.middle',
+  // Some devices name the cylinder's sensors this way
+  HOT_WATER_MIDDLE_TEMP_STORAGE: 'heating.dhw.sensors.temperature.hotWaterStorage.middle',
   HOT_WATER_TOP_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder.top',
   COMPRESSOR_INLET_TEMP: 'heating.compressors.0.sensors.temperature.inlet',
   COMPRESSOR_OUTLET_TEMP: 'heating.compressors.0.sensors.temperature.outlet',
   COMPRESSOR_AMBIENT_TEMP: 'heating.compressors.0.sensors.temperature.ambient',
 };
+
+const HOT_WATER_MIDDLE = createTemperatureCapability('hotWaterMiddle', 'Hot water middle temperature', {
+  title: {
+    en: 'Hot water middle temperature',
+    de: 'Warmwassertemperatur Mitte',
+    nl: 'Warmwatertemperatuur midden',
+    fr: 'Température eau chaude au milieu',
+    sv: 'Varmvattentemperatur mitten',
+  },
+  preventTag: true,
+});
 
 /** @type {import('./types').ConfigModule['FEATURES']} */
 const FEATURES = {
@@ -114,6 +129,13 @@ const FEATURES = {
       },
       preventTag: true,
     })],
+  },
+  [PATHS.HOT_WATER_MIDDLE_TEMP]: {
+    capabilities: [HOT_WATER_MIDDLE],
+  },
+  [PATHS.HOT_WATER_MIDDLE_TEMP_STORAGE]: {
+    fallbackFor: PATHS.HOT_WATER_MIDDLE_TEMP,
+    capabilities: [HOT_WATER_MIDDLE],
   },
   // Usually the same value as the main cylinder sensor, so only with the diagnostic values
   [PATHS.HOT_WATER_TOP_TEMP]: {

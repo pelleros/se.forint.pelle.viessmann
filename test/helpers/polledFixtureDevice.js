@@ -46,17 +46,20 @@ function fakeTimers(clock) {
  * @param {string[]} [options.roles]
  * @param {{ now: number }} [options.clock]
  * @param {string} [options.heatingCircuitId]
+ * @param {(dump: Record<string, any>) => void} [options.change] changes the fixture's features first
  */
 async function polledFixtureDevice({
   fixture = 'vitocal_222_features.json',
   roles = ['type:heating;integrated', 'type:dhw;integrated', 'type:heatpump'],
   clock = { now: Date.parse('2026-11-26T12:00:00Z') },
   heatingCircuitId = '0',
+  change,
 } = {}) {
   // Required here, after the test has mocked homey-oauth2app
   // eslint-disable-next-line global-require
   const ViessmannDevice = require('../../drivers/vicare/device');
   const dump = readFixture(fixture);
+  if (change) change(dump);
   const device = new ViessmannDevice();
   device.driver = { getTriggerCard: jest.fn(() => null), _calculatePollInterval: () => 2 * 60 * 1000 };
   device._installationId = 900001;

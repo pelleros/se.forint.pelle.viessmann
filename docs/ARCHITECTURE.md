@@ -113,10 +113,10 @@ The place to change when adding or removing a Viessmann datapoint. `require('./c
 | Module | Theme |
 |---|---|
 | `thermostat.js` | Set points and modes: hot water and heating targets, operating mode, one-time hot water charge, fuel cell mode, and Homey's standard thermostat (`target_temperature`, `measure_temperature`, `thermostat_mode` without a suffix) |
-| `temperatures.js` | Temperature sensors outside the heating circuit (hot water cylinder and its bottom and top sensors, outside, buffer, return, primary/secondary circuit, boiler, fuel cell, compressor) |
+| `temperatures.js` | Temperature sensors outside the heating circuit (hot water cylinder and its middle, bottom and top sensors, outside, buffer, return, primary/secondary circuit, boiler, fuel cell, compressor) |
 | `circuits.js` | Readings of the heating circuit (room, circuit temperature, supply, frost protection, heating curve) |
-| `status.js` | Running states, compressor load, burner modulation, fuel cell phase; faults, logbook, the problem alarm and the maintenance action |
-| `energy.js` | Power, Viessmann's consumption for yesterday, coefficients of performance, the statistics counters and their daily figures |
+| `status.js` | Running states (compressor, burner, heating rod), compressor load, burner modulation, fuel cell phase; faults, logbook, the problem alarm and the maintenance action |
+| `energy.js` | Power, the heat output now, Viessmann's consumption for yesterday, coefficients of performance, the seasonal efficiency figures (SCOP and SPF, own capabilities, never shown as a COP; a 0 for a part that has not run yet shows as no value), the statistics counters (also the heating rod's) and the daily figures of the compressor and burner counters |
 | `pumps.js` | Circulation pumps (on/off), and the factory for on/off states |
 | `hotWater.js` | Hot water charging |
 | `solar.js` | Solar thermal collectors (collector and hot water temperature, solar pump) |
@@ -169,7 +169,7 @@ The mapping between feature responses and capabilities, as pure functions withou
 
 `computedValues.js` (pure, no Homey dependency) computes the capabilities marked `computed`, from the same poll response (no extra API calls), with `dailyCounters.js` for the counter figures. Each value has a sound basis or is `null`:
 
-- `power` (`measure_power`, so the device appears in Homey Energy): the device's own consumption, or the inverter output as `fallbackFor`; kW and W are converted to W, any other unit gives no value.
+- `power` (`measure_power`, so the device appears in Homey Energy): the device's own consumption, or the inverter output as `fallbackFor`; kW and W are converted to W, any other unit gives no value. The heat output now (`measure_heat_output`) is converted the same way; it has its own capability because Homey Energy would count `measure_power` as electricity the device uses.
 - `consumptionYesterday` (`measure_electricity_yesterday.*`, `measure_gas_yesterday.*`): `day[1]` of the feature's day values, but only when `dayValueReadAt` is today in Homey's time zone (then `day[0]` is today and `day[1]` the complete day before); older values are stale and give `null`. The unit comes from the response (electricity only in kWh; gas in m³ or kWh, set as the capability's `units` on the device).
 - `startsToday`, `startsYesterday`, `runtimePerStartYesterday` (`measure_{compressor,burner}_number.*`): differences of the starts and hours counters from a midnight baseline (Homey's time zone), kept per counter in the store key `dailyCounters`. A new day takes the last reading before midnight as its baseline when that reading is at most the device's poll interval plus 10 minutes (and at least 35 minutes; 35 minutes when the interval is not known) before the first one after midnight; `deviceMonitor.js` passes the interval from `driver._calculatePollInterval`. Otherwise (offline, restarted or in a long backoff around midnight) the day has no baseline. A counter that goes backwards drops today's baseline. The average run time per start needs at least ten times the hours counter's resolution (0.1 h, or 1 h for counters that never showed tenths).
 - `startsLastHour`: the difference with the newest reading at least an hour old and at most 95 minutes old, kept in memory (empty for an hour after a start). This does not follow the poll interval: with hourly polling the reading one poll back is taken, and with polls more than about 95 minutes apart the figure stays empty rather than cover far more than an hour.

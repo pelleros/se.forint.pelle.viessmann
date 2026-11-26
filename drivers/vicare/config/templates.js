@@ -88,6 +88,23 @@ const RUNNING_STATE_TEXTS = {
       en: 'Burner stopped', de: 'Brenner gestoppt', nl: 'Brander gestopt', fr: 'Brûleur arrêté', sv: 'Brännaren stannade',
     },
   },
+  heatingRod: {
+    ...YES_NO,
+    insightsTitleTrue: {
+      en: 'Heating rod started',
+      de: 'Heizstab gestartet',
+      nl: 'Elektrisch element gestart',
+      fr: 'Résistance électrique démarrée',
+      sv: 'Elpatronen startade',
+    },
+    insightsTitleFalse: {
+      en: 'Heating rod stopped',
+      de: 'Heizstab gestoppt',
+      nl: 'Elektrisch element gestopt',
+      fr: 'Résistance électrique arrêtée',
+      sv: 'Elpatronen stannade',
+    },
+  },
 };
 
 // Units of the statistics counters. Hours use the symbol, which is the same in every language;

@@ -87,10 +87,10 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
     }
     const expected = {};
     for (const [capabilityName, value] of readings) {
-      // A capability starts at null, so a null reading is no change
-      if (value === null) continue;
       const { valueMapping } = ALL_CAPABILITIES.find((capability) => capability.capabilityName === capabilityName);
-      expected[capabilityName] = valueMapping && value in valueMapping ? valueMapping[value] : value;
+      const shown = valueMapping && value in valueMapping ? valueMapping[value] : value;
+      // A capability starts at null, so a null reading (or one shown as no value) is no change
+      if (shown !== null) expected[capabilityName] = shown;
     }
     // Computed values (by the device, see computedValues.test.js) are left out
     const computed = new Set(ALL_CAPABILITIES.filter((capability) => capability.computed).map((capability) => capability.capabilityName));

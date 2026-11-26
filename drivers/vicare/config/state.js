@@ -23,7 +23,7 @@
 'use strict';
 
 // What the device is doing right now, combined from the running states of the compressor, the
-// burner and the fuel cell: heating now (yes/no, the tile's on/off look), the operating state (heating, hot
+// burner, the heating rod and the fuel cell: heating now (yes/no, the tile's on/off look), the operating state (heating, hot
 // water, defrost, cooling, standby) and a short status text. Everything is built from values the
 // device reports; when they are missing, the value is left empty.
 
@@ -37,7 +37,9 @@ const PATHS = {};
 // Hot water charging is mapped in the hot water module; read here only to tell hot water apart
 const HOT_WATER_CHARGING = 'heating.dhw.charging';
 
-const { COMPRESSOR, BURNER, FUEL_CELL_PHASE } = STATUS_PATHS;
+const {
+  COMPRESSOR, BURNER, HEATING_ROD, FUEL_CELL_PHASE,
+} = STATUS_PATHS;
 
 const { titleTrue, titleFalse } = RUNNING_STATE_TEXTS.compressor;
 const YES_NO = { titleTrue, titleFalse };
@@ -75,6 +77,9 @@ const STATUS_WORDS = {
   fuelCell: {
     en: 'fuel cell', de: 'Brennstoffzelle', nl: 'brandstofcel', fr: 'pile à combustible', sv: 'bränslecell',
   },
+  heatingRod: {
+    en: 'heating rod', de: 'Heizstab', nl: 'elektrisch element', fr: 'résistance électrique', sv: 'elpatron',
+  },
   hotWater: {
     en: 'hot water', de: 'Warmwasser', nl: 'warm water', fr: 'eau chaude', sv: 'varmvatten',
   },
@@ -109,25 +114,30 @@ function runningStates(read) {
   const burnerActive = read(BURNER, 'active.value');
   const compressor = typeof compressorActive === 'boolean' ? compressorActive : undefined;
   const burner = typeof burnerActive === 'boolean' ? burnerActive : undefined;
+  const heatingRodActive = read(HEATING_ROD, 'active.value');
+  const heatingRod = typeof heatingRodActive === 'boolean' ? heatingRodActive : undefined;
   const compressorHeating = compressor === undefined ? undefined
     : compressor && !NOT_HEATING_PHASES.includes(String(phase));
   const fuelCellPhase = read(FUEL_CELL_PHASE, 'value.value');
   const fuelCell = typeof fuelCellPhase === 'string' ? fuelCellPhase === 'generation' : undefined;
   return {
-    compressor, burner, phase, compressorHeating, fuelCell,
+    compressor, burner, heatingRod, phase, compressorHeating, fuelCell,
   };
 }
 
 /**
- * True while the compressor (in a heating phase), the burner or the fuel cell (generating)
- * runs, also for hot water.
+ * True while the compressor (in a heating phase), the burner, the heating rod or the fuel cell
+ * (generating) runs, also for hot water.
  * @param {import('./types').FeatureReader} read
  * @returns {boolean | undefined}
  */
 function heatingNow(read) {
-  const { burner, compressorHeating, fuelCell } = runningStates(read);
-  if (compressorHeating === undefined && burner === undefined && fuelCell === undefined) return undefined;
-  return compressorHeating === true || burner === true || fuelCell === true;
+  const {
+    burner, compressorHeating, heatingRod, fuelCell,
+  } = runningStates(read);
+  const states = [compressorHeating, burner, heatingRod, fuelCell];
+  if (states.every((state) => state === undefined)) return undefined;
+  return states.includes(true);
 }
 
 /**
@@ -159,7 +169,9 @@ function statusText(read, context) {
   const parts = [];
   const state = operatingState(read);
   if (state) parts.push(translate(STATES[state], language));
-  const { compressor, burner, fuelCell } = runningStates(read);
+  const {
+    compressor, burner, heatingRod, fuelCell,
+  } = runningStates(read);
   const compressorLoad = reading('measure_compressor_number.compressorModulation');
   const burnerModulation = reading('measure_burner_number.burnerModulation');
   if (compressor && typeof compressorLoad === 'number') {
@@ -167,6 +179,7 @@ function statusText(read, context) {
   } else if (burner && typeof burnerModulation === 'number') {
     parts.push(`${translate(STATUS_WORDS.burner, language)} ${formatNumber(burnerModulation, language)} %`);
   }
+  if (heatingRod) parts.push(translate(STATUS_WORDS.heatingRod, language));
   if (fuelCell) parts.push(translate(STATUS_WORDS.fuelCell, language));
   const hotWater = read(TEMPERATURE_PATHS.HOT_WATER_TEMP, 'value.value');
   if (typeof hotWater === 'number') {
@@ -185,7 +198,7 @@ const FEATURES = {};
 const DERIVED = [
   {
     capabilityName: 'measure_heating_active',
-    sources: [COMPRESSOR, BURNER, FUEL_CELL_PHASE],
+    sources: [COMPRESSOR, BURNER, HEATING_ROD, FUEL_CELL_PHASE],
     derive: heatingNow,
     capabilityOptions: {
       title: {
@@ -204,7 +217,7 @@ const DERIVED = [
   },
   {
     capabilityName: 'measure_operating_state',
-    sources: [COMPRESSOR, BURNER, FUEL_CELL_PHASE],
+    sources: [COMPRESSOR, BURNER, HEATING_ROD, FUEL_CELL_PHASE],
     derive: operatingState,
     capabilityOptions: {
       title: {
@@ -215,7 +228,7 @@ const DERIVED = [
   },
   {
     capabilityName: 'measure_status_text',
-    sources: [COMPRESSOR, BURNER, FUEL_CELL_PHASE],
+    sources: [COMPRESSOR, BURNER, HEATING_ROD, FUEL_CELL_PHASE],
     derive: statusText,
     capabilityOptions: {
       title: {

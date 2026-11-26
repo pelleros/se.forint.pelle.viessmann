@@ -89,7 +89,18 @@
     "target_hysteresis.hotWater",
     "measure_heating_active",
     "measure_operating_state",
-    "measure_status_text"
+    "measure_status_text",
+    "measure_temperature.hotWaterMiddle",
+    "measure_heatingrod_active",
+    "measure_heatingrod_number.heatingRodHours",
+    "measure_heatingrod_number.heatingRodStarts",
+    "measure_heat_output",
+    "measure_scop_number.total",
+    "measure_scop_number.heating",
+    "measure_scop_number.dhw",
+    "measure_spf_number.total",
+    "measure_spf_number.heating",
+    "measure_spf_number.dhw"
   ],
   "retiredCapabilities": {
     "measure_something_active.compressor": "Renamed to measure_compressor_active in commit d9a0906 (v1.0.11). Users lost their compressor Insights history at the time.",

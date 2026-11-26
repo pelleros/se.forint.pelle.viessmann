@@ -103,6 +103,7 @@ const CAPABILITIES = Object.freeze([
   'alarm_*',
   'measure_compressor_active',
   'measure_burner_active',
+  'measure_heatingrod_active',
   'measure_fuelcell_active',
   'measure_compressor_number.compressorModulation',
   'measure_burner_number.burnerModulation',
@@ -117,10 +118,14 @@ const CAPABILITIES = Object.freeze([
   'meter_*',
   'measure_electricity_yesterday*',
   'measure_gas_yesterday*',
+  'measure_heat_output',
   'measure_cop_number*',
+  'measure_scop_number*',
+  'measure_spf_number*',
   // 7. Statistics
   'measure_compressor_number*',
   'measure_burner_number*',
+  'measure_heatingrod_number*',
   'measure_fuelcell_number*',
   // 8. Everything else (diagnostics, the maintenance action) comes after these
 ]);

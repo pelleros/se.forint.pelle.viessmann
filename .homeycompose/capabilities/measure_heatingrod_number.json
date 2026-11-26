@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heating rod runtime",
+    "de": "Heizstab Laufzeit",
+    "nl": "Looptijd elektrisch element",
+    "fr": "Durée de marche résistance électrique",
+    "sv": "Elpatron drifttid"
+  },
+  "units": { "en": "h" },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "step": 1,
+  "icon": "/assets/heatingrod.svg"
+}

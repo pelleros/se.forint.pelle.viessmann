@@ -22,8 +22,8 @@
 
 'use strict';
 
-// What the heat generator is doing right now: compressor and burner running, compressor load,
-// burner modulation and the fuel cell's phase; and whether something is wrong: faults the heating
+// What the heat generator is doing right now: compressor, burner and heating rod running,
+// compressor load, burner modulation and the fuel cell's phase; and whether something is wrong: faults the heating
 // system reports, its logbook, and the device's problem alarm and maintenance action.
 
 const {
@@ -36,6 +36,7 @@ const PATHS = {
   COMPRESSOR_POWER: 'heating.compressors.0.sensors.power',
   BURNER: 'heating.burners.0',
   BURNER_MODULATION: 'heating.burners.0.modulation',
+  HEATING_ROD: 'heating.heatingRod',
   FUEL_CELL_PHASE: 'fuelCell.operating.phase',
   // Read by faultLog.js: faults (alarm_problem, warning, trigger) and logbook entries (trigger)
   DEVICE_ERRORS: 'device.messages.errors.raw',
@@ -57,6 +58,18 @@ const FEATURES = {
   },
   [PATHS.BURNER]: {
     capabilities: [createActiveCapability('burner', 'Burner running', RUNNING_STATE_TEXTS.burner)],
+  },
+  [PATHS.HEATING_ROD]: {
+    capabilities: [createActiveCapability('heatingrod', 'Heating rod running', {
+      ...RUNNING_STATE_TEXTS.heatingRod,
+      title: {
+        en: 'Heating rod running',
+        de: 'Heizstab in Betrieb',
+        nl: 'Elektrisch element actief',
+        fr: 'Résistance électrique en marche',
+        sv: 'Elpatron igång',
+      },
+    })],
   },
   [PATHS.COMPRESSOR_POWER]: {
     requireRole: 'type:heatpump',

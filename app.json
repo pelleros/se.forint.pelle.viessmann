@@ -3248,6 +3248,25 @@
       "decimals": 1,
       "icon": "/assets/gas.svg"
     },
+    "measure_heat_output": {
+      "type": "number",
+      "title": {
+        "en": "Heat output",
+        "de": "Wärmeleistung",
+        "nl": "Warmteafgifte",
+        "fr": "Puissance thermique",
+        "sv": "Värmeeffekt"
+      },
+      "units": {
+        "en": "W"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 0,
+      "icon": "/assets/heat.svg"
+    },
     "measure_heating_active": {
       "type": "boolean",
       "title": {
@@ -3292,6 +3311,70 @@
       "uiQuickAction": false,
       "uiState": true,
       "icon": "/assets/burner.svg"
+    },
+    "measure_heatingrod_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Heating rod running",
+        "de": "Heizstab in Betrieb",
+        "nl": "Elektrisch element actief",
+        "fr": "Résistance électrique en marche",
+        "sv": "Elpatron igång"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Heating rod started",
+        "de": "Heizstab gestartet",
+        "nl": "Elektrisch element gestart",
+        "fr": "Résistance électrique démarrée",
+        "sv": "Elpatronen startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Heating rod stopped",
+        "de": "Heizstab gestoppt",
+        "nl": "Elektrisch element gestopt",
+        "fr": "Résistance électrique arrêtée",
+        "sv": "Elpatronen stannade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/heatingrod.svg"
+    },
+    "measure_heatingrod_number": {
+      "type": "number",
+      "title": {
+        "en": "Heating rod runtime",
+        "de": "Heizstab Laufzeit",
+        "nl": "Looptijd elektrisch element",
+        "fr": "Durée de marche résistance électrique",
+        "sv": "Elpatron drifttid"
+      },
+      "units": {
+        "en": "h"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "step": 1,
+      "icon": "/assets/heatingrod.svg"
     },
     "measure_holiday_active": {
       "type": "boolean",
@@ -3449,6 +3532,22 @@
       "uiState": false,
       "icon": "/assets/pump.svg"
     },
+    "measure_scop_number": {
+      "type": "number",
+      "title": {
+        "en": "Seasonal efficiency (SCOP)",
+        "de": "Saisonale Leistungszahl (SCOP)",
+        "nl": "Seizoensrendement (SCOP)",
+        "fr": "Rendement saisonnier (SCOP)",
+        "sv": "Säsongsverkningsgrad (SCOP)"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/cop.svg"
+    },
     "measure_something_active": {
       "type": "boolean",
       "title": {
@@ -3481,6 +3580,22 @@
       "uiComponent": "sensor",
       "step": 1,
       "icon": "/assets/compressor.svg"
+    },
+    "measure_spf_number": {
+      "type": "number",
+      "title": {
+        "en": "Seasonal performance factor (SPF)",
+        "de": "Jahresarbeitszahl (JAZ)",
+        "nl": "Seizoensprestatiefactor (SPF)",
+        "fr": "Facteur de performance saisonnier (SPF)",
+        "sv": "Årsvärmefaktor (SPF)"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/cop.svg"
     },
     "measure_status_text": {
       "type": "string",

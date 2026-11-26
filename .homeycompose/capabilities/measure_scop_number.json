@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Seasonal efficiency (SCOP)",
+    "de": "Saisonale Leistungszahl (SCOP)",
+    "nl": "Seizoensrendement (SCOP)",
+    "fr": "Rendement saisonnier (SCOP)",
+    "sv": "Säsongsverkningsgrad (SCOP)"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "decimals": 1,
+  "icon": "/assets/cop.svg"
+}

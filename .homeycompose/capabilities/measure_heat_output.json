@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heat output",
+    "de": "Wärmeleistung",
+    "nl": "Warmteafgifte",
+    "fr": "Puissance thermique",
+    "sv": "Värmeeffekt"
+  },
+  "units": { "en": "W" },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "decimals": 0,
+  "icon": "/assets/heat.svg"
+}

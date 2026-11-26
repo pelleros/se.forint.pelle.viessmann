@@ -1190,7 +1190,8 @@ describe('Running state texts', () => {
     expect(LANGUAGES.sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
     expect(runningBases.sort()).toEqual([
       'measure_burner_active', 'measure_compressor_active', 'measure_dhw_active', 'measure_frost_active',
-      'measure_fuelcell_active', 'measure_heating_active', 'measure_holiday_active', 'measure_pump_active',
+      'measure_fuelcell_active', 'measure_heating_active', 'measure_heatingrod_active', 'measure_holiday_active',
+      'measure_pump_active',
     ]);
   });
 
@@ -1230,10 +1231,10 @@ describe('Running state texts', () => {
   const mappedRunningCapabilities = [...Object.values(config.FEATURES).flatMap((feature) => feature.capabilities), ...config.DERIVED]
     .filter((capability) => runningBases.includes(capability.capabilityName));
 
-  test('the compressor, the burner, heating now and the holiday program are mapped', () => {
+  test('the compressor, the burner, the heating rod, heating now and the holiday program are mapped', () => {
     expect(mappedRunningCapabilities.map((capability) => capability.capabilityName).sort())
       .toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_heating_active',
-        'measure_holiday_active']);
+        'measure_heatingrod_active', 'measure_holiday_active']);
   });
 
   // Devices that already have the capability get the texts from config.js, new devices also
@@ -1254,7 +1255,7 @@ describe('Statistics counters', () => {
     // The daily figures computed from the counters (computed) are tested in computedValues.test.js
     .filter((capability) => !capability.computed);
 
-  test('are the starts and hours of the compressor, the burner and the fuel cell', () => {
+  test('are the starts and hours of the compressor, the burner, the heating rod and the fuel cell', () => {
     expect(counters.map((capability) => capability.capabilityName).sort()).toEqual([
       'measure_burner_number.burnerHours',
       'measure_burner_number.burnerStarts',
@@ -1263,6 +1264,8 @@ describe('Statistics counters', () => {
       'measure_fuelcell_number.operationHours',
       'measure_fuelcell_number.productionHours',
       'measure_fuelcell_number.productionStarts',
+      'measure_heatingrod_number.heatingRodHours',
+      'measure_heatingrod_number.heatingRodStarts',
     ]);
   });
 

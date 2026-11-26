@@ -138,6 +138,8 @@
       "unknown_parameter": "The command has no parameter __parameter__.",
       "no_command_metadata": "The commands of the device are not known yet. Try again after the next update.",
       "choose_from_list": "Choose an entry from the list.",
-      "mode_not_supported": "Operating mode \"__mode__\" is not supported by this heating circuit."
+      "mode_not_supported": "Operating mode \"__mode__\" is not supported by this heating circuit.",
+      "write_quota_reserved": "The Viessmann account has only __left__ API calls left today, and the regular updates of its devices need them until the daily count resets (__time__). Try again then, or choose a longer update interval in the device settings.",
+      "write_burst": "Too many changes to this Viessmann account in a short time (at most __limit__ per 10 minutes for all its devices). Try again in __minutes__ minutes."
     }
 }

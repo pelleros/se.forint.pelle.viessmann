@@ -138,6 +138,8 @@
     "unknown_parameter": "Der Befehl hat keinen Parameter __parameter__.",
     "no_command_metadata": "Die Befehle des Geräts sind noch nicht bekannt. Versuchen Sie es nach der nächsten Aktualisierung erneut.",
     "choose_from_list": "Wählen Sie einen Eintrag aus der Liste.",
-    "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt."
+    "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt.",
+    "write_quota_reserved": "Das Viessmann-Konto hat heute nur noch __left__ API-Aufrufe, und die regelmäßigen Aktualisierungen seiner Geräte brauchen sie bis zum Zurücksetzen des Tageszählers (__time__). Versuchen Sie es danach erneut oder wählen Sie in den Geräteeinstellungen ein längeres Aktualisierungsintervall.",
+    "write_burst": "Zu viele Änderungen an diesem Viessmann-Konto in kurzer Zeit (höchstens __limit__ pro 10 Minuten für alle seine Geräte). Versuchen Sie es in __minutes__ Minuten erneut."
   }
 }

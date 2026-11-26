@@ -30,7 +30,7 @@
  */
 
 const { Anonymizer, anonymizeDumps, TROUBLESHOOTING_STYLE } = require('./lib/anonymize');
-const { ApiQuota, DAILY_LIMIT } = require('./lib/apiQuota');
+const { ApiQuota, DAILY_LIMIT, nextReset } = require('./lib/apiQuota');
 const { collectReport, summarizeReport } = require('./lib/report');
 
 const anonymizers = new WeakMap();
@@ -48,13 +48,6 @@ function anonymizedDeviceId(anonymizer, device) {
     anonymizer.serial(gatewaySerial),
     anonymizer.deviceId(deviceId),
   ].join('-');
-}
-
-// The next 00:00 UTC, when Viessmann's daily count starts again
-function nextUtcMidnight(now = Date.now()) {
-  const next = new Date(now);
-  next.setUTCHours(24, 0, 0, 0);
-  return next.toISOString();
 }
 
 module.exports = {
@@ -75,7 +68,7 @@ module.exports = {
     const accountOf = (device) => sessions.indexOf(device.getStoreValue('OAuth2SessionId')) + 1;
     return {
       limit: DAILY_LIMIT,
-      resetsAt: nextUtcMidnight(),
+      resetsAt: new Date(nextReset(Date.now())).toISOString(),
       accounts: sessions.map((sessionId, index) => ({
         account: index + 1,
         usedToday: quota.usedToday(sessionId),

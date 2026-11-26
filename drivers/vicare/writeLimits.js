@@ -29,9 +29,11 @@
 //
 // The caller runs takeWrite after its own checks pass and before it sends, so a refused value
 // never uses up a write. Restoring a temporary change does not call it: it must always happen.
-// A new kind of write is one entry in WRITE_LIMITS. A further reason to refuse a write (for
-// example a daily quota) is one more function in WRITE_CHECKS: it runs after the hourly limit
-// and before the write is counted, and refuses by throwing a userError.
+// A new kind of write is one entry in WRITE_LIMITS. A further reason to refuse a Flow card's
+// write is one more function in WRITE_CHECKS: it runs after the hourly limit and before the
+// write is counted, and refuses by throwing a userError. The Viessmann account's daily quota and
+// burst limit apply to every write, also from the device view, so they are in commands.js
+// (writeQuota.js).
 
 const RateLimiter = require('../../lib/rateLimiter');
 const { userError } = require('./userErrors');

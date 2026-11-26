@@ -149,14 +149,12 @@ class DeviceMonitor {
   }
 
   /**
-   * Remembers a successful write, so that a later poll can check that the value took. An action
-   * such as the one-time charge ends by itself; only set points and modes are checked.
+   * Remembers a successful write (commands.js), so that a later poll can check that the value
+   * took.
    * @param {string} capabilityName
-   * @param {{ command?: { useValueAsCommand?: boolean } }} capability its config
    * @param {unknown} value
    */
-  rememberWrite(capabilityName, capability, value) {
-    if (capability?.command?.useValueAsCommand) return;
+  rememberWrite(capabilityName, value) {
     this.writes.remember(capabilityName, value, Date.now());
     this.writeProblems.delete(capabilityName);
   }

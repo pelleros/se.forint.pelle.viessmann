@@ -138,6 +138,8 @@
     "unknown_parameter": "De opdracht heeft geen parameter __parameter__.",
     "no_command_metadata": "De opdrachten van het apparaat zijn nog niet bekend. Probeer het opnieuw na de volgende update.",
     "choose_from_list": "Kies een item uit de lijst.",
-    "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit."
+    "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit.",
+    "write_quota_reserved": "Het Viessmann-account heeft vandaag nog maar __left__ API-aanroepen over, en de regelmatige updates van de apparaten hebben die nodig tot de dagteller opnieuw begint (__time__). Probeer het daarna opnieuw, of kies een langer update-interval in de apparaatinstellingen.",
+    "write_burst": "Te veel wijzigingen voor dit Viessmann-account in korte tijd (hoogstens __limit__ per 10 minuten voor al zijn apparaten). Probeer het over __minutes__ minuten opnieuw."
   }
 }

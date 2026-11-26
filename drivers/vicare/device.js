@@ -34,7 +34,7 @@ const { isGroupSetting, enabledGroups } = require('./optionalGroups');
 const { fireValueTriggers } = require('./flowHandlers');
 const { recordFeatures } = require('./featureCards');
 const { boostsOf } = require('./boost');
-const { capabilityCommand, sendFeatureCommand } = require('./commands');
+const { sendCapabilityValue } = require('./commands');
 const { userError } = require('./userErrors');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
@@ -213,11 +213,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  async executeCommand(path, capability, value) {
-    const { command, parameters } = capabilityCommand(capability, value);
-    await sendFeatureCommand(this, path, command, parameters, { check: () => this.checkOperatingMode(path, value) });
+  // Writes a capability through commands.js. `restoring`: undoing a temporary change (boost.js),
+  // which the account's write allowance never refuses
+  async executeCommand(path, capability, value, { restoring = false } = {}) {
+    await sendCapabilityValue(this, path, capability, value, { check: () => this.checkOperatingMode(path, value), restoring });
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
-    this.getMonitor().rememberWrite(capability.capabilityName, capability, value);
     return true;
   }
 

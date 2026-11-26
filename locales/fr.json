@@ -138,6 +138,8 @@
     "unknown_parameter": "La commande n'a pas de paramètre __parameter__.",
     "no_command_metadata": "Les commandes de l'appareil ne sont pas encore connues. Réessayez après la prochaine mise à jour.",
     "choose_from_list": "Choisissez une entrée dans la liste.",
-    "mode_not_supported": "Le mode de fonctionnement \"__mode__\" n'est pas pris en charge par ce circuit de chauffage."
+    "mode_not_supported": "Le mode de fonctionnement \"__mode__\" n'est pas pris en charge par ce circuit de chauffage.",
+    "write_quota_reserved": "Il ne reste aujourd'hui que __left__ appels API au compte Viessmann, et les mises à jour régulières de ses appareils en ont besoin jusqu'à la remise à zéro du compteur quotidien (__time__). Réessayez ensuite, ou choisissez un intervalle de mise à jour plus long dans les réglages de l'appareil.",
+    "write_burst": "Trop de modifications pour ce compte Viessmann en peu de temps (au plus __limit__ par période de 10 minutes pour tous ses appareils). Réessayez dans __minutes__ minutes."
   }
 }

@@ -146,6 +146,17 @@ keeps the device and its values as they are.
 
 **Fix:** try again later. If it lasts, check that the change works in the ViCare app.
 
+### "The Viessmann account has only … API calls left today" or "Too many changes to this Viessmann account in a short time"
+
+**Cause:** the app did not send a change, so that the regular updates keep running. It refuses a
+change only when the calls your account has left today are needed for the planned updates until
+Viessmann's daily count starts again (midnight UTC), or after 20 changes to the account within
+10 minutes (for all its devices). Ending a temporary change from a Flow is always sent.
+
+**Fix:** try again at the time shown. If the first message comes often, choose a longer update
+interval in the device settings (Updates and API calls), or turn off the event log, so that more
+calls are left for changes.
+
 ### "Viessmann API limit reached, updates resume at …" (or "Viessmann HTTP 429")
 
 **Cause:** your ViCare account has used up its [daily API calls](#viessmann-api-limits).
@@ -228,7 +239,9 @@ otherwise it shows "Viessmann HTTP 429: API rate limit exceeded" and retries les
 The app spreads its requests so that it stays well below that limit. By default it fetches data
 about once every 2 minutes in total: with one device, that device is updated every 2 minutes; with
 two devices, each is updated every 4 minutes, and so on. That is roughly 720 calls per day, plus a
-few more for commands from flows, adding devices and the troubleshooting tools.
+few more for commands from flows, adding devices and the troubleshooting tools. A change is not
+sent when the calls left today are needed for the regular updates, or after 20 changes to the
+account within 10 minutes.
 
 You can choose a fixed interval per device in its settings (Updates and API calls); each choice
 shows the calls a day it needs, and a choice that would leave too few calls for your account is

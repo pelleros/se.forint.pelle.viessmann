@@ -69,7 +69,7 @@ const HOT_WATER_CHARGE = 'thermostat_mode.hotWaterOneTimeCharge';
  * @typedef {import('./heatingCurve').CurveDevice & {
  *   getStoreValue: (key: string) => any,
  *   setStoreValue: (key: string, value: any) => Promise<any>,
- *   executeCommand: (path: string, capability: any, value: any) => Promise<any>,
+ *   executeCommand: (path: string, capability: any, value: any, options?: { restoring?: boolean }) => Promise<any>,
  *   log: (...args: any[]) => void,
  *   homey: { setTimeout: (fn: () => void, ms: number) => any, clearTimeout: (timer: any) => void,
  *     __?: (key: string, tags?: Record<string, any>) => any },
@@ -89,13 +89,15 @@ function capabilityWrite(capabilityName, value) {
 
 /**
  * Writes a capability through the device (which checks, sends and then shows the value).
+ * `restoring`: undoing a boost, which the account's write allowance never refuses.
  * @param {BoostDevice} device
  * @param {string} capabilityName
  * @param {any} value
+ * @param {{ restoring?: boolean }} [options]
  */
-async function writeCapability(device, capabilityName, value) {
+async function writeCapability(device, capabilityName, value, options = {}) {
   const write = capabilityWrite(capabilityName, value);
-  await device.executeCommand(write.path, write.capability, value);
+  await device.executeCommand(write.path, write.capability, value, options);
 }
 
 // How each kind of boost is undone, if it is still in effect
@@ -107,7 +109,7 @@ const UNDO = {
     if (current !== restore.boosted) {
       device.log('Hot water target was changed in the meantime, leaving it as it is');
     } else if (restore.previous !== restore.boosted) {
-      await writeCapability(device, HOT_WATER_TARGET, restore.previous);
+      await writeCapability(device, HOT_WATER_TARGET, restore.previous, { restoring: true });
     }
   },
   async curveShift(device, restore) {
@@ -123,7 +125,7 @@ const UNDO = {
     if (!owns) {
       device.log('Leaving the one-time charge to end by itself: it cannot be told apart from a later one');
     } else if (device.getCapabilityValue(HOT_WATER_CHARGE) === 'activate') {
-      await writeCapability(device, HOT_WATER_CHARGE, 'deactivate');
+      await writeCapability(device, HOT_WATER_CHARGE, 'deactivate', { restoring: true });
     }
   },
 };

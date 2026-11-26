@@ -429,6 +429,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         const displayed = featureMapper.displayValue(capabilityName, value);
         if (currentValue !== displayed) {
           await this.setCapabilityValue(capabilityName, displayed);
+          await this._boosts?.valueChanged(capabilityName, displayed);
           if (!trigger) return;
           await fireValueTriggers(this, capabilityName, displayed, currentValue);
 

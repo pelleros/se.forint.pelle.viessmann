@@ -26,7 +26,8 @@
 //
 //   hotWater        the hot water target, restored to the previous target
 //   curveShift      the heating curve shift, restored to the previous shift
-//   hotWaterCharge  a one-time hot water charge, stopped if it still runs
+//   hotWaterCharge  a one-time hot water charge, stopped if the charge this boost started still
+//                   runs
 //
 // What has to be restored is kept in the store (key `boostRestores`) before the change is
 // sent, so a restart of Homey or the app does not lose it: on start, every pending restore is
@@ -35,6 +36,13 @@
 // the controller), it is left as it is. A new boost of the same kind while one runs keeps the
 // original previous value and extends the end time. A restore that fails is retried every few
 // minutes for a day.
+//
+// A charge ends by itself, and another one can start later (by the controller, the user or a
+// Flow), so the charge boost stops only the charge it started itself and has seen running ever
+// since: the device reports every change of the charge (valueChanged), and once it is seen
+// ended, the restore is done and a later charge is never touched. After a restart that cannot be
+// told any more, so a stored charge restore then lets the charge end by itself. A charge that
+// already runs when the card runs is not this boost's either.
 
 const { featureMapper } = require('./featureMapper');
 const { capabilityCommand, checkFeatureCommand } = require('./commands');
@@ -91,7 +99,7 @@ async function writeCapability(device, capabilityName, value) {
 }
 
 // How each kind of boost is undone, if it is still in effect
-/** @type {Record<string, (device: BoostDevice, restore: Restore) => Promise<void>>} */
+/** @type {Record<string, (device: BoostDevice, restore: Restore, owns: boolean) => Promise<void>>} */
 const UNDO = {
   async hotWater(device, restore) {
     const current = device.getCapabilityValue(HOT_WATER_TARGET);
@@ -110,10 +118,13 @@ const UNDO = {
       await heatingCurve.writeCurve(device, { shift: restore.previous }, { limited: false });
     }
   },
-  async hotWaterCharge(device) {
-    const charge = device.getCapabilityValue(HOT_WATER_CHARGE);
-    if (charge == null) throw userError(device, 'value_unknown');
-    if (charge === 'activate') await writeCapability(device, HOT_WATER_CHARGE, 'deactivate');
+  // `owns`: the charge running now is the one this boost started (see valueChanged)
+  async hotWaterCharge(device, restore, owns) {
+    if (!owns) {
+      device.log('Leaving the one-time charge to end by itself: it cannot be told apart from a later one');
+    } else if (device.getCapabilityValue(HOT_WATER_CHARGE) === 'activate') {
+      await writeCapability(device, HOT_WATER_CHARGE, 'deactivate');
+    }
   },
 };
 
@@ -131,6 +142,10 @@ class BoostController {
     /** @type {Promise<any>} */
     this.queue = Promise.resolve();
     this.stopped = false;
+    // The kinds whose change this boost has seen in effect without a break since it made it.
+    // In memory only: after a restart nothing is owned (see the charge above)
+    /** @type {Set<string>} */
+    this.owned = new Set();
   }
 
   /** @returns {Restores} */
@@ -205,6 +220,11 @@ class BoostController {
     return this.exclusive(async () => {
       const running = this.restores().hotWaterCharge;
       const active = this.device.getCapabilityValue(HOT_WATER_CHARGE) === 'activate';
+      if (active && !this.owned.has('hotWaterCharge')) {
+        // Someone else's charge: it ends by itself, and this boost will not stop it
+        this.device.log('A one-time charge is already running; leaving it as it is');
+        return;
+      }
       const write = capabilityWrite(HOT_WATER_CHARGE, 'activate');
       if (!active) {
         checkFeatureCommand(this.device, write.path, write.command, write.parameters);
@@ -212,8 +232,25 @@ class BoostController {
       }
       await this.start('hotWaterCharge', { until: this.endTime(running, minutes) }, async () => {
         if (!active) await writeCapability(this.device, HOT_WATER_CHARGE, 'activate');
+        this.owned.add('hotWaterCharge');
       });
     });
+  }
+
+  /**
+   * Called by the device for every change of a capability value. A charge seen ended after
+   * this boost started it ends the charge boost: there is nothing left to stop.
+   * @param {string} capabilityName
+   * @param {any} value as the capability shows it
+   */
+  async valueChanged(capabilityName, value) {
+    if (capabilityName !== HOT_WATER_CHARGE || value === 'activate' || !this.restores().hotWaterCharge) return;
+    this.owned.delete('hotWaterCharge');
+    try {
+      await this.drop('hotWaterCharge');
+    } catch (error) {
+      this.device.error('Could not forget the ended one-time charge:', error);
+    }
   }
 
   /**
@@ -329,13 +366,14 @@ class BoostController {
   async restore(kind) {
     const restore = this.restores()[kind];
     if (!restore) return;
-    await UNDO[kind]?.(this.device, restore);
+    await UNDO[kind]?.(this.device, restore, this.owned.has(kind));
     await this.drop(kind);
   }
 
   /** @param {string} kind */
   async drop(kind) {
     this.clearTimer(kind);
+    this.owned.delete(kind);
     const restores = this.restores();
     if (!(kind in restores)) return;
     delete restores[kind];

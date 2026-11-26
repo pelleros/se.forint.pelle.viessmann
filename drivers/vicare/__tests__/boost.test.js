@@ -270,29 +270,84 @@ describe('heating curve shift', () => {
 });
 
 describe('one-time hot water charge', () => {
+  // A poll that reports the charge as running or not (the API reports active true/false)
+  const pollCharge = (device, dump, active) => {
+    const response = JSON.parse(JSON.stringify(dump));
+    response.data.find((item) => item.feature === 'heating.dhw.oneTimeCharge').properties.active.value = active;
+    return device.onFeaturesUpdated(response, false);
+  };
+
   test('starts a charge and stops it after the minutes if it still runs', async () => {
     const { device, timers } = await heatPump();
     await boostsOf(device).boostHotWaterCharge(45);
     expect(sent(device)).toEqual([['activate', {}]]);
     expect(device.getCapabilityValue(CHARGE)).toBe('activate');
-    await later(timers, 45 * MINUTE);
+    await later(timers, 30 * MINUTE);
+    await later(timers, 15 * MINUTE);
     expect(sent(device)).toEqual([['activate', {}], ['deactivate', {}]]);
-  });
-
-  test('a charge that already ended is not touched', async () => {
-    const { device, timers } = await heatPump();
-    await boostsOf(device).boostHotWaterCharge(45);
-    device.__values.set(CHARGE, 'deactivate');
-    await later(timers, 45 * MINUTE);
-    expect(sent(device)).toEqual([['activate', {}]]);
     expect(device.getStoreValue(STORE_KEY)).toEqual({});
   });
 
-  test('a charge that already runs is not started again', async () => {
+  test('a charge seen ending is done: a later charge is never stopped', async () => {
+    const { device, dump, timers } = await heatPump();
+    await boostsOf(device).boostHotWaterCharge(45);
+    // Our charge ends after 20 minutes; the restore is done right away
+    await later(timers, 20 * MINUTE);
+    await pollCharge(device, dump, false);
+    expect(device.getCapabilityValue(CHARGE)).toBe('deactivate');
+    expect(device.getStoreValue(STORE_KEY)).toEqual({});
+    expect(timers.timers.size).toBe(0);
+    // The user starts a charge of their own; our 45 minutes pass
+    await later(timers, 5 * MINUTE);
+    await pollCharge(device, dump, true);
+    await later(timers, 20 * MINUTE);
+    expect(sent(device)).toEqual([['activate', {}]]);
+    expect(device.getCapabilityValue(CHARGE)).toBe('activate');
+  });
+
+  test('after a restart a stored charge restore lets the charge end by itself', async () => {
     const { device } = await heatPump();
+    await boostsOf(device).boostHotWaterCharge(45);
+    const store = device.getStore();
+    boostsOf(device).stop();
+
+    clock.now += 10 * MINUTE;
+    const restarted = await heatPump();
+    restarted.device.__store = { ...restarted.device.__store, ...store };
+    restarted.device.__values.set(CHARGE, 'activate');
+    boostsOf(restarted.device).resume();
+    await later(restarted.timers, 35 * MINUTE);
+    expect(sent(restarted.device)).toEqual([]);
+    expect(restarted.device.getStoreValue(STORE_KEY)).toEqual({});
+    expect(restarted.device.log).toHaveBeenCalledWith('Leaving the one-time charge to end by itself: it cannot be told apart from a later one');
+  });
+
+  test('a charge that already runs is not this boost\'s: not started again, not stopped later', async () => {
+    const { device, timers } = await heatPump();
     device.__values.set(CHARGE, 'activate');
     await boostsOf(device).boostHotWaterCharge(45);
     expect(sent(device)).toEqual([]);
+    expect(device.getStoreValue(STORE_KEY)?.hotWaterCharge).toBeUndefined();
+    await later(timers, 45 * MINUTE);
+    expect(sent(device)).toEqual([]);
+  });
+
+  test('a second boost while its own charge runs extends it and still stops it', async () => {
+    const { device, timers } = await heatPump();
+    await boostsOf(device).boostHotWaterCharge(30);
+    await later(timers, 20 * MINUTE);
+    await boostsOf(device).boostHotWaterCharge(30);
+    expect(sent(device)).toEqual([['activate', {}]]);
+    await later(timers, 29 * MINUTE);
+    expect(sent(device)).toHaveLength(1);
+    await later(timers, MINUTE);
+    expect(sent(device)).toEqual([['activate', {}], ['deactivate', {}]]);
+  });
+
+  test('other capability changes leave the charge boost alone', async () => {
+    const { device } = await heatPump();
+    await boostsOf(device).boostHotWaterCharge(45);
+    await boostsOf(device).valueChanged('target_temperature.hotWater', 'deactivate');
     expect(device.getStoreValue(STORE_KEY).hotWaterCharge).toBeDefined();
   });
 });

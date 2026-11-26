@@ -1297,11 +1297,11 @@
           }
         ],
         "hint": {
-          "en": "The charge ends by itself when the cylinder is hot; this card stops it earlier if it is still running after the given time, also after a restart of Homey. At most 12 per hour.",
-          "de": "Die Ladung endet von selbst, wenn der Speicher warm ist; diese Karte beendet sie früher, falls sie nach der angegebenen Zeit noch läuft, auch nach einem Neustart von Homey. Höchstens 12 pro Stunde.",
-          "nl": "Het opwarmen stopt vanzelf als de boiler warm is; deze kaart stopt het eerder als het na de opgegeven tijd nog loopt, ook na een herstart van Homey. Hoogstens 12 per uur.",
-          "fr": "La charge s'arrête d'elle-même quand le ballon est chaud ; cette carte l'arrête plus tôt si elle est encore en cours après la durée indiquée, même après un redémarrage de Homey. Au plus 12 par heure.",
-          "sv": "Laddningen slutar av sig själv när beredaren är varm; kortet stoppar den tidigare om den fortfarande pågår efter den angivna tiden, även efter en omstart av Homey. Högst 12 per timme."
+          "en": "The charge ends by itself when the cylinder is hot; this card stops the charge it started earlier if that charge still runs after the given time. A charge that was already running, or one running after a restart of Homey, is left to end by itself. At most 12 per hour.",
+          "de": "Die Ladung endet von selbst, wenn der Speicher warm ist; diese Karte beendet die von ihr gestartete Ladung früher, falls diese nach der angegebenen Zeit noch läuft. Eine Ladung, die schon lief oder nach einem Neustart von Homey läuft, endet von selbst. Höchstens 12 pro Stunde.",
+          "nl": "Het opwarmen stopt vanzelf als de boiler warm is; deze kaart stopt het opwarmen dat ze zelf startte eerder als het na de opgegeven tijd nog loopt. Opwarmen dat al liep of dat na een herstart van Homey loopt, stopt vanzelf. Hoogstens 12 per uur.",
+          "fr": "La charge s'arrête d'elle-même quand le ballon est chaud ; cette carte arrête plus tôt la charge qu'elle a lancée si celle-ci est encore en cours après la durée indiquée. Une charge déjà en cours, ou en cours après un redémarrage de Homey, s'arrête d'elle-même. Au plus 12 par heure.",
+          "sv": "Laddningen slutar av sig själv när beredaren är varm; kortet stoppar den laddning det själv startade tidigare om den fortfarande pågår efter den angivna tiden. En laddning som redan pågick, eller som pågår efter en omstart av Homey, får sluta av sig själv. Högst 12 per timme."
         }
       },
       {

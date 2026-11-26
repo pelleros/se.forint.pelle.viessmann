@@ -10,7 +10,7 @@
   "getable": true,
   "setable": false,
   "insights": true,
-  "uiComponent": "sensor",
+  "uiComponent": null,
   "decimals": 1,
   "icon": "/assets/curve.svg"
 }

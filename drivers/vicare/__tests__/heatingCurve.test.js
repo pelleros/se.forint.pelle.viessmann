@@ -113,3 +113,17 @@ test('roundToStep without a stepping leaves the value alone', () => {
   expect(heatingCurve.roundToStep(1.234, undefined)).toBe(1.234);
   expect(heatingCurve.roundToStep(7, { stepping: 1 })).toBe(7);
 });
+
+test('the curve values are hidden from the device view, but kept for Flows and Insights', () => {
+  // eslint-disable-next-line global-require
+  const definition = require('../../../.homeycompose/capabilities/measure_curve_number.json');
+  expect(definition).toEqual(expect.objectContaining({ uiComponent: null, insights: true }));
+  // eslint-disable-next-line global-require
+  const { getCapabilityOptions } = require('../config');
+  for (const capability of [SHIFT, SLOPE]) {
+    const options = getCapabilityOptions(capability);
+    // The per-device options must not show it again
+    expect(options).not.toHaveProperty('uiComponent');
+    expect(options).toEqual(expect.objectContaining({ preventInsights: false, preventTag: false }));
+  }
+});

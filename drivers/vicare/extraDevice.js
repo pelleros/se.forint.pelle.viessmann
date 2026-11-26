@@ -39,6 +39,7 @@ const { OAuth2Device } = require('homey-oauth2app');
 const { featureMapper } = require('./featureMapper');
 const capabilityWrites = require('./capabilityWrites');
 const { recordFeatures } = require('./featureCards');
+const { markSeen, setAvailabilitySafely } = require('./featureUpdates');
 const { DeviceMonitor } = require('./deviceMonitor');
 const { effectiveRoles, inferRoles } = require('./roles');
 const { pollingKey, ROOM_POLL_INTERVAL } = require('./pollPlan');
@@ -262,7 +263,9 @@ class ExtraDevice extends OAuth2Device {
   /*
     A poll response of the Viessmann device: shows the values of this device's part, adds values
     whose sensor is reported for the first time, and checks the writes. A response without any
-    of the device's features changes nothing (returns false). Never throws.
+    of the device's features changes nothing (returns false). Only data the device cannot use
+    makes it unavailable; Homey refusing the availability or the last seen time is logged. Never
+    throws.
   */
   async onSharedFeatures(rawResponse) {
     if (this._uninitialized) return false;
@@ -285,18 +288,16 @@ class ExtraDevice extends OAuth2Device {
       }
       await this.rememberHotWaterMode();
       await this.getMonitor().onResponse(response);
-      if (!this.getAvailable()) await this.setAvailable();
-      await /** @type {any} */ (this).setLastSeenAt();
-      return true;
     } catch (error) {
       this.error('Could not apply a poll:', error);
-      try {
-        await this.setUnavailable(error instanceof Error ? error.message : String(error));
-      } catch (unavailableError) {
-        this.error('Could not mark the device as unavailable:', unavailableError);
-      }
+      await setAvailabilitySafely(this, false, error instanceof Error ? error.message : String(error));
       return true;
     }
+    // As on the ViCare device (featureUpdates.js): a failure here is logged, the device stays
+    // available
+    if (!this.getAvailable()) await setAvailabilitySafely(this, true);
+    await markSeen(this);
+    return true;
   }
 
   // A value whose sensor is reported for the first time (e.g. a room sensor connected later)

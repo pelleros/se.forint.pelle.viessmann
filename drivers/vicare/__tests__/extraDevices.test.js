@@ -198,6 +198,43 @@ describe('the shared poll', () => {
     expect(circuit.setUnavailable).toHaveBeenCalledWith('monitor broken');
   });
 
+  test('Homey refusing the last seen time or the availability never makes a device unavailable', async () => {
+    const setup = extraHomey();
+    const dump = findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features;
+    const client = fixtureClient(dump);
+    const circuit = await addExtraDevice(setup, 'circuit', entries('circuit', 'pyvicare/Vitocal250A_TwoCircuits')[0], client);
+    circuit.setLastSeenAt.mockRejectedValue(new Error('Not Found: Device'));
+    circuit.setUnavailable.mockClear();
+    const changed = clone(dump);
+    changed.data.find((item) => item.feature === 'heating.circuits.0.operating.modes.active').properties.value.value = 'standby';
+    expect(await circuit.onSharedFeatures(changed)).toBe(true);
+    expect(circuit.getCapabilityValue('thermostat_mode')).toBe('off');
+    expect(circuit.setUnavailable).not.toHaveBeenCalled();
+    expect(circuit.getAvailable()).toBe(true);
+    expect(circuit.error).toHaveBeenCalledWith('Could not set the last seen time:', expect.any(Error));
+
+    // Unavailable after a failed poll, and Homey refuses making it available again: logged
+    circuit.__available = false;
+    circuit.setAvailable.mockRejectedValue(new Error('device_not_found'));
+    expect(await circuit.onSharedFeatures(clone(dump))).toBe(true);
+    expect(circuit.getCapabilityValue('thermostat_mode')).toBe('heat');
+    expect(circuit.error).toHaveBeenCalledWith('Could not mark device as available:', expect.any(Error));
+  });
+
+  test('data a device cannot use makes it unavailable; Homey refusing that is logged', async () => {
+    const setup = extraHomey();
+    const client = fixtureClient(findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features);
+    const circuit = await addExtraDevice(setup, 'circuit', entries('circuit', 'pyvicare/Vitocal250A_TwoCircuits')[0], client);
+    jest.spyOn(circuit, 'readCapabilityValues').mockImplementation(() => {
+      throw new Error('unusable');
+    });
+    circuit.setUnavailable.mockRejectedValue(new Error('device_not_found'));
+    expect(await circuit.onSharedFeatures(clone(findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features))).toBe(true);
+    expect(circuit.setUnavailable).toHaveBeenCalledWith('unusable');
+    expect(circuit.error).toHaveBeenCalledWith('Could not mark device as unavailable:', expect.any(Error));
+    expect(circuit.setLastSeenAt).toHaveBeenCalledTimes(1);
+  });
+
   test('joining waits for the ViCare driver when it is not ready yet', async () => {
     const setup = extraHomey();
     const client = fixtureClient(findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features);

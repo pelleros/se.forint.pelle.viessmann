@@ -77,14 +77,20 @@ describe('heating circuit', () => {
     expect(cooling.thermostat_mode.values.map((value) => value.id)).toEqual(['heat', 'cool', 'auto', 'off']);
   });
 
-  test('a poll needs the circuit\'s set point, mode and room temperature, on its circuit', () => {
+  test('a poll needs the circuit\'s set point, mode, room temperature and programs, on its circuit', () => {
     expect(pollPaths('circuit', { heatingCircuitId: '1' })).toEqual([
       'heating.circuits.1.operating.programs.normal',
       'heating.circuits.1.operating.programs.normalHeating',
       'heating.circuits.1.sensors.temperature.room',
       'heating.circuits.1.operating.modes.active',
-      // The program switch's paths (comfort, eco, ...) are stored, never polled
+      // The active program and each program the picker can switch to: which of a program's
+      // commands can run depends on the program running, so every poll brings them
       'heating.circuits.1.operating.programs.active',
+      'heating.circuits.1.operating.programs.reduced',
+      'heating.circuits.1.operating.programs.reducedHeating',
+      'heating.circuits.1.operating.programs.comfort',
+      'heating.circuits.1.operating.programs.comfortHeating',
+      'heating.circuits.1.operating.programs.eco',
     ]);
   });
 

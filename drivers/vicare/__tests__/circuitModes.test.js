@@ -11,6 +11,7 @@
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
+const ViessmannDevice = require('../device');
 const { extraEntries } = require('../extraPairing');
 const { EXTRA_FLOW_CARDS } = require('../flowCards');
 const { translate } = require('../../../lib/errorMessages');
@@ -298,6 +299,96 @@ describe('writes per circuit', () => {
     await second.writeCapability('thermostat_mode.heating', 'standby');
     await second.writeCapability('thermostat_mode.heatingProgram', 'comfort');
     expect(quota).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('program commands follow the program running', () => {
+  const COMFORT = 'heating.circuits.1.operating.programs.comfortHeating';
+  const PROGRAM = 'thermostat_mode.heatingProgram';
+  // Circuit 2 (API index 1) with comfort running or not, as Viessmann reports it: only the
+  // command that fits the program running can run
+  const comfortRunning = (dump, running) => {
+    setValue(dump, 'heating.circuits.1.operating.programs.active', 'value', running ? 'comfortHeating' : 'normalHeating');
+    const comfort = dump.data.find((feature) => feature.feature === COMFORT);
+    comfort.properties.active.value = running;
+    comfort.commands.activate.isExecutable = !running;
+    comfort.commands.deactivate.isExecutable = running;
+  };
+
+  test('normal, comfort and normal again: each poll brings which commands can run now', async () => {
+    const {
+      client, dump, poll, devices: [, second],
+    } = await twoCircuits(TWO_CIRCUITS, { change: (features) => comfortRunning(features, false) });
+    // At pairing, comfort could only be switched on
+    expect(second.getStoreValue('commandMetadata')['heating.circuits.0.operating.programs.comfortHeating'].deactivate.isExecutable).toBe(false);
+
+    await second.writeCapability(PROGRAM, 'comfort');
+    comfortRunning(dump, true);
+    await poll();
+    expect(second.getCapabilityValue(PROGRAM)).toBe('comfort');
+    // Comfort runs: switching it on again is refused before anything is sent, ending it is not
+    await expect(second.writeCapability(PROGRAM, 'comfort')).rejects.toThrow('currently unavailable');
+    await second.writeCapability(PROGRAM, 'normal');
+    comfortRunning(dump, false);
+    await poll();
+    expect(second.getCapabilityValue(PROGRAM)).toBe('normal');
+    await second.writeCapability(PROGRAM, 'comfort');
+    expect(sent(client)).toEqual([
+      [COMFORT, 'activate', {}],
+      [COMFORT, 'deactivate', {}],
+      [COMFORT, 'activate', {}],
+    ]);
+  });
+
+  test('the ViCare device\'s shared poll brings the circuit\'s programs; a circuit that had not stored them gets them', async () => {
+    const setup = extraHomey();
+    setup.homey.flow = flowFake().flow;
+    await setup.extra.circuit.onOAuth2Init();
+    const dump = clone(findFixtureDevice(TWO_CIRCUITS).features);
+    comfortRunning(dump, false);
+    const client = fixtureClient(dump);
+
+    const main = new ViessmannDevice();
+    main.driver = setup.vicare;
+    main.homey = setup.homey;
+    main.__store = clone({
+      ...IDS, roles: source.device.roles, ...setup.vicare._readDeviceMetadata(clone(dump)), version: APP_VERSION, OAuth2SessionId: 'session-1',
+    });
+    main.__data = { id: KEY };
+    main.__settings = { heatingCircuit: 'auto' };
+    main.setWarning = jest.fn(async () => {});
+    main.unsetWarning = jest.fn(async () => {});
+    main.getName = () => 'Vitocal 250';
+    main.oAuth2Client = client;
+    setup.vicare.getDevices = () => [main];
+    await main.onOAuth2Init();
+
+    // Circuit 2 as an earlier pairing stored it: no program but the normal one
+    const entry = clone(extraEntries('circuit', source, dump, { t, version: APP_VERSION })[1]);
+    const earlier = (path) => !path.includes('.programs.') || /programs\.normal(Heating)?$/.test(path);
+    entry.store.features = entry.store.features.filter(earlier);
+    entry.store.commandMetadata = Object.fromEntries(Object.entries(entry.store.commandMetadata).filter(([path]) => earlier(path)));
+    entry.capabilities = ['target_temperature', 'thermostat_mode'];
+    const circuit = await addExtraDevice(setup, 'circuit', entry, client);
+    expect(circuit.hasCapability(PROGRAM)).toBe(false);
+
+    await setup.vicare._devicePollers.get(KEY).start();
+    const { filter } = client.getFeatures.mock.calls[client.getFeatures.mock.calls.length - 1][0];
+    expect(filter.split(',')).toEqual(expect.arrayContaining([
+      'heating.circuits.0.operating.programs.active', 'heating.circuits.1.operating.programs.active', COMFORT,
+      'heating.circuits.1.operating.programs.reducedHeating', 'heating.circuits.1.operating.programs.eco',
+    ]));
+    expect(circuit.getStoreValue('features')).toEqual(expect.arrayContaining([
+      'heating.circuits.0.operating.programs.active', 'heating.circuits.0.operating.programs.comfortHeating',
+    ]));
+    expect(Object.keys(circuit.getStoreValue('commandMetadata'))).toContain('heating.circuits.0.operating.programs.comfortHeating');
+    expect(circuit.getCapabilityOptions(PROGRAM).values.map((value) => value.id)).toEqual(['normal', 'reduced', 'comfort']);
+    expect(circuit.getCapabilityValue(PROGRAM)).toBe('normal');
+
+    await circuit.writeCapability(PROGRAM, 'comfort');
+    expect(sent(client)).toEqual([[COMFORT, 'activate', {}]]);
+    // The ViCare device kept its own circuit
+    expect(main.getCapabilityValue(PROGRAM)).toBe('normal');
   });
 });
 

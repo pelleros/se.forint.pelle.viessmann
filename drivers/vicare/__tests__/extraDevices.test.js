@@ -78,6 +78,11 @@ describe('the shared poll', () => {
       'heating.circuits.1.sensors.temperature.room',
       'heating.circuits.1.operating.modes.active',
       'heating.circuits.1.operating.programs.active',
+      'heating.circuits.1.operating.programs.reduced',
+      'heating.circuits.1.operating.programs.reducedHeating',
+      'heating.circuits.1.operating.programs.comfort',
+      'heating.circuits.1.operating.programs.comfortHeating',
+      'heating.circuits.1.operating.programs.eco',
     ]]);
     expect(client.getFeatures.mock.calls[0][0]).toMatchObject(IDS);
     expect(values(device)).toEqual({

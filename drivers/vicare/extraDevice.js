@@ -302,12 +302,14 @@ class ExtraDevice extends OAuth2Device {
     return true;
   }
 
-  // A value whose sensor is reported for the first time (e.g. a room sensor connected later)
+  // A value whose sensor is reported for the first time (e.g. a room sensor connected later), or
+  // a program the circuit had not stored: stored with its commands
   async addNewPaths(response) {
     const found = profiles.newPaths(this.kind, this.extraContext(), response);
     if (found.length === 0) return;
     this._features = [...this._features, ...found];
     await this.setStoreValue('features', this._features);
+    await this.setStoreValue('commandMetadata', this._commands);
     await this.setUpCapabilities();
     this.registerListeners();
   }

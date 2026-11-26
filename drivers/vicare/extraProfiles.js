@@ -64,10 +64,9 @@ const { resolveCircuitPath, normalizeCircuitFeatures, featureEntries } = require
  * A value of an extra device and where it comes from.
  * @typedef {object} ExtraCapability
  * @property {string} name the capability on the extra device
- * @property {string[]} paths the feature paths that feed it (circuit-normalized; a room's with its
- *   index): one of them stored or reported gives the device the capability
- * @property {string[]} [writePaths] more feature paths its writes go to (the program switch: each
- *   program's own path): stored at pairing with their commands, never polled
+ * @property {string[]} paths the feature paths that feed it or that its writes go to
+ *   (circuit-normalized; a room's with its index), each stored and polled: one of them stored or
+ *   reported gives the device the capability, and every response keeps their commands current
  * @property {string} [source] the configured capability (config/) whose value it shows and
  *   through which it is written
  * @property {(value: any) => any} [fromSource] the value it shows for the source's value
@@ -215,13 +214,14 @@ const CONFIGURED = {
       }),
     },
     {
-      // The ViCare device's program picker, with the circuit's own programs
+      // The ViCare device's program picker, with the circuit's own programs: the active program,
+      // and each program's own feature, which a switch writes to. They are polled with the rest
+      // (no extra call): which of a program's commands can run depends on the program running
       name: 'thermostat_mode.heatingProgram',
       source: 'thermostat_mode.heatingProgram',
-      paths: [PATHS.HEATING_CIRCUIT_0_PROGRAM],
-      writePaths: PROGRAMS.flatMap((program) => program.paths),
+      paths: [PATHS.HEATING_CIRCUIT_0_PROGRAM, ...PROGRAMS.flatMap((program) => program.paths)],
       writable: true,
-      available: (context) => programsFor(context.features).length > 0,
+      available: (context) => (context.features || []).includes(PATHS.HEATING_CIRCUIT_0_PROGRAM) && programsFor(context.features).length > 0,
       options: (context) => sourceOptions('thermostat_mode.heatingProgram', context),
     },
   ],

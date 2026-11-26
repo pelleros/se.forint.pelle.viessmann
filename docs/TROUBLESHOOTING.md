@@ -28,10 +28,11 @@ step and takes about five minutes.
    have several) and check that reCAPTCHA is off. Homey then shares the
    [daily API limit](#viessmann-api-limits) of about 1,450 calls with that integration.
 4. **Copy the Client ID** of the client.
-5. **Open the app's settings** in Homey (More > Apps > Viessmann ViCare), paste the Client ID and
-   press Save.
-6. **Add a device:** add a new device in Homey, choose Viessmann ViCare and log in with your
-   ViCare account. Pick your heating system from the list.
+5. **Add a device:** add a new device in Homey and choose Viessmann ViCare. If no Client ID is
+   saved yet, Homey asks for it first, with the redirect URI to copy; paste the Client ID there.
+   (You can also save it beforehand in the app's settings: More > Apps > Viessmann ViCare.)
+6. **Log in** with your ViCare account. Homey then shows what it found in your account; continue
+   and pick your heating system from the list.
 
 Save the Client ID before you start adding a device. If you change it later, open each device and
 choose Repair so it logs in with the new Client ID.
@@ -110,12 +111,49 @@ without contact. In a diagnostic report this often shows up as `invalid_grant`; 
 **Fix:** open the device in Homey, go to its settings (gear icon), choose **Repair** and log in with
 your ViCare account again. Your flows and settings stay as they are.
 
+### Values stopped updating ("Viessmann has sent no new values since …")
+
+**Cause:** Viessmann's cloud keeps answering, but your heating system's internet module stopped
+sending new values. The ViCare app then shows the same old values. The device shows a warning and
+its problem alarm is on.
+
+**Fix:** restart the internet module of the heating system: unplug the Vitoconnect for a minute,
+or switch the heating system off and on again if the module is built in. The warning goes away by
+itself once new values arrive.
+
+### The device reports a fault (problem alarm, a code such as F.160)
+
+**Cause:** the heating system itself reports a fault. The device shows the code in a warning, its
+problem alarm is on, and Homey's timeline gets one notification per fault. The Flow trigger "The
+heating system reported a fault" fires once for each new code.
+
+**Fix:** look up the code in the manual of your heating system, or ask your installer. The alarm
+and the warning clear by themselves when the heating system no longer reports the fault.
+
+### "The heating system did not take the change"
+
+**Cause:** Viessmann accepted a change (for example a new hot water temperature), but a minute
+or more later the heating system still reports the old value. This can happen when the heating
+system is in a mode that overrides the setting, or when Viessmann does not pass the change on.
+
+**Fix:** check the setting in the ViCare app and try again. The message goes away when the value
+shows up, or after a few hours.
+
+### "Viessmann refused the change" (HTTP 403)
+
+**Cause:** Viessmann refused a command. This is sometimes a temporary fault at Viessmann. The app
+keeps the device and its values as they are.
+
+**Fix:** try again later. If it lasts, check that the change works in the ViCare app.
+
 ### "Viessmann API limit reached, updates resume at …" (or "Viessmann HTTP 429")
 
 **Cause:** your ViCare account has used up its [daily API calls](#viessmann-api-limits).
 
 **Fix:** wait. The app pauses until the time shown (Homey's time) and then continues by itself.
-If it happens often, check whether other systems use the Viessmann API with your ViCare account.
+If it happens often, check whether other systems use the Viessmann API with your ViCare account,
+and choose a longer update interval in the device's settings (see
+[Viessmann API limits](#viessmann-api-limits)).
 
 ### "Viessmann is refusing access to this account's data"
 
@@ -140,15 +178,30 @@ your heating system, for example after a power cut or a Wi-Fi change.
 shows the system as online. The app keeps checking (at most half an hour apart), and the device
 becomes available again by itself.
 
+## Energy values
+
+Heat pumps that measure their own electricity use show their power, and Homey Energy shows them
+like any other device; Homey calculates the kWh from that power. The values "Electricity
+yesterday" and "Gas yesterday" are Viessmann's own figures for the previous day, in the unit your
+heating system reports, and they are the ones to compare with the ViCare app. They stay empty when
+Viessmann has no complete figure for yesterday. For your own sums per hour, day or month, use an
+app such as Power by the Hour on these values.
+
 ## Sending a useful report
 
 A good report makes the difference between a quick fix and a lot of guessing.
 
-1. **Diagnostic report:** in the Homey app, open the Viessmann ViCare app (More > Apps > Viessmann
+1. **Report for the developer (one step):** when your device cannot be added or values are
+   missing, prepare a report: on the app's settings page under Troubleshooting ("Prepare report"),
+   or while adding a device, after the login ("Can't find your device or values missing?"). It
+   collects what Viessmann reports for your installation and all its devices, anonymized, and
+   works even when no device could be added. Then either send a diagnostic report (below), which
+   includes a summary of it, or copy it and send it to the developer.
+2. **Diagnostic report:** in the Homey app, open the Viessmann ViCare app (More > Apps > Viessmann
    ViCare) and send a diagnostic report. Add a short message: what you did, what you expected, what
    you saw (the exact error text), roughly when it happened, your Homey and app version, and which
    heating system you have. The report contains the app's log and goes to the developer only.
-2. **Raw data from the settings page (optional):** under Troubleshooting on the app's settings
+3. **Raw data from the settings page (optional):** under Troubleshooting on the app's settings
    page, press "Get Installation Data", pick your device, press "Get Feature Data", and copy both.
    This shows exactly what Viessmann sends to the app and is very useful when a value is missing or
    wrong.
@@ -158,7 +211,7 @@ A good report makes the difference between a quick fix and a lot of guessing.
    `anonymized-serial-1`. The same value always gets the same placeholder, so the data stays
    useful. Still, it is best to send it privately, for example in a private message on the forum,
    rather than post it publicly.
-3. **Where to ask:** the
+4. **Where to ask:** the
    [Homey Community Forum topic](https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749)
    or [GitHub issues](https://github.com/pelleros/se.forint.pelle.viessmann/issues).
 
@@ -172,10 +225,15 @@ limit is reached, Viessmann refuses further calls for a while. When Viessmann sa
 device shows "Viessmann API limit reached, updates resume at …" and the app waits until then;
 otherwise it shows "Viessmann HTTP 429: API rate limit exceeded" and retries less and less often.
 
-The app spreads its requests so that it stays well below that limit. It fetches data about once
-every 2 minutes in total: with one device, that device is updated every 2 minutes; with two
-devices, each is updated every 4 minutes, and so on. That is roughly 720 calls per day, plus a few
-more for commands from flows, adding devices and the troubleshooting tools.
+The app spreads its requests so that it stays well below that limit. By default it fetches data
+about once every 2 minutes in total: with one device, that device is updated every 2 minutes; with
+two devices, each is updated every 4 minutes, and so on. That is roughly 720 calls per day, plus a
+few more for commands from flows, adding devices and the troubleshooting tools.
+
+You can choose a fixed interval per device in its settings (Updates and API calls); each choice
+shows the calls a day it needs, and a choice that would leave too few calls for your account is
+refused. The optional event log (off by default) adds its own calls. The app's settings page shows
+the calls the app used today per account; Viessmann starts counting again at midnight UTC.
 
 Because the limit is per user, other systems that use the Viessmann API with your ViCare account
 (for example Home Assistant, ioBroker or your own scripts) share it with Homey, whether or not they

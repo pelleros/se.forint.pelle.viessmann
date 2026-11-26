@@ -5,11 +5,10 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
     "test": "jest --config jest.config.js",
-    "generate": "node scripts/generateFlowCompose.js",
-    "homey:run": "npm run generate && homey app run",
-    "homey:install": "npm run generate && homey app install",
-    "homey:validate": "npm run generate && homey app validate --level publish",
-    "homey:publish": "npm run generate && homey app publish",
+    "homey:run": "homey app run",
+    "homey:install": "homey app install",
+    "homey:validate": "homey app validate --level publish",
+    "homey:publish": "homey app publish",
     "homey:twin": "node scripts/devTwin.js",
     "fixtures": "node scripts/generateFixtures.js"
   },

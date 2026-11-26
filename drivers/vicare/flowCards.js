@@ -18,134 +18,74 @@
  * 
  */
 
+// @ts-check
+
 'use strict';
+
+// Runtime mapping of the Flow cards: which capability each card reads, writes or fires for.
+// The cards themselves (titles in every language, arguments, $filter) are defined in
+// driver.flow.compose.json, which is edited by hand. registry.test.js checks that both list
+// the same cards and flowCompose.test.js that each card's $filter is its capability.
 
 const { PATHS, getCapability } = require('./config');
 
-module.exports = {
-  FLOW_CONDITIONS: {
-    COMPRESSOR_RUNNING: {
-      id: 'compressor-is-running',
-      capability: getCapability(PATHS.COMPRESSOR).capabilityName,
-      title: 'flow.conditions.compressor.title',
-      hint: 'flow.conditions.compressor.hint',
-    },
-    BURNER_RUNNING: {
-      id: 'burner-is-running',
-      capability: getCapability(PATHS.BURNER).capabilityName,
-      title: 'flow.conditions.burner.title',
-      hint: 'flow.conditions.burner.hint',
-    },
+/**
+ * @typedef {object} FlowCardMapping
+ * @property {string} id the card id in driver.flow.compose.json
+ * @property {string} capability the capability the card reads, writes or fires for
+ */
+
+/** @type {(path: string) => string} */
+const capabilityOf = (path) => getCapability(path).capabilityName;
+
+/** @type {Record<string, FlowCardMapping>} */
+const FLOW_CONDITIONS = {
+  COMPRESSOR_RUNNING: {
+    id: 'compressor-is-running',
+    capability: capabilityOf(PATHS.COMPRESSOR),
   },
-  FLOW_ACTIONS: {
-    SET_HEATING_MODE: {
-      id: 'set-operating-mode',
-      capability: getCapability(PATHS.HEATING_CIRCUIT_0_MODE).capabilityName,
-      method: 'setMainOperatingMode',
-      title: 'flow.actions.heating_mode.title',
-      hint: 'flow.actions.heating_mode.hint',
-      args: [{
-        name: 'mode',
-        type: 'dropdown',
-        values: [
-          { id: 'dhw', title: 'flow.actions.heating_mode.values.dhw' },
-          { id: 'heating', title: 'flow.actions.heating_mode.values.heating' },
-          { id: 'dhwAndHeating', title: 'flow.actions.heating_mode.values.dhwAndHeating' },
-          { id: 'forcedNormal', title: 'flow.actions.heating_mode.values.forcedNormal' },
-          { id: 'forcedReduced', title: 'flow.actions.heating_mode.values.forcedReduced' },
-          { id: 'standby', title: 'flow.actions.heating_mode.values.standby' },
-        ],
-      }],
-    },
-    SET_HEATING_TEMPERATURE: {
-      id: 'set-heating-thermostat',
-      capability: getCapability(PATHS.HEATING_CIRCUIT_0_TARGET).capabilityName,
-      method: 'setHeatingTemp',
-      title: 'flow.actions.heating_temp.title',
-      args: [{
-        name: 'temperature',
-        type: 'number',
-        min: 3,
-        max: 37,
-        step: 1,
-        title: 'flow.actions.heating_temp.temperature',
-      }],
-    },
-    SET_DHW_TEMPERATURE: {
-      id: 'set-hot-water-thermostat',
-      capability: getCapability(PATHS.HOT_WATER_TARGET).capabilityName,
-      method: 'setDhwTemp',
-      title: 'flow.actions.dhw_temp.title',
-      args: [{
-        name: 'temperature',
-        type: 'number',
-        min: 10,
-        max: 60,
-        step: 1,
-        title: 'flow.actions.dhw_temp.temperature',
-      }],
-    },
-    SET_DHW_CHARGE: {
-      id: 'do-one-time-hot-water-charge',
-      capability: getCapability(PATHS.HOT_WATER_CHARGE).capabilityName,
-      method: 'setDhwOneTimeCharge',
-      title: 'flow.actions.dhw_charge.title',
-      titleFormatted: 'flow.actions.dhw_charge.titleFormatted',
-      args: [{
-        name: 'active',
-        type: 'dropdown',
-        values: [
-          { id: 'activate', title: 'flow.actions.dhw_charge.values.activate' },
-          { id: 'deactivate', title: 'flow.actions.dhw_charge.values.deactivate' },
-        ],
-      }],
-    },
-    SET_HOT_WATER_TEMP2: {
-      id: 'set-hot-water-thermostat2',
-      capability: getCapability(PATHS.HOT_WATER_TARGET_2).capabilityName,
-      method: 'setDhwTemp2',
-      title: 'flow.actions.hot_water_temp2.title',
-      titleFormatted: 'flow.actions.hot_water_temp2.title',
-      args: [
-        {
-          name: 'temperature',
-          type: 'number',
-          min: 10,
-          max: 60,
-          step: 1,
-          title: 'flow.actions.temperature.title',
-        },
-      ],
-    },
-    SET_FUELCELL_MODE: {
-      id: 'set-fuelcell-mode',
-      capability: getCapability(PATHS.FUEL_CELL_MODE).capabilityName,
-      method: 'setFuelCellMode',
-      title: 'flow.actions.fuelcell_mode.title',
-      args: [{
-        name: 'mode',
-        type: 'dropdown',
-        values: [
-          { id: 'standby', title: 'flow.actions.fuelcell_mode.values.standby' },
-          { id: 'maintenance', title: 'flow.actions.fuelcell_mode.values.maintenance' },
-          { id: 'heatControlled', title: 'flow.actions.fuelcell_mode.values.heatControlled' },
-          { id: 'economical', title: 'flow.actions.fuelcell_mode.values.economical' },
-          { id: 'ecological', title: 'flow.actions.fuelcell_mode.values.ecological' },
-        ],
-      }],
-    },
-  },
-  FLOW_TRIGGERS: {
-    HEATING_MODE_CHANGED: {
-      id: 'heating-mode-changed',
-      capability: getCapability(PATHS.HEATING_CIRCUIT_0_MODE).capabilityName,
-      title: 'flow.triggers.heating_mode.title',
-      tokens: [{
-        name: 'mode',
-        type: 'string',
-        title: 'flow.triggers.heating_mode.mode',
-        example: { en: 'dhw' },
-      }],
-    },
+  BURNER_RUNNING: {
+    id: 'burner-is-running',
+    capability: capabilityOf(PATHS.BURNER),
   },
 };
+
+// Actions write through the capability's command (see FeatureMapper.commandTarget)
+/** @type {Record<string, FlowCardMapping>} */
+const FLOW_ACTIONS = {
+  SET_HEATING_MODE: {
+    id: 'set-operating-mode',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_MODE),
+  },
+  SET_HEATING_TEMPERATURE: {
+    id: 'set-heating-thermostat',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_TARGET),
+  },
+  SET_DHW_TEMPERATURE: {
+    id: 'set-hot-water-thermostat',
+    capability: capabilityOf(PATHS.HOT_WATER_TARGET),
+  },
+  SET_DHW_CHARGE: {
+    id: 'do-one-time-hot-water-charge',
+    capability: capabilityOf(PATHS.HOT_WATER_CHARGE),
+  },
+  SET_HOT_WATER_TEMP2: {
+    id: 'set-hot-water-thermostat2',
+    capability: capabilityOf(PATHS.HOT_WATER_TARGET_2),
+  },
+  SET_FUELCELL_MODE: {
+    id: 'set-fuelcell-mode',
+    capability: capabilityOf(PATHS.FUEL_CELL_MODE),
+  },
+};
+
+// Triggers fire when their capability changes (device.setCapabilityValueIfPossible)
+/** @type {Record<string, FlowCardMapping>} */
+const FLOW_TRIGGERS = {
+  HEATING_MODE_CHANGED: {
+    id: 'heating-mode-changed',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_MODE),
+  },
+};
+
+module.exports = { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS };

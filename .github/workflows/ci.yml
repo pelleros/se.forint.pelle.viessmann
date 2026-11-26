@@ -31,14 +31,6 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Check that driver.flow.compose.json is up to date
-        run: |
-          node scripts/generateFlowCompose.js
-          git diff --exit-code drivers/vicare/driver.flow.compose.json || {
-            echo "::error file=drivers/vicare/driver.flow.compose.json::Stale generated file. Run 'node scripts/generateFlowCompose.js' and commit the result."
-            exit 1
-          }
-
       - name: Validate Homey app
         run: npx --yes homey@4.4.0 app validate --level publish
 

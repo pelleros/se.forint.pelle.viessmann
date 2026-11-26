@@ -112,12 +112,14 @@ describe('readPropertyValue', () => {
 describe('FeatureMapper', () => {
   const { PATHS } = config;
 
-  test('capabilitiesFor lists the capabilities of stored features the roles allow, in PATHS order', () => {
+  test('capabilitiesFor lists the capabilities of stored features the roles allow, in the order of new devices', () => {
     const stored = [PATHS.COMPRESSOR, PATHS.HOT_WATER_TEMP, PATHS.BURNER, 'some.unmapped.feature'];
     const names = (roles) => featureMapper.capabilitiesFor(stored, roles).map(({ capability }) => capability.capabilityName);
+    // Hot water, then the status (derived from the compressor and the burner)
+    const status = ['measure_status_text', 'measure_heating_active', 'measure_operating_state'];
 
-    expect(names(['type:heatpump'])).toEqual(['measure_temperature.hotWater', 'measure_compressor_active', 'measure_burner_active']);
-    expect(names([])).toEqual(['measure_temperature.hotWater', 'measure_burner_active']);
+    expect(names(['type:heatpump'])).toEqual(['measure_temperature.hotWater', ...status, 'measure_compressor_active', 'measure_burner_active']);
+    expect(names([])).toEqual(['measure_temperature.hotWater', ...status, 'measure_burner_active']);
   });
 
   test('isProduced keeps a capability while one allowed, stored path still produces it', () => {

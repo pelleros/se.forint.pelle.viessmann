@@ -25,9 +25,25 @@ const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
+const { MODE_TITLES } = require('./config/thermostat');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
+const WriteLimiter = require('../../lib/writeLimiter');
 const { runMigrations, versionBefore } = require('./migrations');
+
+/**
+ * A date from a Flow card (Homey's date argument gives DD-MM-YYYY; YYYY-MM-DD is accepted too)
+ * as the API wants it, YYYY-MM-DD, or null when it is no real date.
+ * @param {unknown} text
+ * @returns {string | null}
+ */
+function apiDate(text) {
+  const match = String(text ?? '').trim().match(/^(\d{2})-(\d{2})-(\d{4})$|^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const [year, month, day] = match[1] ? [match[3], match[2], match[1]] : [match[4], match[5], match[6]];
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  return date.getUTCDate() === Number(day) && date.getUTCMonth() === Number(month) - 1 ? `${year}-${month}-${day}` : null;
+}
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -115,7 +131,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles)) {
       if (this.hasCapability(capabilityName)) continue;
       try {
-        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints));
+        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, this.deviceContext()));
         await this.addCapability(capabilityName);
       } catch (err) {
         this.error(`Error handling capability ${capabilityName} for ${path}:`, err);
@@ -123,24 +139,50 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
+  // Options from the config and the API's limits, for the feature path the device has (newer
+  // devices name some programs differently)
   async updateCapabilityOptions() {
-    for (const [path, feature] of Object.entries(FEATURES)) {
-      for (const capability of feature.capabilities) {
-        if (!this.hasCapability(capability.capabilityName)) continue;
-        const options = featureMapper.optionsFor(capability.capabilityName, path, this._constraints);
-        try {
-          await this.setCapabilityOptions(capability.capabilityName, options);
-        } catch (error) {
-          this.error(`Could not update the options of ${capability.capabilityName}:`, error);
-        }
+    const context = this.deviceContext();
+    for (const capabilityName of this.getCapabilities()) {
+      const derived = featureMapper.derivedByName(capabilityName);
+      const path = derived ? derived.sources[0] : featureMapper.commandTarget(capabilityName, this._features)?.path;
+      if (!path) continue;
+      try {
+        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, context));
+      } catch (error) {
+        this.error(`Could not update the options of ${capabilityName}:`, error);
       }
+    }
+  }
+
+  /*
+    What derived capabilities and the options need to know about the device: its stored
+    features, operating modes and command metadata, Homey's language and its current values.
+  */
+  deviceContext() {
+    return {
+      features: Array.isArray(this._features) ? this._features : [],
+      operatingModes: Array.isArray(this._operatingModes) ? this._operatingModes : [],
+      commandMetadata: this._commands,
+      language: this.homeyLanguage(),
+      currentValue: (capabilityName) => (this.hasCapability(capabilityName) ? this.getCapabilityValue(capabilityName) : undefined),
+    };
+  }
+
+  homeyLanguage() {
+    try {
+      return this.homey?.i18n?.getLanguage?.() || 'en';
+    } catch (error) {
+      return 'en';
     }
   }
 
   async initializeOperatingModes() {
     // Not that bad if this fails, we can just use the default operating modes
     try {
-      const deviceModes = Array.isArray(this._operatingModes) ? this._operatingModes : [];
+      // Translated titles for the modes the app knows
+      const deviceModes = (Array.isArray(this._operatingModes) ? this._operatingModes : [])
+        .map((mode) => (MODE_TITLES[mode?.id] ? { id: mode.id, title: MODE_TITLES[mode.id] } : mode));
       // Without known device modes, keep whatever the capability offers today
       if (deviceModes.length === 0) return;
 
@@ -167,74 +209,156 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async registerCapabilityListeners() {
     if (!Array.isArray(this._listeners)) this._listeners = [];
 
-    for (const path of Object.values(PATHS)) {
+    for (const capabilityName of featureMapper.writableCapabilities()) {
+      if (this._listeners.includes(capabilityName)) continue;
       try {
-        const capabilities = FEATURES[path]?.capabilities || [];
-
-        for (const capability of capabilities) {
-          // Skip if no command is defined or listener already exists
-          if (!capability.command || this._listeners.includes(capability.capabilityName)) continue;
-
-          const registered = this.registerCapabilityListenerIfPossible(
-            capability.capabilityName,
-            async (value) => {
-              if (process.env.DEBUG) {
-                this.log(`${capability.capabilityName}:`, value);
-              }
-
-              await this.executeCommand(path, capability, value);
-            },
-          );
-
-          // Only remember capabilities that really got a listener, so a capability
-          // added later (e.g. by feature discovery) gets one on the next run
-          if (registered) {
-            this._listeners.push(capability.capabilityName);
+        const registered = this.registerCapabilityListenerIfPossible(capabilityName, async (value) => {
+          if (process.env.DEBUG) {
+            this.log(`${capabilityName}:`, value);
           }
+          // A write that does not change the value (e.g. a Matter bridge or voice assistant
+          // repeating the current set point) sends nothing to Viessmann
+          if (value === this.getCapabilityValue(capabilityName)) return;
+          await this.writeCapability(capabilityName, value);
+        });
+
+        // Only remember capabilities that really got a listener, so a capability
+        // added later (e.g. by feature discovery) gets one on the next run
+        if (registered) {
+          this._listeners.push(capabilityName);
         }
       } catch (err) {
-        this.error(`Error setting up listener for ${path}:`, err);
+        this.error(`Error setting up listener for ${capabilityName}:`, err);
       }
     }
   }
 
-  async executeCommand(path, capability, value) {
-    try {
-      const { command } = capability;
-      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
-        && !this._operatingModes.some((mode) => mode.id === value)) {
-        throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
-      }
+  /*
+    Writes a capability value to the device, from a capability listener or a Flow action: through
+    the capability's command on the feature path the device has, or, for a derived capability
+    (e.g. the standard thermostat mode or the program picker), through the commands it needs.
+  */
+  async writeCapability(capabilityName, value) {
+    const derived = featureMapper.derivedByName(capabilityName);
+    if (derived?.write) return this.writeDerived(derived, value);
+    const target = featureMapper.commandTarget(capabilityName, this._features);
+    if (!target?.capability.command) throw new Error(`${capabilityName} cannot be changed`);
+    return this.executeCommand(target.path, target.capability, value);
+  }
 
-      const commandName = command.useValueAsCommand
-        ? (capability.valueMapping?.[value] || value) : command.name;
-      const parameters = {};
-      if (!command.useValueAsCommand) {
-        for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
+  async writeDerived(derived, value) {
+    let plan;
+    try {
+      plan = derived.write(value, this.deviceContext());
+    } catch (error) {
+      throw new Error(this.userMessage(error), { cause: error });
+    }
+    for (const { path, command, parameters } of plan.commands) {
+      // A newer write of the same command replaced this one
+      if (!await this.sendCommand(path, command, parameters)) return true;
+    }
+    for (const [capabilityName, newValue] of Object.entries(plan.values)) {
+      await this.setCapabilityValueIfPossible(capabilityName, newValue);
+    }
+    return true;
+  }
+
+  async executeCommand(path, capability, value) {
+    const { command } = capability;
+    const commandName = command.useValueAsCommand
+      ? (capability.valueMapping?.[value] || value) : command.name;
+    const parameters = {};
+    if (!command.useValueAsCommand) {
+      for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
+    }
+    // Update the capability value, and the others that show the same property (the heating set
+    // point and the standard thermostat's), unless a newer write of the same command replaced it
+    if (await this.sendCommand(path, commandName, parameters)) {
+      const siblings = (FEATURES[path]?.capabilities || [])
+        .filter((other) => other.capabilityName === capability.capabilityName || (other.propertyPath === capability.propertyPath
+          && !other.valueMapping && !capability.valueMapping));
+      for (const { capabilityName } of siblings.length > 0 ? siblings : [capability]) {
+        await this.setCapabilityValueIfPossible(capabilityName, value);
+      }
+    }
+    return true;
+  }
+
+  /*
+    Sends one command after checking it against the command metadata, at most once per 10
+    seconds per command (a newer one waiting replaces an older one) and at most 30 per hour
+    (lib/writeLimiter.js). Resolves false when a newer write replaced it.
+  */
+  async sendCommand(path, commandName, parameters) {
+    try {
+      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
+        && !this._operatingModes.some((mode) => mode.id === parameters.mode)) {
+        throw new Error(`Operating mode "${parameters.mode}" is not supported by this heating circuit`);
       }
       validateCommand(this._commands, path, commandName, parameters);
-      const result = await this.oAuth2Client.executeCommand({
-        installationId: this._installationId,
-        gatewaySerial: this._gatewaySerial,
-        deviceId: this._deviceId,
-        feature: resolveCircuitPath(path, this._heatingCircuitId),
-        command: commandName,
-        body: parameters,
+      return await this.writeLimiter().run(`${path} ${commandName}`, async () => {
+        const result = await this.oAuth2Client.executeCommand({
+          installationId: this._installationId,
+          gatewaySerial: this._gatewaySerial,
+          deviceId: this._deviceId,
+          feature: resolveCircuitPath(path, this._heatingCircuitId),
+          command: commandName,
+          body: parameters,
+        });
+        if (result?.data?.success === false) {
+          throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
+        }
       });
-      if (result?.data?.success === false) {
-        throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
-      }
     } catch (error) {
       this.error('Error executing command:', error);
       // Keep the API's reason (status, Viessmann error type/message) visible to the user
-      const reason = error instanceof Error ? error.message : String(error);
+      const reason = this.userMessage(error);
       const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
       wrapped.status = error?.status;
       wrapped.retryAfterMs = error?.retryAfterMs;
       throw wrapped;
     }
-    // Update capability value
-    await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+  }
+
+  writeLimiter() {
+    if (!this._writeLimiter) {
+      // Homey's timers, which Homey clears when the app stops
+      const { homey } = this;
+      this._writeLimiter = new WriteLimiter(homey?.setTimeout ? {
+        setTimeout: (callback, ms) => homey.setTimeout(callback, ms),
+        clearTimeout: (timer) => homey.clearTimeout(timer),
+      } : {});
+    }
+    return this._writeLimiter;
+  }
+
+  // The message of an error in the user's language when it has a code with a translation
+  // (locales/*.json → commands), else its own message
+  userMessage(error) {
+    const fallback = error instanceof Error ? error.message : String(error);
+    if (!error?.code) return fallback;
+    const translated = this.homey?.__?.(`commands.${error.code}`);
+    return typeof translated === 'string' && !translated.startsWith('commands.') ? translated : fallback;
+  }
+
+  // Schedules the holiday program from one date to another (Flow action)
+  async startHoliday({ start, end }) {
+    const from = apiDate(start);
+    const to = apiDate(end);
+    if (!from || !to) throw new Error(this.userMessage(Object.assign(new Error('Enter the dates as DD-MM-YYYY'), { code: 'holiday_invalid_date' })));
+    const sameDayAllowed = this._commands?.[PATHS.HOLIDAY]?.schedule?.params?.end?.constraints?.sameDayAllowed;
+    if (to < from || (to === from && sameDayAllowed === false)) {
+      throw new Error(this.userMessage(Object.assign(new Error('The holiday must end after it starts'), { code: 'holiday_end_before_start' })));
+    }
+    await this.sendCommand(PATHS.HOLIDAY, 'schedule', { start: from, end: to });
+    return true;
+  }
+
+  // Ends (or cancels) the holiday program (Flow action)
+  async endHoliday() {
+    if (await this.sendCommand(PATHS.HOLIDAY, 'unschedule', {})) {
+      await this.setCapabilityValueIfPossible('measure_holiday_active', false);
+    }
     return true;
   }
 
@@ -333,7 +457,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     capabilityName => { value, gone }.
   */
   readCapabilityValues(response) {
-    return featureMapper.readValues(response, this.getRoles());
+    return featureMapper.readValues(response, this.getRoles(), { language: this.homeyLanguage(), features: this._features });
   }
 
   // Homey shows when the device was last heard from: after every successful update (a poll, or
@@ -432,24 +556,37 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           return;
         }
 
-        // Compare with original value before value mapping
+        // Compare what the capability would show (after value mapping) with what it shows
         const currentValue = this.getCapabilityValue(capabilityName);
-        if (currentValue !== value) {
-          await this.setCapabilityValue(capabilityName, featureMapper.displayValue(capabilityName, value));
+        const displayValue = featureMapper.displayValue(capabilityName, value);
+        if (currentValue !== displayValue) {
+          await this.setCapabilityValue(capabilityName, displayValue);
           if (!trigger) return;
 
-          try {
-            const triggerCard = this.driver.getTriggerCard(capabilityName);
-            if (triggerCard) {
-              await triggerCard.trigger(this, { mode: value }, {});
-            }
-          } catch (error) {
-            // Ignore if no trigger card exists
-          }
+          await this.fireTriggers(capabilityName, displayValue);
         }
       }
     } catch (error) {
       this.error(`Failed to set capability ${capabilityName}:`, error);
+    }
+  }
+
+  // Fires the trigger cards of a capability that changed (see flowCards.js)
+  async fireTriggers(capabilityName, value) {
+    if (typeof this.driver?.triggerCapabilityChange !== 'function') {
+      // A driver without trigger groups: its one trigger card per capability, if any
+      try {
+        const triggerCard = this.driver.getTriggerCard(capabilityName);
+        if (triggerCard) await triggerCard.trigger(this, { mode: value }, {});
+      } catch (error) {
+        // No trigger card for this capability
+      }
+      return;
+    }
+    try {
+      await this.driver.triggerCapabilityChange(this, capabilityName, value);
+    } catch (error) {
+      this.error(`Could not fire the trigger of ${capabilityName}:`, error);
     }
   }
 
@@ -591,12 +728,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async onOAuth2Uninit() {
     // Stop polling for this device
     this._uninitialized = true;
+    this._writeLimiter?.stop();
     await this.driver._stopPolling(this.getPollingKey());
   }
 
   async onOAuth2Deleted() {
     // Stop polling right away: a poll that runs after deletion fails with device_not_found
     this._uninitialized = true;
+    this._writeLimiter?.stop();
     await this.driver._stopPolling(this.getPollingKey());
   }
 

@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Heating now",
+    "de": "Heizt gerade",
+    "nl": "Verwarmt nu",
+    "fr": "Chauffe en ce moment",
+    "sv": "Värmer nu"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Heating started",
+    "de": "Heizen gestartet",
+    "nl": "Verwarmen gestart",
+    "fr": "Chauffage démarré",
+    "sv": "Uppvärmningen startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Heating stopped",
+    "de": "Heizen gestoppt",
+    "nl": "Verwarmen gestopt",
+    "fr": "Chauffage arrêté",
+    "sv": "Uppvärmningen stannade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": true,
+  "icon": "/assets/burner.svg"
+}

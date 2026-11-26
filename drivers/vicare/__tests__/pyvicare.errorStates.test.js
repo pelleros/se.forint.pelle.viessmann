@@ -10,7 +10,7 @@
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
-const { FEATURES } = require('../config');
+const { FEATURES, DERIVED } = require('../config');
 const { apiError } = require('../../../lib/apiError');
 const { loadPyViCareFixtures, identityOf } = require('../../../test/helpers/pyvicareFixtures');
 const { upgradeFrom1014 } = require('../../../test/helpers/upgradeFrom1014');
@@ -72,6 +72,7 @@ function withOddValues(dump, circuit) {
   const response = clone(dump);
   const garbage = [{ nested: 1 }, NaN, Infinity, ['x']];
   const touched = new Set();
+  const touchedPaths = new Set();
   let mapped = 0;
   for (const feature of response.data) {
     const config = FEATURES[feature.feature.replace(new RegExp(`^heating\\.circuits\\.${circuit}\\.`), 'heating.circuits.0.')];
@@ -83,11 +84,23 @@ function withOddValues(dump, circuit) {
       if (feature.properties[property] && typeof feature.properties[property] === 'object') {
         feature.properties[property].value = garbage[mapped % garbage.length];
         touched.add(capabilityName);
+        touchedPaths.add(feature.feature.replace(new RegExp(`^heating\\.circuits\\.${circuit}\\.`), 'heating.circuits.0.'));
       }
     }
   }
+  // Derived capabilities have no value when every source they could read got an odd value (the
+  // status text, which shows what is left, is checked in its own tests)
+  const reportedPaths = new Set(response.data.filter((feature) => feature?.isEnabled && feature.properties)
+    .map((feature) => feature.feature.replace(new RegExp(`^heating\\.circuits\\.${circuit}\\.`), 'heating.circuits.0.')));
+  // When only some of its sources got an odd value, a derived value comes from the others
+  const unpredictable = new Set(['measure_status_text']);
+  for (const derived of DERIVED) {
+    const sources = derived.sources.filter((path) => reportedPaths.has(path));
+    if (sources.length > 0 && sources.every((path) => touchedPaths.has(path))) touched.add(derived.capabilityName);
+    else if (sources.some((path) => touchedPaths.has(path))) unpredictable.add(derived.capabilityName);
+  }
   response.data.push(null, 42, 'garbage', {}, { feature: 7, isEnabled: true });
-  return { response, touched };
+  return { response, touched, unpredictable };
 }
 
 beforeEach(() => {
@@ -128,7 +141,7 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
   test('a response with odd values: the rest is applied and the device stays available', async () => {
     const { driver, device, pollingKey } = await upgraded(dump);
     const values = valuesOf(device);
-    const { response, touched } = withOddValues(dump, device.getStoreValue('heatingCircuitId'));
+    const { response, touched, unpredictable } = withOddValues(dump, device.getStoreValue('heatingCircuitId'));
     expect(touched.size).toBeGreaterThan(0);
     // Forget the values, so that the poll has to set each one again
     for (const id of device.getCapabilities()) device.__values.set(id, null);
@@ -139,7 +152,7 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
     expect(device.setUnavailable).not.toHaveBeenCalled();
     expect(device.error).not.toHaveBeenCalledWith(expect.stringContaining('Error processing features update'), expect.anything());
     expect(lastDelay(driver)).toBe(POLL_INTERVAL);
-    for (const id of device.getCapabilities()) {
+    for (const id of device.getCapabilities().filter((name) => !unpredictable.has(name))) {
       // An odd value is no value: the capability keeps what it had (here: nothing)
       const expected = touched.has(id) ? null : values[id];
       expect([id, device.getCapabilityValue(id)]).toEqual([id, expected]);

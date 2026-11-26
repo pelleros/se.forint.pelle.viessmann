@@ -82,6 +82,29 @@ describe('Config funktioner', () => {
             step: 1,
             preventInsights: true,
           },
+        }, {
+          capabilityName: 'target_temperature',
+          propertyPath: 'temperature.value',
+          command: {
+            name: 'setTemperature',
+            parameterMapping: {
+              value: 'targetTemperature',
+            },
+          },
+          capabilityOptions: {
+            title: {
+              en: 'Room target temperature',
+              de: 'Raum-Solltemperatur',
+              nl: 'Gewenste kamertemperatuur',
+              fr: 'Température ambiante souhaitée',
+              sv: 'Önskad rumstemperatur',
+            },
+            units: '°C',
+            min: 10,
+            max: 30,
+            step: 1,
+            preventInsights: true,
+          },
         }],
       },
       'heating.dhw.oneTimeCharge': {
@@ -123,19 +146,27 @@ describe('Config funktioner', () => {
             values: [
               {
                 id: 'dhw',
-                title: { en: 'Hot water' },
+                title: {
+                  en: 'Hot water', de: 'Warmwasser', nl: 'Warm water', fr: 'Eau chaude', sv: 'Varmvatten',
+                },
               },
               {
                 id: 'dhwAndHeating',
-                title: { en: 'Hot water and heating' },
+                title: {
+                  en: 'Hot water and heating', de: 'Warmwasser und Heizung', nl: 'Warm water en verwarming', fr: 'Eau chaude et chauffage', sv: 'Varmvatten och värme',
+                },
               },
               {
                 id: 'heating',
-                title: { en: 'Heating' },
+                title: {
+                  en: 'Heating', de: 'Heizung', nl: 'Verwarming', fr: 'Chauffage', sv: 'Värme',
+                },
               },
               {
                 id: 'standby',
-                title: { en: 'Standby' },
+                title: {
+                  en: 'Standby', de: 'Standby', nl: 'Stand-by', fr: 'Veille', sv: 'Standby',
+                },
               },
             ],
             preventInsights: true,
@@ -501,7 +532,200 @@ describe('Config funktioner', () => {
           },
         }],
       },
+      // The heating set point on newer devices: the same capabilities as the normal program
+      'heating.circuits.0.operating.programs.normalHeating': {
+        fallbackFor: 'heating.circuits.0.operating.programs.normal',
+        capabilities: 'same as heating.circuits.0.operating.programs.normal',
+      },
+      'heating.circuits.0.operating.programs.active': {
+        capabilities: [],
+      },
+      'heating.circuits.0.operating.programs.reduced': {
+        capabilities: [{
+          capabilityName: 'target_temperature.heatingReduced',
+          propertyPath: 'temperature.value',
+          command: { name: 'setTemperature', parameterMapping: { value: 'targetTemperature' } },
+          capabilityOptions: {
+            title: {
+              en: 'Reduced temperature', de: 'Reduzierte Temperatur', nl: 'Verlaagde temperatuur', fr: 'Température réduite', sv: 'Sänkt temperatur',
+            },
+            units: '°C',
+            min: 10,
+            max: 30,
+            step: 1,
+            preventInsights: true,
+          },
+        }],
+      },
+      'heating.circuits.0.operating.programs.comfort': {
+        capabilities: [{
+          capabilityName: 'target_temperature.heatingComfort',
+          propertyPath: 'temperature.value',
+          command: { name: 'setTemperature', parameterMapping: { value: 'targetTemperature' } },
+          capabilityOptions: {
+            title: {
+              en: 'Comfort temperature', de: 'Komforttemperatur', nl: 'Comforttemperatuur', fr: 'Température confort', sv: 'Komforttemperatur',
+            },
+            units: '°C',
+            min: 10,
+            max: 30,
+            step: 1,
+            preventInsights: true,
+          },
+        }],
+      },
+      'heating.circuits.0.operating.programs.reducedHeating': {
+        fallbackFor: 'heating.circuits.0.operating.programs.reduced',
+        capabilities: 'same as heating.circuits.0.operating.programs.reduced',
+      },
+      'heating.circuits.0.operating.programs.comfortHeating': {
+        fallbackFor: 'heating.circuits.0.operating.programs.comfort',
+        capabilities: 'same as heating.circuits.0.operating.programs.comfort',
+      },
+      'heating.operating.programs.holiday': {
+        capabilities: [{
+          capabilityName: 'measure_holiday_active',
+          propertyPath: 'active.value',
+          capabilityOptions: {
+            title: {
+              en: 'Holiday program', de: 'Urlaubsprogramm', nl: 'Vakantieprogramma', fr: 'Programme vacances', sv: 'Semesterprogram',
+            },
+            titleTrue: {
+              en: 'Active', de: 'Aktiv', nl: 'Actief', fr: 'Actif', sv: 'Aktivt',
+            },
+            titleFalse: {
+              en: 'Off', de: 'Aus', nl: 'Uit', fr: 'Arrêt', sv: 'Av',
+            },
+            insightsTitleTrue: {
+              en: 'Holiday program started',
+              de: 'Urlaubsprogramm gestartet',
+              nl: 'Vakantieprogramma gestart',
+              fr: 'Programme vacances démarré',
+              sv: 'Semesterprogrammet startade',
+            },
+            insightsTitleFalse: {
+              en: 'Holiday program ended',
+              de: 'Urlaubsprogramm beendet',
+              nl: 'Vakantieprogramma beëindigd',
+              fr: 'Programme vacances terminé',
+              sv: 'Semesterprogrammet slutade',
+            },
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
+      'heating.dhw.operating.modes.active': {
+        capabilities: [{
+          capabilityName: 'thermostat_mode.hotWater',
+          propertyPath: 'value.value',
+          command: { name: 'setMode', parameterMapping: { value: 'mode' } },
+          capabilityOptions: {
+            title: {
+              en: 'Hot water mode', de: 'Warmwassermodus', nl: 'Warmwatermodus', fr: 'Mode eau chaude', sv: 'Varmvattenläge',
+            },
+            values: [
+              {
+                id: 'eco',
+                title: {
+                  en: 'Eco', de: 'Eco', nl: 'Eco', fr: 'Éco', sv: 'Eko',
+                },
+              },
+              {
+                id: 'efficient',
+                title: {
+                  en: 'Efficient', de: 'Effizient', nl: 'Efficiënt', fr: 'Efficace', sv: 'Effektiv',
+                },
+              },
+              {
+                id: 'efficientWithMinComfort',
+                title: {
+                  en: 'Efficient, min. comfort',
+                  de: 'Effizient, min. Komfort',
+                  nl: 'Efficiënt, min. comfort',
+                  fr: 'Efficace, confort min.',
+                  sv: 'Effektiv, min. komfort',
+                },
+              },
+              {
+                id: 'balanced',
+                title: {
+                  en: 'Balanced', de: 'Ausgewogen', nl: 'Gebalanceerd', fr: 'Équilibré', sv: 'Balanserad',
+                },
+              },
+              {
+                id: 'comfort',
+                title: {
+                  en: 'Comfort', de: 'Komfort', nl: 'Comfort', fr: 'Confort', sv: 'Komfort',
+                },
+              },
+              {
+                id: 'off',
+                title: {
+                  en: 'Off', de: 'Aus', nl: 'Uit', fr: 'Arrêt', sv: 'Av',
+                },
+              },
+            ],
+            preventInsights: true,
+          },
+        }],
+      },
+      'heating.dhw.temperature.hysteresis': {
+        capabilities: [{
+          capabilityName: 'target_hysteresis.hotWater',
+          propertyPath: 'value.value',
+          command: { name: 'setHysteresis', parameterMapping: { value: 'hysteresis' } },
+          capabilityOptions: {
+            title: {
+              en: 'Hot water hysteresis', de: 'Warmwasser-Hysterese', nl: 'Warmwaterhysterese', fr: 'Hystérésis eau chaude', sv: 'Varmvattenhysteres',
+            },
+            units: 'K',
+            decimals: 1,
+            min: 1,
+            max: 10,
+            step: 0.5,
+            preventInsights: true,
+          },
+        }],
+      },
+      'heating.dhw.charging': {
+        capabilities: [{
+          capabilityName: 'measure_dhw_active.charging',
+          propertyPath: 'active.value',
+          capabilityOptions: {
+            title: {
+              en: 'Hot water charging', de: 'Warmwasserbereitung', nl: 'Warm water laden', fr: 'Charge eau chaude', sv: 'Varmvattenladdning',
+            },
+            titleTrue: {
+              en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',
+            },
+            titleFalse: {
+              en: 'No', de: 'Nein', nl: 'Nee', fr: 'Non', sv: 'Nej',
+            },
+            insightsTitleTrue: {
+              en: 'Hot water charging started',
+              de: 'Warmwasserbereitung gestartet',
+              nl: 'Warm water laden gestart',
+              fr: 'Charge eau chaude démarrée',
+              sv: 'Varmvattenladdningen startade',
+            },
+            insightsTitleFalse: {
+              en: 'Hot water charging stopped',
+              de: 'Warmwasserbereitung gestoppt',
+              nl: 'Warm water laden gestopt',
+              fr: 'Charge eau chaude arrêtée',
+              sv: 'Varmvattenladdningen stannade',
+            },
+            preventInsights: false,
+            preventTag: false,
+          },
+        }],
+      },
     };
+    // A fallback path with the capabilities of its main path
+    for (const expected of Object.values(expectedFeatures)) {
+      if (typeof expected.capabilities === 'string') expected.capabilities = expectedFeatures[expected.capabilities.replace('same as ', '')].capabilities;
+    }
 
     Object.entries(expectedFeatures).forEach(([featurePath, expectedFeature]) => {
       describe(`Feature: ${featurePath}`, () => {
@@ -588,7 +812,10 @@ describe('Running state texts', () => {
 
   test('the app languages and the running capabilities are found', () => {
     expect(LANGUAGES.sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
-    expect(runningBases.sort()).toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_fuelcell_active']);
+    expect(runningBases.sort()).toEqual([
+      'measure_burner_active', 'measure_compressor_active', 'measure_dhw_active', 'measure_fuelcell_active', 'measure_heating_active',
+      'measure_holiday_active',
+    ]);
   });
 
   test.each(runningBases)('%s is translated into every app language and names the change on the timeline', (base) => {
@@ -600,17 +827,23 @@ describe('Running state texts', () => {
     for (const key of ['insightsTitleTrue', 'insightsTitleFalse']) {
       expect(capability[key].en).not.toMatch(/^(Yes|No)$/);
     }
+    // A program ends rather than stops
+    if (base === 'measure_holiday_active') {
+      expect(capability.insightsTitleTrue.en).toMatch(/ started$/);
+      expect(capability.insightsTitleFalse.en).toMatch(/ ended$/);
+      return;
+    }
     expect(capability.insightsTitleTrue.en).toMatch(/ started$/);
     expect(capability.insightsTitleFalse.en).toMatch(/ stopped$/);
   });
 
-  const mappedRunningCapabilities = Object.values(config.FEATURES)
-    .flatMap((feature) => feature.capabilities)
-    .filter((capability) => runningBases.includes(capability.capabilityName));
+  const mappedRunningCapabilities = [...Object.values(config.FEATURES).flatMap((feature) => feature.capabilities), ...config.DERIVED]
+    .filter((capability) => runningBases.includes(capability.capabilityName.split('.')[0]));
 
-  test('the compressor and the burner are mapped', () => {
+  test('the compressor, the burner, heating now, hot water charging and the holiday program are mapped', () => {
     expect(mappedRunningCapabilities.map((capability) => capability.capabilityName).sort())
-      .toEqual(['measure_burner_active', 'measure_compressor_active']);
+      .toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_dhw_active.charging', 'measure_heating_active',
+        'measure_holiday_active']);
   });
 
   // Devices that already have the capability get the texts from config.js, new devices also
@@ -618,7 +851,7 @@ describe('Running state texts', () => {
   test.each(mappedRunningCapabilities.map((capability) => [capability.capabilityName, capability]))(
     '%s has the same texts in config.js as in its capability definition',
     (name, capability) => {
-      const capabilityDefinition = definition(name);
+      const capabilityDefinition = definition(name.split('.')[0]);
       for (const key of TEXT_KEYS) expect(capability.capabilityOptions[key]).toEqual(capabilityDefinition[key]);
     },
   );

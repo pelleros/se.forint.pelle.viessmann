@@ -22,16 +22,23 @@
 
 'use strict';
 
-// The order of the feature paths in PATHS. It decides the order in which a newly paired device
-// gets its capabilities (and so the order of the values on its tile), the order of the poll
-// filter and the order in which values are read. Existing devices keep the order they have.
+// Two orders, for newly paired devices. Existing devices keep the order they have: Homey shows
+// capabilities in the order they were added, and changing it would mean removing and adding
+// them again, which deletes their Insights history and breaks Flows.
 //
-// These are the paths of 1.0.16, in their order then. A path that is not listed here comes
-// after them, in the order of MODULES in index.js and then of its module's PATHS, so a new
-// theme module or path needs no change here. Change this list only to change the order on
-// purpose, for newly paired devices.
+// PATHS: the order of the feature paths in PATHS, which is also the order of the poll filter and
+// the order in which values are read. These are the paths of 1.0.16, in their order then. A path
+// that is not listed here comes after them, in the order of MODULES in index.js and then of its
+// module's PATHS, so a new theme module or path needs no change here.
+//
+// CAPABILITIES: the order in which a newly paired device gets its capabilities, and so the order
+// of the controls and values on its tile, as groups. An entry is a capability ID, or a prefix
+// ending in `*`. A capability takes the place of its exact entry; otherwise of the first prefix
+// that matches it. Capabilities that match nothing come last (diagnostics), and capabilities
+// with the same place keep the order of PATHS. A new capability usually needs no change here:
+// it lands in the group of its prefix.
 
-module.exports = Object.freeze([
+const PATHS = Object.freeze([
   'HOT_WATER_TEMP',
   'HOT_WATER_TARGET',
   'HOT_WATER_TARGET_2',
@@ -65,3 +72,53 @@ module.exports = Object.freeze([
   'FUEL_CELL_PHASE',
   'FUEL_CELL_MODE',
 ]);
+
+const CAPABILITIES = Object.freeze([
+  // 1. The heating thermostat: set point and room temperature
+  'target_temperature',
+  'measure_temperature',
+  // 2. Operating mode and program
+  'thermostat_mode',
+  'thermostat_mode.heating',
+  'thermostat_mode.heatingProgram',
+  'target_temperature.heating',
+  'target_temperature.heatingComfort',
+  'target_temperature.heatingReduced',
+  'measure_holiday_active',
+  'thermostat_mode.fuelCell',
+  // 3. Hot water
+  'measure_temperature.hotWater',
+  'target_temperature.hotWater',
+  'target_temperature.hotWater2',
+  'thermostat_mode.hotWaterOneTimeCharge',
+  'measure_dhw_active*',
+  'thermostat_mode.hotWater',
+  'target_hysteresis.hotWater',
+  'measure_temperature.hotWater*',
+  // 4. Status: what the device is doing now
+  'measure_status_text',
+  'measure_heating_active',
+  'measure_operating_state',
+  'alarm_*',
+  'measure_compressor_active',
+  'measure_burner_active',
+  'measure_fuelcell_active',
+  'measure_compressor_number.compressorModulation',
+  'measure_burner_number.burnerModulation',
+  'measure_fuelcell_phase',
+  'measure_pump_active*',
+  // 5. Temperatures
+  'measure_temperature.*',
+  'measure_pressure*',
+  // 6. Energy and efficiency
+  'measure_power*',
+  'meter_*',
+  'measure_cop_number*',
+  // 7. Statistics
+  'measure_compressor_number*',
+  'measure_burner_number*',
+  'measure_fuelcell_number*',
+  // 8. Everything else (diagnostics) comes after these
+]);
+
+module.exports = Object.freeze({ PATHS, CAPABILITIES });

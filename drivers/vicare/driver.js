@@ -87,20 +87,38 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async _registerTriggerCards() {
-    // Register all triggers from FLOW_TRIGGERS
+    // Register all triggers from FLOW_TRIGGERS, grouped by the capability they fire for
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
-      const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
-      this._triggerCards.set(trigger.capability, triggerCard);
+      const card = this.homey.flow.getDeviceTriggerCard(trigger.id);
+      const cards = this._triggerCards.get(trigger.capability) || [];
+      cards.push({ card, when: trigger.when, token: trigger.token });
+      this._triggerCards.set(trigger.capability, cards);
     }
   }
 
-  // Helper to get the trigger card for a capability
+  // The first trigger card of a capability
   getTriggerCard(capabilityName) {
-    const triggerCard = this._triggerCards.get(capabilityName);
+    const triggerCard = this._triggerCards.get(capabilityName)?.[0]?.card;
     if (!triggerCard) {
       throw new Error(`No trigger card found for capability: ${capabilityName}`);
     }
     return triggerCard;
+  }
+
+  // Fires the trigger cards of a capability that changed: those without `when`, or whose
+  // `when` is the new value, with the new value as their token
+  async triggerCapabilityChange(device, capabilityName, value) {
+    for (const { card, when, token } of this._triggerCards.get(capabilityName) || []) {
+      if (when !== undefined && when !== value) continue;
+      // A value that became unknown is no change to report
+      if (token && (value === null || value === undefined)) continue;
+      await card.trigger(device, token ? { [token]: value } : {}, {});
+    }
+  }
+
+  // The value of a dropdown or autocomplete argument
+  static argumentValue(value) {
+    return value && typeof value === 'object' && 'id' in value ? value.id : value;
   }
 
   _registerFlowCards() {
@@ -113,7 +131,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         const flowCard = this.homey.flow.getConditionCard(condition.id);
         flowCard.registerRunListener(async (args, state) => {
           const { device } = args;
-          return device.getCapabilityValue(condition.capability);
+          const value = device.getCapabilityValue(condition.capability);
+          // A condition with an argument compares the value with it; otherwise the value is a boolean
+          return condition.argument ? value === ViessmannDriver.argumentValue(args[condition.argument]) : value;
         });
       } catch (error) {
         this.error(`Failed to register condition ${condition.id}:`, error);
@@ -127,19 +147,40 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         const flowCard = this.homey.flow.getActionCard(action.id);
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
+          // Cards that are not a capability write run a device method with their arguments
+          if (action.method) return device[action.method](actionArgs);
 
+          const value = ViessmannDriver.argumentValue(actionArgs[Object.keys(actionArgs)[0]]); // The first argument
+          if (typeof device.writeCapability === 'function') return device.writeCapability(action.capability, value);
           // The feature path and capability the card writes through
           const target = featureMapper.commandTarget(action.capability);
           if (!target) throw new Error(`No matching capability found for action: ${action.id}`);
-          const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
           return device.executeCommand(target.path, target.capability, value);
         });
+        // An autocomplete argument offers the values the capability has on this device
+        if (action.autocomplete) {
+          flowCard.registerArgumentAutocompleteListener(action.autocomplete, async (query, args) => {
+            return ViessmannDriver.capabilityChoices(args.device, action.capability, query);
+          });
+        }
       } catch (error) {
         this.error(`Failed to register action ${action.id}:`, error);
       }
     });
 
     this.log('Finished registering flow cards');
+  }
+
+  // The values of an enum capability on a device as autocomplete results, in Homey's language,
+  // filtered by what the user typed
+  static capabilityChoices(device, capabilityName, query = '') {
+    if (!device?.hasCapability?.(capabilityName)) return [];
+    const language = typeof device.homeyLanguage === 'function' ? device.homeyLanguage() : 'en';
+    const values = device.getCapabilityOptions(capabilityName)?.values || [];
+    const search = String(query || '').toLowerCase();
+    return values
+      .map((value) => ({ id: value.id, name: value.title?.[language] || value.title?.en || value.id }))
+      .filter((choice) => choice.name.toLowerCase().includes(search) || choice.id.toLowerCase().includes(search));
   }
 
   _calculatePollInterval() {

@@ -75,5 +75,13 @@
   },
   "device_settings": {
     "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."
+  },
+  "commands": {
+    "program_follows_schedule": "Normal und Reduziert folgen dem Zeitprogramm des Geräts und können nicht direkt gewählt werden. Die Auswahl beendet Komfort oder Eco, wenn eines davon läuft.",
+    "program_not_available": "Dieses Gerät hat dieses Programm nicht.",
+    "mode_not_available": "Dieses Gerät hat dafür keine Betriebsart.",
+    "holiday_invalid_date": "Gib die Urlaubsdaten als TT-MM-JJJJ ein.",
+    "holiday_end_before_start": "Das Urlaubsprogramm muss nach seinem Beginn enden.",
+    "too_many_commands": "In der letzten Stunde wurden zu viele Änderungen an Viessmann gesendet. Versuche es später erneut."
   }
 }

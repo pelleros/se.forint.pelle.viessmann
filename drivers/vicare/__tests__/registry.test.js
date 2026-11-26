@@ -11,7 +11,7 @@ const path = require('path');
 const registry = require('./registry.json');
 const flowCompose = require('../driver.flow.compose.json');
 const driverCompose = require('../driver.compose.json');
-const { FEATURES } = require('../config');
+const { FEATURES, DERIVED } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
@@ -30,8 +30,9 @@ const RUNTIME_FLOW_CARDS = {
   triggers: FLOW_TRIGGERS,
 };
 
-const producedCapabilities = new Set(Object.values(FEATURES)
-  .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)));
+const producedCapabilities = new Set([...Object.values(FEATURES)
+  .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)),
+...DERIVED.map((capability) => capability.capabilityName)]);
 
 // Same shape as registry.flowCards
 const describeFlowCard = (card) => ({

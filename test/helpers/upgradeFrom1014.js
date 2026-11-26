@@ -11,7 +11,9 @@
 const ViessmannDriver = require('../../drivers/vicare/driver');
 const ViessmannDevice = require('../../drivers/vicare/device');
 const { apiError } = require('../../lib/apiError');
-const { FEATURES, PATHS, getAllCapabilities } = require('../../drivers/vicare/config');
+const {
+  FEATURES, PATHS, DERIVED, getAllCapabilities,
+} = require('../../drivers/vicare/config');
 const { effectiveRoles, inferRoles } = require('../../drivers/vicare/roles');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -87,20 +89,32 @@ const PATHS_1014 = Object.freeze([
 // initializeCapabilities gives the device, with the given feature paths mapped. The current
 // code checks the roles from drivers/vicare/roles.js (aliases, and roles inferred from the
 // features when the device reports no role tag); 1.0.14 checked the stored roles as they are.
-function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false } = {}) {
+// With `derived`, the derived capabilities (2.0.0) whose source is stored and allowed are added.
+function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false, derived = true } = {}) {
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
+  const passes = (featurePath) => {
+    const { requireRole } = FEATURES[featurePath];
+    return features.includes(featurePath) && (!requireRole || allowed.includes(requireRole));
+  };
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
-    const { requireRole } = FEATURES[featurePath];
-    if (features.includes(featurePath) && (!requireRole || allowed.includes(requireRole))) {
+    if (passes(featurePath)) {
       getAllCapabilities(featurePath).forEach((capability) => capabilities.add(capability.capabilityName));
+    }
+  }
+  for (const capability of derived ? DERIVED : []) {
+    if ((!capability.available || capability.available(features)) && capability.sources.some(passes)) {
+      capabilities.add(capability.capabilityName);
     }
   }
   return [...capabilities].sort();
 }
 
 // drivers/vicare/device.js initializeCapabilities in 1.0.14
-const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014, { storedRolesOnly: true });
+// Capabilities that later releases added to feature paths 1.0.14 already mapped
+const ADDED_TO_1014_PATHS = ['target_temperature'];
+const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014, { storedRolesOnly: true, derived: false })
+  .filter((id) => !ADDED_TO_1014_PATHS.includes(id));
 
 // Returns only the requested features, like the API does for ?filter=
 function respond(dump, filter) {

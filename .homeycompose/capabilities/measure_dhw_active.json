@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Hot water charging",
+    "de": "Warmwasserbereitung",
+    "nl": "Warm water laden",
+    "fr": "Charge eau chaude",
+    "sv": "Varmvattenladdning"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Hot water charging started",
+    "de": "Warmwasserbereitung gestartet",
+    "nl": "Warm water laden gestart",
+    "fr": "Charge eau chaude démarrée",
+    "sv": "Varmvattenladdningen startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Hot water charging stopped",
+    "de": "Warmwasserbereitung gestoppt",
+    "nl": "Warm water laden gestopt",
+    "fr": "Charge eau chaude arrêtée",
+    "sv": "Varmvattenladdningen stannade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/info.svg"
+}

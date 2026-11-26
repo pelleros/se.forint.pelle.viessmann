@@ -84,6 +84,7 @@ jest.mock('homey-oauth2app', () => {
 
 const ViessmannDevice = require('../device');
 const { PATHS, FEATURES, getCapabilityOptions } = require('../config');
+const { MODE_TITLES } = require('../config/thermostat');
 
 const BASE_STORE = Object.freeze({
   installationId: 123456,
@@ -413,10 +414,11 @@ describe('ViessmannDevice.initializeOperatingModes', () => {
     ]);
     await device.initializeOperatingModes();
 
+    // The configured modes (with their translated titles) in their order, then the rest
     expect(lastValues(device)).toEqual([
-      { id: 'dhw', title: { en: 'Hot water' } },
-      { id: 'heating', title: { en: 'Heating' } },
-      { id: 'forcedNormal', title: { en: 'Forced Normal' } },
+      { id: 'dhw', title: MODE_TITLES.dhw },
+      { id: 'heating', title: MODE_TITLES.heating },
+      { id: 'forcedNormal', title: MODE_TITLES.forcedNormal },
     ]);
   });
 

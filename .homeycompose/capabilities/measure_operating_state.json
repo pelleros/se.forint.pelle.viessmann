@@ -1,0 +1,21 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Operating state",
+    "de": "Betriebszustand",
+    "nl": "Bedrijfstoestand",
+    "fr": "État de fonctionnement",
+    "sv": "Driftstatus"
+  },
+  "values": [
+    { "id": "heating", "title": { "en": "Heating", "de": "Heizen", "nl": "Verwarmen", "fr": "Chauffage", "sv": "Värmer" } },
+    { "id": "hotWater", "title": { "en": "Hot water", "de": "Warmwasser", "nl": "Warm water", "fr": "Eau chaude", "sv": "Varmvatten" } },
+    { "id": "defrost", "title": { "en": "Defrost", "de": "Abtauen", "nl": "Ontdooien", "fr": "Dégivrage", "sv": "Avfrostning" } },
+    { "id": "cooling", "title": { "en": "Cooling", "de": "Kühlen", "nl": "Koelen", "fr": "Refroidissement", "sv": "Kyler" } },
+    { "id": "standby", "title": { "en": "Standby", "de": "Standby", "nl": "Stand-by", "fr": "Veille", "sv": "Standby" } }
+  ],
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/info.svg"
+}

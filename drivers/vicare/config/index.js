@@ -27,18 +27,22 @@
 // different files:
 //
 //   thermostat.js    set points and modes (hot water, heating, one-time charge, fuel cell mode)
+//                    and the standard thermostat (target, room temperature, mode)
 //   temperatures.js  temperature sensors outside the heating circuit
 //   circuits.js      readings of the heating circuit
 //   status.js        running states, load and modulation, fuel cell phase
 //   energy.js        coefficients of performance and statistics counters
+//   program.js       heating programs (picker, set points, holiday) and hot water settings
+//   state.js         what the device is doing: heating now, operating state, status text
 //   templates.js     shared option templates and factories
-//   order.js         the order of PATHS (capability order of new devices)
+//   order.js         the order of PATHS and the capability order of new devices
 //
 // Everything else requires this index, which exports the combined PATHS and FEATURES.
 
 /** @typedef {import('./types').ConfigModule} ConfigModule */
 /** @typedef {import('./types').FeatureConfig} FeatureConfig */
 /** @typedef {import('./types').CapabilityConfig} CapabilityConfig */
+/** @typedef {import('./types').DerivedCapabilityConfig} DerivedCapabilityConfig */
 
 const ORDER = require('./order');
 const thermostat = require('./thermostat');
@@ -46,20 +50,25 @@ const temperatures = require('./temperatures');
 const circuits = require('./circuits');
 const status = require('./status');
 const energy = require('./energy');
+const program = require('./program');
+const state = require('./state');
 
 // A new theme module is added here, at the end
 /** @type {Record<string, ConfigModule>} */
 const MODULES = {
-  thermostat, temperatures, circuits, status, energy,
+  thermostat, temperatures, circuits, status, energy, program, state,
 };
 
 /**
  * Combines the theme modules into one PATHS and one FEATURES, both in the order of `order`
- * (unlisted paths after the listed ones, in module order). Throws when two modules define the
- * same constant or feature path, or a module configures a path that is not in its PATHS.
+ * (unlisted paths after the listed ones, in module order), and their DERIVED capabilities in
+ * module order. Throws when two modules define the same constant or feature path, a module
+ * configures a path that is not in its PATHS, or a derived capability has the name of another
+ * capability.
  * @param {Record<string, ConfigModule>} modules
  * @param {readonly string[]} order
- * @returns {{ PATHS: Record<string, string>, FEATURES: Record<string, FeatureConfig> }}
+ * @returns {{ PATHS: Record<string, string>, FEATURES: Record<string, FeatureConfig>,
+ *   DERIVED: DerivedCapabilityConfig[] }}
  */
 function combine(modules, order) {
   /** @type {Map<string, { path: string, module: string }>} */
@@ -89,10 +98,21 @@ function combine(modules, order) {
     const feature = byPath.get(path)?.feature;
     if (feature) features[path] = feature;
   }
-  return { PATHS: paths, FEATURES: features };
+
+  const names = new Set(Object.values(features).flatMap((feature) => feature.capabilities.map((cap) => cap.capabilityName)));
+  /** @type {DerivedCapabilityConfig[]} */
+  const derived = [];
+  for (const [name, module] of Object.entries(modules)) {
+    for (const capability of module.DERIVED || []) {
+      if (names.has(capability.capabilityName)) throw new Error(`${name} derives ${capability.capabilityName}, which is defined twice`);
+      names.add(capability.capabilityName);
+      derived.push(capability);
+    }
+  }
+  return { PATHS: paths, FEATURES: features, DERIVED: derived };
 }
 
-const { PATHS, FEATURES } = combine(MODULES, ORDER);
+const { PATHS, FEATURES, DERIVED } = combine(MODULES, ORDER.PATHS);
 
 /**
  * The first capability of a feature path.
@@ -132,12 +152,16 @@ const getCapabilityOptions = (capabilityName) => {
       return capability.capabilityOptions;
     }
   }
+  const derived = module.exports.DERIVED.find((cap) => cap.capabilityName === capabilityName);
+  if (derived) return derived.capabilityOptions;
   throw new Error(`No capability options found for: ${capabilityName}`);
 };
 
 module.exports = {
   PATHS,
   FEATURES,
+  DERIVED,
+  CAPABILITY_ORDER: ORDER.CAPABILITIES,
   MODULES,
   combine,
   getCapability,

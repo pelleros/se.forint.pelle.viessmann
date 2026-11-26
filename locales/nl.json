@@ -75,5 +75,13 @@
   },
   "device_settings": {
     "heating_circuit_not_available": "Circuit __circuit__ bestaat niet in deze installatie. Beschikbare circuits: __available__."
+  },
+  "commands": {
+    "program_follows_schedule": "Normaal en verlaagd volgen het tijdprogramma van het apparaat en kunnen niet direct worden gekozen. De keuze beëindigt comfort of eco als een van beide aan staat.",
+    "program_not_available": "Dit apparaat heeft dat programma niet.",
+    "mode_not_available": "Dit apparaat heeft daarvoor geen bedrijfsmodus.",
+    "holiday_invalid_date": "Voer de vakantiedatums in als DD-MM-JJJJ.",
+    "holiday_end_before_start": "Het vakantieprogramma moet na de start eindigen.",
+    "too_many_commands": "Er zijn het afgelopen uur te veel wijzigingen naar Viessmann gestuurd. Probeer het later opnieuw."
   }
 }

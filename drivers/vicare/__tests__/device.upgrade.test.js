@@ -430,7 +430,7 @@ describe('switching the heating circuit while the device polls', () => {
     const state = { modeOfCircuitOne: 'forcedReduced' };
     const { driver, device } = await pollingDevice(async () => twoCircuits(state));
     const trigger = jest.fn(async () => {});
-    driver._triggerCards.set('thermostat_mode.heating', { trigger });
+    driver._triggerCards.set('thermostat_mode.heating', [{ card: { trigger }, token: 'mode' }]);
     expect(device.getCapabilityValue('measure_temperature.circuit0_room')).toBe(20.5);
     expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhwAndHeating');
 

@@ -90,6 +90,30 @@
       "report_link": "Gerät nicht gefunden oder fehlen Werte? Daten für den Entwickler vorbereiten",
       "close": "Schließen, ohne ein Gerät hinzuzufügen",
       "no_login": "Melde dich zuerst bei Viessmann an und versuche es dann erneut."
+    },
+    "extra": {
+      "next": "Weiter",
+      "circuit_name": "__model__ Heizkreis __circuit__",
+      "hot_water_name": "__model__ Warmwasser",
+      "room_name": "Smart Climate Raum __room__",
+      "circuit": {
+        "title": "Heizkreis als Thermostat",
+        "who": "Fügen Sie dies für jeden Heizkreis hinzu, den Sie als eigenes Thermostat möchten: in einer anderen Zone, in der Klimaansicht von Homey oder zur Steuerung mit Google Home oder per Sprache. Sonst brauchen Sie es nicht: Das ViCare-Gerät zeigt und steuert die Heizung bereits.",
+        "shared": "Es nutzt die Viessmann-Anmeldung und die Aktualisierungen des ViCare-Geräts: keine zweite Anmeldung und keine zusätzlichen API-Aufrufe. Es funktioniert auch ohne das ViCare-Gerät.",
+        "none": "Dieses Viessmann-Konto hat keinen Heizkreis, den die App als Thermostat hinzufügen kann."
+      },
+      "hotWater": {
+        "title": "Warmwasser als Thermostat",
+        "who": "Fügen Sie dies hinzu, wenn Sie das Warmwasser mit Google Home oder per Sprache steuern oder in der Klimaansicht von Homey sehen möchten: Es erscheint als Thermostat mit Warmwasser-Solltemperatur und -Temperatur. Geben Sie ihm eine eigene Zone und einen eindeutigen Namen, damit ein Befehl für alle Thermostate es nicht ändert und seine Temperatur nicht als Raumtemperatur zählt.",
+        "shared": "Es nutzt die Viessmann-Anmeldung und die Aktualisierungen des ViCare-Geräts: keine zweite Anmeldung und keine zusätzlichen API-Aufrufe. Es funktioniert auch ohne das ViCare-Gerät.",
+        "none": "Dieses Viessmann-Konto hat kein Warmwasser mit Solltemperatur, das die App hinzufügen kann."
+      },
+      "room": {
+        "title": "ViCare Smart Climate Räume",
+        "who": "Fügen Sie dies für jeden ViCare Smart Climate Raum hinzu, den Sie in Homey sehen möchten: Temperatur, Luftfeuchtigkeit und Solltemperatur, nur lesend (die kostenlose API von Viessmann kann Räume nicht ändern).",
+        "shared": "Es nutzt die Viessmann-Anmeldung der App. Bei Viessmann sind die Räume ein eigenes Gerät: Sie werden alle 15 Minuten gelesen, etwa 96 API-Aufrufe pro Tag für alle Räume zusammen.",
+        "none": "Dieses Viessmann-Konto hat keinen ViCare Smart Climate Raum mit Temperatur."
+      }
     }
   },
   "errors": {

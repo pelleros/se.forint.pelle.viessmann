@@ -1,0 +1,49 @@
+<!--
+
+ Copyright (C) 2024 Per Rosengren
+ This file is part of se.forint.pelle.viessmann project.
+
+ se.forint.pelle.viessmann project is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ se.forint.pelle.viessmann project is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with se.forint.pelle.viessmann project.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- The first view of an extra device (heating circuit, hot water, room): who needs it and what it
+     shares with the ViCare device. The same file in every extra driver; the texts come from the
+     driver (extraDriver.js → introTexts). -->
+<style>
+  .extra-intro p { margin: 0 0 14px; line-height: 1.45; }
+</style>
+
+<div class="extra-intro" id="paragraphs"></div>
+<button id="next" class="homey-button-primary-full" style="display: none;"></button>
+
+<script type="text/javascript">
+  (function () {
+    var next = document.getElementById("next");
+    next.addEventListener("click", function () { Homey.nextView(); });
+    Homey.emit("extra_intro")
+      .then(function (texts) {
+        Homey.setTitle(texts.title);
+        texts.paragraphs.forEach(function (text) {
+          var paragraph = document.createElement("p");
+          paragraph.textContent = text;
+          document.getElementById("paragraphs").appendChild(paragraph);
+        });
+        next.textContent = texts.next;
+        next.style.display = "block";
+      })
+      .catch(function (err) {
+        Homey.alert(err && err.message ? err.message : String(err));
+      });
+  })();
+</script>

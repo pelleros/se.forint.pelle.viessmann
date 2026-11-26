@@ -90,6 +90,30 @@
       "report_link": "Apparaat niet gevonden of ontbreken er waarden? Gegevens voor de ontwikkelaar voorbereiden",
       "close": "Sluiten zonder een apparaat toe te voegen",
       "no_login": "Log eerst in bij Viessmann en probeer het dan opnieuw."
+    },
+    "extra": {
+      "next": "Volgende",
+      "circuit_name": "__model__ verwarmingscircuit __circuit__",
+      "hot_water_name": "__model__ warm water",
+      "room_name": "Smart Climate-kamer __room__",
+      "circuit": {
+        "title": "Verwarmingscircuit als thermostaat",
+        "who": "Voeg dit toe voor elk verwarmingscircuit dat u als eigen thermostaat wilt: in een andere zone, in het klimaatoverzicht van Homey of om met Google Home of met spraak te bedienen. Anders heeft u het niet nodig: het ViCare-apparaat toont en bedient de verwarming al.",
+        "shared": "Het gebruikt de Viessmann-aanmelding en de updates van het ViCare-apparaat: geen tweede aanmelding en geen extra API-aanroepen. Het werkt ook zonder het ViCare-apparaat.",
+        "none": "Dit Viessmann-account heeft geen verwarmingscircuit dat de app als thermostaat kan toevoegen."
+      },
+      "hotWater": {
+        "title": "Warm water als thermostaat",
+        "who": "Voeg dit toe als u warm water met Google Home of met spraak wilt bedienen, of in het klimaatoverzicht van Homey wilt zien: het verschijnt als thermostaat met de gewenste en de gemeten warmwatertemperatuur. Geef het een eigen zone en een duidelijke naam, zodat een opdracht voor alle thermostaten het niet verandert en de temperatuur niet als kamertemperatuur telt.",
+        "shared": "Het gebruikt de Viessmann-aanmelding en de updates van het ViCare-apparaat: geen tweede aanmelding en geen extra API-aanroepen. Het werkt ook zonder het ViCare-apparaat.",
+        "none": "Dit Viessmann-account heeft geen warm water met een gewenste temperatuur dat de app kan toevoegen."
+      },
+      "room": {
+        "title": "ViCare Smart Climate-kamers",
+        "who": "Voeg dit toe voor elke ViCare Smart Climate-kamer die u in Homey wilt zien: temperatuur, luchtvochtigheid en ingestelde temperatuur, alleen lezen (de gratis API van Viessmann kan kamers niet wijzigen).",
+        "shared": "Het gebruikt de Viessmann-aanmelding van de app. Bij Viessmann zijn de kamers een eigen apparaat: ze worden elke 15 minuten gelezen, ongeveer 96 API-aanroepen per dag voor alle kamers samen.",
+        "none": "Dit Viessmann-account heeft geen ViCare Smart Climate-kamer met een temperatuur."
+      }
     }
   },
   "errors": {

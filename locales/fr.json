@@ -90,6 +90,30 @@
       "report_link": "Appareil introuvable ou valeurs manquantes ? Préparer des données pour le développeur",
       "close": "Fermer sans ajouter d'appareil",
       "no_login": "Connectez-vous d'abord à Viessmann, puis réessayez."
+    },
+    "extra": {
+      "next": "Suivant",
+      "circuit_name": "__model__ circuit de chauffage __circuit__",
+      "hot_water_name": "__model__ eau chaude",
+      "room_name": "Pièce Smart Climate __room__",
+      "circuit": {
+        "title": "Circuit de chauffage comme thermostat",
+        "who": "Ajoutez-le pour chaque circuit de chauffage que vous voulez comme thermostat à part : dans une autre zone, dans la vue Climat de Homey, ou pour le piloter avec Google Home ou à la voix. Sinon, vous n'en avez pas besoin : l'appareil ViCare affiche et pilote déjà le chauffage.",
+        "shared": "Il utilise la connexion Viessmann et les mises à jour de l'appareil ViCare : pas de seconde connexion ni d'appels API en plus. Il fonctionne aussi sans l'appareil ViCare.",
+        "none": "Ce compte Viessmann n'a aucun circuit de chauffage que l'app peut ajouter comme thermostat."
+      },
+      "hotWater": {
+        "title": "Eau chaude comme thermostat",
+        "who": "Ajoutez-le si vous voulez piloter l'eau chaude avec Google Home ou à la voix, ou la voir dans la vue Climat de Homey : elle apparaît comme un thermostat avec la consigne et la température de l'eau chaude. Donnez-lui une zone à part et un nom clair, pour qu'une commande pour tous les thermostats ne la modifie pas et que sa température ne compte pas comme température ambiante.",
+        "shared": "Il utilise la connexion Viessmann et les mises à jour de l'appareil ViCare : pas de seconde connexion ni d'appels API en plus. Il fonctionne aussi sans l'appareil ViCare.",
+        "none": "Ce compte Viessmann n'a pas d'eau chaude avec une consigne que l'app peut ajouter."
+      },
+      "room": {
+        "title": "Pièces ViCare Smart Climate",
+        "who": "Ajoutez-le pour chaque pièce ViCare Smart Climate que vous voulez voir dans Homey : température, humidité et consigne, en lecture seule (l'API gratuite de Viessmann ne peut pas modifier les pièces).",
+        "shared": "Il utilise la connexion Viessmann de l'app. Chez Viessmann, les pièces sont un appareil à part : elles sont lues toutes les 15 minutes, environ 96 appels API par jour pour toutes les pièces ensemble.",
+        "none": "Ce compte Viessmann n'a aucune pièce ViCare Smart Climate avec une température."
+      }
     }
   },
   "errors": {

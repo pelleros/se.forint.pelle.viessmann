@@ -94,6 +94,30 @@
         "report_link": "Can't find your device or values missing? Prepare data for the developer",
         "close": "Close without adding a device",
         "no_login": "Log in to Viessmann first, then try again."
+      },
+      "extra": {
+        "next": "Next",
+        "circuit_name": "__model__ heating circuit __circuit__",
+        "hot_water_name": "__model__ hot water",
+        "room_name": "Smart Climate room __room__",
+        "circuit": {
+          "title": "Heating circuit as a thermostat",
+          "who": "Add this for each heating circuit you want as a thermostat of its own: in another zone, in Homey's Climate view, or to control with Google Home or by voice. You don't need it otherwise: the ViCare device already shows and controls the heating.",
+          "shared": "It uses the Viessmann login and the updates of the ViCare device: no second login and no extra API calls. It also works without the ViCare device.",
+          "none": "This Viessmann account has no heating circuit the app can add as a thermostat."
+        },
+        "hotWater": {
+          "title": "Hot water as a thermostat",
+          "who": "Add this if you want to control hot water with Google Home or by voice, or see it in Homey's Climate view: it appears as a thermostat with the hot water set point and temperature. Give it a zone of its own and a clear name, so that a command for all thermostats does not change it and its temperature does not count as a room temperature.",
+          "shared": "It uses the Viessmann login and the updates of the ViCare device: no second login and no extra API calls. It also works without the ViCare device.",
+          "none": "This Viessmann account has no hot water with a set point the app can add."
+        },
+        "room": {
+          "title": "ViCare Smart Climate rooms",
+          "who": "Add this for each ViCare Smart Climate room you want to see in Homey: its temperature, humidity and set point, read-only (Viessmann's free API cannot change rooms).",
+          "shared": "It uses the app's Viessmann login. At Viessmann the rooms are a device of their own: they are read every 15 minutes, about 96 API calls a day for all rooms together.",
+          "none": "This Viessmann account has no ViCare Smart Climate room with a temperature."
+        }
       }
     },
     "errors": {

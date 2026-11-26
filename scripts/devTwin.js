@@ -365,9 +365,13 @@ function installFixtureMode(appDir, fixture) {
   }));
   fs.renameSync(path.join(appDir, 'app.js'), path.join(appDir, 'app.store.js'));
   fs.writeFileSync(path.join(appDir, 'app.js'), FIXTURE_APP_JS);
-  const driverComposeFile = path.join(appDir, 'drivers', 'vicare', 'driver.compose.json');
-  const driverCompose = JSON.parse(fs.readFileSync(driverComposeFile, 'utf8'));
-  fs.writeFileSync(driverComposeFile, `${JSON.stringify(patchLoginViews(driverCompose), null, 2)}\n`);
+  // Every driver of the ref: the ViCare driver, and from 2.0.0 the extra devices' drivers
+  for (const driver of fs.readdirSync(path.join(appDir, 'drivers'))) {
+    const driverComposeFile = path.join(appDir, 'drivers', driver, 'driver.compose.json');
+    if (!fs.existsSync(driverComposeFile)) continue;
+    const driverCompose = JSON.parse(fs.readFileSync(driverComposeFile, 'utf8'));
+    fs.writeFileSync(driverComposeFile, `${JSON.stringify(patchLoginViews(driverCompose), null, 2)}\n`);
+  }
   return { fixture: fixture.name, features: fixture.features.data.length };
 }
 

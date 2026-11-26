@@ -13,15 +13,21 @@ function featureEntries(data) {
     : [];
 }
 
-function detectHeatingCircuit(rawData, selectedCircuit = 'auto') {
+// The heating circuits a features response reports as enabled: the list of `heating.circuits`,
+// or else the circuits with an enabled operating mode
+function enabledCircuits(rawData) {
   const data = featureEntries(rawData);
   const circuits = data.find((item) => item.feature === 'heating.circuits' && item.isEnabled);
   const enabled = circuits?.properties?.enabled?.value;
-  const candidates = Array.isArray(enabled)
+  return Array.isArray(enabled)
     ? enabled.map(String)
     : data.filter((item) => item.isEnabled)
       .map((item) => item.feature.match(/^heating\.circuits\.(\d+)\.operating\.modes\.active$/)?.[1])
       .filter((id) => id !== undefined);
+}
+
+function detectHeatingCircuit(rawData, selectedCircuit = 'auto') {
+  const candidates = enabledCircuits(rawData);
 
   if (selectedCircuit !== 'auto') {
     if (!candidates.includes(String(selectedCircuit))) {
@@ -52,5 +58,5 @@ function normalizeCircuitFeatures(response, circuitId = '0') {
 }
 
 module.exports = {
-  resolveCircuitPath, detectHeatingCircuit, normalizeCircuitFeatures, featureEntries,
+  resolveCircuitPath, detectHeatingCircuit, enabledCircuits, normalizeCircuitFeatures, featureEntries,
 };

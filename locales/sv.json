@@ -90,6 +90,30 @@
       "report_link": "Hittar du inte enheten eller saknas värden? Förbered data till utvecklaren",
       "close": "Stäng utan att lägga till en enhet",
       "no_login": "Logga in hos Viessmann först och försök sedan igen."
+    },
+    "extra": {
+      "next": "Nästa",
+      "circuit_name": "__model__ värmekrets __circuit__",
+      "hot_water_name": "__model__ varmvatten",
+      "room_name": "Smart Climate-rum __room__",
+      "circuit": {
+        "title": "Värmekrets som termostat",
+        "who": "Lägg till den här för varje värmekrets du vill ha som en egen termostat: i en annan zon, i Homeys klimatvy eller för att styra med Google Home eller med rösten. Annars behöver du den inte: ViCare-enheten visar och styr redan värmen.",
+        "shared": "Den använder ViCare-enhetens Viessmann-inloggning och uppdateringar: ingen andra inloggning och inga extra API-anrop. Den fungerar också utan ViCare-enheten.",
+        "none": "Det här Viessmann-kontot har ingen värmekrets som appen kan lägga till som termostat."
+      },
+      "hotWater": {
+        "title": "Varmvatten som termostat",
+        "who": "Lägg till den här om du vill styra varmvattnet med Google Home eller med rösten, eller se det i Homeys klimatvy: det visas som en termostat med varmvattnets börvärde och temperatur. Ge den en egen zon och ett tydligt namn, så att ett kommando till alla termostater inte ändrar den och dess temperatur inte räknas som rumstemperatur.",
+        "shared": "Den använder ViCare-enhetens Viessmann-inloggning och uppdateringar: ingen andra inloggning och inga extra API-anrop. Den fungerar också utan ViCare-enheten.",
+        "none": "Det här Viessmann-kontot har inget varmvatten med börvärde som appen kan lägga till."
+      },
+      "room": {
+        "title": "ViCare Smart Climate-rum",
+        "who": "Lägg till den här för varje ViCare Smart Climate-rum du vill se i Homey: temperatur, luftfuktighet och börvärde, bara läsning (Viessmanns kostnadsfria API kan inte ändra rum).",
+        "shared": "Den använder appens Viessmann-inloggning. Rummen är en egen enhet hos Viessmann: de läses var 15:e minut, ungefär 96 API-anrop om dagen för alla rum tillsammans.",
+        "none": "Det här Viessmann-kontot har inget ViCare Smart Climate-rum med temperatur."
+      }
     }
   },
   "errors": {

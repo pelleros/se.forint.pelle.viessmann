@@ -35,7 +35,7 @@ describe('featureCoverage', () => {
     });
 
     it('lists usable features that config.js does not map', () => {
-      expect(listed).toContain('heating.circuits.N.circulation.pump');
+      expect(listed).toContain('heating.circuits.N.heating.schedule');
       expect(report.features.every((r) => !r.mapped && !r.deprecated && r.usableIn.length > 0)).toBe(true);
     });
 

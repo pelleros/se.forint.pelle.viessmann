@@ -300,6 +300,37 @@
           ]
         }
       ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Optional values",
+        "de": "Zusätzliche Werte",
+        "nl": "Extra waarden",
+        "fr": "Valeurs supplémentaires",
+        "sv": "Extra värden"
+      },
+      "children": [
+        {
+          "id": "diagnosticValues",
+          "type": "checkbox",
+          "value": false,
+          "label": {
+            "en": "Diagnostic values",
+            "de": "Diagnosewerte",
+            "nl": "Diagnostische waarden",
+            "fr": "Valeurs de diagnostic",
+            "sv": "Diagnostikvärden"
+          },
+          "hint": {
+            "en": "Adds values that are mostly useful for troubleshooting, such as compressor temperatures and more pumps, where your installation reports them. Turning this off again removes these values from the device, including their history in Insights.",
+            "de": "Fügt Werte hinzu, die vor allem bei der Fehlersuche helfen, zum Beispiel Verdichtertemperaturen und weitere Pumpen, sofern Ihre Anlage sie meldet. Wird dies wieder ausgeschaltet, werden diese Werte vom Gerät entfernt, einschließlich ihres Verlaufs in Insights.",
+            "nl": "Voegt waarden toe die vooral nuttig zijn bij het oplossen van problemen, zoals compressortemperaturen en extra pompen, voor zover uw installatie ze meldt. Zet u dit weer uit, dan worden deze waarden van het apparaat verwijderd, inclusief hun geschiedenis in Insights.",
+            "fr": "Ajoute des valeurs surtout utiles au dépannage, comme les températures du compresseur et d'autres pompes, si votre installation les transmet. Si vous désactivez à nouveau cette option, ces valeurs sont retirées de l'appareil, y compris leur historique dans Insights.",
+            "sv": "Lägger till värden som främst är till nytta vid felsökning, till exempel kompressortemperaturer och fler pumpar, om anläggningen rapporterar dem. Stänger du av det igen tas värdena bort från enheten, inklusive deras historik i Insights."
+          }
+        }
+      ]
     }
   ]
 }

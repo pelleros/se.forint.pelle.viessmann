@@ -127,5 +127,17 @@
     "frozen": "Viessmann hat seit __time__ keine neuen Werte gesendet. Meist hilft ein Neustart des Internetmoduls der Heizung: Zieh den Stecker der Vitoconnect für eine Minute, oder schalte die Heizung aus und wieder ein, wenn das Modul eingebaut ist.",
     "write_not_applied": "Die Heizung hat die Änderung nicht übernommen: __capability__ ist __actual__ statt __wanted__.",
     "refresh_too_soon": "Die Viessmann-Funktionen wurden gerade erst eingelesen. Versuche es in __minutes__ Minuten erneut."
+  },
+  "flow": {
+    "value_unknown": "Noch kein aktueller Wert von Viessmann. Versuchen Sie es nach der nächsten Aktualisierung erneut.",
+    "rate_limited": "Zu viele Änderungen in kurzer Zeit (höchstens __limit__ pro Stunde). Versuchen Sie es in __minutes__ Minuten erneut.",
+    "feature_not_reported": "Das Gerät meldet __feature__ nicht.",
+    "property_not_reported": "__feature__ hat keinen Wert __property__.",
+    "not_a_number": "Der Wert von __feature__ ist keine Zahl.",
+    "invalid_parameters": "Die Parameter müssen ein JSON-Objekt sein, zum Beispiel {\"temperature\": 50}, oder {} für keine.",
+    "unknown_parameter": "Der Befehl hat keinen Parameter __parameter__.",
+    "no_command_metadata": "Die Befehle des Geräts sind noch nicht bekannt. Versuchen Sie es nach der nächsten Aktualisierung erneut.",
+    "choose_from_list": "Wählen Sie einen Eintrag aus der Liste.",
+    "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt."
   }
 }

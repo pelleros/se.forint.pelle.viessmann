@@ -127,5 +127,17 @@
       "frozen": "Viessmann has sent no new values since __time__. Restarting the internet module of the heating system usually helps: unplug the Vitoconnect for a minute, or switch the heating system off and on again if the module is built in.",
       "write_not_applied": "The heating system did not take the change: __capability__ is __actual__ instead of __wanted__.",
       "refresh_too_soon": "The Viessmann features were read a moment ago. Try again in __minutes__ minutes."
+    },
+    "flow": {
+      "value_unknown": "No current value from Viessmann yet. Try again after the next update.",
+      "rate_limited": "Too many changes in a short time (at most __limit__ per hour). Try again in __minutes__ minutes.",
+      "feature_not_reported": "The device does not report __feature__.",
+      "property_not_reported": "__feature__ has no value __property__.",
+      "not_a_number": "The value of __feature__ is not a number.",
+      "invalid_parameters": "The parameters must be a JSON object, for example {\"temperature\": 50}, or {} for none.",
+      "unknown_parameter": "The command has no parameter __parameter__.",
+      "no_command_metadata": "The commands of the device are not known yet. Try again after the next update.",
+      "choose_from_list": "Choose an entry from the list.",
+      "mode_not_supported": "Operating mode \"__mode__\" is not supported by this heating circuit."
     }
 }

@@ -996,7 +996,10 @@ describe('Running state texts', () => {
 
   test('the app languages and the running capabilities are found', () => {
     expect(LANGUAGES.sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
-    expect(runningBases.sort()).toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_fuelcell_active']);
+    expect(runningBases.sort()).toEqual([
+      'measure_burner_active', 'measure_compressor_active', 'measure_dhw_active', 'measure_frost_active',
+      'measure_fuelcell_active', 'measure_pump_active',
+    ]);
   });
 
   test.each(runningBases)('%s is translated into every app language and names the change on the timeline', (base) => {
@@ -1008,9 +1011,25 @@ describe('Running state texts', () => {
     for (const key of ['insightsTitleTrue', 'insightsTitleFalse']) {
       expect(capability[key].en).not.toMatch(/^(Yes|No)$/);
     }
-    expect(capability.insightsTitleTrue.en).toMatch(/ started$/);
-    expect(capability.insightsTitleFalse.en).toMatch(/ stopped$/);
+    // Frost protection is switched on and off rather than started
+    expect(capability.insightsTitleTrue.en).toMatch(base === 'measure_frost_active' ? / on$/ : / started$/);
+    expect(capability.insightsTitleFalse.en).toMatch(base === 'measure_frost_active' ? / off$/ : / stopped$/);
   });
+
+  // The sub-capabilities of the new on/off states (pumps, frost protection, hot water charging)
+  // name themselves on the timeline, in every app language
+  const subStates = Object.values(config.FEATURES)
+    .flatMap((feature) => feature.capabilities)
+    .filter((capability) => /^measure_(pump|frost|dhw)_active\./.test(capability.capabilityName));
+
+  test.each(subStates.map((capability) => [capability.capabilityName, capability.capabilityOptions]))(
+    '%s has its title and timeline texts in every app language',
+    (name, options) => {
+      for (const key of ['title', ...TEXT_KEYS]) {
+        expect([name, key, Object.keys(options[key]).sort()]).toEqual([name, key, [...LANGUAGES].sort()]);
+      }
+    },
+  );
 
   const mappedRunningCapabilities = Object.values(config.FEATURES)
     .flatMap((feature) => feature.capabilities)

@@ -127,5 +127,17 @@
     "frozen": "Viessmann har inte skickat några nya värden sedan __time__. Det brukar hjälpa att starta om värmesystemets internetmodul: dra ur Vitoconnect en minut, eller stäng av och slå på värmesystemet om modulen är inbyggd.",
     "write_not_applied": "Värmesystemet tog inte emot ändringen: __capability__ är __actual__ i stället för __wanted__.",
     "refresh_too_soon": "Viessmann-funktionerna lästes in nyss. Försök igen om __minutes__ minuter."
+  },
+  "flow": {
+    "value_unknown": "Inget aktuellt värde från Viessmann än. Försök igen efter nästa uppdatering.",
+    "rate_limited": "För många ändringar på kort tid (högst __limit__ per timme). Försök igen om __minutes__ minuter.",
+    "feature_not_reported": "Enheten rapporterar inte __feature__.",
+    "property_not_reported": "__feature__ har inget värde __property__.",
+    "not_a_number": "Värdet av __feature__ är inte ett tal.",
+    "invalid_parameters": "Parametrarna måste vara ett JSON-objekt, till exempel {\"temperature\": 50}, eller {} för inga.",
+    "unknown_parameter": "Kommandot har ingen parameter __parameter__.",
+    "no_command_metadata": "Enhetens kommandon är inte kända än. Försök igen efter nästa uppdatering.",
+    "choose_from_list": "Välj en post i listan.",
+    "mode_not_supported": "Driftläget \"__mode__\" stöds inte av den här värmekretsen."
   }
 }

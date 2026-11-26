@@ -92,9 +92,10 @@ function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
-    const { requireRole, alwaysAdd } = FEATURES[featurePath];
+    const { requireRole, alwaysAdd, group } = FEATURES[featurePath];
     const available = features.includes(featurePath) || (alwaysAdd && !storedRolesOnly);
-    if (available && (!requireRole || allowed.includes(requireRole))) {
+    // Optional groups (diagnostic values) are off until the user turns them on
+    if (available && !group && (!requireRole || allowed.includes(requireRole))) {
       getAllCapabilities(featurePath).filter((capability) => !(storedRolesOnly && capability.computed))
         .forEach((capability) => capabilities.add(capability.capabilityName));
     }

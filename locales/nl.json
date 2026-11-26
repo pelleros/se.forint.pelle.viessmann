@@ -127,5 +127,17 @@
     "frozen": "Viessmann heeft sinds __time__ geen nieuwe waarden gestuurd. Meestal helpt het om de internetmodule van de verwarming opnieuw te starten: haal de stekker van de Vitoconnect een minuut uit het stopcontact, of zet de verwarming uit en weer aan als de module ingebouwd is.",
     "write_not_applied": "De verwarming heeft de wijziging niet overgenomen: __capability__ is __actual__ in plaats van __wanted__.",
     "refresh_too_soon": "De Viessmann-functies zijn net ingelezen. Probeer het over __minutes__ minuten opnieuw."
+  },
+  "flow": {
+    "value_unknown": "Nog geen actuele waarde van Viessmann. Probeer het opnieuw na de volgende update.",
+    "rate_limited": "Te veel wijzigingen in korte tijd (hoogstens __limit__ per uur). Probeer het over __minutes__ minuten opnieuw.",
+    "feature_not_reported": "Het apparaat meldt __feature__ niet.",
+    "property_not_reported": "__feature__ heeft geen waarde __property__.",
+    "not_a_number": "De waarde van __feature__ is geen getal.",
+    "invalid_parameters": "De parameters moeten een JSON-object zijn, bijvoorbeeld {\"temperature\": 50}, of {} voor geen.",
+    "unknown_parameter": "De opdracht heeft geen parameter __parameter__.",
+    "no_command_metadata": "De opdrachten van het apparaat zijn nog niet bekend. Probeer het opnieuw na de volgende update.",
+    "choose_from_list": "Kies een item uit de lijst.",
+    "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit."
   }
 }

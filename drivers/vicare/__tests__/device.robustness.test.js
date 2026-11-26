@@ -28,6 +28,10 @@ const COMPRESSOR = 'measure_compressor_active';
 const COP = 'measure_cop_number.total';
 const MODE = 'thermostat_mode.heating';
 const CORRUPTED = [OUTSIDE, HOT_WATER, RETURN, COMPRESSOR, COP, MODE];
+// Derived from corrupted values: the running state, the operating mode and the status text
+const DERIVED_FROM_CORRUPTED = ['measure_heating_active', 'measure_operating_state', 'measure_status_text', 'thermostat_mode'];
+// Capabilities that take text (enum or string) values
+const TEXT_CAPABILITY = /^thermostat_mode|^measure_operating_state$|^measure_status_text$/;
 
 // The value of every capability before the update, so that "kept" and "set" can be told apart
 const PREVIOUS = {
@@ -62,7 +66,7 @@ function rejectWrongTypes(device) {
   const set = device.setCapabilityValue.getMockImplementation();
   device.setCapabilityValue.mockImplementation(async (id, value) => {
     const valid = value === null
-      || (id === MODE ? typeof value === 'string' : ['number', 'boolean'].includes(typeof value));
+      || (TEXT_CAPABILITY.test(id) ? typeof value === 'string' : ['number', 'boolean'].includes(typeof value));
     if (!valid) throw new Error(`invalid_type: ${id}`);
     return set(id, value);
   });
@@ -92,7 +96,7 @@ describe('a response with null and garbage values', () => {
     expect(device.getAvailable()).toBe(true);
     // Every capability the corruption did not touch got its value from the response
     const untouched = reference.getCapabilities()
-      .filter((id) => !CORRUPTED.includes(id) && id !== 'measure_compressor_number.compressorHours');
+      .filter((id) => ![...CORRUPTED, ...DERIVED_FROM_CORRUPTED].includes(id) && id !== 'measure_compressor_number.compressorHours');
     expect(untouched.length).toBeGreaterThan(10);
     for (const id of untouched) {
       expect([id, device.getCapabilityValue(id)]).toEqual([id, reference.getCapabilityValue(id)]);

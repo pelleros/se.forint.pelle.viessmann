@@ -9,7 +9,9 @@
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
-const { capabilityCommand, sendFeatureCommand, sendCapabilityValue } = require('../commands');
+const {
+  capabilityCommand, sendFeatureCommand, sendCapabilityValue, sendCommands,
+} = require('../commands');
 const { getCapability, PATHS } = require('../config');
 const { ApiQuota, DAILY_LIMIT } = require('../../../lib/apiQuota');
 
@@ -169,5 +171,47 @@ describe('sendCapabilityValue', () => {
     await sendCapabilityValue(target, PATHS.HOT_WATER_CHARGE, getCapability(PATHS.HOT_WATER_CHARGE), 'activate');
     expect(target.oAuth2Client.executeCommand).toHaveBeenCalledWith(expect.objectContaining({ command: 'activate' }));
     expect(remembered).toEqual([]);
+  });
+});
+
+describe('sendCommands', () => {
+  const PROGRAMS = 'heating.circuits.0.operating.programs';
+  const sent = (target) => target.oAuth2Client.executeCommand.mock.calls.map(([request]) => `${request.feature} ${request.command}`);
+
+  test('sends in order and confirms the values with the last command', async () => {
+    const target = device({ commands: null });
+    const remembered = [];
+    target.getMonitor = () => ({ rememberWrite: (...args) => remembered.push(args) });
+    const check = jest.fn();
+    await sendCommands(target, [
+      { path: `${PROGRAMS}.comfort`, command: 'deactivate', parameters: {} },
+      { path: `${PROGRAMS}.eco`, command: 'activate', parameters: {} },
+    ], { check, confirm: { 'thermostat_mode.heatingProgram': 'eco' } });
+    expect(sent(target)).toEqual([`${PROGRAMS}.comfort deactivate`, `${PROGRAMS}.eco activate`]);
+    expect(check.mock.calls.map(([command]) => command.command)).toEqual(['deactivate', 'activate']);
+    expect(remembered).toEqual([['thermostat_mode.heatingProgram', 'eco']]);
+  });
+
+  test('stops at the first command that fails or that the check refuses', async () => {
+    const target = device({ commands: null, result: { data: { success: false, reason: 'busy' } } });
+    await expect(sendCommands(target, [
+      { path: `${PROGRAMS}.comfort`, command: 'deactivate', parameters: {} },
+      { path: `${PROGRAMS}.eco`, command: 'activate', parameters: {} },
+    ])).rejects.toThrow('busy');
+    expect(sent(target)).toEqual([`${PROGRAMS}.comfort deactivate`]);
+
+    const refusing = device({ commands: null });
+    await expect(sendCommands(refusing, [{ path: `${PROGRAMS}.eco`, command: 'activate', parameters: {} }], {
+      check: () => {
+        throw new Error('not now');
+      },
+    })).rejects.toThrow('not now');
+    expect(sent(refusing)).toEqual([]);
+  });
+
+  test('no commands send nothing', async () => {
+    const target = device();
+    await sendCommands(target, []);
+    expect(target.oAuth2Client.executeCommand).not.toHaveBeenCalled();
   });
 });

@@ -121,6 +121,11 @@
     "choose_from_list": "Choisissez une entrée dans la liste.",
     "mode_not_supported": "Le mode de fonctionnement \"__mode__\" n'est pas pris en charge par ce circuit de chauffage.",
     "write_quota_reserved": "Il ne reste aujourd'hui que __left__ appels API au compte Viessmann, et les mises à jour régulières de ses appareils en ont besoin jusqu'à la remise à zéro du compteur quotidien (__time__). Réessayez ensuite, ou choisissez un intervalle de mise à jour plus long dans les réglages de l'appareil.",
-    "write_burst": "Trop de modifications pour ce compte Viessmann en peu de temps (au plus __limit__ par période de 10 minutes pour tous ses appareils). Réessayez dans __minutes__ minutes."
+    "write_burst": "Trop de modifications pour ce compte Viessmann en peu de temps (au plus __limit__ par période de 10 minutes pour tous ses appareils). Réessayez dans __minutes__ minutes.",
+    "program_follows_schedule": "Normal et réduit suivent le programme horaire de l'appareil et ne peuvent pas être choisis directement. Ce choix arrête confort ou éco si l'un d'eux est actif.",
+    "program_not_available": "Cet appareil n'a pas ce programme.",
+    "mode_not_available": "Cet appareil n'a pas de mode de fonctionnement pour cela.",
+    "holiday_invalid_date": "Saisissez les dates de vacances au format JJ-MM-AAAA.",
+    "holiday_end_before_start": "Le programme vacances doit se terminer après son début."
   }
 }

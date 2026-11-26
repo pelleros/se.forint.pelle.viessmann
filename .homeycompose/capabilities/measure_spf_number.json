@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Seasonal performance factor (SPF)",
+    "de": "Jahresarbeitszahl (JAZ)",
+    "nl": "Seizoensprestatiefactor (SPF)",
+    "fr": "Facteur de performance saisonnier (SPF)",
+    "sv": "Årsvärmefaktor (SPF)"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "decimals": 1,
+  "icon": "/assets/cop.svg"
+}

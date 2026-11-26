@@ -34,12 +34,16 @@
 //               value after pairing, after a start or after a gap (value cleared) is no change.
 //   ACTIONS     run with the card's arguments (the device in args.device); what they return
 //               becomes the card's tokens.
-//   AUTOCOMPLETE  the choices of an autocomplete argument, for conditions and actions.
+//   AUTOCOMPLETE  the choices of an autocomplete argument, for conditions and actions. Without
+//               an `arg`, the card's mapping names it (`argument`).
+//
+// Every handler also gets the card's mapping (flowCards.js), for kinds that several cards share.
 
 const heatingCurve = require('./heatingCurve');
 const { boostsOf } = require('./boost');
 const featureCards = require('./featureCards');
 const { userError } = require('./userErrors');
+const holiday = require('./holiday');
 
 /** @typedef {import('./flowCards').FlowCardMapping} FlowCardMapping */
 /** @typedef {Record<string, any> & { device: any }} CardArgs */
@@ -67,9 +71,36 @@ function compareNumber(value, comparison, limit) {
   return comparison === 'below' ? value < limit : value > limit;
 }
 
+/**
+ * The values of the card's capability on the device (an enum, such as its operating modes) as
+ * autocomplete choices, titled in Homey's language and filtered by what the user typed.
+ * @param {any} device
+ * @param {string} capabilityName
+ * @param {string} query
+ * @returns {{ id: string, name: string }[]}
+ */
+function capabilityChoices(device, capabilityName, query) {
+  let values = [];
+  try {
+    values = device.getCapabilityOptions(capabilityName)?.values || [];
+  } catch (error) {
+    // no device, or it does not have the capability (any more): no choices
+  }
+  const language = device?.homeyLanguage?.() || 'en';
+  const search = String(query || '').toLowerCase();
+  return values
+    .map((/** @type {{ id: string, title?: Record<string, string> }} */ value) => ({
+      id: value.id, name: value.title?.[language] || value.title?.en || value.id,
+    }))
+    .filter((/** @type {{ id: string, name: string }} */ choice) => choice.name.toLowerCase().includes(search)
+      || choice.id.toLowerCase().includes(search));
+}
+
 /** @type {Record<string, (args: CardArgs, mapping: FlowCardMapping) => boolean | Promise<boolean>>} */
 const CONDITIONS = {
   isOn: (args, mapping) => knownValue(args.device, mapping) === true,
+  // The value is the card's `argument` (a dropdown of the capability's values)
+  equals: (args, mapping) => knownValue(args.device, mapping) === args[/** @type {string} */ (mapping.argument)],
   compare: (args, mapping) => compareNumber(knownValue(args.device, mapping), args.comparison, Number(args.temperature)),
   // Any numeric feature of the device (featureCards.js), for standard Flows
   async compareFeature(args) {
@@ -78,14 +109,16 @@ const CONDITIONS = {
   },
 };
 
-/** @type {Record<string, (value: any, previous: any) => Record<string, any> | null>} */
+/** @type {Record<string, (value: any, previous: any, mapping: FlowCardMapping) => Record<string, any> | null>} */
 const TRIGGERS = {
   turnedOn: (value) => (value === true ? {} : null),
   turnedOff: (value) => (value === false ? {} : null),
   changed: (value) => ({ temperature: value }),
+  // The new value as the card's `token`
+  valueChanged: (value, previous, mapping) => ({ [/** @type {string} */ (mapping.token)]: value }),
 };
 
-/** @type {Record<string, (args: CardArgs) => Promise<any>>} */
+/** @type {Record<string, (args: CardArgs, mapping: FlowCardMapping) => Promise<any>>} */
 const ACTIONS = {
   setCurveShift: async (args) => {
     await heatingCurve.writeCurve(args.device, { shift: Number(args.shift) });
@@ -103,14 +136,26 @@ const ACTIONS = {
   readNumber: (args) => featureCards.readNumber(args.device, args.feature),
   readText: (args) => featureCards.readText(args.device, args.feature),
   runCommand: (args) => featureCards.runCommand(args.device, args.command, args.parameters),
+  // Writes the capability value chosen in the card's `argument` (an autocomplete of the device's values)
+  chooseValue: async (args, mapping) => {
+    const id = args[/** @type {string} */ (mapping.argument)]?.id;
+    if (typeof id !== 'string') throw userError(args.device, 'choose_from_list');
+    await args.device.writeCapability(mapping.capability, id);
+  },
+  startHoliday: (args) => holiday.startHoliday(args.device, args.start, args.end),
+  endHoliday: (args) => holiday.endHoliday(args.device),
 };
 
-/** @type {Record<string, { arg: string, choices: (device: any, query: string) => Promise<any[]> | any[] }>} */
+/**
+ * @type {Record<string, { arg?: string,
+ *   choices: (device: any, query: string, mapping: FlowCardMapping) => Promise<any[]> | any[] }>}
+ */
 const AUTOCOMPLETE = {
   compareFeature: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
   readNumber: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
   readText: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query) },
   runCommand: { arg: 'command', choices: (device, query) => featureCards.commandChoices(device, query) },
+  chooseValue: { choices: (device, query, mapping) => capabilityChoices(device, /** @type {string} */ (mapping.capability), query) },
 };
 
 /**
@@ -143,7 +188,7 @@ function checkCondition(args, mapping) {
  * @returns {Promise<any>}
  */
 async function runAction(args, mapping) {
-  return handlerFor(ACTIONS, mapping)(args);
+  return handlerFor(ACTIONS, mapping)(args, mapping);
 }
 
 /**
@@ -160,7 +205,7 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
   const triggers = device.driver?.getValueTriggers?.(capabilityName) || [];
   for (const { card, mapping } of triggers) {
     try {
-      const tokens = handlerFor(TRIGGERS, mapping)(value, previous);
+      const tokens = handlerFor(TRIGGERS, mapping)(value, previous, mapping);
       if (tokens) await card.trigger(device, tokens, {});
     } catch (error) {
       device.error(`Could not run the trigger ${mapping.id}:`, error);
@@ -176,8 +221,8 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
 function registerAutocomplete(card, mapping) {
   const autocomplete = AUTOCOMPLETE[/** @type {string} */ (mapping.kind)];
   if (!autocomplete) return;
-  card.registerArgumentAutocompleteListener(autocomplete.arg,
-    async (/** @type {string} */ query, /** @type {CardArgs} */ args) => autocomplete.choices(args.device, query));
+  card.registerArgumentAutocompleteListener(autocomplete.arg ?? mapping.argument,
+    async (/** @type {string} */ query, /** @type {CardArgs} */ args) => autocomplete.choices(args.device, query, mapping));
 }
 
 /**

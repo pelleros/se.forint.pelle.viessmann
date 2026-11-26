@@ -203,7 +203,9 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('upgrade from 1.0.
       const mode = featureOf(dump, `heating.circuits.${circuit}.operating.modes.active`);
       if (mode?.isEnabled) {
         expect(device.getCapabilityValue('thermostat_mode.heating')).toBe(mode.properties.value.value);
-        const [{ id }] = device.getStoreValue('operatingModes');
+        // A mode other than the current one: writing the current value sends nothing
+        const modes = device.getStoreValue('operatingModes');
+        const { id } = modes.find((candidate) => candidate.id !== mode.properties.value.value) || modes[0];
         await device.__listeners.get('thermostat_mode.heating')(id);
         expect(device.oAuth2Client.executeCommand).toHaveBeenCalledWith(expect.objectContaining({
           feature: `heating.circuits.${circuit}.operating.modes.active`, command: 'setMode', body: { mode: id },

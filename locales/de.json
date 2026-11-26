@@ -121,6 +121,11 @@
     "choose_from_list": "Wählen Sie einen Eintrag aus der Liste.",
     "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt.",
     "write_quota_reserved": "Das Viessmann-Konto hat heute nur noch __left__ API-Aufrufe, und die regelmäßigen Aktualisierungen seiner Geräte brauchen sie bis zum Zurücksetzen des Tageszählers (__time__). Versuchen Sie es danach erneut oder wählen Sie in den Geräteeinstellungen ein längeres Aktualisierungsintervall.",
-    "write_burst": "Zu viele Änderungen an diesem Viessmann-Konto in kurzer Zeit (höchstens __limit__ pro 10 Minuten für alle seine Geräte). Versuchen Sie es in __minutes__ Minuten erneut."
+    "write_burst": "Zu viele Änderungen an diesem Viessmann-Konto in kurzer Zeit (höchstens __limit__ pro 10 Minuten für alle seine Geräte). Versuchen Sie es in __minutes__ Minuten erneut.",
+    "program_follows_schedule": "Normal und Reduziert folgen dem Zeitprogramm des Geräts und können nicht direkt gewählt werden. Die Auswahl beendet Komfort oder Eco, wenn eines davon läuft.",
+    "program_not_available": "Dieses Gerät hat dieses Programm nicht.",
+    "mode_not_available": "Dieses Gerät hat dafür keine Betriebsart.",
+    "holiday_invalid_date": "Gib die Urlaubsdaten als TT-MM-JJJJ ein.",
+    "holiday_end_before_start": "Das Urlaubsprogramm muss nach seinem Beginn enden."
   }
 }

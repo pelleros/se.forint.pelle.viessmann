@@ -94,6 +94,9 @@ describe('registration', () => {
     expect(cards['action/read-feature-text'].autocomplete.arg).toBe('feature');
     expect(cards['action/run-feature-command'].autocomplete.arg).toBe('command');
     expect(cards['condition/feature-value-is'].autocomplete.arg).toBe('feature');
+    // A kind that several cards share takes the argument from the card's mapping
+    expect(cards['action/set-device-operating-mode'].autocomplete.arg).toBe('mode');
+    expect(cards['action/set-hot-water-mode'].autocomplete.arg).toBe('mode');
     for (const { id } of Object.values(FLOW_TRIGGERS)) expect(cards[`trigger/${id}`]).toBeDefined();
     expect(driver.getValueTriggers('measure_pump_active.circuit0').map(({ mapping }) => mapping.id))
       .toEqual(['circulation-pump-started', 'circulation-pump-stopped']);
@@ -230,6 +233,14 @@ describe('fireValueTriggers', () => {
   test('a driver without value triggers (older test doubles) is fine', async () => {
     await expect(fireValueTriggers({ driver: {} }, 'x', 1, 2)).resolves.toBeUndefined();
   });
+
+  test('valueChanged gives the new value as the card\'s token', async () => {
+    const card = { trigger: jest.fn(async () => {}) };
+    const device = { error: jest.fn(), driver: { getValueTriggers: () => [{ card, mapping: FLOW_TRIGGERS.OPERATING_STATE_CHANGED }] } };
+    await fireValueTriggers(device, 'measure_operating_state', 'defrost', 'heating');
+    expect(card.trigger).toHaveBeenCalledWith(device, { state: 'defrost' }, {});
+    expect(TRIGGERS.valueChanged('comfort', 'normal', FLOW_TRIGGERS.HEATING_PROGRAM_CHANGED)).toEqual({ program: 'comfort' });
+  });
 });
 
 describe('conditions', () => {
@@ -247,6 +258,14 @@ describe('conditions', () => {
     expect(checkCondition({ device: device(5), comparison: 'above', temperature: 5 }, COMPARE)).toBe(false);
     expect(checkCondition({ device: device(5), comparison: 'below', temperature: 5.5 }, COMPARE)).toBe(true);
     expect(checkCondition({ device: device(-2), comparison: 'below', temperature: -2 }, COMPARE)).toBe(false);
+  });
+
+  test('equals compares the value with the card\'s argument', () => {
+    const { OPERATING_STATE_IS, HEATING_PROGRAM_IS } = FLOW_CONDITIONS;
+    expect(checkCondition({ device: device('heating'), state: 'heating' }, OPERATING_STATE_IS)).toBe(true);
+    expect(checkCondition({ device: device('defrost'), state: 'heating' }, OPERATING_STATE_IS)).toBe(false);
+    expect(checkCondition({ device: device('eco'), program: 'eco' }, HEATING_PROGRAM_IS)).toBe(true);
+    expect(() => checkCondition({ device: device(null), program: 'eco' }, HEATING_PROGRAM_IS)).toThrow('No current value from Viessmann yet');
   });
 
   test('an unknown value fails the card, in the user\'s language', () => {
@@ -285,5 +304,43 @@ describe('the generic condition on any numeric value', () => {
     // The outside sensor reports its value (a number) and its status (text): only the number
     const choices = await AUTOCOMPLETE.compareFeature.choices(device, 'sensors temperature outside');
     expect(choices.map((choice) => choice.name)).toEqual(['heating.sensors.temperature.outside']);
+  });
+});
+
+describe('chosen values', () => {
+  const MODES = [
+    { id: 'dhw', title: { en: 'Hot water', sv: 'Varmvatten' } },
+    { id: 'standby', title: { en: 'Standby' } },
+    { id: 'heatingCooling' },
+  ];
+  const device = (language) => ({
+    getCapabilityOptions: jest.fn(() => ({ values: MODES })),
+    homeyLanguage: () => language,
+    writeCapability: jest.fn(async () => true),
+  });
+  const { SET_DEVICE_OPERATING_MODE } = FLOW_ACTIONS;
+
+  test('the choices are the capability\'s values in Homey\'s language, filtered by what was typed', () => {
+    const { choices } = AUTOCOMPLETE.chooseValue;
+    expect(choices(device('sv'), '', SET_DEVICE_OPERATING_MODE)).toEqual([
+      { id: 'dhw', name: 'Varmvatten' }, { id: 'standby', name: 'Standby' }, { id: 'heatingCooling', name: 'heatingCooling' },
+    ]);
+    expect(choices(device('de'), 'hot', SET_DEVICE_OPERATING_MODE)).toEqual([{ id: 'dhw', name: 'Hot water' }]);
+    expect(choices(device('en'), 'cool', SET_DEVICE_OPERATING_MODE).map((choice) => choice.id)).toEqual(['heatingCooling']);
+    const without = {
+      getCapabilityOptions: () => {
+        throw new Error('no capability');
+      },
+    };
+    expect(choices(without, '', SET_DEVICE_OPERATING_MODE)).toEqual([]);
+    expect(choices(undefined, '', SET_DEVICE_OPERATING_MODE)).toEqual([]);
+  });
+
+  test('the action writes the chosen entry, and refuses text that is not from the list', async () => {
+    const target = device('en');
+    await runAction({ device: target, mode: { id: 'standby', name: 'Standby' } }, SET_DEVICE_OPERATING_MODE);
+    expect(target.writeCapability).toHaveBeenCalledWith('thermostat_mode.heating', 'standby');
+    await expect(runAction({ device: target, mode: 'standby' }, SET_DEVICE_OPERATING_MODE)).rejects.toThrow('Choose an entry from the list.');
+    expect(target.writeCapability).toHaveBeenCalledTimes(1);
   });
 });

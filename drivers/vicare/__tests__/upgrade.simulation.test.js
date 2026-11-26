@@ -17,7 +17,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const { apiError } = require('../../../lib/apiError');
-const { PATHS, getAllCapabilities } = require('../config');
+const { PATHS, DERIVED, getAllCapabilities } = require('../config');
 const { effectiveRoles, inferRoles } = require('../roles');
 const registry = require('./registry.json');
 
@@ -102,9 +102,14 @@ const PATHS_1014 = [
 // initializeCapabilities gives the device, with the given feature paths mapped. The current
 // code checks the roles from roles.js (aliases, and roles inferred from the features when the
 // device reports no role tag); 1.0.14 checked the stored roles as they are. `storedRolesOnly` is
-// 1.0.14: it had no computed capabilities and none that every device gets (alwaysAdd).
-function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false } = {}) {
+// 1.0.14: it had no computed capabilities and none that every device gets (alwaysAdd). With
+// `derived`, the derived capabilities (2.0.0) whose source is stored and allowed are added.
+function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false, derived = true } = {}) {
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
+  const passes = (featurePath) => {
+    const { requireRole, group } = ViessmannDevice.FEATURES[featurePath];
+    return features.includes(featurePath) && !group && (!requireRole || allowed.includes(requireRole));
+  };
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
     const capabilityConfigs = getAllCapabilities(featurePath).filter((capability) => !(storedRolesOnly && capability.computed));
@@ -115,11 +120,20 @@ function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS
       capabilityConfigs.forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
+  // Derived capabilities (2.0.0): added when one of their sources is stored and allowed
+  for (const capability of derived ? DERIVED : []) {
+    if ((!capability.available || capability.available(features)) && capability.sources.some(passes)) {
+      capabilities.add(capability.capabilityName);
+    }
+  }
   return [...capabilities].sort();
 }
 
 // drivers/vicare/device.js initializeCapabilities in 1.0.14
-const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014, { storedRolesOnly: true });
+// Capabilities that later releases added to feature paths 1.0.14 already mapped
+const ADDED_TO_1014_PATHS = ['target_temperature'];
+const capabilitiesFor1014 = (store) => capabilitiesFor(store, PATHS_1014, { storedRolesOnly: true, derived: false })
+  .filter((id) => !ADDED_TO_1014_PATHS.includes(id));
 
 // Installation id, gateway serial and device id from the feature URIs, roles from the
 // installations dump (the gateway with that serial, else the first heating device)
@@ -374,7 +388,9 @@ describe.each(scenarios.map((scenario) => [scenario.name, scenario]))('upgrade f
       expect(poll.filter).not.toContain('heating.circuits.0.');
       expect(device.getCapabilityValue('thermostat_mode.heating')).not.toBeNull();
 
-      const [mode] = device.getStoreValue('operatingModes');
+      // A mode other than the current one: writing the current value sends nothing
+      const modes = device.getStoreValue('operatingModes');
+      const mode = modes.find(({ id }) => id !== device.getCapabilityValue('thermostat_mode.heating')) || modes[0];
       await device.__listeners.get('thermostat_mode.heating')(mode.id);
       expect(device.oAuth2Client.executeCommand).toHaveBeenCalledWith(expect.objectContaining({
         feature: 'heating.circuits.1.operating.modes.active', command: 'setMode', body: { mode: mode.id },
@@ -399,7 +415,8 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     'measure_cop_number.total',
   ];
   // Values 2.0.0 reads from features the device already stored at pairing: among them the daily
-  // compressor figures, and the problem alarm and maintenance action that every device gets
+  // compressor figures, the problem alarm and maintenance action that every device gets, and the
+  // standard thermostat, programs and what the device is doing
   const NEW_FROM_STORED_FEATURES = [
     'alarm_problem',
     'button.refreshFeatures',
@@ -411,8 +428,18 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     'measure_curve_number.circuit0Slope',
     'measure_dhw_active.charging',
     'measure_frost_active.circuit0',
+    'measure_heating_active',
+    'measure_holiday_active',
+    'measure_operating_state',
     'measure_pump_active.circuit0',
     'measure_pump_active.dhwCirculation',
+    'measure_status_text',
+    'target_hysteresis.hotWater',
+    'target_temperature',
+    'target_temperature.heatingComfort',
+    'target_temperature.heatingReduced',
+    'thermostat_mode',
+    'thermostat_mode.heatingProgram',
   ];
 
   test('the 1.0.14 device has the buffer capability from the main sensor and no COP', async () => {

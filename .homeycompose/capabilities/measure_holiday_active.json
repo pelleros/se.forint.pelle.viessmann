@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Holiday program",
+    "de": "Urlaubsprogramm",
+    "nl": "Vakantieprogramma",
+    "fr": "Programme vacances",
+    "sv": "Semesterprogram"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Active", "de": "Aktiv", "nl": "Actief", "fr": "Actif", "sv": "Aktivt" },
+  "titleFalse": { "en": "Off", "de": "Aus", "nl": "Uit", "fr": "Arrêt", "sv": "Av" },
+  "insightsTitleTrue": {
+    "en": "Holiday program started",
+    "de": "Urlaubsprogramm gestartet",
+    "nl": "Vakantieprogramma gestart",
+    "fr": "Programme vacances démarré",
+    "sv": "Semesterprogrammet startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Holiday program ended",
+    "de": "Urlaubsprogramm beendet",
+    "nl": "Vakantieprogramma beëindigd",
+    "fr": "Programme vacances terminé",
+    "sv": "Semesterprogrammet slutade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/info.svg"
+}

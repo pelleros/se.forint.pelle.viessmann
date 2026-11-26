@@ -27,9 +27,12 @@
 // response gives them. device.js and driver.js use it; tests and tools can use it directly.
 
 const config = require('./config');
+const { sortByCapabilityOrder, derivedSource, addDerivedReadings } = require('./derivedCapabilities');
 
 /** @typedef {import('./config/types').FeatureConfig} FeatureConfig */
 /** @typedef {import('./config/types').CapabilityConfig} CapabilityConfig */
+/** @typedef {import('./config/types').DerivedCapabilityConfig} DerivedCapabilityConfig */
+/** @typedef {import('./config/types').DeviceContext} DeviceContext */
 
 /**
  * One feature of a features response, as far as the mapper reads it.
@@ -96,10 +99,42 @@ function modeTitle(mode) {
     .trim();
 }
 
+/**
+ * The min/max/stepping of a capability's command: the path's `temperature` or
+ * `targetTemperature` constraints, else those of the capability's own command parameter (from
+ * the command metadata, else from the path's constraints by parameter name). Undefined when
+ * there are no numeric limits.
+ * @param {CapabilityConfig | undefined} capability
+ * @param {Record<string, any> | undefined} pathConstraints
+ * @param {Record<string, any> | undefined} pathCommands the API's commands of the path
+ * @returns {{ min: number, max: number, stepping?: number } | undefined}
+ */
+function numericLimits(capability, pathConstraints, pathCommands) {
+  const parameter = Object.values(capability?.command?.parameterMapping || {})[0];
+  const commandName = capability?.command?.name;
+  const limits = pathConstraints?.temperature || pathConstraints?.targetTemperature
+    || (commandName && pathCommands?.[commandName]?.params?.[parameter]?.constraints)
+    || (parameter && pathConstraints?.[parameter]);
+  return Number.isFinite(limits?.min) && Number.isFinite(limits?.max) ? limits : undefined;
+}
+
+/**
+ * Enum values narrowed to the ids a command accepts, in the command's order; an id the config
+ * does not know gets a title made from it.
+ * @param {ModeValue[]} values
+ * @param {unknown[]} accepted
+ * @returns {ModeValue[]}
+ */
+function acceptedValues(values, accepted) {
+  const ids = /** @type {string[]} */ (accepted.filter((id) => typeof id === 'string'));
+  return ids.map((id) => values.find((value) => value.id === id) || { id, title: { en: modeTitle(id) } });
+}
+
 class FeatureMapper {
 
   /**
-   * @param {{ FEATURES: Record<string, FeatureConfig>, PATHS: Record<string, string> }} [configuration]
+   * @param {{ FEATURES: Record<string, FeatureConfig>, PATHS: Record<string, string>,
+   *   DERIVED?: DerivedCapabilityConfig[], CAPABILITY_ORDER?: readonly string[] }} [configuration]
    */
   constructor(configuration = config) {
     this.config = configuration;
@@ -111,6 +146,20 @@ class FeatureMapper {
 
   get PATHS() {
     return this.config.PATHS;
+  }
+
+  /** @returns {DerivedCapabilityConfig[]} */
+  get DERIVED() {
+    return this.config.DERIVED || [];
+  }
+
+  /**
+   * The derived capability with this name, or undefined.
+   * @param {string} capabilityName
+   * @returns {DerivedCapabilityConfig | undefined}
+   */
+  derivedByName(capabilityName) {
+    return this.DERIVED.find((derived) => derived.capabilityName === capabilityName);
   }
 
   /**
@@ -148,22 +197,30 @@ class FeatureMapper {
   }
 
   /**
-   * The capabilities a device with these stored features and roles gets, in PATHS order. A
-   * capability fed by several paths is listed once per path. Features of an optional group
-   * count only when the group is in `enabledGroups`.
+   * The capabilities a device with these stored features and roles gets, in the capability
+   * order of new devices (config/order.js; PATHS order within the same place). A capability
+   * fed by several paths is listed once per path; a derived capability once, with its first
+   * stored source. Features of an optional group count only when the group is in
+   * `enabledGroups`.
    * @param {string[]} storedFeatures
    * @param {string[]} roles
    * @param {string[]} [enabledGroups]
-   * @returns {{ path: string, capability: CapabilityConfig }[]}
+   * @returns {{ path: string, capability: CapabilityConfig | DerivedCapabilityConfig }[]}
    */
   capabilitiesFor(storedFeatures, roles, enabledGroups = []) {
+    /** @type {{ path: string, capability: CapabilityConfig | DerivedCapabilityConfig }[]} */
     const result = [];
     for (const path of Object.values(this.PATHS)) {
       if (!this.hasRequiredRole(path, roles) || !this.isAvailable(path, storedFeatures)) continue;
       if (!this.isInEnabledGroup(path, enabledGroups)) continue;
       for (const capability of this.FEATURES[path]?.capabilities || []) result.push({ path, capability });
     }
-    return result;
+    for (const derived of this.DERIVED) {
+      const path = derivedSource(derived, storedFeatures,
+        (source) => this.hasRequiredRole(source, roles) && this.isInEnabledGroup(source, enabledGroups));
+      if (path) result.push({ path, capability: derived });
+    }
+    return sortByCapabilityOrder(result, this.config.CAPABILITY_ORDER || []);
   }
 
   /**
@@ -174,6 +231,8 @@ class FeatureMapper {
    * @returns {boolean}
    */
   isProduced(capabilityName, storedFeatures, allowPath) {
+    const derived = this.derivedByName(capabilityName);
+    if (derived) return Boolean(derivedSource(derived, storedFeatures, allowPath));
     return Object.values(this.PATHS).some((path) => this.isAvailable(path, storedFeatures)
       && (this.FEATURES[path]?.capabilities || []).some((capability) => capability.capabilityName === capabilityName)
       && allowPath(path));
@@ -189,25 +248,34 @@ class FeatureMapper {
       const capability = feature.capabilities?.find((cap) => cap.capabilityName === capabilityName);
       if (capability?.capabilityOptions) return capability.capabilityOptions;
     }
+    const derived = this.derivedByName(capabilityName);
+    if (derived) return derived.capabilityOptions;
     throw new Error(`No capability options found for: ${capabilityName}`);
   }
 
   /**
    * The options a device sets on a capability fed by `path`: the configured options, with the
    * temperature limits the API reports for the path's command (`temperature` or
-   * `targetTemperature`) as min, max and step.
+   * `targetTemperature`) as min, max and step, or else the limits of the capability's own
+   * command parameter. An enum capability with `enumParameter` offers only the values the
+   * command accepts (unknown ones with a title made from their id); a derived capability adds
+   * the options that depend on the device.
    * @param {string} capabilityName
    * @param {string} path
    * @param {Record<string, Record<string, any>> | undefined} constraints
+   * @param {DeviceContext & { commandMetadata?: Record<string, any> }} [context]
    * @returns {Record<string, any>}
    */
-  optionsFor(capabilityName, path, constraints) {
+  optionsFor(capabilityName, path, constraints, context = {}) {
     const options = { ...this.configuredOptions(capabilityName) };
-    const pathConstraints = constraints?.[path];
-    const temperature = pathConstraints?.temperature || pathConstraints?.targetTemperature;
-    if (temperature) {
-      Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
-    }
+    const derived = this.derivedByName(capabilityName);
+    if (derived) return { ...options, ...derived.options?.(context) };
+
+    const capability = this.FEATURES[path]?.capabilities.find((cap) => cap.capabilityName === capabilityName);
+    const limits = numericLimits(capability, constraints?.[path], context.commandMetadata?.[path]);
+    if (limits) Object.assign(options, { min: limits.min, max: limits.max, step: limits.stepping || options.step || 1 });
+    const accepted = capability?.enumParameter && constraints?.[path]?.[capability.enumParameter]?.enum;
+    if (Array.isArray(accepted) && Array.isArray(options.values)) options.values = acceptedValues(options.values, accepted);
     return options;
   }
 
@@ -221,21 +289,41 @@ class FeatureMapper {
       const capability = feature.capabilities.find((cap) => cap.capabilityName === capabilityName);
       if (capability) return { ...capability, requireRole: feature.requireRole };
     }
+    const derived = this.derivedByName(capabilityName);
+    if (derived) return { capabilityName, propertyPath: '', capabilityOptions: derived.capabilityOptions };
     return null;
   }
 
   /**
    * The feature path and configured capability that a Flow action or a capability listener
-   * writes through: the first path that produces the capability.
+   * writes through: the first path that produces the capability and that the device has
+   * stored (newer devices name some programs differently), else the first path.
    * @param {string} capabilityName
+   * @param {string[]} [storedFeatures]
    * @returns {{ path: string, capability: CapabilityConfig } | null}
    */
-  commandTarget(capabilityName) {
+  commandTarget(capabilityName, storedFeatures) {
+    /** @type {{ path: string, capability: CapabilityConfig } | null} */
+    let first = null;
     for (const [path, feature] of Object.entries(this.FEATURES)) {
       const capability = feature.capabilities?.find((cap) => cap.capabilityName === capabilityName);
-      if (capability) return { path, capability };
+      if (!capability) continue;
+      if (!Array.isArray(storedFeatures) || storedFeatures.includes(path)) return { path, capability };
+      first = first || { path, capability };
     }
-    return null;
+    return first;
+  }
+
+  /**
+   * The names of the capabilities a write can change: those with a command, and the derived
+   * capabilities with a `write`.
+   * @returns {string[]}
+   */
+  writableCapabilities() {
+    const names = Object.values(this.FEATURES).flatMap((feature) => feature.capabilities
+      .filter((capability) => capability.command).map((capability) => capability.capabilityName));
+    names.push(...this.DERIVED.filter((derived) => derived.write).map((derived) => derived.capabilityName));
+    return [...new Set(names)];
   }
 
   /**
@@ -254,12 +342,15 @@ class FeatureMapper {
    * can be fed by more than one feature path: paths with `fallbackFor` are read only when the
    * other paths give no value. A response without any mapped feature clears nothing (no
    * capability is `gone`). Capabilities whose feature needs a role that `roles` lacks are left
-   * out, and so are `computed` capabilities, which the device computes itself.
+   * out, and so are `computed` capabilities, which the device computes itself. Derived
+   * capabilities are computed last, in config order, and see the readings before them; they
+   * are `gone` when none of their sources is reported as enabled and connected.
    * @param {FeaturesResponse} response
    * @param {string[]} roles
+   * @param {DeviceContext} [context] the device's language and stored features
    * @returns {Map<string, Reading>}
    */
-  readValues(response, roles) {
+  readValues(response, roles, context = {}) {
     const reported = new Map(response.data.map((feature) => [feature.feature, feature]));
     const absenceCounts = response.data.some((feature) => this.FEATURES[feature.feature]);
     const entries = Object.entries(this.FEATURES)
@@ -284,7 +375,12 @@ class FeatureMapper {
         }
       }
     }
-    return readings;
+
+    /** @param {string} path */
+    const connectedPath = (path) => this.hasRequiredRole(path, roles) && isConnected(reported.get(path));
+    /** @type {import('./config/types').FeatureReader} */
+    const read = (path, propertyPath) => (connectedPath(path) ? readPropertyValue(reported.get(path)?.properties, propertyPath) : undefined);
+    return addDerivedReadings(this.DERIVED, read, connectedPath, readings, { context, absenceCounts });
   }
 
   /**

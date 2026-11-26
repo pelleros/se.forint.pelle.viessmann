@@ -24,8 +24,10 @@ const { OAuth2Device } = require('homey-oauth2app');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
+const { MODE_TITLES } = require('./config/modes');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
+const { writeCapability, capabilitiesShowing, showWrittenValues } = require('./capabilityWrites');
 const { runMigrations, versionBefore } = require('./migrations');
 const { DeviceMonitor } = require('./deviceMonitor');
 const { translate } = require('../../lib/errorMessages');
@@ -130,7 +132,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles, groups)) {
       if (this.hasCapability(capabilityName)) continue;
       try {
-        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints));
+        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, this.deviceContext()));
         await this.addCapability(capabilityName);
       } catch (err) {
         this.error(`Error handling capability ${capabilityName} for ${path}:`, err);
@@ -138,24 +140,50 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
+  // Options from the config and the API's limits, for the feature path the device has (newer
+  // devices name some programs differently)
   async updateCapabilityOptions() {
-    for (const [path, feature] of Object.entries(FEATURES)) {
-      for (const capability of feature.capabilities) {
-        if (!this.hasCapability(capability.capabilityName)) continue;
-        const options = featureMapper.optionsFor(capability.capabilityName, path, this._constraints);
-        try {
-          await this.setCapabilityOptions(capability.capabilityName, options);
-        } catch (error) {
-          this.error(`Could not update the options of ${capability.capabilityName}:`, error);
-        }
+    const context = this.deviceContext();
+    for (const capabilityName of this.getCapabilities()) {
+      const derived = featureMapper.derivedByName(capabilityName);
+      const path = derived ? derived.sources[0] : featureMapper.commandTarget(capabilityName, this._features)?.path;
+      if (!path) continue;
+      try {
+        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, context));
+      } catch (error) {
+        this.error(`Could not update the options of ${capabilityName}:`, error);
       }
+    }
+  }
+
+  /*
+    What derived capabilities and the options need to know about the device: its stored
+    features, operating modes and command metadata, Homey's language and its current values.
+  */
+  deviceContext() {
+    return {
+      features: Array.isArray(this._features) ? this._features : [],
+      operatingModes: Array.isArray(this._operatingModes) ? this._operatingModes : [],
+      commandMetadata: this._commands,
+      language: this.homeyLanguage(),
+      currentValue: (capabilityName) => (this.hasCapability(capabilityName) ? this.getCapabilityValue(capabilityName) : undefined),
+    };
+  }
+
+  homeyLanguage() {
+    try {
+      return this.homey?.i18n?.getLanguage?.() || 'en';
+    } catch (error) {
+      return 'en';
     }
   }
 
   async initializeOperatingModes() {
     // Not that bad if this fails, we can just use the default operating modes
     try {
-      const deviceModes = Array.isArray(this._operatingModes) ? this._operatingModes : [];
+      // Translated titles for the modes the app knows
+      const deviceModes = (Array.isArray(this._operatingModes) ? this._operatingModes : [])
+        .map((mode) => (MODE_TITLES[mode?.id] ? { id: mode.id, title: MODE_TITLES[mode.id] } : mode));
       // Without known device modes, keep whatever the capability offers today
       if (deviceModes.length === 0) return;
 
@@ -182,43 +210,47 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async registerCapabilityListeners() {
     if (!Array.isArray(this._listeners)) this._listeners = [];
 
-    for (const path of Object.values(PATHS)) {
+    for (const capabilityName of featureMapper.writableCapabilities()) {
+      if (this._listeners.includes(capabilityName)) continue;
       try {
-        const capabilities = FEATURES[path]?.capabilities || [];
-
-        for (const capability of capabilities) {
-          // Skip if no command is defined or listener already exists
-          if (!capability.command || this._listeners.includes(capability.capabilityName)) continue;
-
-          const registered = this.registerCapabilityListenerIfPossible(
-            capability.capabilityName,
-            async (value) => {
-              if (process.env.DEBUG) {
-                this.log(`${capability.capabilityName}:`, value);
-              }
-
-              await this.executeCommand(path, capability, value);
-            },
-          );
-
-          // Only remember capabilities that really got a listener, so a capability
-          // added later (e.g. by feature discovery) gets one on the next run
-          if (registered) {
-            this._listeners.push(capability.capabilityName);
+        const registered = this.registerCapabilityListenerIfPossible(capabilityName, async (value) => {
+          if (process.env.DEBUG) {
+            this.log(`${capabilityName}:`, value);
           }
+          // A write that does not change the value (e.g. a Matter bridge or voice assistant
+          // repeating the current set point) sends nothing to Viessmann
+          if (value === this.getCapabilityValue(capabilityName)) return;
+          await this.writeCapability(capabilityName, value);
+        });
+
+        // Only remember capabilities that really got a listener, so a capability
+        // added later (e.g. by feature discovery) gets one on the next run
+        if (registered) {
+          this._listeners.push(capabilityName);
         }
       } catch (err) {
-        this.error(`Error setting up listener for ${path}:`, err);
+        this.error(`Error setting up listener for ${capabilityName}:`, err);
       }
     }
   }
 
-  // Writes a capability through commands.js. `restoring`: undoing a temporary change (boost.js),
-  // which the account's write allowance never refuses
+  // Writes a capability value, from a capability listener or a Flow action (capabilityWrites.js)
+  async writeCapability(capabilityName, value) {
+    return writeCapability(this, capabilityName, value);
+  }
+
+  // Writes a capability through commands.js, then shows the value on it, on the capabilities that
+  // show the same property and on the derived capabilities that follow from it. `restoring`:
+  // undoing a temporary change (boost.js), which the account's write allowance never refuses
   async executeCommand(path, capability, value, { restoring = false } = {}) {
     await sendCapabilityValue(this, path, capability, value, { check: () => this.checkOperatingMode(path, value), restoring });
-    await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+    await this.showWrittenValues(Object.fromEntries(capabilitiesShowing(path, capability).map((name) => [name, value])));
     return true;
+  }
+
+  // Shows written values at once, with the derived capabilities that follow from them (capabilityWrites.js)
+  async showWrittenValues(values) {
+    await showWrittenValues(this, values);
   }
 
   // set-operating-mode offers modes a circuit may not have: refuse those before sending
@@ -329,7 +361,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     capabilityName => { value, gone }.
   */
   readCapabilityValues(response) {
-    return featureMapper.readValues(response, this.getRoles());
+    return featureMapper.readValues(response, this.getRoles(), { language: this.homeyLanguage(), features: this._features });
   }
 
   // Homey shows when the device was last heard from: after every successful update (a poll, or

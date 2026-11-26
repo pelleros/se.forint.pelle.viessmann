@@ -77,7 +77,30 @@
     "measure_gas_yesterday.heating",
     "measure_gas_yesterday.hotWater",
     "alarm_problem",
-    "button.refreshFeatures"
+    "button.refreshFeatures",
+    "target_temperature",
+    "measure_temperature",
+    "thermostat_mode",
+    "thermostat_mode.heatingProgram",
+    "target_temperature.heatingReduced",
+    "target_temperature.heatingComfort",
+    "measure_holiday_active",
+    "thermostat_mode.hotWater",
+    "target_hysteresis.hotWater",
+    "measure_heating_active",
+    "measure_operating_state",
+    "measure_status_text",
+    "measure_temperature.hotWaterMiddle",
+    "measure_heatingrod_active",
+    "measure_heatingrod_number.heatingRodHours",
+    "measure_heatingrod_number.heatingRodStarts",
+    "measure_heat_output",
+    "measure_scop_number.total",
+    "measure_scop_number.heating",
+    "measure_scop_number.dhw",
+    "measure_spf_number.total",
+    "measure_spf_number.heating",
+    "measure_spf_number.dhw"
   ],
   "retiredCapabilities": {
     "measure_something_active.compressor": "Renamed to measure_compressor_active in commit d9a0906 (v1.0.11). Users lost their compressor Insights history at the time.",
@@ -144,6 +167,28 @@
             "type": "number"
           }
         }
+      },
+      "heating-is-active": {
+        "args": {}
+      },
+      "operating-state-is": {
+        "args": {
+          "state": {
+            "type": "dropdown",
+            "values": ["heating", "hotWater", "defrost", "cooling", "standby"]
+          }
+        }
+      },
+      "heating-program-is": {
+        "args": {
+          "program": {
+            "type": "dropdown",
+            "values": ["normal", "reduced", "comfort", "eco"]
+          }
+        }
+      },
+      "holiday-is-active": {
+        "args": {}
       }
     },
     "actions": {
@@ -272,6 +317,62 @@
             "type": "text"
           }
         }
+      },
+      "set-device-operating-mode": {
+        "args": {
+          "mode": {
+            "type": "autocomplete"
+          }
+        }
+      },
+      "set-heating-program": {
+        "args": {
+          "program": {
+            "type": "dropdown",
+            "values": ["normal", "reduced", "comfort", "eco"]
+          }
+        }
+      },
+      "set-heating-reduced-thermostat": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "set-heating-comfort-thermostat": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "start-holiday": {
+        "args": {
+          "start": {
+            "type": "date"
+          },
+          "end": {
+            "type": "date"
+          }
+        }
+      },
+      "end-holiday": {
+        "args": {}
+      },
+      "set-hot-water-mode": {
+        "args": {
+          "mode": {
+            "type": "autocomplete"
+          }
+        }
+      },
+      "set-hot-water-hysteresis": {
+        "args": {
+          "hysteresis": {
+            "type": "number"
+          }
+        }
       }
     },
     "triggers": {
@@ -309,8 +410,8 @@
         "args": {},
         "tokens": {
           "temperature": "number"
-          }
-        },
+        }
+      },
       "fault-reported": {
         "args": {},
         "tokens": {
@@ -346,6 +447,24 @@
           "description": "string",
           "type": "string",
           "active": "boolean"
+        }
+      },
+      "heating-started": {
+        "args": {}
+      },
+      "heating-stopped": {
+        "args": {}
+      },
+      "operating-state-changed": {
+        "args": {},
+        "tokens": {
+          "state": "string"
+        }
+      },
+      "heating-program-changed": {
+        "args": {},
+        "tokens": {
+          "program": "string"
         }
       }
     }

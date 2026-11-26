@@ -649,6 +649,127 @@
             }
           }
         ]
+      },
+      {
+        "id": "heating-started",
+        "title": {
+          "en": "Heating started",
+          "de": "Heizen gestartet",
+          "nl": "Verwarmen gestart",
+          "fr": "Chauffage démarré",
+          "sv": "Uppvärmningen startade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_heating_active"
+          }
+        ],
+        "hint": {
+          "en": "The compressor or the burner started heating, also for hot water.",
+          "de": "Der Verdichter oder der Brenner hat zu heizen begonnen, auch für Warmwasser.",
+          "nl": "De compressor of de brander is begonnen met verwarmen, ook voor warm water.",
+          "fr": "Le compresseur ou le brûleur a commencé à chauffer, aussi pour l'eau chaude.",
+          "sv": "Kompressorn eller brännaren började värma, även för varmvatten."
+        }
+      },
+      {
+        "id": "heating-stopped",
+        "title": {
+          "en": "Heating stopped",
+          "de": "Heizen gestoppt",
+          "nl": "Verwarmen gestopt",
+          "fr": "Chauffage arrêté",
+          "sv": "Uppvärmningen stannade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_heating_active"
+          }
+        ]
+      },
+      {
+        "id": "operating-state-changed",
+        "title": {
+          "en": "Operating state changed",
+          "de": "Betriebszustand geändert",
+          "nl": "Bedrijfstoestand gewijzigd",
+          "fr": "État de fonctionnement modifié",
+          "sv": "Driftstatusen ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_operating_state"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "state",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "de": "Zustand",
+              "nl": "Toestand",
+              "fr": "État",
+              "sv": "Status"
+            },
+            "example": {
+              "en": "heating"
+            }
+          }
+        ],
+        "hint": {
+          "en": "The state is one of heating, hotWater, defrost, cooling and standby.",
+          "de": "Der Zustand ist heating, hotWater, defrost, cooling oder standby.",
+          "nl": "De toestand is heating, hotWater, defrost, cooling of standby.",
+          "fr": "L'état est heating, hotWater, defrost, cooling ou standby.",
+          "sv": "Statusen är heating, hotWater, defrost, cooling eller standby."
+        }
+      },
+      {
+        "id": "heating-program-changed",
+        "title": {
+          "en": "Program changed",
+          "de": "Programm geändert",
+          "nl": "Programma gewijzigd",
+          "fr": "Programme modifié",
+          "sv": "Programmet ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.heatingProgram"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "program",
+            "type": "string",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "example": {
+              "en": "comfort"
+            }
+          }
+        ],
+        "hint": {
+          "en": "The program is one of normal, reduced, comfort and eco.",
+          "de": "Das Programm ist normal, reduced, comfort oder eco.",
+          "nl": "Het programma is normal, reduced, comfort of eco.",
+          "fr": "Le programme est normal, reduced, comfort ou eco.",
+          "sv": "Programmet är normal, reduced, comfort eller eco."
+        }
       }
     ],
     "conditions": [
@@ -1077,6 +1198,246 @@
           "nl": "Elk getal dat het apparaat meldt, onder de Viessmann-naam. Waarden die regelmatig worden bijgewerkt, komen uit de laatste update; andere worden bij Viessmann opgevraagd (één API-aanroep, hoogstens één keer per update-interval). De kaart mislukt zolang de waarde onbekend is of als die geen getal is.",
           "fr": "Tout nombre que l'appareil transmet, sous son nom Viessmann. Les valeurs mises à jour régulièrement proviennent de la dernière mise à jour ; les autres sont lues chez Viessmann (un appel API, au plus une fois par intervalle de mise à jour). La carte échoue tant que la valeur est inconnue ou si ce n'est pas un nombre.",
           "sv": "Valfritt tal som enheten rapporterar, under sitt Viessmann-namn. Värden som uppdateras regelbundet kommer från den senaste uppdateringen; andra hämtas från Viessmann (ett API-anrop, högst en gång per uppdateringsintervall). Kortet misslyckas så länge värdet är okänt eller om det inte är ett tal."
+        }
+      },
+      {
+        "id": "heating-is-active",
+        "title": {
+          "en": "Is !{{heating|not heating}} right now",
+          "de": "Heizt !{{gerade|gerade nicht}}",
+          "nl": "Is !{{aan het verwarmen|niet aan het verwarmen}}",
+          "fr": "!{{Chauffe|Ne chauffe pas}} en ce moment",
+          "sv": "Värmer !{{just nu|inte just nu}}"
+        },
+        "titleFormatted": {
+          "en": "Is !{{heating|not heating}} right now",
+          "de": "Heizt !{{gerade|gerade nicht}}",
+          "nl": "Is !{{aan het verwarmen|niet aan het verwarmen}}",
+          "fr": "!{{Chauffe|Ne chauffe pas}} en ce moment",
+          "sv": "Värmer !{{just nu|inte just nu}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_heating_active"
+          }
+        ],
+        "hint": {
+          "en": "True while the compressor or the burner heats, also for hot water (not while defrosting or cooling). Uses the last update from Viessmann.",
+          "de": "Wahr, solange der Verdichter oder der Brenner heizt, auch für Warmwasser (nicht beim Abtauen oder Kühlen). Verwendet die letzte Aktualisierung von Viessmann.",
+          "nl": "Waar zolang de compressor of de brander verwarmt, ook voor warm water (niet tijdens ontdooien of koelen). Gebruikt de laatste update van Viessmann.",
+          "fr": "Vrai tant que le compresseur ou le brûleur chauffe, aussi pour l'eau chaude (pas pendant le dégivrage ou le refroidissement). Utilise la dernière mise à jour de Viessmann.",
+          "sv": "Sant medan kompressorn eller brännaren värmer, även för varmvatten (inte vid avfrostning eller kyla). Använder den senaste uppdateringen från Viessmann."
+        }
+      },
+      {
+        "id": "operating-state-is",
+        "title": {
+          "en": "Operating state !{{is|is not}} [[state]]",
+          "de": "Betriebszustand !{{ist|ist nicht}} [[state]]",
+          "nl": "Bedrijfstoestand !{{is|is niet}} [[state]]",
+          "fr": "L'état de fonctionnement !{{est|n'est pas}} [[state]]",
+          "sv": "Driftstatus !{{är|är inte}} [[state]]"
+        },
+        "titleFormatted": {
+          "en": "Operating state !{{is|is not}} [[state]]",
+          "de": "Betriebszustand !{{ist|ist nicht}} [[state]]",
+          "nl": "Bedrijfstoestand !{{is|is niet}} [[state]]",
+          "fr": "L'état de fonctionnement !{{est|n'est pas}} [[state]]",
+          "sv": "Driftstatus !{{är|är inte}} [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_operating_state"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "title": {
+              "en": "State",
+              "de": "Zustand",
+              "nl": "Toestand",
+              "fr": "État",
+              "sv": "Status"
+            },
+            "values": [
+              {
+                "id": "heating",
+                "title": {
+                  "en": "Heating",
+                  "de": "Heizen",
+                  "nl": "Verwarmen",
+                  "fr": "Chauffage",
+                  "sv": "Värmer"
+                }
+              },
+              {
+                "id": "hotWater",
+                "title": {
+                  "en": "Hot water",
+                  "de": "Warmwasser",
+                  "nl": "Warm water",
+                  "fr": "Eau chaude",
+                  "sv": "Varmvatten"
+                }
+              },
+              {
+                "id": "defrost",
+                "title": {
+                  "en": "Defrost",
+                  "de": "Abtauen",
+                  "nl": "Ontdooien",
+                  "fr": "Dégivrage",
+                  "sv": "Avfrostning"
+                }
+              },
+              {
+                "id": "cooling",
+                "title": {
+                  "en": "Cooling",
+                  "de": "Kühlen",
+                  "nl": "Koelen",
+                  "fr": "Refroidissement",
+                  "sv": "Kyler"
+                }
+              },
+              {
+                "id": "standby",
+                "title": {
+                  "en": "Standby",
+                  "de": "Standby",
+                  "nl": "Stand-by",
+                  "fr": "Veille",
+                  "sv": "Standby"
+                }
+              }
+            ]
+          }
+        ],
+        "hint": {
+          "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+          "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+          "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+          "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+          "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+        }
+      },
+      {
+        "id": "heating-program-is",
+        "title": {
+          "en": "Program !{{is|is not}} [[program]]",
+          "de": "Programm !{{ist|ist nicht}} [[program]]",
+          "nl": "Programma !{{is|is niet}} [[program]]",
+          "fr": "Le programme !{{est|n'est pas}} [[program]]",
+          "sv": "Programmet !{{är|är inte}} [[program]]"
+        },
+        "titleFormatted": {
+          "en": "Program !{{is|is not}} [[program]]",
+          "de": "Programm !{{ist|ist nicht}} [[program]]",
+          "nl": "Programma !{{is|is niet}} [[program]]",
+          "fr": "Le programme !{{est|n'est pas}} [[program]]",
+          "sv": "Programmet !{{är|är inte}} [[program]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.heatingProgram"
+          },
+          {
+            "name": "program",
+            "type": "dropdown",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "values": [
+              {
+                "id": "normal",
+                "title": {
+                  "en": "Normal",
+                  "de": "Normal",
+                  "nl": "Normaal",
+                  "fr": "Normal",
+                  "sv": "Normal"
+                }
+              },
+              {
+                "id": "reduced",
+                "title": {
+                  "en": "Reduced",
+                  "de": "Reduziert",
+                  "nl": "Verlaagd",
+                  "fr": "Réduit",
+                  "sv": "Sänkt"
+                }
+              },
+              {
+                "id": "comfort",
+                "title": {
+                  "en": "Comfort",
+                  "de": "Komfort",
+                  "nl": "Comfort",
+                  "fr": "Confort",
+                  "sv": "Komfort"
+                }
+              },
+              {
+                "id": "eco",
+                "title": {
+                  "en": "Eco",
+                  "de": "Eco",
+                  "nl": "Eco",
+                  "fr": "Éco",
+                  "sv": "Eko"
+                }
+              }
+            ]
+          }
+        ],
+        "hint": {
+          "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+          "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+          "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+          "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+          "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+        }
+      },
+      {
+        "id": "holiday-is-active",
+        "title": {
+          "en": "Holiday program !{{is|is not}} active",
+          "de": "Urlaubsprogramm !{{ist|ist nicht}} aktiv",
+          "nl": "Vakantieprogramma !{{is|is niet}} actief",
+          "fr": "Le programme vacances !{{est|n'est pas}} actif",
+          "sv": "Semesterprogrammet !{{är|är inte}} aktivt"
+        },
+        "titleFormatted": {
+          "en": "Holiday program !{{is|is not}} active",
+          "de": "Urlaubsprogramm !{{ist|ist nicht}} aktiv",
+          "nl": "Vakantieprogramma !{{is|is niet}} actief",
+          "fr": "Le programme vacances !{{est|n'est pas}} actif",
+          "sv": "Semesterprogrammet !{{är|är inte}} aktivt"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_holiday_active"
+          }
+        ],
+        "hint": {
+          "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+          "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+          "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+          "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+          "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
         }
       }
     ],
@@ -1827,6 +2188,393 @@
           "fr": "Pour usage avancé : toute commande que l'appareil propose, sous son nom Viessmann. Paramètres en JSON, par exemple {\"temperature\": 50}, ou {} pour aucun ; ils sont vérifiés par rapport aux limites de l'appareil avant l'envoi. Écrit dans la régulation du chauffage, au plus 30 commandes par heure.",
           "sv": "För avancerad användning: valfritt kommando som enheten erbjuder, under sitt Viessmann-namn. Parametrar som JSON, till exempel {\"temperature\": 50}, eller {} för inga; de kontrolleras mot enhetens gränser innan de skickas. Skriver till värmeregleringen, högst 30 kommandon per timme."
         }
+      },
+      {
+        "id": "set-device-operating-mode",
+        "title": {
+          "en": "Change operating mode to [[mode]]",
+          "de": "Betriebsart ändern auf [[mode]]",
+          "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+          "fr": "Changer le mode de fonctionnement en [[mode]]",
+          "sv": "Byt driftläge till [[mode]]"
+        },
+        "titleFormatted": {
+          "en": "Change operating mode to [[mode]]",
+          "de": "Betriebsart ändern auf [[mode]]",
+          "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+          "fr": "Changer le mode de fonctionnement en [[mode]]",
+          "sv": "Byt driftläge till [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.heating"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "title": {
+              "en": "Mode",
+              "de": "Modus",
+              "nl": "Modus",
+              "fr": "Mode",
+              "sv": "Läge"
+            },
+            "placeholder": {
+              "en": "Choose a mode",
+              "de": "Modus wählen",
+              "nl": "Kies een modus",
+              "fr": "Choisir un mode",
+              "sv": "Välj ett läge"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Offers only the modes this device has, including cooling where it can cool.",
+          "de": "Bietet nur die Betriebsarten dieses Geräts an, auch Kühlen, wenn es kühlen kann.",
+          "nl": "Biedt alleen de modi van dit apparaat, ook koelen als het kan koelen.",
+          "fr": "Propose uniquement les modes de cet appareil, y compris le refroidissement s'il peut refroidir.",
+          "sv": "Visar bara de lägen enheten har, även kyla om den kan kyla."
+        }
+      },
+      {
+        "id": "set-heating-program",
+        "title": {
+          "en": "Set program to [[program]]",
+          "de": "Programm auf [[program]] setzen",
+          "nl": "Programma instellen op [[program]]",
+          "fr": "Régler le programme sur [[program]]",
+          "sv": "Ställ in program på [[program]]"
+        },
+        "titleFormatted": {
+          "en": "Set program to [[program]]",
+          "de": "Programm auf [[program]] setzen",
+          "nl": "Programma instellen op [[program]]",
+          "fr": "Régler le programme sur [[program]]",
+          "sv": "Ställ in program på [[program]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.heatingProgram"
+          },
+          {
+            "name": "program",
+            "type": "dropdown",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "values": [
+              {
+                "id": "normal",
+                "title": {
+                  "en": "Normal",
+                  "de": "Normal",
+                  "nl": "Normaal",
+                  "fr": "Normal",
+                  "sv": "Normal"
+                }
+              },
+              {
+                "id": "reduced",
+                "title": {
+                  "en": "Reduced",
+                  "de": "Reduziert",
+                  "nl": "Verlaagd",
+                  "fr": "Réduit",
+                  "sv": "Sänkt"
+                }
+              },
+              {
+                "id": "comfort",
+                "title": {
+                  "en": "Comfort",
+                  "de": "Komfort",
+                  "nl": "Comfort",
+                  "fr": "Confort",
+                  "sv": "Komfort"
+                }
+              },
+              {
+                "id": "eco",
+                "title": {
+                  "en": "Eco",
+                  "de": "Eco",
+                  "nl": "Eco",
+                  "fr": "Éco",
+                  "sv": "Eko"
+                }
+              }
+            ]
+          }
+        ],
+        "hint": {
+          "en": "Comfort and eco are switched on; switching one on ends the other. Normal and reduced follow the device's time program, so choosing one of them ends comfort or eco.",
+          "de": "Komfort und Eco werden eingeschaltet; das eine beendet das andere. Normal und Reduziert folgen dem Zeitprogramm des Geräts, die Auswahl beendet daher Komfort oder Eco.",
+          "nl": "Comfort en eco worden ingeschakeld; het ene beëindigt het andere. Normaal en verlaagd volgen het tijdprogramma van het apparaat, dus een van beide kiezen beëindigt comfort of eco.",
+          "fr": "Confort et éco sont activés ; l'un arrête l'autre. Normal et réduit suivent le programme horaire de l'appareil : en choisir un arrête confort ou éco.",
+          "sv": "Komfort och eko slås på; det ena avslutar det andra. Normal och sänkt följer enhetens tidsprogram, så att välja något av dem avslutar komfort eller eko."
+        }
+      },
+      {
+        "id": "set-heating-reduced-thermostat",
+        "title": {
+          "en": "Set reduced heating temperature to [[temperature]] °C",
+          "de": "Reduzierte Heiztemperatur auf [[temperature]] °C setzen",
+          "nl": "Verlaagde verwarmingstemperatuur instellen op [[temperature]] °C",
+          "fr": "Régler la température de chauffage réduite sur [[temperature]] °C",
+          "sv": "Ställ in sänkt värmetemperatur på [[temperature]] °C"
+        },
+        "titleFormatted": {
+          "en": "Set reduced heating temperature to [[temperature]] °C",
+          "de": "Reduzierte Heiztemperatur auf [[temperature]] °C setzen",
+          "nl": "Verlaagde verwarmingstemperatuur instellen op [[temperature]] °C",
+          "fr": "Régler la température de chauffage réduite sur [[temperature]] °C",
+          "sv": "Ställ in sänkt värmetemperatur på [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=target_temperature.heatingReduced"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 3,
+            "max": 37,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          }
+        ]
+      },
+      {
+        "id": "set-heating-comfort-thermostat",
+        "title": {
+          "en": "Set comfort heating temperature to [[temperature]] °C",
+          "de": "Komfort-Heiztemperatur auf [[temperature]] °C setzen",
+          "nl": "Comfortverwarmingstemperatuur instellen op [[temperature]] °C",
+          "fr": "Régler la température de chauffage confort sur [[temperature]] °C",
+          "sv": "Ställ in komfortvärmetemperatur på [[temperature]] °C"
+        },
+        "titleFormatted": {
+          "en": "Set comfort heating temperature to [[temperature]] °C",
+          "de": "Komfort-Heiztemperatur auf [[temperature]] °C setzen",
+          "nl": "Comfortverwarmingstemperatuur instellen op [[temperature]] °C",
+          "fr": "Régler la température de chauffage confort sur [[temperature]] °C",
+          "sv": "Ställ in komfortvärmetemperatur på [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=target_temperature.heatingComfort"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 3,
+            "max": 37,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          }
+        ]
+      },
+      {
+        "id": "start-holiday",
+        "title": {
+          "en": "Start holiday program from [[start]] to [[end]]",
+          "de": "Urlaubsprogramm von [[start]] bis [[end]] starten",
+          "nl": "Vakantieprogramma starten van [[start]] tot [[end]]",
+          "fr": "Démarrer le programme vacances du [[start]] au [[end]]",
+          "sv": "Starta semesterprogram från [[start]] till [[end]]"
+        },
+        "titleFormatted": {
+          "en": "Start holiday program from [[start]] to [[end]]",
+          "de": "Urlaubsprogramm von [[start]] bis [[end]] starten",
+          "nl": "Vakantieprogramma starten van [[start]] tot [[end]]",
+          "fr": "Démarrer le programme vacances du [[start]] au [[end]]",
+          "sv": "Starta semesterprogram från [[start]] till [[end]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_holiday_active"
+          },
+          {
+            "name": "start",
+            "type": "date",
+            "title": {
+              "en": "From",
+              "de": "Von",
+              "nl": "Van",
+              "fr": "Du",
+              "sv": "Från"
+            }
+          },
+          {
+            "name": "end",
+            "type": "date",
+            "title": {
+              "en": "To",
+              "de": "Bis",
+              "nl": "Tot",
+              "fr": "Au",
+              "sv": "Till"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Schedules the holiday program between the two dates, as in the ViCare app.",
+          "de": "Plant das Urlaubsprogramm zwischen den beiden Daten, wie in der ViCare-App.",
+          "nl": "Plant het vakantieprogramma tussen de twee datums, zoals in de ViCare-app.",
+          "fr": "Planifie le programme vacances entre les deux dates, comme dans l'application ViCare.",
+          "sv": "Schemalägger semesterprogrammet mellan de två datumen, som i ViCare-appen."
+        }
+      },
+      {
+        "id": "end-holiday",
+        "title": {
+          "en": "End holiday program",
+          "de": "Urlaubsprogramm beenden",
+          "nl": "Vakantieprogramma beëindigen",
+          "fr": "Terminer le programme vacances",
+          "sv": "Avsluta semesterprogram"
+        },
+        "titleFormatted": {
+          "en": "End holiday program",
+          "de": "Urlaubsprogramm beenden",
+          "nl": "Vakantieprogramma beëindigen",
+          "fr": "Terminer le programme vacances",
+          "sv": "Avsluta semesterprogram"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_holiday_active"
+          }
+        ],
+        "hint": {
+          "en": "Also cancels a holiday program that has not started yet.",
+          "de": "Bricht auch ein Urlaubsprogramm ab, das noch nicht begonnen hat.",
+          "nl": "Annuleert ook een vakantieprogramma dat nog niet is begonnen.",
+          "fr": "Annule aussi un programme vacances qui n'a pas encore commencé.",
+          "sv": "Avbryter även ett semesterprogram som inte har börjat än."
+        }
+      },
+      {
+        "id": "set-hot-water-mode",
+        "title": {
+          "en": "Set hot water mode to [[mode]]",
+          "de": "Warmwassermodus auf [[mode]] setzen",
+          "nl": "Warmwatermodus instellen op [[mode]]",
+          "fr": "Régler le mode eau chaude sur [[mode]]",
+          "sv": "Ställ in varmvattenläge på [[mode]]"
+        },
+        "titleFormatted": {
+          "en": "Set hot water mode to [[mode]]",
+          "de": "Warmwassermodus auf [[mode]] setzen",
+          "nl": "Warmwatermodus instellen op [[mode]]",
+          "fr": "Régler le mode eau chaude sur [[mode]]",
+          "sv": "Ställ in varmvattenläge på [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.hotWater"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "title": {
+              "en": "Mode",
+              "de": "Modus",
+              "nl": "Modus",
+              "fr": "Mode",
+              "sv": "Läge"
+            },
+            "placeholder": {
+              "en": "Choose a mode",
+              "de": "Modus wählen",
+              "nl": "Kies een modus",
+              "fr": "Choisir un mode",
+              "sv": "Välj ett läge"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Offers only the hot water modes this device has.",
+          "de": "Bietet nur die Warmwassermodi dieses Geräts an.",
+          "nl": "Biedt alleen de warmwatermodi van dit apparaat.",
+          "fr": "Propose uniquement les modes eau chaude de cet appareil.",
+          "sv": "Visar bara de varmvattenlägen enheten har."
+        }
+      },
+      {
+        "id": "set-hot-water-hysteresis",
+        "title": {
+          "en": "Set hot water hysteresis to [[hysteresis]] K",
+          "de": "Warmwasser-Hysterese auf [[hysteresis]] K setzen",
+          "nl": "Warmwaterhysterese instellen op [[hysteresis]] K",
+          "fr": "Régler l'hystérésis eau chaude sur [[hysteresis]] K",
+          "sv": "Ställ in varmvattenhysteres på [[hysteresis]] K"
+        },
+        "titleFormatted": {
+          "en": "Set hot water hysteresis to [[hysteresis]] K",
+          "de": "Warmwasser-Hysterese auf [[hysteresis]] K setzen",
+          "nl": "Warmwaterhysterese instellen op [[hysteresis]] K",
+          "fr": "Régler l'hystérésis eau chaude sur [[hysteresis]] K",
+          "sv": "Ställ in varmvattenhysteres på [[hysteresis]] K"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=target_hysteresis.hotWater"
+          },
+          {
+            "name": "hysteresis",
+            "type": "number",
+            "min": 1,
+            "max": 10,
+            "step": 0.5,
+            "title": {
+              "en": "Hysteresis",
+              "de": "Hysterese",
+              "nl": "Hysterese",
+              "fr": "Hystérésis",
+              "sv": "Hysteres"
+            }
+          }
+        ],
+        "hint": {
+          "en": "How far the hot water may cool below its target temperature before it is heated again.",
+          "de": "Wie weit das Warmwasser unter die Solltemperatur abkühlen darf, bevor es wieder erwärmt wird.",
+          "nl": "Hoeveel het warme water onder de doeltemperatuur mag afkoelen voordat het weer wordt verwarmd.",
+          "fr": "De combien l'eau chaude peut refroidir sous sa température cible avant d'être réchauffée.",
+          "sv": "Hur mycket varmvattnet får svalna under måltemperaturen innan det värms igen."
+        }
       }
     ]
   },
@@ -2500,6 +3248,245 @@
       "decimals": 1,
       "icon": "/assets/gas.svg"
     },
+    "measure_heat_output": {
+      "type": "number",
+      "title": {
+        "en": "Heat output",
+        "de": "Wärmeleistung",
+        "nl": "Warmteafgifte",
+        "fr": "Puissance thermique",
+        "sv": "Värmeeffekt"
+      },
+      "units": {
+        "en": "W"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 0,
+      "icon": "/assets/heat.svg"
+    },
+    "measure_heating_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Heating now",
+        "de": "Heizt gerade",
+        "nl": "Verwarmt nu",
+        "fr": "Chauffe en ce moment",
+        "sv": "Värmer nu"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Heating started",
+        "de": "Heizen gestartet",
+        "nl": "Verwarmen gestart",
+        "fr": "Chauffage démarré",
+        "sv": "Uppvärmningen startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Heating stopped",
+        "de": "Heizen gestoppt",
+        "nl": "Verwarmen gestopt",
+        "fr": "Chauffage arrêté",
+        "sv": "Uppvärmningen stannade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": true,
+      "icon": "/assets/burner.svg"
+    },
+    "measure_heatingrod_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Heating rod running",
+        "de": "Heizstab in Betrieb",
+        "nl": "Elektrisch element actief",
+        "fr": "Résistance électrique en marche",
+        "sv": "Elpatron igång"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Heating rod started",
+        "de": "Heizstab gestartet",
+        "nl": "Elektrisch element gestart",
+        "fr": "Résistance électrique démarrée",
+        "sv": "Elpatronen startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Heating rod stopped",
+        "de": "Heizstab gestoppt",
+        "nl": "Elektrisch element gestopt",
+        "fr": "Résistance électrique arrêtée",
+        "sv": "Elpatronen stannade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/heatingrod.svg"
+    },
+    "measure_heatingrod_number": {
+      "type": "number",
+      "title": {
+        "en": "Heating rod runtime",
+        "de": "Heizstab Laufzeit",
+        "nl": "Looptijd elektrisch element",
+        "fr": "Durée de marche résistance électrique",
+        "sv": "Elpatron drifttid"
+      },
+      "units": {
+        "en": "h"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "step": 1,
+      "icon": "/assets/heatingrod.svg"
+    },
+    "measure_holiday_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Holiday program",
+        "de": "Urlaubsprogramm",
+        "nl": "Vakantieprogramma",
+        "fr": "Programme vacances",
+        "sv": "Semesterprogram"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Active",
+        "de": "Aktiv",
+        "nl": "Actief",
+        "fr": "Actif",
+        "sv": "Aktivt"
+      },
+      "titleFalse": {
+        "en": "Off",
+        "de": "Aus",
+        "nl": "Uit",
+        "fr": "Arrêt",
+        "sv": "Av"
+      },
+      "insightsTitleTrue": {
+        "en": "Holiday program started",
+        "de": "Urlaubsprogramm gestartet",
+        "nl": "Vakantieprogramma gestart",
+        "fr": "Programme vacances démarré",
+        "sv": "Semesterprogrammet startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Holiday program ended",
+        "de": "Urlaubsprogramm beendet",
+        "nl": "Vakantieprogramma beëindigd",
+        "fr": "Programme vacances terminé",
+        "sv": "Semesterprogrammet slutade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/info.svg"
+    },
+    "measure_operating_state": {
+      "type": "enum",
+      "title": {
+        "en": "Operating state",
+        "de": "Betriebszustand",
+        "nl": "Bedrijfstoestand",
+        "fr": "État de fonctionnement",
+        "sv": "Driftstatus"
+      },
+      "values": [
+        {
+          "id": "heating",
+          "title": {
+            "en": "Heating",
+            "de": "Heizen",
+            "nl": "Verwarmen",
+            "fr": "Chauffage",
+            "sv": "Värmer"
+          }
+        },
+        {
+          "id": "hotWater",
+          "title": {
+            "en": "Hot water",
+            "de": "Warmwasser",
+            "nl": "Warm water",
+            "fr": "Eau chaude",
+            "sv": "Varmvatten"
+          }
+        },
+        {
+          "id": "defrost",
+          "title": {
+            "en": "Defrost",
+            "de": "Abtauen",
+            "nl": "Ontdooien",
+            "fr": "Dégivrage",
+            "sv": "Avfrostning"
+          }
+        },
+        {
+          "id": "cooling",
+          "title": {
+            "en": "Cooling",
+            "de": "Kühlen",
+            "nl": "Koelen",
+            "fr": "Refroidissement",
+            "sv": "Kyler"
+          }
+        },
+        {
+          "id": "standby",
+          "title": {
+            "en": "Standby",
+            "de": "Standby",
+            "nl": "Stand-by",
+            "fr": "Veille",
+            "sv": "Standby"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/info.svg"
+    },
     "measure_pump_active": {
       "type": "boolean",
       "title": {
@@ -2545,6 +3532,22 @@
       "uiState": false,
       "icon": "/assets/pump.svg"
     },
+    "measure_scop_number": {
+      "type": "number",
+      "title": {
+        "en": "Seasonal efficiency (SCOP)",
+        "de": "Saisonale Leistungszahl (SCOP)",
+        "nl": "Seizoensrendement (SCOP)",
+        "fr": "Rendement saisonnier (SCOP)",
+        "sv": "Säsongsverkningsgrad (SCOP)"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/cop.svg"
+    },
     "measure_something_active": {
       "type": "boolean",
       "title": {
@@ -2577,6 +3580,58 @@
       "uiComponent": "sensor",
       "step": 1,
       "icon": "/assets/compressor.svg"
+    },
+    "measure_spf_number": {
+      "type": "number",
+      "title": {
+        "en": "Seasonal performance factor (SPF)",
+        "de": "Jahresarbeitszahl (JAZ)",
+        "nl": "Seizoensprestatiefactor (SPF)",
+        "fr": "Facteur de performance saisonnier (SPF)",
+        "sv": "Årsvärmefaktor (SPF)"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/cop.svg"
+    },
+    "measure_status_text": {
+      "type": "string",
+      "title": {
+        "en": "Status",
+        "de": "Status",
+        "nl": "Status",
+        "fr": "État",
+        "sv": "Status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/info.svg"
+    },
+    "target_hysteresis": {
+      "type": "number",
+      "title": {
+        "en": "Hysteresis",
+        "de": "Hysterese",
+        "nl": "Hysterese",
+        "fr": "Hystérésis",
+        "sv": "Hysteres"
+      },
+      "units": {
+        "en": "K"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "getable": true,
+      "setable": true,
+      "insights": false,
+      "uiComponent": null,
+      "icon": "/assets/info.svg"
     }
   }
 }

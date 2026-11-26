@@ -7,7 +7,7 @@
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
 const en = require('../../../locales/en.json');
-const { userError } = require('../userErrors');
+const { userError, userErrorFrom } = require('../userErrors');
 
 test('uses the user\'s language when Homey has the text, and keeps the key as code', () => {
   const device = { homey: { __: (key, tags) => `${key}:${tags.limit}` } };
@@ -26,4 +26,16 @@ test('falls back to the English text, with the tags filled in, when Homey has no
 
 test('an unknown key shows the key rather than nothing', () => {
   expect(userError({}, 'no_such_key').message).toBe('flow.no_such_key');
+});
+
+test('an error from a module without a device gets the user\'s text for its code; others stay as they are', () => {
+  const device = { homey: { __: (key) => `sv:${key}` } };
+  const coded = Object.assign(new Error('The normal program follows the time program'), { code: 'program_follows_schedule' });
+  expect(userErrorFrom(device, coded)).toMatchObject({ message: 'sv:flow.program_follows_schedule', code: 'program_follows_schedule' });
+  expect(userErrorFrom({}, coded)).toMatchObject({ message: en.flow.program_follows_schedule });
+  const unknownCode = Object.assign(new Error('raw'), { code: 'ECONNRESET' });
+  expect(userErrorFrom(device, unknownCode)).toBe(unknownCode);
+  const plain = new Error('plain');
+  expect(userErrorFrom(device, plain)).toBe(plain);
+  expect(userErrorFrom(device, 'text')).toBe('text');
 });

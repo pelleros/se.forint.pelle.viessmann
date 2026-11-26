@@ -11,6 +11,7 @@ const Device = require('../device');
 const Driver = require('../driver');
 const { PATHS, getCapability } = require('../config');
 const { detectHeatingCircuit } = require('../heatingCircuit');
+const { MODE_TITLES } = require('../config/modes');
 
 function response(circuitIds) {
   return {
@@ -93,10 +94,13 @@ test('updates readings only from the selected circuit without mutating API data'
   const target = device('1');
   const input = response(['0', '1']);
   await target.onFeaturesUpdated(input, false);
-  expect(target.setCapabilityValueIfPossible.mock.calls).toHaveLength(2);
+  // Circuit 1's mode and set point, also as the standard thermostat's mode and target
+  expect(target.setCapabilityValueIfPossible.mock.calls).toHaveLength(4);
   expect(target.setCapabilityValueIfPossible.mock.calls).toEqual(expect.arrayContaining([
     ['thermostat_mode.heating', 'forcedReduced', { trigger: true }],
     ['target_temperature.heating', 20, { trigger: true }],
+    ['thermostat_mode', 'heat', { trigger: true }],
+    ['target_temperature', 20, { trigger: true }],
   ]));
   expect(input.data[3].feature).toContain('heating.circuits.1.');
 });
@@ -134,8 +138,9 @@ test('mode options remain independent between devices', async () => {
   second._operatingModes = [{ id: 'forcedReduced' }];
   await first.initializeOperatingModes();
   await second.initializeOperatingModes();
-  expect(first.setCapabilityOptions.mock.calls[0][1].values).toEqual([{ id: 'dhw' }]);
-  expect(second.setCapabilityOptions.mock.calls[0][1].values).toEqual([{ id: 'forcedReduced' }]);
+  // Known modes get their translated titles
+  expect(first.setCapabilityOptions.mock.calls[0][1].values).toEqual([{ id: 'dhw', title: MODE_TITLES.dhw }]);
+  expect(second.setCapabilityOptions.mock.calls[0][1].values).toEqual([{ id: 'forcedReduced', title: MODE_TITLES.forcedReduced }]);
   expect(sharedOptions.values).toEqual([{ id: 'standby' }]);
 });
 

@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Heating rod running",
+    "de": "Heizstab in Betrieb",
+    "nl": "Elektrisch element actief",
+    "fr": "Résistance électrique en marche",
+    "sv": "Elpatron igång"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Heating rod started",
+    "de": "Heizstab gestartet",
+    "nl": "Elektrisch element gestart",
+    "fr": "Résistance électrique démarrée",
+    "sv": "Elpatronen startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Heating rod stopped",
+    "de": "Heizstab gestoppt",
+    "nl": "Elektrisch element gestopt",
+    "fr": "Résistance électrique arrêtée",
+    "sv": "Elpatronen stannade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/heatingrod.svg"
+}

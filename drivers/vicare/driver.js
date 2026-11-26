@@ -159,12 +159,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         const flowCard = this.homey.flow.getActionCard(action.id);
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
-
-          // The feature path and capability the card writes through
-          const target = featureMapper.commandTarget(action.capability);
-          if (!target) throw new Error(`No matching capability found for action: ${action.id}`);
           const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
-          return device.executeCommand(target.path, target.capability, value);
+          // Through the feature path the device has (or the commands of a derived capability)
+          return device.writeCapability(action.capability, value);
         });
       } catch (error) {
         this.error(`Failed to register action ${action.id}:`, error);

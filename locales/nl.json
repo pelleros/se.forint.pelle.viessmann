@@ -121,6 +121,11 @@
     "choose_from_list": "Kies een item uit de lijst.",
     "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit.",
     "write_quota_reserved": "Het Viessmann-account heeft vandaag nog maar __left__ API-aanroepen over, en de regelmatige updates van de apparaten hebben die nodig tot de dagteller opnieuw begint (__time__). Probeer het daarna opnieuw, of kies een langer update-interval in de apparaatinstellingen.",
-    "write_burst": "Te veel wijzigingen voor dit Viessmann-account in korte tijd (hoogstens __limit__ per 10 minuten voor al zijn apparaten). Probeer het over __minutes__ minuten opnieuw."
+    "write_burst": "Te veel wijzigingen voor dit Viessmann-account in korte tijd (hoogstens __limit__ per 10 minuten voor al zijn apparaten). Probeer het over __minutes__ minuten opnieuw.",
+    "program_follows_schedule": "Normaal en verlaagd volgen het tijdprogramma van het apparaat en kunnen niet direct worden gekozen. De keuze beëindigt comfort of eco als een van beide aan staat.",
+    "program_not_available": "Dit apparaat heeft dat programma niet.",
+    "mode_not_available": "Dit apparaat heeft daarvoor geen bedrijfsmodus.",
+    "holiday_invalid_date": "Voer de vakantiedatums in als DD-MM-JJJJ.",
+    "holiday_end_before_start": "Het vakantieprogramma moet na de start eindigen."
   }
 }

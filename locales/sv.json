@@ -121,6 +121,11 @@
     "choose_from_list": "Välj en post i listan.",
     "mode_not_supported": "Driftläget \"__mode__\" stöds inte av den här värmekretsen.",
     "write_quota_reserved": "Viessmann-kontot har bara __left__ API-anrop kvar i dag, och de regelbundna uppdateringarna av dess enheter behöver dem tills dygnsräkningen börjar om (__time__). Försök igen då, eller välj ett längre uppdateringsintervall i enhetens inställningar.",
-    "write_burst": "För många ändringar för det här Viessmann-kontot på kort tid (högst __limit__ per 10 minuter för alla dess enheter). Försök igen om __minutes__ minuter."
+    "write_burst": "För många ändringar för det här Viessmann-kontot på kort tid (högst __limit__ per 10 minuter för alla dess enheter). Försök igen om __minutes__ minuter.",
+    "program_follows_schedule": "Normal och sänkt följer enhetens tidsprogram och kan inte väljas direkt. Valet avslutar komfort eller eko om något av dem är på.",
+    "program_not_available": "Enheten har inte det programmet.",
+    "mode_not_available": "Enheten har inget driftläge för det.",
+    "holiday_invalid_date": "Ange semesterdatumen som DD-MM-ÅÅÅÅ.",
+    "holiday_end_before_start": "Semesterprogrammet måste sluta efter att det har börjat."
   }
 }

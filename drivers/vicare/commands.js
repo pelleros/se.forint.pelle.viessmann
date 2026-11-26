@@ -23,8 +23,9 @@
 'use strict';
 
 // Sending a command to the device: every write goes through sendFeatureCommand, whether it is a
-// capability write (device.executeCommand, with capabilityCommand), the heating curve (both of
-// its values at once) or the generic command card. A command is checked against the device's
+// capability write (device.executeCommand, with capabilityCommand), the commands a derived
+// capability plans (sendCommands, from capabilityWrites.js), the heating curve (both of its
+// values at once) or the generic command card. A command is checked against the device's
 // command metadata before it is sent, goes to the device's heating circuit, and a response with
 // `success: false` is an error. Errors keep the API's reason, status and Retry-After. Anything
 // that must happen around every write belongs in sendFeatureCommand, so that capability
@@ -164,6 +165,26 @@ async function sendCapabilityValue(device, path, capability, value, { check, res
   await sendFeatureCommand(device, path, command, parameters, { check, restoring, confirm });
 }
 
+/**
+ * Sends commands in order, each with sendFeatureCommand, and stops at the first that fails (a
+ * write of a derived capability, such as a program switch that ends one program before it
+ * starts another). `check` can refuse each command before it is sent. Once the last one
+ * succeeded, a later poll checks the values in `confirm` (capability name → value).
+ * @param {CommandDevice} device
+ * @param {{ path: string, command: string, parameters: Record<string, any> }[]} commands
+ * @param {{ check?: (command: { path: string, command: string, parameters: Record<string, any> }) => void,
+ *   confirm?: Record<string, any> }} [options]
+ * @returns {Promise<void>}
+ */
+async function sendCommands(device, commands, { check, confirm = {} } = {}) {
+  for (const [index, entry] of commands.entries()) {
+    await sendFeatureCommand(device, entry.path, entry.command, entry.parameters, {
+      check: check && (() => check(entry)),
+      confirm: index === commands.length - 1 ? confirm : {},
+    });
+  }
+}
+
 module.exports = {
-  capabilityCommand, checkFeatureCommand, sendFeatureCommand, sendCapabilityValue,
+  capabilityCommand, checkFeatureCommand, sendFeatureCommand, sendCapabilityValue, sendCommands,
 };

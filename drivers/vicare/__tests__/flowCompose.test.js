@@ -10,15 +10,16 @@
 const fs = require('fs');
 const path = require('path');
 const flowCompose = require('../driver.flow.compose.json');
-const { FEATURES } = require('../config');
+const { FEATURES, DERIVED } = require('../config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
 
 const LANGUAGES = fs.readdirSync(path.join(__dirname, '../../../locales'))
   .filter((file) => file.endsWith('.json'))
   .map((file) => path.basename(file, '.json'));
 const RUNTIME = { conditions: FLOW_CONDITIONS, actions: FLOW_ACTIONS, triggers: FLOW_TRIGGERS };
-const producedCapabilities = new Set(Object.values(FEATURES)
-  .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)));
+const producedCapabilities = new Set([...Object.values(FEATURES)
+  .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)),
+...DERIVED.map((capability) => capability.capabilityName)]);
 
 const cards = Object.entries(RUNTIME).flatMap(([group]) => (flowCompose[group] || [])
   .map((card) => [`${group}/${card.id}`, group, card]));

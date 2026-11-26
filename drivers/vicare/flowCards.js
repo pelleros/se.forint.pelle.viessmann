@@ -37,6 +37,9 @@ const { PATHS, getCapability } = require('./config');
  * @property {string[]} [anyCapability] the card works on devices with any of these capabilities
  * @property {string} [kind] how a card that does more than read or write its capability runs
  *   (see flowHandlers.js); cards without a kind read or write the capability directly
+ * @property {string} [argument] the card's argument that a kind compares the value with
+ *   (`equals`) or takes the value from (`chooseValue`)
+ * @property {string} [token] the token that carries the new value (trigger kind `valueChanged`)
  * @property {boolean} [event] a trigger the app fires for an event (with its own tokens),
  *   not for a change of the capability's value; the capability is the card's $filter
  */
@@ -85,9 +88,32 @@ const FLOW_CONDITIONS = {
     id: 'feature-value-is',
     kind: 'compareFeature',
   },
+  HEATING_ACTIVE: {
+    id: 'heating-is-active',
+    capability: 'measure_heating_active',
+    kind: 'isOn',
+  },
+  OPERATING_STATE_IS: {
+    id: 'operating-state-is',
+    capability: 'measure_operating_state',
+    kind: 'equals',
+    argument: 'state',
+  },
+  HEATING_PROGRAM_IS: {
+    id: 'heating-program-is',
+    capability: 'thermostat_mode.heatingProgram',
+    kind: 'equals',
+    argument: 'program',
+  },
+  HOLIDAY_ACTIVE: {
+    id: 'holiday-is-active',
+    capability: capabilityOf(PATHS.HOLIDAY),
+    kind: 'isOn',
+  },
 };
 
-// Actions write through the capability's command (see FeatureMapper.commandTarget)
+// Actions without a kind write their capability (device.writeCapability: the feature path the
+// device has, or the commands of a derived capability)
 /** @type {Record<string, FlowCardMapping>} */
 const FLOW_ACTIONS = {
   SET_HEATING_MODE: {
@@ -168,16 +194,77 @@ const FLOW_ACTIONS = {
     id: 'run-feature-command',
     kind: 'runCommand',
   },
+  SET_DEVICE_OPERATING_MODE: {
+    id: 'set-device-operating-mode',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_MODE),
+    kind: 'chooseValue',
+    argument: 'mode',
+  },
+  SET_HEATING_PROGRAM: {
+    id: 'set-heating-program',
+    capability: 'thermostat_mode.heatingProgram',
+  },
+  SET_HEATING_REDUCED_TEMPERATURE: {
+    id: 'set-heating-reduced-thermostat',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_REDUCED),
+  },
+  SET_HEATING_COMFORT_TEMPERATURE: {
+    id: 'set-heating-comfort-thermostat',
+    capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_COMFORT),
+  },
+  START_HOLIDAY: {
+    id: 'start-holiday',
+    capability: capabilityOf(PATHS.HOLIDAY),
+    kind: 'startHoliday',
+  },
+  END_HOLIDAY: {
+    id: 'end-holiday',
+    capability: capabilityOf(PATHS.HOLIDAY),
+    kind: 'endHoliday',
+  },
+  SET_HOT_WATER_MODE: {
+    id: 'set-hot-water-mode',
+    capability: capabilityOf(PATHS.HOT_WATER_MODE),
+    kind: 'chooseValue',
+    argument: 'mode',
+  },
+  SET_HOT_WATER_HYSTERESIS: {
+    id: 'set-hot-water-hysteresis',
+    capability: capabilityOf(PATHS.HOT_WATER_HYSTERESIS),
+  },
 };
 
 // Triggers fire when their capability changes (device.setCapabilityValueIfPossible). Cards
 // with a kind fire only on a change from a known value (see flowHandlers.js): `turnedOn` and
-// `turnedOff` on booleans, `changed` with the new value as the `temperature` token
+// `turnedOff` on booleans, `changed` with the new value as the `temperature` token,
+// `valueChanged` with the new value as the mapping's `token`
 /** @type {Record<string, FlowCardMapping>} */
 const FLOW_TRIGGERS = {
   HEATING_MODE_CHANGED: {
     id: 'heating-mode-changed',
     capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_MODE),
+  },
+  HEATING_STARTED: {
+    id: 'heating-started',
+    capability: 'measure_heating_active',
+    kind: 'turnedOn',
+  },
+  HEATING_STOPPED: {
+    id: 'heating-stopped',
+    capability: 'measure_heating_active',
+    kind: 'turnedOff',
+  },
+  OPERATING_STATE_CHANGED: {
+    id: 'operating-state-changed',
+    capability: 'measure_operating_state',
+    kind: 'valueChanged',
+    token: 'state',
+  },
+  HEATING_PROGRAM_CHANGED: {
+    id: 'heating-program-changed',
+    capability: 'thermostat_mode.heatingProgram',
+    kind: 'valueChanged',
+    token: 'program',
   },
   CIRCULATION_PUMP_STARTED: {
     id: 'circulation-pump-started',

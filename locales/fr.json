@@ -17,8 +17,7 @@
     "save": "Enregistrer",
     "saved": "Client ID enregistré ! Vous pouvez maintenant ajouter votre appareil Viessmann dans Homey.",
     "error": {
-      "invalid_client_id": "Veuillez saisir un Client ID valide",
-      "no_device_selected": "Veuillez d'abord sélectionner un appareil"
+      "invalid_client_id": "Veuillez saisir un Client ID valide"
     },
     "problems": {
       "title": "Problèmes fréquents",
@@ -31,8 +30,8 @@
         "fix": "Vérifiez que votre chauffage apparaît et est en ligne dans l'app ViCare. Assurez-vous que le Client ID ci-dessus était enregistré avant de commencer l'ajout de l'appareil. Si vous venez de l'enregistrer ou de le modifier, fermez la fenêtre d'ajout d'appareils et recommencez."
       },
       "no_oauth2_client": {
-        "title": "« No OAuth2 Client Found » dans les outils de dépannage",
-        "fix": "Les outils de dépannage ci-dessous utilisent la connexion d'un appareil déjà ajouté. Ajoutez d'abord un appareil Viessmann ViCare, puis réessayez."
+        "title": "« No OAuth2 Client Found » lors de la préparation du rapport",
+        "fix": "Le rapport de cette page utilise la connexion d'un appareil déjà ajouté. Ajoutez d'abord un appareil Viessmann ViCare, puis réessayez. Pendant l'ajout d'un appareil, le rapport peut aussi être préparé juste après la connexion Viessmann, sans ajouter d'appareil."
       },
       "reauth": {
         "title": "Appareil indisponible après des semaines ou des mois (« Authentication failed » ou connexion perdue)",
@@ -42,46 +41,91 @@
     },
     "troubleshooting": {
       "title": "Dépannage",
-      "description": "Ces outils affichent les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux envoyer les données au développeur en privé plutôt que de les publier.",
-      "installations": {
-        "title": "Informations sur l'installation",
-        "description": "Affiche les détails de votre installation Viessmann et des appareils connectés",
-        "get": "Obtenir les données d'installation",
-        "copy": "Copier dans le presse-papiers"
-      },
-      "features": {
-        "title": "Fonctions de l'appareil",
-        "description": "Affiche les fonctions disponibles et les valeurs actuelles de votre appareil",
-        "get": "Obtenir les données des fonctions",
-        "copy": "Copier dans le presse-papiers"
-      },
-      "device": {
-        "title": "Choix de l'appareil",
-        "description": "Choisissez l'appareil dont vous voulez obtenir les fonctions",
-        "select": "Choisissez un appareil...",
-        "refresh": "Actualiser les appareils"
-      }
+      "description": "Le rapport ci-dessous affiche les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux l'envoyer au développeur en privé plutôt que de le publier."
+    },
+    "health": {
+      "title": "État",
+      "description": "Les appels API utilisés aujourd'hui par l'application pour chaque compte Viessmann, et la dernière mise à jour de chaque appareil. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte, et recommence à compter à minuit UTC.",
+      "refresh": "Actualiser",
+      "account": "Compte Viessmann __account__ : __used__ appels API aujourd'hui sur environ __limit__ (nouveau décompte à __time__), environ __planned__ par jour prévus pour les mises à jour.",
+      "device": "__name__ (compte __account__) : mise à jour toutes les __minutes__ minutes.",
+      "last_update": "Dernière mise à jour : __time__",
+      "no_update": "Aucune mise à jour réussie depuis le démarrage de l'application.",
+      "last_error": "Dernière erreur (__time__) : __message__",
+      "no_devices": "Aucun appareil ajouté pour l'instant."
+    },
+    "report": {
+      "title": "Rapport pour le développeur",
+      "description": "Votre appareil est introuvable ou des valeurs manquent ? Ceci rassemble en une étape, anonymisé, ce que Viessmann indique pour votre installation et ses appareils. Cela utilise quelques appels API. Rien n'est envoyé tant que vous ne l'envoyez pas vous-même.",
+      "prepare": "Préparer le rapport",
+      "copy": "Copier dans le presse-papiers",
+      "how_to_send": "Le rapport est prêt. Pour l'envoyer, ouvrez l'application Viessmann ViCare dans l'application Homey (Plus > Apps), choisissez Envoyer un rapport de diagnostic et indiquez dans le message qu'il s'agit de valeurs manquantes (les __lines__ lignes du résumé y figurent), ou copiez-le et envoyez-le au développeur en privé, par exemple par message privé sur le forum Homey Community."
     }
   },
   "pair": {
     "no_client_id": "Aucun Client ID Viessmann n'est encore enregistré. Ouvrez les paramètres de l'app Viessmann ViCare, créez et enregistrez un Client ID en suivant les étapes, puis ajoutez à nouveau l'appareil.",
     "api_limit": "La limite de l'API Viessmann est atteinte. Réessayez après __time__.",
-    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; réessayez plus tard. Si cela persiste, contactez le support développeurs de Viessmann."
+    "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; réessayez plus tard. Si cela persiste, contactez le support développeurs de Viessmann.",
+    "no_installations": "Aucun chauffage n'a été trouvé pour ce compte Viessmann. Vérifiez dans l'application ViCare que votre chauffage est configuré pour le compte avec lequel vous vous êtes connecté.",
+    "no_heating_device": "Ce compte Viessmann n'a aucun appareil de chauffage que l'application peut ajouter (trouvé : __types__). Un rapport pour le développeur aide à en ajouter la prise en charge.",
+    "device_name": {
+      "heat_pump": "Pompe à chaleur Viessmann",
+      "boiler": "Chaudière Viessmann",
+      "fuel_cell": "Pile à combustible Viessmann",
+      "other": "Chauffage Viessmann"
+    },
+    "client_id": {
+      "title": "Client ID Viessmann",
+      "intro": "L'offre API gratuite de Viessmann nécessite votre propre Client ID. Cela prend environ cinq minutes, une seule fois :",
+      "step": "Enregistrez le client dans le portail, copiez son Client ID et collez-le ci-dessous.",
+      "continue": "Enregistrer et se connecter à Viessmann",
+      "invalid": "Cela ne ressemble pas à un Client ID. Copiez-le depuis le client dans le portail développeur Viessmann ; il ne contient pas d'espaces."
+    },
+    "check": {
+      "title": "Votre compte Viessmann",
+      "loading": "Recherche de votre chauffage…",
+      "found": "Trouvé :",
+      "continue": "Continuer",
+      "retry": "Réessayer",
+      "report_link": "Appareil introuvable ou valeurs manquantes ? Préparer des données pour le développeur",
+      "close": "Fermer sans ajouter d'appareil",
+      "no_login": "Connectez-vous d'abord à Viessmann, puis réessayez."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; l'app réessaie toutes les heures. Si cela persiste, contactez le support développeurs de Viessmann.",
     "gateway_offline": "La passerelle Viessmann est hors ligne. Vérifiez qu'elle est alimentée et connectée à Internet.",
-    "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__."
+    "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__.",
+    "command_refused": "Viessmann a refusé la modification (__detail__). Il s'agit parfois d'une panne temporaire chez Viessmann ; réessayez plus tard."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."
+    "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__.",
+    "too_many_calls": "Avec ce réglage, ce compte Viessmann aurait besoin d'environ __calls__ appels API par jour pour les mises à jour. Viessmann en autorise environ 1 450 par jour et l'application en réserve quelques-uns pour d'autres requêtes, donc __limit__ au maximum sont possibles. Choisissez un intervalle plus long ici ou sur un autre appareil, ou désactivez le journal des événements."
   },
-  "commands": {
+  "status": {
+    "fault": "Le chauffage signale le défaut __codes__. La notice de votre chauffage explique le code.",
+    "fault_notification": "__device__ : le chauffage signale le défaut __code__.",
+    "frozen": "Viessmann n'a envoyé aucune nouvelle valeur depuis __time__. Redémarrer le module internet du chauffage aide généralement : débranchez la Vitoconnect pendant une minute, ou éteignez et rallumez le chauffage si le module est intégré.",
+    "write_not_applied": "Le chauffage n'a pas pris en compte la modification : __capability__ vaut __actual__ au lieu de __wanted__.",
+    "refresh_too_soon": "Les fonctions Viessmann viennent d'être lues. Réessayez dans __minutes__ minutes."
+  },
+  "flow": {
+    "value_unknown": "Pas encore de valeur actuelle de Viessmann. Réessayez après la prochaine mise à jour.",
+    "rate_limited": "Trop de modifications en peu de temps (au plus __limit__ par heure). Réessayez dans __minutes__ minutes.",
+    "feature_not_reported": "L'appareil ne transmet pas __feature__.",
+    "property_not_reported": "__feature__ n'a pas de valeur __property__.",
+    "not_a_number": "La valeur de __feature__ n'est pas un nombre.",
+    "invalid_parameters": "Les paramètres doivent être un objet JSON, par exemple {\"temperature\": 50}, ou {} pour aucun.",
+    "unknown_parameter": "La commande n'a pas de paramètre __parameter__.",
+    "no_command_metadata": "Les commandes de l'appareil ne sont pas encore connues. Réessayez après la prochaine mise à jour.",
+    "choose_from_list": "Choisissez une entrée dans la liste.",
+    "mode_not_supported": "Le mode de fonctionnement \"__mode__\" n'est pas pris en charge par ce circuit de chauffage.",
+    "write_quota_reserved": "Il ne reste aujourd'hui que __left__ appels API au compte Viessmann, et les mises à jour régulières de ses appareils en ont besoin jusqu'à la remise à zéro du compteur quotidien (__time__). Réessayez ensuite, ou choisissez un intervalle de mise à jour plus long dans les réglages de l'appareil.",
+    "write_burst": "Trop de modifications pour ce compte Viessmann en peu de temps (au plus __limit__ par période de 10 minutes pour tous ses appareils). Réessayez dans __minutes__ minutes.",
     "program_follows_schedule": "Normal et réduit suivent le programme horaire de l'appareil et ne peuvent pas être choisis directement. Ce choix arrête confort ou éco si l'un d'eux est actif.",
     "program_not_available": "Cet appareil n'a pas ce programme.",
     "mode_not_available": "Cet appareil n'a pas de mode de fonctionnement pour cela.",
     "holiday_invalid_date": "Saisissez les dates de vacances au format JJ-MM-AAAA.",
-    "holiday_end_before_start": "Le programme vacances doit se terminer après son début.",
-    "too_many_commands": "Trop de modifications ont été envoyées à Viessmann au cours de la dernière heure. Réessayez plus tard."
+    "holiday_end_before_start": "Le programme vacances doit se terminer après son début."
   }
 }

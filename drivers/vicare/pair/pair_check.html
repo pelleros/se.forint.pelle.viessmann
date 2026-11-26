@@ -1,0 +1,148 @@
+<!--
+
+ Copyright (C) 2024 Per Rosengren
+ This file is part of se.forint.pelle.viessmann project.
+
+ se.forint.pelle.viessmann project is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ se.forint.pelle.viessmann project is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with se.forint.pelle.viessmann project.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- After the login: what the Viessmann account has (or why nothing can be added), and a report
+     for the developer that works without adding a device. Nothing is sent from here. -->
+<style>
+  .pair-check-devices { margin: 0 0 16px; padding-left: 20px; }
+  .pair-check-error { color: #c0392b; margin: 0 0 16px; line-height: 1.4; }
+  .pair-check-report { margin-top: 24px; }
+  .pair-check-report textarea { width: 100%; font-family: monospace; font-size: 11px; }
+  .pair-check-buttons { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+</style>
+
+<p class="homey-form-hint" id="status"></p>
+<ul class="pair-check-devices" id="devices"></ul>
+<p class="pair-check-error" id="error" style="display: none;"></p>
+<div class="pair-check-buttons">
+  <button id="continue" class="homey-button-primary-full" style="display: none;"></button>
+  <button id="retry" class="homey-button-secondary" style="display: none;"></button>
+</div>
+
+<div class="pair-check-report">
+  <button id="reportLink" class="homey-button-transparent"></button>
+  <div id="report" style="display: none;">
+    <p class="homey-form-hint" id="reportIntro"></p>
+    <div class="pair-check-buttons">
+      <button id="prepare" class="homey-button-primary"></button>
+      <button id="copy" class="homey-button-secondary" style="display: none;"></button>
+      <button id="close" class="homey-button-secondary" style="display: none;"></button>
+    </div>
+    <p class="homey-form-hint" id="howToSend" style="display: none;"></p>
+    <textarea id="reportText" rows="8" readonly style="display: none;"></textarea>
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function () {
+    function el(id) {
+      return document.getElementById(id);
+    }
+    function t(key, tags) {
+      var result = Homey.__(key) || key;
+      Object.keys(tags || {}).forEach(function (tag) {
+        result = result.split("__" + tag + "__").join(String(tags[tag]));
+      });
+      return result;
+    }
+    function message(err) {
+      return err && err.message ? err.message : String(err);
+    }
+
+    Homey.setTitle(Homey.__("pair.check.title"));
+    el("continue").textContent = Homey.__("pair.check.continue");
+    el("retry").textContent = Homey.__("pair.check.retry");
+    el("reportLink").textContent = Homey.__("pair.check.report_link");
+    el("reportIntro").textContent = Homey.__("settings.report.description");
+    el("prepare").textContent = Homey.__("settings.report.prepare");
+    el("copy").textContent = Homey.__("settings.report.copy");
+    el("close").textContent = Homey.__("pair.check.close");
+
+    function check() {
+      el("status").textContent = Homey.__("pair.check.loading");
+      el("devices").textContent = "";
+      el("error").style.display = "none";
+      el("continue").style.display = "none";
+      el("retry").style.display = "none";
+      Homey.emit("pair_check")
+        .then(function (result) {
+          if (result.error) {
+            el("status").textContent = "";
+            el("error").textContent = result.error;
+            el("error").style.display = "block";
+            el("retry").style.display = "block";
+            return;
+          }
+          el("status").textContent = Homey.__("pair.check.found");
+          result.devices.forEach(function (name) {
+            var item = document.createElement("li");
+            item.textContent = name;
+            el("devices").appendChild(item);
+          });
+          el("continue").style.display = "block";
+        })
+        .catch(function (err) {
+          el("status").textContent = "";
+          el("error").textContent = message(err);
+          el("error").style.display = "block";
+          el("retry").style.display = "block";
+        });
+    }
+
+    el("continue").addEventListener("click", function () { Homey.showView("list_devices"); });
+    el("retry").addEventListener("click", check);
+    el("reportLink").addEventListener("click", function () {
+      el("reportLink").style.display = "none";
+      el("report").style.display = "block";
+    });
+    el("prepare").addEventListener("click", function () {
+      el("prepare").disabled = true;
+      Homey.emit("prepare_report")
+        .then(function (result) {
+          el("prepare").disabled = false;
+          el("reportText").value = JSON.stringify(result.report, null, 2);
+          el("reportText").style.display = "block";
+          el("howToSend").textContent = t("settings.report.how_to_send", { lines: result.summaryLines });
+          el("howToSend").style.display = "block";
+          el("copy").style.display = "block";
+          el("close").style.display = "block";
+        })
+        .catch(function (err) {
+          el("prepare").disabled = false;
+          Homey.alert(message(err));
+        });
+    });
+    el("copy").addEventListener("click", function () {
+      var area = el("reportText");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(area.value).catch(function () {
+          area.select();
+          document.execCommand("copy");
+        });
+      } else {
+        area.select();
+        document.execCommand("copy");
+      }
+    });
+    // Ends the pairing without adding a device
+    el("close").addEventListener("click", function () { Homey.done(); });
+
+    check();
+  })();
+</script>

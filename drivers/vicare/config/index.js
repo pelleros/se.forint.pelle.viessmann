@@ -32,6 +32,9 @@
 //   circuits.js      readings of the heating circuit
 //   status.js        running states, load and modulation, fuel cell phase
 //   energy.js        coefficients of performance and statistics counters
+//   pumps.js         circulation pumps (and the on/off factory)
+//   hotWater.js      hot water charging
+//   solar.js         solar thermal collectors
 //   program.js       heating programs (picker, set points, holiday) and hot water settings
 //   state.js         what the device is doing: heating now, operating state, status text
 //   templates.js     shared option templates and factories
@@ -50,13 +53,16 @@ const temperatures = require('./temperatures');
 const circuits = require('./circuits');
 const status = require('./status');
 const energy = require('./energy');
+const pumps = require('./pumps');
+const hotWater = require('./hotWater');
+const solar = require('./solar');
 const program = require('./program');
 const state = require('./state');
 
 // A new theme module is added here, at the end
 /** @type {Record<string, ConfigModule>} */
 const MODULES = {
-  thermostat, temperatures, circuits, status, energy, program, state,
+  thermostat, temperatures, circuits, status, energy, pumps, hotWater, solar, program, state,
 };
 
 /**

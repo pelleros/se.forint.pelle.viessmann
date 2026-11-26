@@ -3,10 +3,11 @@
 'use strict';
 
 // The standard thermostat, the program picker, holiday, hot water settings, what the device is
-// doing now (heating now, operating state, status text) and how writes are sent: per fixture
-// device, through the real driver, device and config. The pure modules have their own tests
+// doing now (heating now, operating state, status text) and that writes count against the
+// account's allowance: per fixture
+// device, through the real driver, device and config. The modules have their own tests
 // (config.modes, config.program, config.state, derivedCapabilities, capabilityWrites, holiday,
-// flowRuntime).
+// commands, flowHandlers).
 
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
@@ -18,6 +19,7 @@ const { programsFor, PROGRAMS, ECO_PROGRAM } = require('../config/program');
 const { featureMapper } = require('../featureMapper');
 const { findFixtureDevice } = require('../../../test/helpers/fixtureDevices');
 const en = require('../../../locales/en.json');
+const { WRITE_BURST_LIMIT } = require('../../../lib/apiQuota');
 
 const { PATHS } = config;
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -121,7 +123,7 @@ describe('standard thermostat mode', () => {
 
   test('a mode the device does not have is refused in the user\'s language, and nothing is sent', async () => {
     const { device } = await pairedDevice('vitocal_222');
-    await expect(device.writeCapability('thermostat_mode', 'cool')).rejects.toThrow(en.commands.mode_not_available);
+    await expect(device.writeCapability('thermostat_mode', 'cool')).rejects.toThrow(en.flow.mode_not_available);
     await expect(device.writeCapability('thermostat_mode', 'party')).rejects.toThrow('Unknown thermostat mode: party');
     expect(commandsSent(device)).toEqual([]);
   });
@@ -205,14 +207,14 @@ describe('program picker', () => {
 
   test('normal and reduced cannot be chosen while the time program runs', async () => {
     const { device } = await pairedDevice('vitocal_222');
-    await expect(device.writeCapability('thermostat_mode.heatingProgram', 'reduced')).rejects.toThrow(en.commands.program_follows_schedule);
+    await expect(device.writeCapability('thermostat_mode.heatingProgram', 'reduced')).rejects.toThrow(en.flow.program_follows_schedule);
     await expect(device.writeCapability('thermostat_mode.heatingProgram', 'nap')).rejects.toThrow('Unknown program: nap');
     expect(commandsSent(device)).toEqual([]);
   });
 
   test('a program the device does not have, or cannot switch on now, is refused', async () => {
     const { device } = await pairedDevice('pyvicare/Vitocal250A');
-    await expect(device.writeCapability('thermostat_mode.heatingProgram', 'eco')).rejects.toThrow(en.commands.program_not_available);
+    await expect(device.writeCapability('thermostat_mode.heatingProgram', 'eco')).rejects.toThrow(en.flow.program_not_available);
     // comfortHeating lists activate, but not as executable
     await expect(device.writeCapability('thermostat_mode.heatingProgram', 'comfort')).rejects.toThrow('currently unavailable');
     expect(commandsSent(device)).toEqual([]);
@@ -258,16 +260,17 @@ describe('holiday program', () => {
   });
 
   test('refuses dates that are no dates, an end before the start, and the same day where the device does not allow it', async () => {
-    const { device } = await pairedDevice('vitocal_222');
-    await expect(device.startHoliday({ start: '31-02-2026', end: '03-03-2026' })).rejects.toThrow(en.commands.holiday_invalid_date);
-    await expect(device.startHoliday({ start: 'soon', end: '03-03-2026' })).rejects.toThrow(en.commands.holiday_invalid_date);
-    await expect(device.startHoliday({ start: '10-03-2026', end: '03-03-2026' })).rejects.toThrow(en.commands.holiday_end_before_start);
+    const { device, listeners } = await pairedDevice('vitocal_222');
+    const start = (from, to) => listeners['start-holiday']({ device, start: from, end: to });
+    await expect(start('31-02-2026', '03-03-2026')).rejects.toThrow(en.flow.holiday_invalid_date);
+    await expect(start('soon', '03-03-2026')).rejects.toThrow(en.flow.holiday_invalid_date);
+    await expect(start('10-03-2026', '03-03-2026')).rejects.toThrow(en.flow.holiday_end_before_start);
     // sameDayAllowed is false on this heat pump
-    await expect(device.startHoliday({ start: '2026-03-10', end: '2026-03-10' })).rejects.toThrow(en.commands.holiday_end_before_start);
+    await expect(start('2026-03-10', '2026-03-10')).rejects.toThrow(en.flow.holiday_end_before_start);
     expect(commandsSent(device)).toEqual([]);
 
-    const { device: boiler } = await pairedDevice('vitodens_200_e3');
-    await boiler.startHoliday({ start: '2026-03-10', end: '2026-03-10' });
+    const { device: boiler, listeners: boilerListeners } = await pairedDevice('vitodens_200_e3');
+    await boilerListeners['start-holiday']({ device: boiler, start: '2026-03-10', end: '2026-03-10' });
     expect(commandsSent(boiler)).toEqual([[PATHS.HOLIDAY, 'schedule', { start: '2026-03-10', end: '2026-03-10' }]]);
   });
 
@@ -334,12 +337,25 @@ describe('heating now, operating state and status text', () => {
     expect(await listeners['heating-is-active']({ device })).toBe(true);
     expect(await listeners['operating-state-is']({ device, state: 'heating' })).toBe(true);
     expect(await listeners['heating-program-is']({ device, program: 'comfort' })).toBe(false);
-    expect(cards['heating-started'].trigger).toHaveBeenCalledTimes(1);
-    expect(cards['operating-state-changed'].trigger).toHaveBeenCalledWith(device, { state: 'heating' }, {});
+    // The first values after pairing are no change
+    expect(cards['heating-started'].trigger).not.toHaveBeenCalled();
+    expect(cards['operating-state-changed'].trigger).not.toHaveBeenCalled();
 
     await device.setCapabilityValueIfPossible('measure_heating_active', false);
+    await device.setCapabilityValueIfPossible('measure_operating_state', 'standby');
     expect(cards['heating-stopped'].trigger).toHaveBeenCalledTimes(1);
+    expect(cards['operating-state-changed'].trigger).toHaveBeenCalledWith(device, { state: 'standby' }, {});
+    await device.setCapabilityValueIfPossible('measure_heating_active', true);
     expect(cards['heating-started'].trigger).toHaveBeenCalledTimes(1);
+    expect(cards['heating-stopped'].trigger).toHaveBeenCalledTimes(1);
+  });
+
+  test('the conditions fail while the value is unknown instead of answering no', async () => {
+    const { device, listeners } = await pairedDevice('vitocal_222');
+    device.__values.set('measure_heating_active', null);
+    device.__values.set('measure_operating_state', null);
+    await expect(listeners['heating-is-active']({ device })).rejects.toThrow(en.flow.value_unknown);
+    await expect(listeners['operating-state-is']({ device, state: 'heating' })).rejects.toThrow(en.flow.value_unknown);
   });
 
   test('a response without the compressor and burner keeps the last state; when they are gone it is cleared', async () => {
@@ -351,52 +367,14 @@ describe('heating now, operating state and status text', () => {
   });
 });
 
-describe('write limits', () => {
-  test('the same command waits 10 seconds after the previous one, and only the latest waiting value is sent', async () => {
-    jest.useFakeTimers();
+describe('writes and the account\'s allowance', () => {
+  test('every write counts against the account: a burst of changes is refused in the user\'s language', async () => {
     const { device } = await pairedDevice('vitocal_222');
-    await device.writeCapability('target_temperature.hotWater', 50);
-    const second = device.writeCapability('target_temperature.hotWater', 51);
-    const third = device.writeCapability('target_temperature.hotWater', 52);
-    // Another command is not held up
-    await device.writeCapability('target_temperature.heating', 22);
-
-    await jest.advanceTimersByTimeAsync(10 * 1000);
-    await expect(second).resolves.toBe(true);
-    await expect(third).resolves.toBe(true);
-    expect(commandsSent(device)).toEqual([
-      ['heating.dhw.temperature.main', 'setTargetTemperature', { temperature: 50 }],
-      ['heating.circuits.0.operating.programs.normal', 'setTemperature', { targetTemperature: 22 }],
-      ['heating.dhw.temperature.main', 'setTargetTemperature', { temperature: 52 }],
-    ]);
-    expect(device.getCapabilityValue('target_temperature.hotWater')).toBe(52);
-  });
-
-  test('more than 30 commands an hour are refused in the user\'s language', async () => {
-    jest.useFakeTimers();
-    const { device } = await pairedDevice('vitocal_222');
-    for (let i = 0; i < 30; i++) {
-      await device.writeCapability('target_temperature.heating', 10 + (i % 20));
-      await jest.advanceTimersByTimeAsync(10 * 1000);
-    }
-    await expect(device.writeCapability('target_temperature.heating', 25)).rejects.toThrow(en.commands.too_many_commands);
-    expect(commandsSent(device)).toHaveLength(30);
-
-    await jest.advanceTimersByTimeAsync(60 * 60 * 1000);
-    await device.writeCapability('target_temperature.heating', 25);
-    expect(commandsSent(device)).toHaveLength(31);
-  });
-
-  test('deleting the device drops writes that still wait', async () => {
-    jest.useFakeTimers();
-    const { device } = await pairedDevice('vitocal_222');
-    await device.writeCapability('target_temperature.hotWater', 50);
-    const waiting = device.writeCapability('target_temperature.hotWater', 51);
-    await device.onOAuth2Deleted();
-    await expect(waiting).resolves.toBe(true);
-    await jest.advanceTimersByTimeAsync(10 * 1000);
-    expect(commandsSent(device)).toHaveLength(1);
-    expect(device.getCapabilityValue('target_temperature.hotWater')).toBe(50);
+    for (let i = 0; i < WRITE_BURST_LIMIT; i++) await device.writeCapability('target_temperature.heating', 10 + (i % 20));
+    await expect(device.writeCapability('target_temperature', 25)).rejects.toMatchObject({ code: 'write_burst' });
+    await expect(device.writeCapability('thermostat_mode', 'off')).rejects.toMatchObject({ code: 'write_burst' });
+    expect(commandsSent(device)).toHaveLength(WRITE_BURST_LIMIT);
+    expect(device.getCapabilityValue('target_temperature')).toBe(10 + ((WRITE_BURST_LIMIT - 1) % 20));
   });
 });
 

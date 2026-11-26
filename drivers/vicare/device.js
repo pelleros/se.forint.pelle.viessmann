@@ -21,17 +21,23 @@
 'use strict';
 
 const { OAuth2Device } = require('homey-oauth2app');
-const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
 const { MODE_TITLES } = require('./config/modes');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
-const WriteLimiter = require('../../lib/writeLimiter');
-const { configuredWrite, planWrite, writeErrorMessage } = require('./capabilityWrites');
-const { holidaySchedule } = require('./holiday');
+const { writeCapability, capabilitiesShowing } = require('./capabilityWrites');
 const { runMigrations, versionBefore } = require('./migrations');
+const { DeviceMonitor } = require('./deviceMonitor');
+const { translate } = require('../../lib/errorMessages');
+const { withinPlan, PLANNED_LIMIT } = require('./pollPlan');
+const { isGroupSetting, enabledGroups } = require('./optionalGroups');
+const { fireValueTriggers } = require('./flowHandlers');
+const { recordFeatures } = require('./featureCards');
+const { boostsOf } = require('./boost');
+const { sendCapabilityValue } = require('./commands');
+const { userError } = require('./userErrors');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -78,12 +84,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     await this.updateCapabilityOptions();
     await this.initializeOperatingModes();
     await this.registerCapabilityListeners();
+    this.getMonitor().registerListeners();
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
     // Deleted or unloaded while initialising: never start a poller that nothing would stop
     if (this._uninitialized) return;
+    // Temporary changes from Flows that still have to be undone (boost.js)
+    boostsOf(this).resume();
     await this.driver._startPolling(this, this.getPollingKey());
+    this.getMonitor().scheduleEventLog();
   }
 
   async onInit() {
@@ -102,9 +112,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
 
     const roles = this.getRoles();
+    const groups = this.getEnabledGroups();
     // Inferred roles (see roles.js) only ever add capabilities: without role tags of its own,
-    // a device keeps every capability whose feature is stored
-    const keepAllowed = (path) => !hasRoleTags(this._roles) || this.hasRequiredRole(path, roles);
+    // a device keeps every capability whose feature is stored. Capabilities of an optional
+    // group that is turned off are removed (optionalGroups.js)
+    const keepAllowed = (path) => featureMapper.isInEnabledGroup(path, groups)
+      && (!hasRoleTags(this._roles) || this.hasRequiredRole(path, roles));
 
     // Remove capabilities that are no longer in config or don't match device roles
     for (const existingCap of this.getCapabilities()) {
@@ -116,7 +129,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     // Add configured capabilities if device has required role and feature is enabled, with the
     // API's temperature limits as min/max/step
-    for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles)) {
+    for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles, groups)) {
       if (this.hasCapability(capabilityName)) continue;
       try {
         await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, this.deviceContext()));
@@ -221,100 +234,26 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  /*
-    Writes a capability value to the device, from a capability listener or a Flow action, with
-    the commands capabilityWrites.js plans for it (the device's own feature path, or the
-    commands a derived capability needs).
-  */
+  // Writes a capability value, from a capability listener or a Flow action (capabilityWrites.js)
   async writeCapability(capabilityName, value) {
-    let plan;
-    try {
-      plan = planWrite(capabilityName, value, this.deviceContext());
-    } catch (error) {
-      throw this.translatedError(error);
-    }
-    return this.runWrite(plan);
+    return writeCapability(this, capabilityName, value);
   }
 
-  async executeCommand(path, capability, value) {
-    return this.runWrite(configuredWrite(path, capability, value));
-  }
-
-  // Sends the commands of a write in order, then shows the new values. Stops when a newer write
-  // of the same command replaced one of them
-  async runWrite({ commands, values }) {
-    for (const { path, command, parameters } of commands) {
-      if (!await this.sendCommand(path, command, parameters)) return true;
-    }
-    for (const [capabilityName, value] of Object.entries(values)) {
-      await this.setCapabilityValueIfPossible(capabilityName, value);
-    }
+  // Writes a capability through commands.js, then shows the value on it and on the capabilities
+  // that show the same property. `restoring`: undoing a temporary change (boost.js), which the
+  // account's write allowance never refuses
+  async executeCommand(path, capability, value, { restoring = false } = {}) {
+    await sendCapabilityValue(this, path, capability, value, { check: () => this.checkOperatingMode(path, value), restoring });
+    for (const name of capabilitiesShowing(path, capability)) await this.setCapabilityValueIfPossible(name, value);
     return true;
   }
 
-  translatedError(error) {
-    return new Error(writeErrorMessage(this.homey, error), { cause: error });
-  }
-
-  /*
-    Sends one command after checking it against the command metadata, at most once per 10
-    seconds per command (a newer one waiting replaces an older one) and at most 30 per hour
-    (lib/writeLimiter.js). Resolves false when a newer write replaced it.
-  */
-  async sendCommand(path, commandName, parameters) {
-    try {
-      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
-        && !this._operatingModes.some((mode) => mode.id === parameters.mode)) {
-        throw new Error(`Operating mode "${parameters.mode}" is not supported by this heating circuit`);
-      }
-      validateCommand(this._commands, path, commandName, parameters);
-      return await this.writeLimiter().run(`${path} ${commandName}`, async () => {
-        const result = await this.oAuth2Client.executeCommand({
-          installationId: this._installationId,
-          gatewaySerial: this._gatewaySerial,
-          deviceId: this._deviceId,
-          feature: resolveCircuitPath(path, this._heatingCircuitId),
-          command: commandName,
-          body: parameters,
-        });
-        if (result?.data?.success === false) {
-          throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
-        }
-      });
-    } catch (error) {
-      this.error('Error executing command:', error);
-      // Keep the API's reason (status, Viessmann error type/message) visible to the user
-      const reason = writeErrorMessage(this.homey, error);
-      const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
-      wrapped.status = error?.status;
-      wrapped.retryAfterMs = error?.retryAfterMs;
-      throw wrapped;
+  // set-operating-mode offers modes a circuit may not have: refuse those before sending
+  checkOperatingMode(path, value) {
+    if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
+      && !this._operatingModes.some((mode) => mode.id === value)) {
+      throw userError(this, 'mode_not_supported', { mode: value });
     }
-  }
-
-  writeLimiter() {
-    if (!this._writeLimiter) this._writeLimiter = WriteLimiter.withHomeyTimers(this.homey);
-    return this._writeLimiter;
-  }
-
-  // Schedules the holiday program from one date to another (Flow action)
-  async startHoliday({ start, end }) {
-    let parameters;
-    try {
-      parameters = holidaySchedule(start, end, this._commands?.[PATHS.HOLIDAY]?.schedule);
-    } catch (error) {
-      throw this.translatedError(error);
-    }
-    await this.sendCommand(PATHS.HOLIDAY, 'schedule', parameters);
-    return true;
-  }
-
-  // Ends (or cancels) the holiday program (Flow action)
-  async endHoliday() {
-    if (await this.sendCommand(PATHS.HOLIDAY, 'unschedule', {})) {
-      await this.setCapabilityValueIfPossible('measure_holiday_active', false);
-    }
-    return true;
   }
 
   // Store migrations, see migrations.js
@@ -376,6 +315,8 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       if (!Array.isArray(rawResponse?.data)) throw new Error('Invalid features response: no feature list');
       const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
       this._commands = featureMapper.updatedCommands(response, this._commands);
+      // For the Flow cards that read any feature (featureCards.js)
+      recordFeatures(this, response, { complete: Boolean(extendedResponse) });
       if (process.env.DEBUG) {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
@@ -393,6 +334,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           await this.setCapabilityValueIfPossible(capabilityName, null, { trigger: false });
         }
       }
+
+      // Computed values, faults, frozen values and write checks (never throws)
+      await this.getMonitor().onResponse(response, { triggers });
 
       if (process.env.DEBUG) {
         this.log('Feature update processing completed');
@@ -477,6 +421,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return featureMapper.hasRequiredRole(featurePath, roles);
   }
 
+  // The optional groups of values that are turned on (optionalGroups.js)
+  getEnabledGroups() {
+    return this._enabledGroups || enabledGroups((key) => this.getSetting?.(key));
+  }
+
   /*
     A response can show a role that the stored features do not (e.g. `heating.compressors`
     listing a compressor): remember it and add the capabilities it allows. Like addNewFeatures,
@@ -511,18 +460,22 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           return;
         }
 
-        // Compare what the capability would show (after value mapping) with what it shows
+        // Compare with the value the capability shows (after value mapping)
         const currentValue = this.getCapabilityValue(capabilityName);
-        const displayValue = featureMapper.displayValue(capabilityName, value);
-        if (currentValue !== displayValue) {
-          await this.setCapabilityValue(capabilityName, displayValue);
+        const displayed = featureMapper.displayValue(capabilityName, value);
+        if (currentValue !== displayed) {
+          await this.setCapabilityValue(capabilityName, displayed);
+          await this._boosts?.valueChanged(capabilityName, displayed);
           if (!trigger) return;
+          await fireValueTriggers(this, capabilityName, displayed, currentValue);
 
           try {
-            // The trigger cards of this capability (see flowCards.js)
-            await this.driver.triggerCapabilityChange?.(this, capabilityName, displayValue);
+            const triggerCard = this.driver.getTriggerCard(capabilityName);
+            if (triggerCard) {
+              await triggerCard.trigger(this, { mode: value }, {});
+            }
           } catch (error) {
-            this.error(`Could not fire the trigger of ${capabilityName}:`, error);
+            // Ignore if no trigger card exists
           }
         }
       }
@@ -576,7 +529,43 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async onSettings({ newSettings, changedKeys }) {
-    if (!changedKeys.includes('heatingCircuit')) return;
+    const pollSettingsChanged = changedKeys.includes('pollInterval') || changedKeys.includes('eventLog');
+    // Refused before anything changes
+    if (pollSettingsChanged) this.checkPollSettings(newSettings);
+    if (changedKeys.includes('heatingCircuit')) await this.changeHeatingCircuit(newSettings);
+    if (changedKeys.some(isGroupSetting)) await this.applyEnabledGroups(enabledGroups(newSettings));
+    if (pollSettingsChanged) await this.applyPollSettings(newSettings);
+  }
+
+  // Adds or removes the capabilities of the optional groups (optionalGroups.js)
+  async applyEnabledGroups(groups) {
+    this._enabledGroups = groups;
+    await this.initializeCapabilities();
+    await this.updateCapabilityOptions();
+    await this.registerCapabilityListeners();
+  }
+
+  // The update interval and event log settings (pollSettings during a change, before Homey saves it)
+  getPollSetting(key) {
+    return this._pollSettings?.[key] ?? this.getSetting?.(key);
+  }
+
+  // Refuses settings that would plan more API calls a day than the account can spare (pollPlan.js)
+  checkPollSettings(newSettings) {
+    const settings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
+    const calls = this.driver.plannedCallsPerDay(this.getStoreValue('OAuth2SessionId'), { device: this, settings });
+    if (!withinPlan(calls)) throw new Error(translate(this.homey, 'device_settings.too_many_calls', { calls, limit: PLANNED_LIMIT }));
+  }
+
+  async applyPollSettings(newSettings) {
+    this._pollSettings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
+    if (this._uninitialized) return;
+    // Reschedules the next poll with the new interval, without an extra poll
+    await this.driver._startPolling(this, this.getPollingKey());
+    this.getMonitor().scheduleEventLog();
+  }
+
+  async changeHeatingCircuit(newSettings) {
     const selectedCircuit = String(newSettings.heatingCircuit).trim();
     if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
       throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
@@ -669,19 +658,32 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async onOAuth2Uninit() {
     // Stop polling for this device
     this._uninitialized = true;
-    this._writeLimiter?.stop();
+    this._monitor?.stopEventLog();
+    this._boosts?.stop();
     await this.driver._stopPolling(this.getPollingKey());
   }
 
   async onOAuth2Deleted() {
     // Stop polling right away: a poll that runs after deletion fails with device_not_found
     this._uninitialized = true;
-    this._writeLimiter?.stop();
+    this._monitor?.stopEventLog();
+    this._boosts?.stop();
     await this.driver._stopPolling(this.getPollingKey());
   }
 
   storeVersionBefore(targetVersion) {
     return versionBefore(this.getStoreValue('version'), targetVersion);
+  }
+
+  // What the device does with a poll beyond copying values: see deviceMonitor.js
+  getMonitor() {
+    if (!this._monitor) this._monitor = new DeviceMonitor(this);
+    return this._monitor;
+  }
+
+  // A failed poll, for the health on the settings page
+  recordPollError(error) {
+    this.getMonitor().onPollError(error);
   }
 
 };

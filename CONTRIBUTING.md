@@ -20,7 +20,7 @@ How the app is built is described in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md
 
 - What you expected and what happened, with your Homey version, app version and Viessmann model.
 - If you can, send a diagnostic report from Homey (the app's page > *Send diagnostic report*) with a short message, and mention it in the issue.
-- A features dump from the app settings (*Troubleshooting*) helps a lot. The app anonymizes it automatically (serial numbers, IDs and the address become placeholders such as `anonymized-serial-1`), but it is still best to send it privately rather than paste it into a public issue.
+- The report for the developer from the app settings (*Troubleshooting* > *Prepare report*) helps a lot. The app anonymizes it automatically (serial numbers, IDs and the address become placeholders such as `anonymized-serial-1`), but please still send it privately, for example as a private message on the Homey Community forum, rather than paste it into a public issue.
 
 ## Pull requests
 

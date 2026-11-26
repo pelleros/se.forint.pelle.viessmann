@@ -53,6 +53,19 @@
         font-weight: 600;
         margin: 0 0 4px;
       }
+      .health-list {
+        margin: 0 0 12px;
+        padding-left: 0;
+        list-style: none;
+      }
+      .health-list li {
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .health-error {
+        color: #c0392b;
+        word-break: break-word;
+      }
     </style>
   </head>
   <body>
@@ -93,6 +106,20 @@
     <!-- Separator -->
     <div class="homey-form-group-separator"></div>
 
+    <!-- Health: API calls per Viessmann login, last update and last error per device -->
+    <fieldset class="homey-form-fieldset">
+      <legend class="homey-form-legend" data-i18n="settings.health.title"></legend>
+      <p class="homey-form-hint" data-i18n="settings.health.description"></p>
+      <ul class="health-list" id="healthAccounts"></ul>
+      <ul class="health-list" id="healthDevices"></ul>
+      <div class="homey-form-buttons">
+        <button id="refreshHealth" class="homey-button-secondary" data-i18n="settings.health.refresh"></button>
+      </div>
+    </fieldset>
+
+    <!-- Separator -->
+    <div class="homey-form-group-separator"></div>
+
     <!-- Common problems -->
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.problems.title"></legend>
@@ -123,38 +150,16 @@
       <legend class="homey-form-legend" data-i18n="settings.troubleshooting.title"></legend>
       <p class="homey-form-hint" data-i18n="settings.troubleshooting.description"></p>
 
-      <!-- Installations -->
+      <!-- Report for the developer: installations and every device's features in one step -->
       <div class="homey-form-group">
-        <label class="homey-form-label" for="installations" data-i18n="settings.troubleshooting.installations.title"></label>
-        <p class="homey-form-hint" data-i18n="settings.troubleshooting.installations.description"></p>
-        <textarea class="homey-form-textarea" id="installations" rows="10"></textarea>
+        <label class="homey-form-label" for="report" data-i18n="settings.report.title"></label>
+        <p class="homey-form-hint" data-i18n="settings.report.description"></p>
         <div class="homey-form-buttons">
-          <button id="refreshInstallations" class="homey-button-primary" data-i18n="settings.troubleshooting.installations.get"></button>
-          <button id="copyInstallations" class="homey-button-secondary" data-i18n="settings.troubleshooting.installations.copy"></button>
+          <button id="prepareReport" class="homey-button-primary" data-i18n="settings.report.prepare"></button>
+          <button id="copyReport" class="homey-button-secondary" data-i18n="settings.report.copy"></button>
         </div>
-      </div>
-
-      <!-- Device Select -->
-      <div class="homey-form-group">
-        <label class="homey-form-label" for="deviceSelect" data-i18n="settings.troubleshooting.device.title">Select Device</label>
-        <p class="homey-form-hint" data-i18n="settings.troubleshooting.device.description">Choose which device to get features for</p>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-          <select class="homey-form-select" id="deviceSelect" style="flex-grow: 1;">
-            <option value="" data-i18n="settings.troubleshooting.device.select">Select a device...</option>
-          </select>
-          <button id="refreshDevices" class="homey-button-secondary" data-i18n="settings.troubleshooting.device.refresh">Refresh Devices</button>
-        </div>
-      </div>
-
-      <!-- Features -->
-      <div class="homey-form-group">
-        <label class="homey-form-label" for="features" data-i18n="settings.troubleshooting.features.title"></label>
-        <p class="homey-form-hint" data-i18n="settings.troubleshooting.features.description"></p>
-        <textarea class="homey-form-textarea" id="features" rows="10"></textarea>
-        <div class="homey-form-buttons">
-          <button id="refreshFeatures" class="homey-button-primary" data-i18n="settings.troubleshooting.features.get"></button>
-          <button id="copyFeatures" class="homey-button-secondary" data-i18n="settings.troubleshooting.features.copy"></button>
-        </div>
+        <p class="homey-form-hint" id="reportHowToSend" style="display: none;"></p>
+        <textarea class="homey-form-textarea" id="report" rows="10" readonly></textarea>
       </div>
     </fieldset>
 
@@ -166,14 +171,89 @@
         var portalLinkElement = document.getElementById("portalLink");
         var redirectUriElement = document.getElementById("redirectUri");
         var copyRedirectUriElement = document.getElementById("copyRedirectUri");
-        var copyInstallationsElement = document.getElementById("copyInstallations");
-        var copyFeaturesElement = document.getElementById("copyFeatures");
-        var refreshInstallationsElement = document.getElementById("refreshInstallations");
-        var refreshFeaturesElement = document.getElementById("refreshFeatures");
-        var installationsElement = document.getElementById("installations");
-        var featuresElement = document.getElementById("features");
-        var deviceSelectElement = document.getElementById("deviceSelect");
-        var refreshDevicesElement = document.getElementById("refreshDevices");
+        var healthAccountsElement = document.getElementById("healthAccounts");
+        var healthDevicesElement = document.getElementById("healthDevices");
+        var refreshHealthElement = document.getElementById("refreshHealth");
+        var prepareReportElement = document.getElementById("prepareReport");
+        var copyReportElement = document.getElementById("copyReport");
+        var reportElement = document.getElementById("report");
+        var reportHowToSendElement = document.getElementById("reportHowToSend");
+
+        // A translated text with __tag__ placeholders filled in
+        function t(key, tags) {
+          var text = Homey.__(key) || key;
+          Object.keys(tags || {}).forEach(function (tag) {
+            text = text.split("__" + tag + "__").join(String(tags[tag]));
+          });
+          return text;
+        }
+
+        function timeText(value) {
+          return value ? new Date(value).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "";
+        }
+
+        function addItem(list, text, className) {
+          var item = document.createElement("li");
+          item.textContent = text;
+          if (className) item.className = className;
+          list.appendChild(item);
+          return item;
+        }
+
+        function showHealth(health) {
+          healthAccountsElement.textContent = "";
+          healthDevicesElement.textContent = "";
+          var resetsAt = new Date(health.resetsAt).toLocaleTimeString([], { timeStyle: "short" });
+          health.accounts.forEach(function (account) {
+            addItem(healthAccountsElement, t("settings.health.account", {
+              account: account.account, used: account.usedToday, limit: health.limit, planned: account.plannedPerDay, time: resetsAt,
+            }));
+          });
+          if (health.devices.length === 0) addItem(healthDevicesElement, t("settings.health.no_devices"));
+          health.devices.forEach(function (device) {
+            var item = addItem(healthDevicesElement, t("settings.health.device", {
+              name: device.name, minutes: device.intervalMinutes, account: device.account,
+            }));
+            var update = device.lastUpdateAt
+              ? t("settings.health.last_update", { time: timeText(device.lastUpdateAt) })
+              : t("settings.health.no_update");
+            item.appendChild(document.createElement("br"));
+            item.appendChild(document.createTextNode(update));
+            if (device.lastError) {
+              var error = document.createElement("span");
+              error.className = "health-error";
+              error.textContent = t("settings.health.last_error", { time: timeText(device.lastError.at), message: device.lastError.message });
+              item.appendChild(document.createElement("br"));
+              item.appendChild(error);
+            }
+          });
+        }
+
+        function loadHealth() {
+          Homey.api("GET", "/health", null, function (err, result) {
+            if (err) return Homey.alert(err);
+            showHealth(result);
+          });
+        }
+
+        refreshHealthElement.addEventListener("click", loadHealth);
+        loadHealth();
+
+        prepareReportElement.addEventListener("click", function (e) {
+          prepareReportElement.disabled = true;
+          Homey.api("POST", "/report", {}, function (err, result) {
+            prepareReportElement.disabled = false;
+            if (err) return Homey.alert(err);
+            reportElement.value = JSON.stringify(result.report, null, 2);
+            reportHowToSendElement.textContent = t("settings.report.how_to_send", { lines: result.summaryLines });
+            reportHowToSendElement.style.display = "block";
+          });
+        });
+
+        copyReportElement.addEventListener("click", function (e) {
+          reportElement.select();
+          document.execCommand("copy");
+        });
 
         Homey.get("clientId", function (err, clientId) {
           if (err) return Homey.alert(err);
@@ -233,61 +313,6 @@
           } else {
             copyBySelection();
           }
-        });
-
-        copyInstallationsElement.addEventListener("click", function (e) {
-          installationsElement.select();
-          document.execCommand("copy");
-        });
-
-        copyFeaturesElement.addEventListener("click", function (e) {
-          featuresElement.select();
-          document.execCommand("copy");
-        });
-
-        refreshInstallationsElement.addEventListener("click", function (e) {
-          Homey.api('GET', '/installations', null, function(err, result) {
-            if (err) return Homey.alert(err);
-            installationsElement.textContent = JSON.stringify(result, null, 3);
-          });
-        });
-
-        // Fill the device dropdown
-        function populateDevices(devices) {
-          // Remove existing options except the default one
-          while (deviceSelectElement.options.length > 1) {
-            deviceSelectElement.remove(1);
-          }
-
-          // Add the devices
-          devices.forEach(device => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.text = `${device.name || 'Unknown'} (${device.deviceId})`;
-            deviceSelectElement.add(option);
-          });
-        }
-
-        // Fetch devices when Refresh is clicked
-        refreshDevicesElement.addEventListener("click", function (e) {
-          Homey.api('GET', '/devices', null, function(err, result) {
-            if (err) return Homey.alert(err);
-            populateDevices(result);
-          });
-        });
-
-        // Fetch features for the selected device
-        refreshFeaturesElement.addEventListener("click", function (e) {
-          const selectedDevice = deviceSelectElement.options[deviceSelectElement.selectedIndex].value;
-          if (!selectedDevice) {
-            return Homey.alert(Homey.__("settings.error.no_device_selected"));
-          }
-
-          // Use POST instead of GET
-          Homey.api('POST', '/features', { deviceId: selectedDevice }, function(err, result) {
-            if (err) return Homey.alert(err);
-            featuresElement.textContent = JSON.stringify(result, null, 3);
-          });
         });
 
         Homey.ready();

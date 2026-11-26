@@ -112,6 +112,17 @@ const MIGRATIONS = Object.freeze([
       await device.refreshStoredMetadata();
     },
   },
+  {
+    version: '2.0.0',
+    description: 'Midnight baselines of the starts counters (dailyCounters, none yet) and the faults, logbook '
+      + 'entries and event log entries already reported (knownMessages, none yet, so a fault that is active now '
+      + 'is reported once)',
+    isNeeded: (device) => device.getStoreValue('dailyCounters') == null || device.getStoreValue('knownMessages') == null,
+    async migrate(device) {
+      if (device.getStoreValue('dailyCounters') == null) await device.setStoreValue('dailyCounters', {});
+      if (device.getStoreValue('knownMessages') == null) await device.setStoreValue('knownMessages', { faults: [], logbook: null, events: null });
+    },
+  },
 ]);
 
 /**

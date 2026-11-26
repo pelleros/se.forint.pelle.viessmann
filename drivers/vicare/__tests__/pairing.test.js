@@ -3,9 +3,10 @@
 'use strict';
 
 // Pairing reads the real ids from getInstallations (the troubleshooting Web API anonymizes its
-// own copy). The device name and data.id it produces are frozen: data.id identifies the device
-// for existing users. The expected values below are what pairing produced for each fixture
-// installation before the troubleshooting data was anonymized.
+// own copy). The data.id it produces is frozen: it identifies the device for existing users. The
+// expected ids below are what pairing produced for each fixture installation before the
+// troubleshooting data was anonymized. New devices are named after their model (or what they
+// are, for model ids that are no product name); existing devices keep their names.
 
 const fs = require('fs');
 const path = require('path');
@@ -33,11 +34,11 @@ const readFixture = (file) => JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR,
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 const EXPECTED = {
-  vitocal_222: [{ name: 'Viessmann (900001)', data: { id: '900001-9999000000000001-0' } }],
-  vitodens_200_2016: [{ name: 'Viessmann (900003)', data: { id: '900003-9999000000000006-0' } }],
-  vitodens_200_dh: [{ name: 'Viessmann (900004)', data: { id: '900004-9999000000000009-0' } }],
-  vitodens_200_e3: [{ name: 'Viessmann (900002)', data: { id: '900002-9999000000000004-0' } }],
-  vitovalor_pt2: [{ name: 'Viessmann (900005)', data: { id: '900005-9999000000000011-0' } }],
+  vitocal_222: [{ name: 'Viessmann heat pump', data: { id: '900001-9999000000000001-0' } }],
+  vitodens_200_2016: [{ name: 'Viessmann boiler', data: { id: '900003-9999000000000006-0' } }],
+  vitodens_200_dh: [{ name: 'Viessmann Vitodens 200', data: { id: '900004-9999000000000009-0' } }],
+  vitodens_200_e3: [{ name: 'Viessmann Vitodens 200', data: { id: '900002-9999000000000004-0' } }],
+  vitovalor_pt2: [{ name: 'Viessmann Vitovalor PT2', data: { id: '900005-9999000000000011-0' } }],
 };
 
 function newDriver() {
@@ -119,7 +120,7 @@ describe('with a realistic installations response', () => {
     const paired = await driver.onPairListDevices({ oAuth2Client: client });
 
     expect(paired).toHaveLength(1);
-    expect(paired[0].name).toBe(`Viessmann (${INSTALLATION_ID})`);
+    expect(paired[0].name).toBe('Viessmann Vitodens 200');
     expect(paired[0].data).toEqual({ id: `${INSTALLATION_ID}-${GATEWAY_SERIAL}-0` });
 
     const logged = JSON.stringify(driver.log.mock.calls);

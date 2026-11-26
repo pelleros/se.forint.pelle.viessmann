@@ -218,8 +218,9 @@ describe.each(exampleDumps)('ViessmannDevice capability handling with %s', (name
 
       await device.onFeaturesUpdated({ data: [exampleFeature] });
 
-      // Check each capability individually
+      // Check each capability individually (computed values, see computedValues.test.js)
       for (const capability of featureConfig.capabilities) {
+        if (capability.computed) continue;
         const expectedValue = getValueFromPath(exampleFeature.properties, capability.propertyPath);
 
         if (expectedValue !== undefined) {
@@ -246,9 +247,9 @@ describe.each(exampleDumps)('ViessmannDevice capability handling with %s', (name
       // Skip features that are not enabled
       if (!exampleFeature.isEnabled) continue;
 
-      // Skip features whose status (if there is one) is not "connected"
+      // Skip features that are not connected (a pump's status is its value, on or off)
       const status = getValueFromPath(exampleFeature.properties, 'status.value');
-      if (status && status !== 'connected') continue;
+      if (status === 'notConnected') continue;
 
       for (const capability of featureConfig.capabilities) {
         testCases.push([

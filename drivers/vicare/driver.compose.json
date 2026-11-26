@@ -19,8 +19,23 @@
   },
   "pair": [
     {
+      "id": "client_id",
+      "navigation": {
+        "next": "login_oauth2"
+      }
+    },
+    {
       "id": "login_oauth2",
-      "template": "login_oauth2"
+      "template": "login_oauth2",
+      "navigation": {
+        "next": "pair_check"
+      }
+    },
+    {
+      "id": "pair_check",
+      "navigation": {
+        "next": "list_devices"
+      }
     },
     {
       "id": "list_devices",
@@ -108,6 +123,211 @@
             "nl": "Circuit 3",
             "fr": "Circuit 3",
             "sv": "Krets 3"
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Updates and API calls",
+        "de": "Aktualisierung und API-Aufrufe",
+        "nl": "Updates en API-aanroepen",
+        "fr": "Mises à jour et appels API",
+        "sv": "Uppdateringar och API-anrop"
+      },
+      "children": [
+        {
+          "id": "pollInterval",
+          "type": "dropdown",
+          "value": "auto",
+          "label": {
+            "en": "Update interval",
+            "de": "Aktualisierungsintervall",
+            "nl": "Update-interval",
+            "fr": "Intervalle de mise à jour",
+            "sv": "Uppdateringsintervall"
+          },
+          "hint": {
+            "en": "How often the app reads this device from Viessmann. Each update is one API call. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same Viessmann account (for example Home Assistant). A choice that would need more for this account is refused. The settings page of the app shows the calls used today.",
+            "de": "Wie oft die App dieses Gerät bei Viessmann abfragt. Jede Abfrage ist ein API-Aufruf. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Viessmann-Konto nutzen (zum Beispiel Home Assistant). Eine Wahl, die für dieses Konto mehr bräuchte, wird abgelehnt. Die Einstellungsseite der App zeigt die heute verbrauchten Aufrufe.",
+            "nl": "Hoe vaak de app dit apparaat bij Viessmann uitleest. Elke update is één API-aanroep. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde Viessmann-account gebruiken (bijvoorbeeld Home Assistant). Een keuze die voor dit account meer nodig heeft, wordt geweigerd. De instellingenpagina van de app toont de aanroepen van vandaag.",
+            "fr": "À quelle fréquence l'application lit cet appareil chez Viessmann. Chaque mise à jour est un appel API. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte Viessmann (par exemple Home Assistant). Un choix qui en demanderait davantage pour ce compte est refusé. La page de réglages de l'application affiche les appels utilisés aujourd'hui.",
+            "sv": "Hur ofta appen läser av enheten hos Viessmann. Varje uppdatering är ett API-anrop. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma Viessmann-konto (till exempel Home Assistant). Ett val som skulle behöva fler för kontot nekas. Appens inställningssida visar dagens förbrukade anrop."
+          },
+          "values": [
+            {
+              "id": "auto",
+              "label": {
+                "en": "Automatic: every 2 minutes per device (720 calls a day for all devices)",
+                "de": "Automatisch: alle 2 Minuten pro Gerät (720 Aufrufe pro Tag für alle Geräte)",
+                "nl": "Automatisch: elke 2 minuten per apparaat (720 aanroepen per dag voor alle apparaten)",
+                "fr": "Automatique : toutes les 2 minutes par appareil (720 appels par jour pour tous les appareils)",
+                "sv": "Automatiskt: varannan minut per enhet (720 anrop per dag för alla enheter)"
+              }
+            },
+            {
+              "id": "2",
+              "label": {
+                "en": "Every 2 minutes (720 calls a day)",
+                "de": "Alle 2 Minuten (720 Aufrufe pro Tag)",
+                "nl": "Elke 2 minuten (720 aanroepen per dag)",
+                "fr": "Toutes les 2 minutes (720 appels par jour)",
+                "sv": "Varannan minut (720 anrop per dag)"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Every 3 minutes (480 calls a day)",
+                "de": "Alle 3 Minuten (480 Aufrufe pro Tag)",
+                "nl": "Elke 3 minuten (480 aanroepen per dag)",
+                "fr": "Toutes les 3 minutes (480 appels par jour)",
+                "sv": "Var 3:e minut (480 anrop per dag)"
+              }
+            },
+            {
+              "id": "5",
+              "label": {
+                "en": "Every 5 minutes (288 calls a day)",
+                "de": "Alle 5 Minuten (288 Aufrufe pro Tag)",
+                "nl": "Elke 5 minuten (288 aanroepen per dag)",
+                "fr": "Toutes les 5 minutes (288 appels par jour)",
+                "sv": "Var 5:e minut (288 anrop per dag)"
+              }
+            },
+            {
+              "id": "10",
+              "label": {
+                "en": "Every 10 minutes (144 calls a day)",
+                "de": "Alle 10 Minuten (144 Aufrufe pro Tag)",
+                "nl": "Elke 10 minuten (144 aanroepen per dag)",
+                "fr": "Toutes les 10 minutes (144 appels par jour)",
+                "sv": "Var 10:e minut (144 anrop per dag)"
+              }
+            },
+            {
+              "id": "15",
+              "label": {
+                "en": "Every 15 minutes (96 calls a day)",
+                "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                "fr": "Toutes les 15 minutes (96 appels par jour)",
+                "sv": "Var 15:e minut (96 anrop per dag)"
+              }
+            },
+            {
+              "id": "30",
+              "label": {
+                "en": "Every 30 minutes (48 calls a day)",
+                "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                "fr": "Toutes les 30 minutes (48 appels par jour)",
+                "sv": "Var 30:e minut (48 anrop per dag)"
+              }
+            },
+            {
+              "id": "60",
+              "label": {
+                "en": "Every hour (24 calls a day)",
+                "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                "nl": "Elk uur (24 aanroepen per dag)",
+                "fr": "Toutes les heures (24 appels par jour)",
+                "sv": "Varje timme (24 anrop per dag)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "eventLog",
+          "type": "dropdown",
+          "value": "off",
+          "label": {
+            "en": "Event log",
+            "de": "Ereignisprotokoll",
+            "nl": "Gebeurtenissenlogboek",
+            "fr": "Journal des événements",
+            "sv": "Händelselogg"
+          },
+          "hint": {
+            "en": "Reads the event log of the heating system (faults, status messages) for the Flow triggers about events. Each read is one API call.",
+            "de": "Liest das Ereignisprotokoll der Heizung (Störungen, Statusmeldungen) für die Flow-Auslöser zu Ereignissen. Jedes Lesen ist ein API-Aufruf.",
+            "nl": "Leest het gebeurtenissenlogboek van de verwarming (storingen, statusmeldingen) voor de Flow-triggers over gebeurtenissen. Elke keer uitlezen is één API-aanroep.",
+            "fr": "Lit le journal des événements du chauffage (défauts, messages d'état) pour les déclencheurs Flow sur les événements. Chaque lecture est un appel API.",
+            "sv": "Läser värmesystemets händelselogg (fel, statusmeddelanden) för Flow-utlösarna om händelser. Varje läsning är ett API-anrop."
+          },
+          "values": [
+            {
+              "id": "off",
+              "label": {
+                "en": "Off",
+                "de": "Aus",
+                "nl": "Uit",
+                "fr": "Désactivé",
+                "sv": "Av"
+              }
+            },
+            {
+              "id": "15",
+              "label": {
+                "en": "Every 15 minutes (96 calls a day)",
+                "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                "fr": "Toutes les 15 minutes (96 appels par jour)",
+                "sv": "Var 15:e minut (96 anrop per dag)"
+              }
+            },
+            {
+              "id": "30",
+              "label": {
+                "en": "Every 30 minutes (48 calls a day)",
+                "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                "fr": "Toutes les 30 minutes (48 appels par jour)",
+                "sv": "Var 30:e minut (48 anrop per dag)"
+              }
+            },
+            {
+              "id": "60",
+              "label": {
+                "en": "Every hour (24 calls a day)",
+                "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                "nl": "Elk uur (24 aanroepen per dag)",
+                "fr": "Toutes les heures (24 appels par jour)",
+                "sv": "Varje timme (24 anrop per dag)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Optional values",
+        "de": "Zusätzliche Werte",
+        "nl": "Extra waarden",
+        "fr": "Valeurs supplémentaires",
+        "sv": "Extra värden"
+      },
+      "children": [
+        {
+          "id": "diagnosticValues",
+          "type": "checkbox",
+          "value": false,
+          "label": {
+            "en": "Diagnostic values",
+            "de": "Diagnosewerte",
+            "nl": "Diagnostische waarden",
+            "fr": "Valeurs de diagnostic",
+            "sv": "Diagnostikvärden"
+          },
+          "hint": {
+            "en": "Adds values that are mostly useful for troubleshooting, such as compressor temperatures and more pumps, where your installation reports them. Turning this off again removes these values from the device, including their history in Insights.",
+            "de": "Fügt Werte hinzu, die vor allem bei der Fehlersuche helfen, zum Beispiel Verdichtertemperaturen und weitere Pumpen, sofern Ihre Anlage sie meldet. Wird dies wieder ausgeschaltet, werden diese Werte vom Gerät entfernt, einschließlich ihres Verlaufs in Insights.",
+            "nl": "Voegt waarden toe die vooral nuttig zijn bij het oplossen van problemen, zoals compressortemperaturen en extra pompen, voor zover uw installatie ze meldt. Zet u dit weer uit, dan worden deze waarden van het apparaat verwijderd, inclusief hun geschiedenis in Insights.",
+            "fr": "Ajoute des valeurs surtout utiles au dépannage, comme les températures du compresseur et d'autres pompes, si votre installation les transmet. Si vous désactivez à nouveau cette option, ces valeurs sont retirées de l'appareil, y compris leur historique dans Insights.",
+            "sv": "Lägger till värden som främst är till nytta vid felsökning, till exempel kompressortemperaturer och fler pumpar, om anläggningen rapporterar dem. Stänger du av det igen tas värdena bort från enheten, inklusive deras historik i Insights."
           }
         }
       ]

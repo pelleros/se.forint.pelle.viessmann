@@ -89,17 +89,22 @@ const PATHS_1014 = Object.freeze([
 // initializeCapabilities gives the device, with the given feature paths mapped. The current
 // code checks the roles from drivers/vicare/roles.js (aliases, and roles inferred from the
 // features when the device reports no role tag); 1.0.14 checked the stored roles as they are.
+// `storedRolesOnly` is 1.0.14: it had no computed capabilities and none that every device gets.
 // With `derived`, the derived capabilities (2.0.0) whose source is stored and allowed are added.
 function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false, derived = true } = {}) {
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
   const passes = (featurePath) => {
-    const { requireRole } = FEATURES[featurePath];
-    return features.includes(featurePath) && (!requireRole || allowed.includes(requireRole));
+    const { requireRole, group } = FEATURES[featurePath];
+    return features.includes(featurePath) && !group && (!requireRole || allowed.includes(requireRole));
   };
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
-    if (passes(featurePath)) {
-      getAllCapabilities(featurePath).forEach((capability) => capabilities.add(capability.capabilityName));
+    const { requireRole, alwaysAdd, group } = FEATURES[featurePath];
+    const available = features.includes(featurePath) || (alwaysAdd && !storedRolesOnly);
+    // Optional groups (diagnostic values) are off until the user turns them on
+    if (available && !group && (!requireRole || allowed.includes(requireRole))) {
+      getAllCapabilities(featurePath).filter((capability) => !(storedRolesOnly && capability.computed))
+        .forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
   for (const capability of derived ? DERIVED : []) {

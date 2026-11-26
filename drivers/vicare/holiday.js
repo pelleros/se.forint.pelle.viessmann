@@ -22,8 +22,15 @@
 
 'use strict';
 
-// The dates of the holiday program: what a Flow card gives (Homey's date argument is
-// DD-MM-YYYY; YYYY-MM-DD is accepted too) as the API wants them, YYYY-MM-DD.
+// The holiday program's Flow actions. The dates a Flow card gives (Homey's date argument is
+// DD-MM-YYYY; YYYY-MM-DD is accepted too) go to the API as YYYY-MM-DD, through commands.js like
+// every other write.
+
+const { PATHS } = require('./config');
+const { sendFeatureCommand } = require('./commands');
+const { userErrorFrom } = require('./userErrors');
+
+const HOLIDAY_ACTIVE = 'measure_holiday_active';
 
 /**
  * A date as YYYY-MM-DD, or null when it is no real date.
@@ -58,4 +65,35 @@ function holidaySchedule(start, end, scheduleCommand) {
   return { start: from, end: to };
 }
 
-module.exports = { apiDate, holidaySchedule };
+/**
+ * Schedules the holiday program from `start` to `end`; it shows as active once it has begun.
+ * Throws the user's text for dates the device cannot take.
+ * @param {import('./commands').CommandDevice} device
+ * @param {unknown} start
+ * @param {unknown} end
+ * @returns {Promise<void>}
+ */
+async function startHoliday(device, start, end) {
+  let parameters;
+  try {
+    parameters = holidaySchedule(start, end, device._commands?.[PATHS.HOLIDAY]?.schedule);
+  } catch (error) {
+    throw userErrorFrom(device, error);
+  }
+  await sendFeatureCommand(device, PATHS.HOLIDAY, 'schedule', parameters);
+}
+
+/**
+ * Ends the holiday program, or cancels a scheduled one.
+ * @param {import('./commands').CommandDevice & {
+ *   setCapabilityValueIfPossible: (capabilityName: string, value: any) => Promise<void> }} device
+ * @returns {Promise<void>}
+ */
+async function endHoliday(device) {
+  await sendFeatureCommand(device, PATHS.HOLIDAY, 'unschedule', {}, { confirm: { [HOLIDAY_ACTIVE]: false } });
+  await device.setCapabilityValueIfPossible(HOLIDAY_ACTIVE, false);
+}
+
+module.exports = {
+  apiDate, holidaySchedule, startHoliday, endHoliday,
+};

@@ -56,7 +56,9 @@ describe('in the mapper and the config', () => {
     expect(featureMapper.isProduced('measure_heating_active', [PATHS.COMPRESSOR], () => true)).toBe(true);
     expect(featureMapper.isProduced('measure_heating_active', [PATHS.COMPRESSOR], () => false)).toBe(false);
     expect(featureMapper.isProduced('thermostat_mode.heatingProgram', [PATHS.HEATING_CIRCUIT_0_PROGRAM], () => true)).toBe(false);
-    expect(featureMapper.capabilitiesFor([PATHS.COMPRESSOR], []).map(({ capability }) => capability.capabilityName)).toEqual([]);
+    // Without the heat pump role only what every device gets (alwaysAdd) is added
+    expect(featureMapper.capabilitiesFor([PATHS.COMPRESSOR], []).map(({ capability }) => capability.capabilityName))
+      .toEqual(['alarm_problem', 'button.refreshFeatures']);
   });
 
   test('know their options, configuration and writability', () => {
@@ -72,7 +74,7 @@ describe('in the mapper and the config', () => {
     const plain = new FeatureMapper({ FEATURES: config.FEATURES, PATHS: config.PATHS });
     expect(plain.DERIVED).toEqual([]);
     expect(plain.capabilitiesFor([PATHS.HOT_WATER_TEMP], []).map(({ capability }) => capability.capabilityName))
-      .toEqual(['measure_temperature.hotWater']);
+      .toEqual(['measure_temperature.hotWater', 'alarm_problem', 'button.refreshFeatures']);
   });
 
   test('the config refuses a derived capability with the name of another capability', () => {

@@ -85,6 +85,7 @@ const CAPABILITIES = Object.freeze([
   'target_temperature.heatingComfort',
   'target_temperature.heatingReduced',
   'measure_holiday_active',
+  'measure_curve_number*',
   'thermostat_mode.fuelCell',
   // 3. Hot water
   'measure_temperature.hotWater',
@@ -107,18 +108,21 @@ const CAPABILITIES = Object.freeze([
   'measure_burner_number.burnerModulation',
   'measure_fuelcell_phase',
   'measure_pump_active*',
+  'measure_frost_active*',
   // 5. Temperatures
   'measure_temperature.*',
   'measure_pressure*',
   // 6. Energy and efficiency
   'measure_power*',
   'meter_*',
+  'measure_electricity_yesterday*',
+  'measure_gas_yesterday*',
   'measure_cop_number*',
   // 7. Statistics
   'measure_compressor_number*',
   'measure_burner_number*',
   'measure_fuelcell_number*',
-  // 8. Everything else (diagnostics) comes after these
+  // 8. Everything else (diagnostics, the maintenance action) comes after these
 ]);
 
 module.exports = Object.freeze({ PATHS, CAPABILITIES });

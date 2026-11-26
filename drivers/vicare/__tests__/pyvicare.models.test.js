@@ -25,16 +25,15 @@ const fixtures = loadPyViCareFixtures();
 const getValueFromPath = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj);
 
 // [feature, capability, propertyPath, properties] for every capability of a mapped feature that
-// the response reports as enabled, with properties and (where it has a status) connected. A
-// feature without properties reports nothing (scripts/featureCoverage.js does not count it as
-// usable either).
+// the response reports as enabled, with properties and not `notConnected` (a pump's status is
+// its value, on or off). A feature without properties reports nothing
+// (scripts/featureCoverage.js does not count it as usable either).
 function mappedCapabilities(response) {
   const cases = [];
   for (const [featurePath, featureConfig] of Object.entries(FEATURES)) {
     const feature = response.data.find((item) => item.feature === featurePath);
     if (!feature?.isEnabled || Object.keys(feature.properties || {}).length === 0) continue;
-    const status = feature.properties.status?.value;
-    if (status && status !== 'connected') continue;
+    if (feature.properties.status?.value === 'notConnected') continue;
     for (const capability of featureConfig.capabilities) {
       cases.push([featurePath, capability.capabilityName, capability.propertyPath, feature.properties]);
     }
@@ -93,7 +92,10 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
       const { valueMapping } = ALL_CAPABILITIES.find((capability) => capability.capabilityName === capabilityName);
       expected[capabilityName] = valueMapping && value in valueMapping ? valueMapping[value] : value;
     }
-    const set = Object.fromEntries(device.setCapabilityValue.mock.calls);
+    // Computed values (by the device, see computedValues.test.js) are left out
+    const computed = new Set(ALL_CAPABILITIES.filter((capability) => capability.computed).map((capability) => capability.capabilityName));
+    for (const capabilityName of Object.keys(expected)) if (computed.has(capabilityName)) delete expected[capabilityName];
+    const set = Object.fromEntries(device.setCapabilityValue.mock.calls.filter(([capabilityName]) => !computed.has(capabilityName)));
     expect(set).toEqual(expected);
   });
 

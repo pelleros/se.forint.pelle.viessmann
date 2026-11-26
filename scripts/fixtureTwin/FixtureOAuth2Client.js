@@ -105,6 +105,11 @@ function createFixtureClient(BaseClient, fixture) {
       return { data: [] };
     }
 
+    // The fixtures have no event log
+    async getEventsHistory() {
+      return { data: [] };
+    }
+
     // The same features for every device of the installation, as the API sends them with
     // skipDisabled=true (and only the requested ones with a filter)
     /** @param {{ filter?: string }} [request] */

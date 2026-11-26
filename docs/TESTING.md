@@ -70,6 +70,8 @@ Checks that a user on the App Store version (1.0.14, commit `874e0df`) who updat
    - **Commands work** from the device and from the Flow actions (operating mode, temperatures, one-time hot water charge), and the change shows up in the ViCare app.
    - **Flows still work:** no card shows as missing or broken, and the trigger fires when the operating mode changes.
    - **Repair works:** device > settings > *Repair*, log in again; the device keeps its capabilities and keeps updating.
+   - **Optional values:** turning *Diagnostic values* on in the device settings adds the values, turning it off removes exactly those again.
+   - **Temporary changes:** a short hot water boost (for example 5 minutes) is restored on time, also when the app is restarted in between.
 7. Leave the twin installed for the next release candidate, or remove it (see below). To repeat the test from scratch, remove the twin and start again at step 1.
 
 ## Pairing test

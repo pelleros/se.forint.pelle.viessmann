@@ -17,8 +17,7 @@
     "save": "Spara",
     "saved": "Client ID:t är sparat! Nu kan du lägga till din Viessmann-enhet i Homey.",
     "error": {
-      "invalid_client_id": "Ange ett giltigt Client ID",
-      "no_device_selected": "Välj en enhet först"
+      "invalid_client_id": "Ange ett giltigt Client ID"
     },
     "problems": {
       "title": "Vanliga problem",
@@ -31,8 +30,8 @@
         "fix": "Kontrollera att din värmeanläggning syns och är online i ViCare-appen. Se till att Client ID:t ovan var sparat innan du började lägga till enheten. Om du nyss sparade eller ändrade det, stäng fönstret för att lägga till enheter och börja om."
       },
       "no_oauth2_client": {
-        "title": "\"No OAuth2 Client Found\" i felsökningsverktygen",
-        "fix": "Felsökningsverktygen nedan använder inloggningen från en tillagd enhet. Lägg till en Viessmann ViCare-enhet först och försök sedan igen."
+        "title": "\"No OAuth2 Client Found\" när rapporten förbereds",
+        "fix": "Rapporten på den här sidan använder inloggningen från en tillagd enhet. Lägg till en Viessmann ViCare-enhet först och försök sedan igen. När du lägger till en enhet kan rapporten också förberedas direkt efter Viessmann-inloggningen, utan att någon enhet läggs till."
       },
       "reauth": {
         "title": "Enheten är otillgänglig efter veckor eller månader (\"Authentication failed\" eller tappad anslutning)",
@@ -42,46 +41,91 @@
     },
     "troubleshooting": {
       "title": "Felsökning",
-      "description": "De här verktygen visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst datan privat till utvecklaren i stället för att dela den offentligt.",
-      "installations": {
-        "title": "Installationsinformation",
-        "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",
-        "get": "Hämta installationsdata",
-        "copy": "Kopiera till urklipp"
-      },
-      "features": {
-        "title": "Enhetens funktioner",
-        "description": "Visar tillgängliga funktioner och aktuella värden för din enhet",
-        "get": "Hämta funktionsdata",
-        "copy": "Kopiera till urklipp"
-      },
-      "device": {
-        "title": "Välj enhet",
-        "description": "Välj vilken enhet du vill hämta funktioner för",
-        "select": "Välj en enhet...",
-        "refresh": "Uppdatera enheter"
-      }
+      "description": "Rapporten nedan visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst rapporten privat till utvecklaren i stället för att dela den offentligt."
+    },
+    "health": {
+      "title": "Status",
+      "description": "API-anrop som appen har använt i dag per Viessmann-konto, och varje enhets senaste uppdatering. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma konto, och börjar räkna om vid midnatt UTC.",
+      "refresh": "Uppdatera",
+      "account": "Viessmann-konto __account__: __used__ av ungefär __limit__ API-anrop i dag (ny räkning från __time__), ungefär __planned__ per dag planerade för uppdateringar.",
+      "device": "__name__ (konto __account__): uppdateras var __minutes__:e minut.",
+      "last_update": "Senaste uppdatering: __time__",
+      "no_update": "Ingen lyckad uppdatering sedan appen startade.",
+      "last_error": "Senaste fel (__time__): __message__",
+      "no_devices": "Inga enheter tillagda än."
+    },
+    "report": {
+      "title": "Rapport till utvecklaren",
+      "description": "Hittar du inte din enhet, eller saknas värden? Det här samlar i ett steg, anonymiserat, det som Viessmann rapporterar för din anläggning och dess enheter. Det använder några API-anrop. Inget skickas förrän du själv skickar det.",
+      "prepare": "Förbered rapport",
+      "copy": "Kopiera till urklipp",
+      "how_to_send": "Rapporten är klar. Skicka den genom att öppna Viessmann ViCare-appen i Homey-appen (Mer > Appar), välja Skicka diagnostikrapport och skriva i meddelandet att det gäller saknade värden (rapportens __lines__ sammanfattningsrader finns med), eller kopiera den och skicka den privat till utvecklaren, till exempel som ett privat meddelande på Homey Community-forumet."
     }
   },
   "pair": {
     "no_client_id": "Inget Viessmann Client ID är sparat ännu. Öppna inställningarna för appen Viessmann ViCare, skapa och spara ett Client ID enligt stegen där och lägg sedan till enheten igen.",
     "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__.",
-    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport."
+    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",
+    "no_installations": "Inget värmesystem hittades för det här Viessmann-kontot. Kontrollera i ViCare-appen att ditt värmesystem är inställt för kontot du loggade in med.",
+    "no_heating_device": "Det här Viessmann-kontot har ingen värmeenhet som appen kan lägga till (hittade: __types__). En rapport till utvecklaren hjälper till att lägga till stöd för den.",
+    "device_name": {
+      "heat_pump": "Viessmann värmepump",
+      "boiler": "Viessmann panna",
+      "fuel_cell": "Viessmann bränslecell",
+      "other": "Viessmann värme"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Viessmanns kostnadsfria API-plan kräver ett eget Client ID. Det tar ungefär fem minuter och behövs bara en gång:",
+      "step": "Spara klienten i portalen, kopiera dess Client ID och klistra in det nedan.",
+      "continue": "Spara och logga in hos Viessmann",
+      "invalid": "Det här ser inte ut som ett Client ID. Kopiera det från klienten i Viessmanns utvecklarportal; det innehåller inga mellanslag."
+    },
+    "check": {
+      "title": "Ditt Viessmann-konto",
+      "loading": "Letar efter ditt värmesystem…",
+      "found": "Hittade:",
+      "continue": "Fortsätt",
+      "retry": "Försök igen",
+      "report_link": "Hittar du inte enheten eller saknas värden? Förbered data till utvecklaren",
+      "close": "Stäng utan att lägga till en enhet",
+      "no_login": "Logga in hos Viessmann först och försök sedan igen."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; appen försöker igen varje timme. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",
     "gateway_offline": "Viessmann-gatewayen är offline. Kontrollera att den har ström och internetanslutning.",
-    "api_limit": "Viessmanns API-gräns är nådd, uppdateringarna fortsätter kl. __time__."
+    "api_limit": "Viessmanns API-gräns är nådd, uppdateringarna fortsätter kl. __time__.",
+    "command_refused": "Viessmann avvisade ändringen (__detail__). Det är ibland ett tillfälligt fel hos Viessmann; försök igen senare."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Krets __circuit__ finns inte i den här anläggningen. Tillgängliga kretsar: __available__."
+    "heating_circuit_not_available": "Krets __circuit__ finns inte i den här anläggningen. Tillgängliga kretsar: __available__.",
+    "too_many_calls": "Med den här inställningen skulle Viessmann-kontot behöva ungefär __calls__ API-anrop per dag för uppdateringar. Viessmann tillåter ungefär 1 450 per dag och appen sparar några till andra anrop, så högst __limit__ är möjliga. Välj ett längre intervall här eller på en annan enhet, eller stäng av händelseloggen."
   },
-  "commands": {
+  "status": {
+    "fault": "Värmesystemet rapporterar felet __codes__. Värmesystemets manual förklarar koden.",
+    "fault_notification": "__device__: värmesystemet rapporterar felet __code__.",
+    "frozen": "Viessmann har inte skickat några nya värden sedan __time__. Det brukar hjälpa att starta om värmesystemets internetmodul: dra ur Vitoconnect en minut, eller stäng av och slå på värmesystemet om modulen är inbyggd.",
+    "write_not_applied": "Värmesystemet tog inte emot ändringen: __capability__ är __actual__ i stället för __wanted__.",
+    "refresh_too_soon": "Viessmann-funktionerna lästes in nyss. Försök igen om __minutes__ minuter."
+  },
+  "flow": {
+    "value_unknown": "Inget aktuellt värde från Viessmann än. Försök igen efter nästa uppdatering.",
+    "rate_limited": "För många ändringar på kort tid (högst __limit__ per timme). Försök igen om __minutes__ minuter.",
+    "feature_not_reported": "Enheten rapporterar inte __feature__.",
+    "property_not_reported": "__feature__ har inget värde __property__.",
+    "not_a_number": "Värdet av __feature__ är inte ett tal.",
+    "invalid_parameters": "Parametrarna måste vara ett JSON-objekt, till exempel {\"temperature\": 50}, eller {} för inga.",
+    "unknown_parameter": "Kommandot har ingen parameter __parameter__.",
+    "no_command_metadata": "Enhetens kommandon är inte kända än. Försök igen efter nästa uppdatering.",
+    "choose_from_list": "Välj en post i listan.",
+    "mode_not_supported": "Driftläget \"__mode__\" stöds inte av den här värmekretsen.",
+    "write_quota_reserved": "Viessmann-kontot har bara __left__ API-anrop kvar i dag, och de regelbundna uppdateringarna av dess enheter behöver dem tills dygnsräkningen börjar om (__time__). Försök igen då, eller välj ett längre uppdateringsintervall i enhetens inställningar.",
+    "write_burst": "För många ändringar för det här Viessmann-kontot på kort tid (högst __limit__ per 10 minuter för alla dess enheter). Försök igen om __minutes__ minuter.",
     "program_follows_schedule": "Normal och sänkt följer enhetens tidsprogram och kan inte väljas direkt. Valet avslutar komfort eller eko om något av dem är på.",
     "program_not_available": "Enheten har inte det programmet.",
     "mode_not_available": "Enheten har inget driftläge för det.",
     "holiday_invalid_date": "Ange semesterdatumen som DD-MM-ÅÅÅÅ.",
-    "holiday_end_before_start": "Semesterprogrammet måste sluta efter att det har börjat.",
-    "too_many_commands": "För många ändringar har skickats till Viessmann den senaste timmen. Försök igen senare."
+    "holiday_end_before_start": "Semesterprogrammet måste sluta efter att det har börjat."
   }
 }

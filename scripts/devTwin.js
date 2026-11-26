@@ -306,9 +306,16 @@ class FixtureApp extends App {
 module.exports = FixtureApp;
 `;
 
-// Pairing and Repair ask for any user name and password instead of the Viessmann login
+// Pairing and Repair ask for any user name and password instead of the Viessmann login (views
+// that lead to the Viessmann login lead there instead)
 function patchLoginViews(driverCompose) {
-  const credentials = (view) => (view.template === 'login_oauth2' ? { id: 'login_credentials', template: 'login_credentials' } : view);
+  const credentials = (view) => {
+    const navigation = view.navigation && Object.fromEntries(Object.entries(view.navigation)
+      .map(([direction, target]) => [direction, target === 'login_oauth2' ? 'login_credentials' : target]));
+    const patched = view.template === 'login_oauth2' ? { id: 'login_credentials', template: 'login_credentials' } : { ...view };
+    if (navigation) patched.navigation = navigation;
+    return patched;
+  };
   return {
     ...driverCompose,
     pair: (driverCompose.pair || []).map(credentials),

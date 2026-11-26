@@ -34,8 +34,9 @@ unchanged.
 fake ranges, so never edit these files by hand to add real data. To add a new installation type,
 put the raw dump in the untracked `documentation/json-example-files/` folder, add it to
 `scripts/generateFixtures.js` (or run `node scripts/anonymizeDump.js <raw.json> <fixture.json>`)
-and run `npm test`. Data copied from the troubleshooting section of the app's settings page works
-as input too; its placeholders become fake values.
+and run `npm test`. The installations and a device's features from a report for the developer
+(copied from the app's settings page) work as input too, each saved in a file of its own; their
+placeholders become fake values.
 
 ## Regenerating
 

@@ -17,8 +17,7 @@
     "save": "Opslaan",
     "saved": "Client ID opgeslagen! Je kunt nu je Viessmann-apparaat toevoegen in Homey.",
     "error": {
-      "invalid_client_id": "Voer een geldige Client ID in",
-      "no_device_selected": "Kies eerst een apparaat"
+      "invalid_client_id": "Voer een geldige Client ID in"
     },
     "problems": {
       "title": "Veelvoorkomende problemen",
@@ -31,8 +30,8 @@
         "fix": "Controleer of je verwarming in de ViCare-app staat en online is. Zorg dat de Client ID hierboven was opgeslagen voordat je begon met het toevoegen van het apparaat. Heb je hem net pas opgeslagen of gewijzigd? Sluit dan het venster voor het toevoegen van apparaten en begin opnieuw."
       },
       "no_oauth2_client": {
-        "title": "\"No OAuth2 Client Found\" bij de hulpmiddelen voor probleemoplossing",
-        "fix": "De hulpmiddelen hieronder gebruiken de login van een toegevoegd apparaat. Voeg eerst een Viessmann ViCare-apparaat toe en probeer het dan opnieuw."
+        "title": "\"No OAuth2 Client Found\" bij het maken van het rapport",
+        "fix": "Het rapport op deze pagina gebruikt de login van een toegevoegd apparaat. Voeg eerst een Viessmann ViCare-apparaat toe en probeer het dan opnieuw. Tijdens het toevoegen van een apparaat kun je het rapport ook direct na de Viessmann-login maken, zonder een apparaat toe te voegen."
       },
       "reauth": {
         "title": "Apparaat na weken of maanden niet beschikbaar (\"Authentication failed\" of verbinding verbroken)",
@@ -42,46 +41,91 @@
     },
     "troubleshooting": {
       "title": "Probleemoplossing",
-      "description": "Deze hulpmiddelen tonen de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur de gegevens toch liever privé naar de ontwikkelaar dan ze openbaar te delen.",
-      "installations": {
-        "title": "Installatiegegevens",
-        "description": "Toont details over je Viessmann-installatie en de gekoppelde apparaten",
-        "get": "Installatiegegevens ophalen",
-        "copy": "Kopiëren naar klembord"
-      },
-      "features": {
-        "title": "Apparaatfuncties",
-        "description": "Toont de beschikbare functies en huidige waarden van je apparaat",
-        "get": "Functiegegevens ophalen",
-        "copy": "Kopiëren naar klembord"
-      },
-      "device": {
-        "title": "Apparaat kiezen",
-        "description": "Kies het apparaat waarvan je de functies wilt ophalen",
-        "select": "Kies een apparaat...",
-        "refresh": "Apparaten vernieuwen"
-      }
+      "description": "Het rapport hieronder toont de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur het toch liever privé naar de ontwikkelaar dan het openbaar te delen."
+    },
+    "health": {
+      "title": "Status",
+      "description": "De API-aanroepen die de app vandaag per Viessmann-account heeft gebruikt, en de laatste update van elk apparaat. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde account gebruiken, en begint om middernacht UTC opnieuw te tellen.",
+      "refresh": "Vernieuwen",
+      "account": "Viessmann-account __account__: vandaag __used__ van ongeveer __limit__ API-aanroepen (opnieuw tellen vanaf __time__), ongeveer __planned__ per dag gepland voor updates.",
+      "device": "__name__ (account __account__): update elke __minutes__ minuten.",
+      "last_update": "Laatste update: __time__",
+      "no_update": "Geen geslaagde update sinds de app is gestart.",
+      "last_error": "Laatste fout (__time__): __message__",
+      "no_devices": "Nog geen apparaten toegevoegd."
+    },
+    "report": {
+      "title": "Rapport voor de ontwikkelaar",
+      "description": "Kun je je apparaat niet vinden of ontbreken er waarden? Dit verzamelt in één stap en geanonimiseerd wat Viessmann voor je installatie en de apparaten meldt. Het gebruikt enkele API-aanroepen. Er wordt niets verzonden tot je het zelf verstuurt.",
+      "prepare": "Rapport maken",
+      "copy": "Naar klembord kopiëren",
+      "how_to_send": "Het rapport is klaar. Om het te versturen open je de Viessmann ViCare-app in de Homey-app (Meer > Apps), kies je Diagnoserapport verzenden en vermeld je in het bericht dat het om ontbrekende waarden gaat (de __lines__ regels van de samenvatting zitten erin), of kopieer je het en stuur je het privé naar de ontwikkelaar, bijvoorbeeld als privébericht op het Homey Community-forum."
     }
   },
   "pair": {
     "no_client_id": "Er is nog geen Viessmann Client ID opgeslagen. Open de instellingen van de app Viessmann ViCare, maak daar volgens de stappen een Client ID aan, sla hem op en voeg het apparaat daarna opnieuw toe.",
     "api_limit": "De limiet van de Viessmann-API is bereikt. Probeer het na __time__ opnieuw.",
-    "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; probeer het later opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann."
+    "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; probeer het later opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann.",
+    "no_installations": "Er is geen verwarming gevonden voor dit Viessmann-account. Controleer in de ViCare-app dat je verwarming is ingesteld voor het account waarmee je bent ingelogd.",
+    "no_heating_device": "Dit Viessmann-account heeft geen verwarmingsapparaat dat de app kan toevoegen (gevonden: __types__). Een rapport voor de ontwikkelaar helpt om ondersteuning toe te voegen.",
+    "device_name": {
+      "heat_pump": "Viessmann warmtepomp",
+      "boiler": "Viessmann ketel",
+      "fuel_cell": "Viessmann brandstofcel",
+      "other": "Viessmann verwarming"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Het gratis API-abonnement van Viessmann heeft een eigen Client ID nodig. Het duurt ongeveer vijf minuten en hoeft maar één keer:",
+      "step": "Sla de client op in het portaal, kopieer de Client ID en plak die hieronder.",
+      "continue": "Opslaan en inloggen bij Viessmann",
+      "invalid": "Dit lijkt geen Client ID. Kopieer hem uit de client in het Viessmann-ontwikkelaarsportaal; hij bevat geen spaties."
+    },
+    "check": {
+      "title": "Je Viessmann-account",
+      "loading": "Je verwarming wordt gezocht…",
+      "found": "Gevonden:",
+      "continue": "Doorgaan",
+      "retry": "Opnieuw proberen",
+      "report_link": "Apparaat niet gevonden of ontbreken er waarden? Gegevens voor de ontwikkelaar voorbereiden",
+      "close": "Sluiten zonder een apparaat toe te voegen",
+      "no_login": "Log eerst in bij Viessmann en probeer het dan opnieuw."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; de app probeert het elk uur opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann.",
     "gateway_offline": "De Viessmann-gateway is offline. Controleer of hij stroom en een internetverbinding heeft.",
-    "api_limit": "Limiet van de Viessmann-API bereikt, updates worden om __time__ hervat."
+    "api_limit": "Limiet van de Viessmann-API bereikt, updates worden om __time__ hervat.",
+    "command_refused": "Viessmann heeft de wijziging geweigerd (__detail__). Dit is soms een tijdelijke storing bij Viessmann; probeer het later opnieuw."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Circuit __circuit__ bestaat niet in deze installatie. Beschikbare circuits: __available__."
+    "heating_circuit_not_available": "Circuit __circuit__ bestaat niet in deze installatie. Beschikbare circuits: __available__.",
+    "too_many_calls": "Met deze instelling zou dit Viessmann-account ongeveer __calls__ API-aanroepen per dag nodig hebben voor updates. Viessmann staat ongeveer 1.450 per dag toe en de app houdt er een paar vrij voor andere verzoeken, dus er zijn er hoogstens __limit__ mogelijk. Kies hier of bij een ander apparaat een langer interval, of zet het gebeurtenissenlogboek uit."
   },
-  "commands": {
+  "status": {
+    "fault": "De verwarming meldt storing __codes__. De handleiding van je verwarming legt de code uit.",
+    "fault_notification": "__device__: de verwarming meldt storing __code__.",
+    "frozen": "Viessmann heeft sinds __time__ geen nieuwe waarden gestuurd. Meestal helpt het om de internetmodule van de verwarming opnieuw te starten: haal de stekker van de Vitoconnect een minuut uit het stopcontact, of zet de verwarming uit en weer aan als de module ingebouwd is.",
+    "write_not_applied": "De verwarming heeft de wijziging niet overgenomen: __capability__ is __actual__ in plaats van __wanted__.",
+    "refresh_too_soon": "De Viessmann-functies zijn net ingelezen. Probeer het over __minutes__ minuten opnieuw."
+  },
+  "flow": {
+    "value_unknown": "Nog geen actuele waarde van Viessmann. Probeer het opnieuw na de volgende update.",
+    "rate_limited": "Te veel wijzigingen in korte tijd (hoogstens __limit__ per uur). Probeer het over __minutes__ minuten opnieuw.",
+    "feature_not_reported": "Het apparaat meldt __feature__ niet.",
+    "property_not_reported": "__feature__ heeft geen waarde __property__.",
+    "not_a_number": "De waarde van __feature__ is geen getal.",
+    "invalid_parameters": "De parameters moeten een JSON-object zijn, bijvoorbeeld {\"temperature\": 50}, of {} voor geen.",
+    "unknown_parameter": "De opdracht heeft geen parameter __parameter__.",
+    "no_command_metadata": "De opdrachten van het apparaat zijn nog niet bekend. Probeer het opnieuw na de volgende update.",
+    "choose_from_list": "Kies een item uit de lijst.",
+    "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit.",
+    "write_quota_reserved": "Het Viessmann-account heeft vandaag nog maar __left__ API-aanroepen over, en de regelmatige updates van de apparaten hebben die nodig tot de dagteller opnieuw begint (__time__). Probeer het daarna opnieuw, of kies een langer update-interval in de apparaatinstellingen.",
+    "write_burst": "Te veel wijzigingen voor dit Viessmann-account in korte tijd (hoogstens __limit__ per 10 minuten voor al zijn apparaten). Probeer het over __minutes__ minuten opnieuw.",
     "program_follows_schedule": "Normaal en verlaagd volgen het tijdprogramma van het apparaat en kunnen niet direct worden gekozen. De keuze beëindigt comfort of eco als een van beide aan staat.",
     "program_not_available": "Dit apparaat heeft dat programma niet.",
     "mode_not_available": "Dit apparaat heeft daarvoor geen bedrijfsmodus.",
     "holiday_invalid_date": "Voer de vakantiedatums in als DD-MM-JJJJ.",
-    "holiday_end_before_start": "Het vakantieprogramma moet na de start eindigen.",
-    "too_many_commands": "Er zijn het afgelopen uur te veel wijzigingen naar Viessmann gestuurd. Probeer het later opnieuw."
+    "holiday_end_before_start": "Het vakantieprogramma moet na de start eindigen."
   }
 }

@@ -10,7 +10,7 @@
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
 const {
-  extraDataId, sourceDevices, extraEntries, circuitName, heatingDeviceName,
+  extraDataId, sourceDevices, extraEntries, withUniqueNames, circuitName, heatingDeviceName,
 } = require('../extraPairing');
 const { translate } = require('../../../lib/errorMessages');
 const { findFixtureDevice, FIXTURES_DIR } = require('../../../test/helpers/fixtureDevices');
@@ -106,4 +106,10 @@ test('a circuit\'s own name is added; Viessmann\'s default name is not', () => {
 test('without a product name the model is what the device is', () => {
   expect(heatingDeviceName({ modelId: 'E3_Vitodens_200_0821' }, t)).toBe('Vitodens 200');
   expect(heatingDeviceName({ modelId: 'CU401B_S_64', roles: ['type:heatpump'] }, t)).toBe('Viessmann heat pump');
+});
+
+test('two devices of the same name are numbered', () => {
+  const named = (name) => ({ name, data: { id: name } });
+  expect(withUniqueNames([named('Vitocal 250 hot water'), named('Vitocal 250 hot water'), named('Other')]).map((entry) => entry.name))
+    .toEqual(['Vitocal 250 hot water', 'Vitocal 250 hot water 2', 'Other']);
 });

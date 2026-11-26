@@ -34,7 +34,7 @@ const { translate } = require('../../lib/errorMessages');
 const {
   PairSession, summarizeInstallations, featureReadError, pairingError,
 } = require('./pairSession');
-const { sourceDevices, extraEntries } = require('./extraPairing');
+const { sourceDevices, extraEntries, withUniqueNames } = require('./extraPairing');
 const { POLL_DRIVER } = require('./extraDevice');
 
 class ExtraDriver extends OAuth2Driver {
@@ -112,7 +112,7 @@ class ExtraDriver extends OAuth2Driver {
         entries.push(...extraEntries(this.kind, source, features, { t: this.t, version }));
       }
       if (entries.length === 0) throw new Error(this.t(`pair.extra.${this.kind}.none`));
-      return entries;
+      return withUniqueNames(entries);
     } catch (error) {
       this.error('Error in onPairListDevices:', error);
       throw pairingError(this.homey, error);

@@ -205,6 +205,23 @@ function roomEntries(source, rawResponse, { t, version }) {
 const ENTRIES = { circuit: circuitEntries, hotWater: hotWaterEntries, room: roomEntries };
 
 /**
+ * The entries with unique names: a second one of the same name gets a number (two heating
+ * devices of the same model in one account), as the ViCare device's names do.
+ * @param {any[]} entries
+ * @returns {any[]}
+ */
+function withUniqueNames(entries) {
+  /** @type {string[]} */
+  const taken = [];
+  return entries.map((entry) => {
+    let { name } = entry;
+    for (let number = 2; taken.includes(name); number++) name = `${entry.name} ${number}`;
+    taken.push(name);
+    return name === entry.name ? entry : { ...entry, name };
+  });
+}
+
+/**
  * The device list entries of one Viessmann device for a kind of extra device.
  * @param {ExtraKind} kind
  * @param {{ gateway: any, device: any }} source
@@ -217,5 +234,5 @@ function extraEntries(kind, source, rawResponse, options) {
 }
 
 module.exports = {
-  extraDataId, sourceDevices, extraEntries, circuitName, heatingDeviceName, EXTRA_DRIVERS, SOURCE_TYPES,
+  extraDataId, sourceDevices, extraEntries, withUniqueNames, circuitName, heatingDeviceName, EXTRA_DRIVERS, SOURCE_TYPES,
 };

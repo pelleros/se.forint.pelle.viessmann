@@ -43,7 +43,11 @@ function respond(dump, filter) {
 async function deviceWith(features, values = {}, roles = HEAT_PUMP_ROLES) {
   const modeChanged = { trigger: jest.fn(async () => {}) };
   const device = new ViessmannDevice();
-  device.driver = { getTriggerCard: jest.fn((id) => (id === 'thermostat_mode.heating' ? modeChanged : null)) };
+  device.driver = {
+    triggerCapabilityChange: jest.fn(async (target, id, value) => {
+      if (id === 'thermostat_mode.heating') await modeChanged.trigger(target, { mode: value }, {});
+    }),
+  };
   device._roles = roles;
   device._features = features;
   await device.initializeCapabilities();

@@ -84,7 +84,7 @@ jest.mock('homey-oauth2app', () => {
 
 const ViessmannDevice = require('../device');
 const { PATHS, FEATURES, getCapabilityOptions } = require('../config');
-const { MODE_TITLES } = require('../config/thermostat');
+const { MODE_TITLES } = require('../config/modes');
 
 const BASE_STORE = Object.freeze({
   installationId: 123456,

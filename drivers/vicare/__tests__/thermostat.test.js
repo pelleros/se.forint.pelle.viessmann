@@ -4,7 +4,9 @@
 
 // The standard thermostat, the program picker, holiday, hot water settings, what the device is
 // doing now (heating now, operating state, status text) and how writes are sent: per fixture
-// device, through the real driver, device and config.
+// device, through the real driver, device and config. The pure modules have their own tests
+// (config.modes, config.program, config.state, derivedCapabilities, capabilityWrites, holiday,
+// flowRuntime).
 
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
@@ -12,19 +14,13 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const config = require('../config');
-const { STANDARD_MODES, standardModeOf, standardModesFor } = require('../config/thermostat');
 const { programsFor, PROGRAMS, ECO_PROGRAM } = require('../config/program');
-const {
-  heatingNow, operatingState, statusText, formatNumber, HOT_WATER_CHARGING,
-} = require('../config/state');
-const { FeatureMapper, featureMapper, capabilityRank } = require('../featureMapper');
-const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('../flowCards');
+const { featureMapper } = require('../featureMapper');
 const { findFixtureDevice } = require('../../../test/helpers/fixtureDevices');
 const en = require('../../../locales/en.json');
 
 const { PATHS } = config;
 const clone = (value) => JSON.parse(JSON.stringify(value));
-const modes = (...ids) => ids.map((id) => ({ id }));
 
 // Returns only the requested features, like the API does for ?filter=
 function respond(dump, filter) {
@@ -90,37 +86,11 @@ async function pairedDevice(name, { language = 'en', change } = {}) {
 
 const commandsSent = (device) => device.oAuth2Client.executeCommand.mock.calls.map(([call]) => [call.feature, call.command, call.body]);
 
-/** A reader over a list of features, like FeatureMapper gives a derived capability */
-const reader = (features) => (path, propertyPath) => propertyPath.split('.')
-  .reduce((node, part) => node?.[part], features[path]);
-
 afterEach(() => {
   jest.useRealTimers();
 });
 
 describe('standard thermostat mode', () => {
-  test('stands for the Viessmann modes as heat, off, cool and auto', () => {
-    expect(['heating', 'dhwAndHeating', 'forcedNormal', 'forcedReduced'].map(standardModeOf)).toEqual(['heat', 'heat', 'heat', 'heat']);
-    expect(['dhw', 'standby', 'normalStandby'].map(standardModeOf)).toEqual(['off', 'off', 'off']);
-    expect(standardModeOf('cooling')).toBe('cool');
-    expect(['heatingCooling', 'dhwAndHeatingCooling'].map(standardModeOf)).toEqual(['auto', 'auto']);
-    expect(standardModeOf('somethingNew')).toBeNull();
-  });
-
-  test('offers cool and auto only to devices with such a mode, and heat and off when the modes are unknown', () => {
-    const ids = (operatingModes) => standardModesFor(operatingModes).map((mode) => mode.id);
-    expect(ids(modes('dhw', 'dhwAndHeating', 'standby'))).toEqual(['heat', 'off']);
-    expect(ids(modes('heating', 'standby'))).toEqual(['heat', 'off']);
-    expect(ids(modes('dhw', 'dhwAndHeating', 'dhwAndHeatingCooling', 'standby'))).toEqual(['heat', 'auto', 'off']);
-    expect(ids(modes('heating', 'cooling', 'heatingCooling', 'standby'))).toEqual(['heat', 'cool', 'auto', 'off']);
-    expect(ids([])).toEqual(['heat', 'off']);
-    expect(ids(undefined)).toEqual(['heat', 'off']);
-  });
-
-  test('every standard value has a title in every app language', () => {
-    for (const mode of STANDARD_MODES) expect(Object.keys(mode.title).sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
-  });
-
   test('off keeps hot water on where the device can, and is standby only where it cannot', async () => {
     const { device } = await pairedDevice('vitocal_222');
     expect(device.getCapabilityValue('thermostat_mode')).toBe('heat');
@@ -205,15 +175,6 @@ describe('standard thermostat set point and room temperature', () => {
 });
 
 describe('program picker', () => {
-  test('shows the active program, with the newer program names as the same program', () => {
-    const derived = featureMapper.derivedByName('thermostat_mode.heatingProgram');
-    const active = (value) => derived.derive(reader({ [PATHS.HEATING_CIRCUIT_0_PROGRAM]: { value: { value } } }), {});
-    expect(['normal', 'normalHeating', 'reduced', 'reducedHeating', 'comfort', 'comfortHeating', 'eco'].map(active))
-      .toEqual(['normal', 'normal', 'reduced', 'reduced', 'comfort', 'comfort', 'eco']);
-    expect(active('standby')).toBeNull();
-    expect(active(undefined)).toBeUndefined();
-  });
-
   test('offers only the programs the device has', async () => {
     expect(programsFor([PATHS.HEATING_CIRCUIT_0_TARGET_E3, PATHS.HEATING_CIRCUIT_0_COMFORT_E3]).map((program) => program.id))
       .toEqual(['normal', 'comfort']);
@@ -355,7 +316,7 @@ describe('operating modes per device', () => {
       { id: 'standby', name: 'Standby' },
     ]);
     expect(await listeners['set-device-operating-mode:mode']('var', { device })).toHaveLength(2);
-    expect(ViessmannDriver.capabilityChoices(undefined, 'thermostat_mode.heating')).toEqual([]);
+    expect(await listeners['set-device-operating-mode:mode']('', { device: undefined })).toEqual([]);
 
     await listeners['set-device-operating-mode']({ device, mode: { id: 'standby', name: 'Standby' } });
     expect(commandsSent(device)).toEqual([['heating.circuits.0.operating.modes.active', 'setMode', { mode: 'standby' }]]);
@@ -365,47 +326,6 @@ describe('operating modes per device', () => {
 });
 
 describe('heating now, operating state and status text', () => {
-  const compressor = (active, phase) => ({ [PATHS.COMPRESSOR]: { active: { value: active }, phase: { value: phase } } });
-
-  test('heating now follows a running compressor outside defrost and cooling, the burner and a generating fuel cell', () => {
-    expect(heatingNow(reader(compressor(true, 'heating')))).toBe(true);
-    expect(heatingNow(reader(compressor(true, 'ready')))).toBe(true);
-    for (const phase of ['defrost', 'passive-defrost', 'cooling', 'pause', 'off']) {
-      expect(heatingNow(reader(compressor(true, phase)))).toBe(false);
-    }
-    expect(heatingNow(reader(compressor(false, 'heating')))).toBe(false);
-    expect(heatingNow(reader({ [PATHS.BURNER]: { active: { value: true } } }))).toBe(true);
-    expect(heatingNow(reader({ [PATHS.BURNER]: { active: { value: false } }, [PATHS.FUEL_CELL_PHASE]: { value: { value: 'generation' } } }))).toBe(true);
-    expect(heatingNow(reader({}))).toBeUndefined();
-  });
-
-  test('the operating state tells hot water, defrost, cooling and standby apart', () => {
-    const charging = (active) => ({ [HOT_WATER_CHARGING]: { active: { value: active } } });
-    expect(operatingState(reader({ ...compressor(true, 'heating'), ...charging(true) }))).toBe('hotWater');
-    expect(operatingState(reader({ ...compressor(true, 'heating'), ...charging(false) }))).toBe('heating');
-    expect(operatingState(reader(compressor(true, 'heating')))).toBe('heating');
-    expect(operatingState(reader(compressor(false, 'passive-defrost')))).toBe('defrost');
-    expect(operatingState(reader(compressor(true, 'cooling')))).toBe('cooling');
-    expect(operatingState(reader(compressor(false, 'pause')))).toBe('standby');
-    expect(operatingState(reader({}))).toBeUndefined();
-  });
-
-  test('the status text is built from reported values only, in Homey\'s language', () => {
-    const readings = (values) => ({ readings: new Map(Object.entries(values).map(([name, value]) => [name, { value }])) });
-    const hotWater = { [PATHS.HOT_WATER_TEMP]: { value: { value: 47.46 } } };
-    const running = { ...compressor(true, 'heating'), ...hotWater };
-    expect(statusText(reader(running), { language: 'en', ...readings({ 'measure_compressor_number.compressorModulation': 55 }) }))
-      .toBe('Heating · compressor 55 % · hot water 47.5 °C');
-    expect(statusText(reader(running), { language: 'de', ...readings({ measure_holiday_active: true }) }))
-      .toBe('Heizen · Warmwasser 47,5 °C · Urlaub');
-    expect(statusText(reader({ ...running, [HOT_WATER_CHARGING]: { active: { value: true } } }), { language: 'fr' }))
-      .toBe('Eau chaude · 47,5 °C');
-    expect(statusText(reader({ [PATHS.BURNER]: { active: { value: true } } }), { language: 'nl', ...readings({ 'measure_burner_number.burnerModulation': 30 }) }))
-      .toBe('Verwarmen · brander 30 %');
-    expect(statusText(reader({}), {})).toBeUndefined();
-    expect(formatNumber(20, 'sv')).toBe('20');
-  });
-
   test('on a device: values, the tile state, triggers and the condition', async () => {
     const { device, cards, listeners } = await pairedDevice('vitocal_222', { language: 'sv' });
     expect(device.getCapabilityValue('measure_heating_active')).toBe(true);
@@ -492,11 +412,6 @@ describe('capability order of new devices', () => {
     expect(position('measure_temperature.outside')).toBeLessThan(position('measure_burner_number.burnerHours'));
   });
 
-  test('an ID takes its own place, else the first prefix that matches it, else the end', () => {
-    const order = ['a', 'b.x', 'b*', 'c'];
-    expect(['b.x', 'b.y', 'a', 'z', 'c'].map((id) => capabilityRank(id, order))).toEqual([1, 2, 0, 4, 3]);
-  });
-
   test('an existing device keeps its order and gets the new capabilities after its own', async () => {
     const { device } = await pairedDevice('vitocal_222');
     const existing = ['measure_temperature.hotWater', 'target_temperature.hotWater', 'target_temperature.heating', 'thermostat_mode.heating'];
@@ -509,62 +424,5 @@ describe('capability order of new devices', () => {
     expect(upgraded.getCapabilities().slice(0, existing.length)).toEqual(existing);
     expect(upgraded.getCapabilities()).toContain('target_temperature');
     expect(upgraded.removeCapability).not.toHaveBeenCalled();
-  });
-});
-
-describe('derived capabilities in the mapper', () => {
-  test('are added and kept only while a source the roles allow is stored', () => {
-    const allowNone = () => false;
-    expect(featureMapper.isProduced('measure_heating_active', [PATHS.COMPRESSOR], () => true)).toBe(true);
-    expect(featureMapper.isProduced('measure_heating_active', [PATHS.COMPRESSOR], allowNone)).toBe(false);
-    expect(featureMapper.isProduced('thermostat_mode.heatingProgram', [PATHS.HEATING_CIRCUIT_0_PROGRAM], () => true)).toBe(false);
-    expect(featureMapper.capabilitiesFor([PATHS.COMPRESSOR], []).map(({ capability }) => capability.capabilityName)).toEqual([]);
-  });
-
-  test('know their options, configuration and writability', () => {
-    expect(featureMapper.configuredOptions('measure_status_text').title.en).toBe('Status');
-    expect(featureMapper.capabilityByName('measure_operating_state').capabilityName).toBe('measure_operating_state');
-    expect(featureMapper.writableCapabilities()).toEqual(expect.arrayContaining(['thermostat_mode', 'thermostat_mode.heatingProgram',
-      'target_temperature', 'target_hysteresis.hotWater']));
-    expect(featureMapper.writableCapabilities()).not.toContain('measure_status_text');
-    expect(config.getCapabilityOptions('thermostat_mode').uiComponent).toBeNull();
-  });
-
-  test('a derive that throws gives no value, and a mapper without derived capabilities works as before', () => {
-    const mapper = new FeatureMapper({
-      ...config,
-      DERIVED: [{
-        capabilityName: 'measure_x',
-        sources: ['x.y'],
-        derive: () => {
-          throw new Error('boom');
-        },
-        capabilityOptions: {},
-      }],
-    });
-    const readings = mapper.readValues({ data: [{ feature: 'x.y', isEnabled: true, properties: { value: { value: 1 } } }] }, []);
-    expect(readings.get('measure_x')).toEqual({ value: undefined, gone: false });
-    const plain = new FeatureMapper({ FEATURES: config.FEATURES, PATHS: config.PATHS });
-    expect(plain.DERIVED).toEqual([]);
-    expect(plain.capabilitiesFor([PATHS.HOT_WATER_TEMP], []).map(({ capability }) => capability.capabilityName))
-      .toEqual(['measure_temperature.hotWater']);
-  });
-
-  test('the config refuses a derived capability with the name of another capability', () => {
-    const one = { PATHS: { A: 'a.b' }, FEATURES: { 'a.b': { capabilities: [{ capabilityName: 'measure_x', propertyPath: 'value.value', capabilityOptions: {} }] } } };
-    const two = {
-      PATHS: {},
-      FEATURES: {},
-      DERIVED: [{
-        capabilityName: 'measure_x', sources: [], derive: () => undefined, capabilityOptions: {},
-      }],
-    };
-    expect(() => config.combine({ one, two }, [])).toThrow('two derives measure_x, which is defined twice');
-  });
-
-  test('every Flow card of this release is mapped to a capability a fixture device gets', () => {
-    const cards = [...Object.values(FLOW_CONDITIONS), ...Object.values(FLOW_ACTIONS)];
-    expect(cards.find((card) => card.id === 'operating-state-is').argument).toBe('state');
-    expect(cards.find((card) => card.id === 'start-holiday').method).toBe('startHoliday');
   });
 });

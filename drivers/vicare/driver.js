@@ -26,6 +26,9 @@ const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { featureMapper } = require('./featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
+const {
+  conditionAnswer, actionValue, triggerTokens, autocompleteChoices,
+} = require('./flowRuntime');
 
 const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
@@ -105,20 +108,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     return triggerCard;
   }
 
-  // Fires the trigger cards of a capability that changed: those without `when`, or whose
-  // `when` is the new value, with the new value as their token
+  // Fires the trigger cards of a capability that changed (see flowRuntime.triggerTokens)
   async triggerCapabilityChange(device, capabilityName, value) {
-    for (const { card, when, token } of this._triggerCards.get(capabilityName) || []) {
-      if (when !== undefined && when !== value) continue;
-      // A value that became unknown is no change to report
-      if (token && (value === null || value === undefined)) continue;
-      await card.trigger(device, token ? { [token]: value } : {}, {});
+    for (const trigger of this._triggerCards.get(capabilityName) || []) {
+      const tokens = triggerTokens(trigger, value);
+      if (tokens) await trigger.card.trigger(device, tokens, {});
     }
-  }
-
-  // The value of a dropdown or autocomplete argument
-  static argumentValue(value) {
-    return value && typeof value === 'object' && 'id' in value ? value.id : value;
   }
 
   _registerFlowCards() {
@@ -131,9 +126,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         const flowCard = this.homey.flow.getConditionCard(condition.id);
         flowCard.registerRunListener(async (args, state) => {
           const { device } = args;
-          const value = device.getCapabilityValue(condition.capability);
-          // A condition with an argument compares the value with it; otherwise the value is a boolean
-          return condition.argument ? value === ViessmannDriver.argumentValue(args[condition.argument]) : value;
+          return conditionAnswer(condition, device.getCapabilityValue(condition.capability), args);
         });
       } catch (error) {
         this.error(`Failed to register condition ${condition.id}:`, error);
@@ -150,7 +143,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
           // Cards that are not a capability write run a device method with their arguments
           if (action.method) return device[action.method](actionArgs);
 
-          const value = ViessmannDriver.argumentValue(actionArgs[Object.keys(actionArgs)[0]]); // The first argument
+          const value = actionValue(actionArgs);
           if (typeof device.writeCapability === 'function') return device.writeCapability(action.capability, value);
           // The feature path and capability the card writes through
           const target = featureMapper.commandTarget(action.capability);
@@ -159,8 +152,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         });
         // An autocomplete argument offers the values the capability has on this device
         if (action.autocomplete) {
-          flowCard.registerArgumentAutocompleteListener(action.autocomplete, async (query, args) => {
-            return ViessmannDriver.capabilityChoices(args.device, action.capability, query);
+          flowCard.registerArgumentAutocompleteListener(action.autocomplete, async (query, { device }) => {
+            if (!device?.hasCapability?.(action.capability)) return [];
+            return autocompleteChoices(device.getCapabilityOptions(action.capability)?.values, device.homeyLanguage(), query);
           });
         }
       } catch (error) {
@@ -169,18 +163,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     });
 
     this.log('Finished registering flow cards');
-  }
-
-  // The values of an enum capability on a device as autocomplete results, in Homey's language,
-  // filtered by what the user typed
-  static capabilityChoices(device, capabilityName, query = '') {
-    if (!device?.hasCapability?.(capabilityName)) return [];
-    const language = typeof device.homeyLanguage === 'function' ? device.homeyLanguage() : 'en';
-    const values = device.getCapabilityOptions(capabilityName)?.values || [];
-    const search = String(query || '').toLowerCase();
-    return values
-      .map((value) => ({ id: value.id, name: value.title?.[language] || value.title?.en || value.id }))
-      .filter((choice) => choice.name.toLowerCase().includes(search) || choice.id.toLowerCase().includes(search));
   }
 
   _calculatePollInterval() {

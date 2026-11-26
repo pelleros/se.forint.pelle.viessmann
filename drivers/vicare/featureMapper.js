@@ -27,6 +27,7 @@
 // response gives them. device.js and driver.js use it; tests and tools can use it directly.
 
 const config = require('./config');
+const { sortByCapabilityOrder, derivedSource, addDerivedReadings } = require('./derivedCapabilities');
 
 /** @typedef {import('./config/types').FeatureConfig} FeatureConfig */
 /** @typedef {import('./config/types').CapabilityConfig} CapabilityConfig */
@@ -99,17 +100,34 @@ function modeTitle(mode) {
 }
 
 /**
- * The place of a capability in an order of IDs and prefixes ending in `*` (see config/order.js):
- * its exact entry, else the first prefix that matches it, else after all entries.
- * @param {string} capabilityName
- * @param {readonly string[]} order
- * @returns {number}
+ * The min/max/stepping of a capability's command: the path's `temperature` or
+ * `targetTemperature` constraints, else those of the capability's own command parameter (from
+ * the command metadata, else from the path's constraints by parameter name). Undefined when
+ * there are no numeric limits.
+ * @param {CapabilityConfig | undefined} capability
+ * @param {Record<string, any> | undefined} pathConstraints
+ * @param {Record<string, any> | undefined} pathCommands the API's commands of the path
+ * @returns {{ min: number, max: number, stepping?: number } | undefined}
  */
-function capabilityRank(capabilityName, order) {
-  const exact = order.indexOf(capabilityName);
-  if (exact >= 0) return exact;
-  const prefix = order.findIndex((entry) => entry.endsWith('*') && capabilityName.startsWith(entry.slice(0, -1)));
-  return prefix >= 0 ? prefix : order.length;
+function numericLimits(capability, pathConstraints, pathCommands) {
+  const parameter = Object.values(capability?.command?.parameterMapping || {})[0];
+  const commandName = capability?.command?.name;
+  const limits = pathConstraints?.temperature || pathConstraints?.targetTemperature
+    || (commandName && pathCommands?.[commandName]?.params?.[parameter]?.constraints)
+    || (parameter && pathConstraints?.[parameter]);
+  return Number.isFinite(limits?.min) && Number.isFinite(limits?.max) ? limits : undefined;
+}
+
+/**
+ * Enum values narrowed to the ids a command accepts, in the command's order; an id the config
+ * does not know gets a title made from it.
+ * @param {ModeValue[]} values
+ * @param {unknown[]} accepted
+ * @returns {ModeValue[]}
+ */
+function acceptedValues(values, accepted) {
+  const ids = /** @type {string[]} */ (accepted.filter((id) => typeof id === 'string'));
+  return ids.map((id) => values.find((value) => value.id === id) || { id, title: { en: modeTitle(id) } });
 }
 
 class FeatureMapper {
@@ -145,19 +163,6 @@ class FeatureMapper {
   }
 
   /**
-   * The first source of a derived capability that is stored and allowed by the roles, when the
-   * capability is available on a device with these features; otherwise undefined.
-   * @param {DerivedCapabilityConfig} derived
-   * @param {string[]} storedFeatures
-   * @param {(path: string) => boolean} allowPath
-   * @returns {string | undefined}
-   */
-  derivedSource(derived, storedFeatures, allowPath) {
-    if (derived.available && !derived.available(storedFeatures)) return undefined;
-    return derived.sources.find((path) => storedFeatures.includes(path) && allowPath(path));
-  }
-
-  /**
    * True when the feature path has no required role or `roles` contains it.
    * @param {string} path
    * @param {string[]} roles
@@ -185,13 +190,10 @@ class FeatureMapper {
       for (const capability of this.FEATURES[path]?.capabilities || []) result.push({ path, capability });
     }
     for (const derived of this.DERIVED) {
-      const path = this.derivedSource(derived, storedFeatures, (source) => this.hasRequiredRole(source, roles));
+      const path = derivedSource(derived, storedFeatures, (source) => this.hasRequiredRole(source, roles));
       if (path) result.push({ path, capability: derived });
     }
-    const order = this.config.CAPABILITY_ORDER || [];
-    // Array.prototype.sort is stable: the same place keeps the order above
-    return result.sort((a, b) => capabilityRank(a.capability.capabilityName, order)
-      - capabilityRank(b.capability.capabilityName, order));
+    return sortByCapabilityOrder(result, this.config.CAPABILITY_ORDER || []);
   }
 
   /**
@@ -203,7 +205,7 @@ class FeatureMapper {
    */
   isProduced(capabilityName, storedFeatures, allowPath) {
     const derived = this.derivedByName(capabilityName);
-    if (derived) return Boolean(this.derivedSource(derived, storedFeatures, allowPath));
+    if (derived) return Boolean(derivedSource(derived, storedFeatures, allowPath));
     return Object.values(this.PATHS).some((path) => storedFeatures.includes(path)
       && (this.FEATURES[path]?.capabilities || []).some((capability) => capability.capabilityName === capabilityName)
       && allowPath(path));
@@ -243,21 +245,10 @@ class FeatureMapper {
     if (derived) return { ...options, ...derived.options?.(context) };
 
     const capability = this.FEATURES[path]?.capabilities.find((cap) => cap.capabilityName === capabilityName);
-    const pathConstraints = constraints?.[path];
-    const parameter = Object.values(capability?.command?.parameterMapping || {})[0];
-    const commandName = capability?.command?.name;
-    const temperature = pathConstraints?.temperature || pathConstraints?.targetTemperature
-      || (commandName && context.commandMetadata?.[path]?.[commandName]?.params?.[parameter]?.constraints)
-      || (parameter && pathConstraints?.[parameter]);
-    if (Number.isFinite(temperature?.min) && Number.isFinite(temperature?.max)) {
-      Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
-    }
-
-    const accepted = capability?.enumParameter && pathConstraints?.[capability.enumParameter]?.enum;
-    if (Array.isArray(accepted) && Array.isArray(options.values)) {
-      options.values = accepted.filter((id) => typeof id === 'string')
-        .map((id) => options.values.find((value) => value.id === id) || { id, title: { en: modeTitle(id) } });
-    }
+    const limits = numericLimits(capability, constraints?.[path], context.commandMetadata?.[path]);
+    if (limits) Object.assign(options, { min: limits.min, max: limits.max, step: limits.stepping || options.step || 1 });
+    const accepted = capability?.enumParameter && constraints?.[path]?.[capability.enumParameter]?.enum;
+    if (Array.isArray(accepted) && Array.isArray(options.values)) options.values = acceptedValues(options.values, accepted);
     return options;
   }
 
@@ -356,20 +347,11 @@ class FeatureMapper {
       }
     }
 
+    /** @param {string} path */
+    const connectedPath = (path) => this.hasRequiredRole(path, roles) && isConnected(reported.get(path));
     /** @type {import('./config/types').FeatureReader} */
-    const read = (path, propertyPath) => (this.hasRequiredRole(path, roles) && isConnected(reported.get(path))
-      ? readPropertyValue(reported.get(path)?.properties, propertyPath) : undefined);
-    for (const derived of this.DERIVED) {
-      const connected = derived.sources.some((path) => this.hasRequiredRole(path, roles) && isConnected(reported.get(path)));
-      let value;
-      try {
-        value = derived.derive(read, { ...context, readings });
-      } catch (error) {
-        value = undefined;
-      }
-      readings.set(derived.capabilityName, { value, gone: value === undefined && !connected && absenceCounts });
-    }
-    return readings;
+    const read = (path, propertyPath) => (connectedPath(path) ? readPropertyValue(reported.get(path)?.properties, propertyPath) : undefined);
+    return addDerivedReadings(this.DERIVED, read, connectedPath, readings, { context, absenceCounts });
   }
 
   /**
@@ -484,5 +466,4 @@ module.exports = {
   readPropertyValue,
   isConnected,
   mergeOperatingModes,
-  capabilityRank,
 };

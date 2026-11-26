@@ -11,7 +11,7 @@ const Device = require('../device');
 const Driver = require('../driver');
 const { PATHS, getCapability } = require('../config');
 const { detectHeatingCircuit } = require('../heatingCircuit');
-const { MODE_TITLES } = require('../config/thermostat');
+const { MODE_TITLES } = require('../config/modes');
 
 function response(circuitIds) {
   return {

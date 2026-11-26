@@ -25,25 +25,13 @@ const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
-const { MODE_TITLES } = require('./config/thermostat');
+const { MODE_TITLES } = require('./config/modes');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
 const WriteLimiter = require('../../lib/writeLimiter');
+const { configuredWrite, planWrite, writeErrorMessage } = require('./capabilityWrites');
+const { holidaySchedule } = require('./holiday');
 const { runMigrations, versionBefore } = require('./migrations');
-
-/**
- * A date from a Flow card (Homey's date argument gives DD-MM-YYYY; YYYY-MM-DD is accepted too)
- * as the API wants it, YYYY-MM-DD, or null when it is no real date.
- * @param {unknown} text
- * @returns {string | null}
- */
-function apiDate(text) {
-  const match = String(text ?? '').trim().match(/^(\d{2})-(\d{2})-(\d{4})$|^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-  const [year, month, day] = match[1] ? [match[3], match[2], match[1]] : [match[4], match[5], match[6]];
-  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-  return date.getUTCDate() === Number(day) && date.getUTCMonth() === Number(month) - 1 ? `${year}-${month}-${day}` : null;
-}
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -234,54 +222,38 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   /*
-    Writes a capability value to the device, from a capability listener or a Flow action: through
-    the capability's command on the feature path the device has, or, for a derived capability
-    (e.g. the standard thermostat mode or the program picker), through the commands it needs.
+    Writes a capability value to the device, from a capability listener or a Flow action, with
+    the commands capabilityWrites.js plans for it (the device's own feature path, or the
+    commands a derived capability needs).
   */
   async writeCapability(capabilityName, value) {
-    const derived = featureMapper.derivedByName(capabilityName);
-    if (derived?.write) return this.writeDerived(derived, value);
-    const target = featureMapper.commandTarget(capabilityName, this._features);
-    if (!target?.capability.command) throw new Error(`${capabilityName} cannot be changed`);
-    return this.executeCommand(target.path, target.capability, value);
-  }
-
-  async writeDerived(derived, value) {
     let plan;
     try {
-      plan = derived.write(value, this.deviceContext());
+      plan = planWrite(capabilityName, value, this.deviceContext());
     } catch (error) {
-      throw new Error(this.userMessage(error), { cause: error });
+      throw this.translatedError(error);
     }
-    for (const { path, command, parameters } of plan.commands) {
-      // A newer write of the same command replaced this one
-      if (!await this.sendCommand(path, command, parameters)) return true;
-    }
-    for (const [capabilityName, newValue] of Object.entries(plan.values)) {
-      await this.setCapabilityValueIfPossible(capabilityName, newValue);
-    }
-    return true;
+    return this.runWrite(plan);
   }
 
   async executeCommand(path, capability, value) {
-    const { command } = capability;
-    const commandName = command.useValueAsCommand
-      ? (capability.valueMapping?.[value] || value) : command.name;
-    const parameters = {};
-    if (!command.useValueAsCommand) {
-      for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
+    return this.runWrite(configuredWrite(path, capability, value));
+  }
+
+  // Sends the commands of a write in order, then shows the new values. Stops when a newer write
+  // of the same command replaced one of them
+  async runWrite({ commands, values }) {
+    for (const { path, command, parameters } of commands) {
+      if (!await this.sendCommand(path, command, parameters)) return true;
     }
-    // Update the capability value, and the others that show the same property (the heating set
-    // point and the standard thermostat's), unless a newer write of the same command replaced it
-    if (await this.sendCommand(path, commandName, parameters)) {
-      const siblings = (FEATURES[path]?.capabilities || [])
-        .filter((other) => other.capabilityName === capability.capabilityName || (other.propertyPath === capability.propertyPath
-          && !other.valueMapping && !capability.valueMapping));
-      for (const { capabilityName } of siblings.length > 0 ? siblings : [capability]) {
-        await this.setCapabilityValueIfPossible(capabilityName, value);
-      }
+    for (const [capabilityName, value] of Object.entries(values)) {
+      await this.setCapabilityValueIfPossible(capabilityName, value);
     }
     return true;
+  }
+
+  translatedError(error) {
+    return new Error(writeErrorMessage(this.homey, error), { cause: error });
   }
 
   /*
@@ -312,7 +284,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     } catch (error) {
       this.error('Error executing command:', error);
       // Keep the API's reason (status, Viessmann error type/message) visible to the user
-      const reason = this.userMessage(error);
+      const reason = writeErrorMessage(this.homey, error);
       const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
       wrapped.status = error?.status;
       wrapped.retryAfterMs = error?.retryAfterMs;
@@ -321,36 +293,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   writeLimiter() {
-    if (!this._writeLimiter) {
-      // Homey's timers, which Homey clears when the app stops
-      const { homey } = this;
-      this._writeLimiter = new WriteLimiter(homey?.setTimeout ? {
-        setTimeout: (callback, ms) => homey.setTimeout(callback, ms),
-        clearTimeout: (timer) => homey.clearTimeout(timer),
-      } : {});
-    }
+    if (!this._writeLimiter) this._writeLimiter = WriteLimiter.withHomeyTimers(this.homey);
     return this._writeLimiter;
-  }
-
-  // The message of an error in the user's language when it has a code with a translation
-  // (locales/*.json → commands), else its own message
-  userMessage(error) {
-    const fallback = error instanceof Error ? error.message : String(error);
-    if (!error?.code) return fallback;
-    const translated = this.homey?.__?.(`commands.${error.code}`);
-    return typeof translated === 'string' && !translated.startsWith('commands.') ? translated : fallback;
   }
 
   // Schedules the holiday program from one date to another (Flow action)
   async startHoliday({ start, end }) {
-    const from = apiDate(start);
-    const to = apiDate(end);
-    if (!from || !to) throw new Error(this.userMessage(Object.assign(new Error('Enter the dates as DD-MM-YYYY'), { code: 'holiday_invalid_date' })));
-    const sameDayAllowed = this._commands?.[PATHS.HOLIDAY]?.schedule?.params?.end?.constraints?.sameDayAllowed;
-    if (to < from || (to === from && sameDayAllowed === false)) {
-      throw new Error(this.userMessage(Object.assign(new Error('The holiday must end after it starts'), { code: 'holiday_end_before_start' })));
+    let parameters;
+    try {
+      parameters = holidaySchedule(start, end, this._commands?.[PATHS.HOLIDAY]?.schedule);
+    } catch (error) {
+      throw this.translatedError(error);
     }
-    await this.sendCommand(PATHS.HOLIDAY, 'schedule', { start: from, end: to });
+    await this.sendCommand(PATHS.HOLIDAY, 'schedule', parameters);
     return true;
   }
 
@@ -563,30 +518,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           await this.setCapabilityValue(capabilityName, displayValue);
           if (!trigger) return;
 
-          await this.fireTriggers(capabilityName, displayValue);
+          try {
+            // The trigger cards of this capability (see flowCards.js)
+            await this.driver.triggerCapabilityChange?.(this, capabilityName, displayValue);
+          } catch (error) {
+            this.error(`Could not fire the trigger of ${capabilityName}:`, error);
+          }
         }
       }
     } catch (error) {
       this.error(`Failed to set capability ${capabilityName}:`, error);
-    }
-  }
-
-  // Fires the trigger cards of a capability that changed (see flowCards.js)
-  async fireTriggers(capabilityName, value) {
-    if (typeof this.driver?.triggerCapabilityChange !== 'function') {
-      // A driver without trigger groups: its one trigger card per capability, if any
-      try {
-        const triggerCard = this.driver.getTriggerCard(capabilityName);
-        if (triggerCard) await triggerCard.trigger(this, { mode: value }, {});
-      } catch (error) {
-        // No trigger card for this capability
-      }
-      return;
-    }
-    try {
-      await this.driver.triggerCapabilityChange(this, capabilityName, value);
-    } catch (error) {
-      this.error(`Could not fire the trigger of ${capabilityName}:`, error);
     }
   }
 

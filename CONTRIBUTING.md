@@ -28,9 +28,20 @@ How the app is built is described in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md
 - One topic per pull request. Behavioural changes need tests; the anonymized fixtures in `test/fixtures/` make that possible without a real installation.
 - Before pushing: `npm ci --ignore-scripts`, `npm run test:coverage`, `npm run lint`, `npm run typecheck` and `npm run homey:validate`. CI runs the same checks, plus a check of the app package and CodeQL.
 - When a change alters what a device gets (capabilities, their options, Flow cards), run `npm run matrix` and commit the updated capability matrix: its diff shows the effect per installation type.
-- New code in `lib/` and in the config, mapper and migration modules starts with `// @ts-check` and documents its types with JSDoc.
+- New code follows [Code structure](#code-structure) below.
 - Please allow edits by maintainers. Small fixes may then be added to your branch as separate commits on top of yours, so your commits stay yours. If your work is used in another way, you are credited with a `Co-authored-by` trailer and in the changelog.
 - Releases go to the Homey test channel first, so expect some time between merge and the App Store.
+
+## Code structure
+
+Guidance rather than rules: use judgement, and leave the code easier to follow than you found it. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) shows where things live.
+
+- **One module, one job.** The comment at the top of a module says what it does, in a sentence or two. `device.js` and `driver.js` hold the device's and the driver's state and wire the Homey SDK to the modules; the logic is in the modules.
+- **Logic as pure, testable functions, with Homey SDK calls at the edges.** Decide in a function that takes plain values and returns one (which capabilities a device gets, what to store, which message to show), and keep `setCapabilityValue`, `setStoreValue`, API calls and timers in the thin function that applies the decision.
+- **Split a file or function when it gets hard to follow, not at a line count.** Code that mixes several jobs, or that you have to read up and down to understand, is worth splitting; a long but plain table of configuration is not.
+- **Reuse before writing new.** Look for the module that already does the job and extend it: every command goes through `commands.js`, every error shown to users through `userErrors.js`, every Flow card through `flowCards.js` and `flowHandlers.js`.
+- **New datapoints are configuration, not code.** A new Viessmann value is an entry in `drivers/vicare/config/` (see *Add a datapoint* in the architecture document); change code only for what the configuration cannot express.
+- **Types and tests next to the code.** A new module starts with `// @ts-check`, its exported functions have JSDoc types, and its tests are in the `__tests__/` folder next to it.
 
 ## Code of conduct
 

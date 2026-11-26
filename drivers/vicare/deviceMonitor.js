@@ -165,7 +165,9 @@ class DeviceMonitor {
    * @param {boolean} triggers
    */
   async applyComputedValues(response, now, triggers) {
-    const { values, countersChanged } = this.computed.read(response, this.device.getRoles(), { now, timeZone: timeZoneOf(this.homey) });
+    // The poll interval sets how long a gap around midnight may be (dailyCounters.js)
+    const pollInterval = this.device.driver?._calculatePollInterval?.(this.device);
+    const { values, countersChanged } = this.computed.read(response, this.device.getRoles(), { now, timeZone: timeZoneOf(this.homey), pollInterval });
     for (const [name, { value, units }] of values) {
       if (!this.device.hasCapability(name)) continue;
       if (units) await this.setUnits(name, units);

@@ -115,6 +115,22 @@ describe('ComputedValues', () => {
     expect(computed.read(response, ['type:boiler'], { now: NOON + MINUTE, timeZone: TZ }).countersChanged).toBe(false);
   });
 
+  test('the device\'s poll interval decides how long the gap around midnight may be', () => {
+    const at = Date.parse('2026-11-26T22:30:00Z'); // 23:30 in Stockholm
+    const stored = () => ({
+      [PATHS.BURNER_STATS]: {
+        date: localDate(at, TZ), at, starts: 45, hours: 3, base: { starts: 40, hours: 2 }, yesterday: null,
+      },
+    });
+    const response = { data: [feature(PATHS.BURNER_STATS, stats(46, 3))] };
+    const now = at + HOUR; // 00:30, an hour after the last poll
+    const hourly = new ComputedValues({ dailyCounters: stored() }).read(response, [], { now, timeZone: TZ, pollInterval: HOUR });
+    expect(hourly.values.get('measure_burner_number.burnerStartsToday')).toEqual({ value: 1 });
+    expect(hourly.values.get('measure_burner_number.burnerStartsYesterday')).toEqual({ value: 5 });
+    const unknown = new ComputedValues({ dailyCounters: stored() }).read(response, [], { now, timeZone: TZ });
+    expect(unknown.values.get('measure_burner_number.burnerStartsToday')).toEqual({ value: null });
+  });
+
   test('stored state survives a restart: today\'s figure continues', () => {
     const dailyCounters = {
       [PATHS.BURNER_STATS]: {

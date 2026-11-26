@@ -39,6 +39,11 @@ const { updateDailyCounter, startsInLastHour, localDate } = require('./dailyCoun
 /** @typedef {import('./config/types').CapabilityConfig} CapabilityConfig */
 /** @typedef {import('./dailyCounters').CounterState} CounterState */
 /** @typedef {{ value: number | null, units?: string }} ComputedValue */
+/**
+ * What a response is read with: the time, Homey's time zone (none: no daily figures) and the
+ * device's poll interval in milliseconds (dailyCounters.js; none: the default midnight gap).
+ * @typedef {{ now: number, timeZone?: string, pollInterval?: number }} Context
+ */
 
 const MINUTE = 60 * 1000;
 const DAILY_KINDS = Object.freeze(['startsToday', 'startsYesterday', 'runtimePerStartYesterday']);
@@ -141,7 +146,7 @@ class ComputedValues {
    * counters should be stored.
    * @param {FeaturesResponse} response
    * @param {string[]} roles
-   * @param {{ now: number, timeZone?: string }} context
+   * @param {Context} context
    * @returns {{ values: Map<string, ComputedValue>, countersChanged: boolean }}
    */
   read(response, roles, context) {
@@ -169,7 +174,7 @@ class ComputedValues {
    * @param {string} name
    * @param {CapabilityConfig} capability
    * @param {{ path: string, feature: any }[]} sources
-   * @param {{ now: number, timeZone?: string }} context
+   * @param {Context} context
    * @returns {ComputedValue}
    */
   firstValue(name, capability, sources, context) {
@@ -188,10 +193,10 @@ class ComputedValues {
    * @param {string} kind
    * @param {string} path
    * @param {Record<string, any>} properties
-   * @param {{ now: number, timeZone?: string }} context
+   * @param {Context} context
    * @returns {ComputedValue}
    */
-  compute(name, kind, path, properties, { now, timeZone }) {
+  compute(name, kind, path, properties, { now, timeZone, pollInterval }) {
     if (kind === 'power') return { value: powerInWatts(properties) ?? null };
     if (kind === 'consumptionYesterday') {
       // Without a time zone the day is unknown, but the unit is not
@@ -207,7 +212,7 @@ class ComputedValues {
       return { value: startsInLastHour(this.hourly[path], starts, now) };
     }
     if (!timeZone || !DAILY_KINDS.includes(kind)) return { value: null };
-    return { value: this.dailyFigures(path, starts, properties.hours?.value, now, timeZone)[kind] };
+    return { value: this.dailyFigures(path, starts, properties.hours?.value, { now, timeZone, pollInterval })[kind] };
   }
 
   /**
@@ -215,14 +220,13 @@ class ComputedValues {
    * @param {string} path
    * @param {number} starts
    * @param {unknown} hours
-   * @param {number} now
-   * @param {string} timeZone
+   * @param {{ now: number, timeZone: string, pollInterval?: number }} context
    * @returns {Record<string, number | null>}
    */
-  dailyFigures(path, starts, hours, now, timeZone) {
+  dailyFigures(path, starts, hours, { now, timeZone, pollInterval }) {
     const { pending } = /** @type {{ pending: { changed: boolean, daily: Map<string, any> } }} */ (this);
     if (!pending.daily.has(path)) {
-      const update = updateDailyCounter(this.dailyCounters[path], { starts, hours }, now, timeZone);
+      const update = updateDailyCounter(this.dailyCounters[path], { starts, hours }, now, timeZone, { pollInterval });
       this.dailyCounters[path] = update.state;
       pending.changed = pending.changed || update.changed;
       pending.daily.set(path, update);

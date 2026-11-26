@@ -197,6 +197,21 @@ describe('writes', () => {
   });
 });
 
+test('the daily figures use the device\'s poll interval: polled hourly, the midnight baseline is kept', async () => {
+  const { device } = await createDevice([PATHS.COMPRESSOR_STATS]);
+  device.driver._calculatePollInterval = jest.fn(() => 60 * MINUTE);
+  const stats = (starts) => ({
+    feature: PATHS.COMPRESSOR_STATS, isEnabled: true, properties: { starts: { value: starts }, hours: { value: 100, unit: 'hour' } },
+  });
+  // 23:30 and 00:30 in Stockholm: an hour apart, longer than the default gap of 35 minutes
+  jest.setSystemTime(Date.parse('2026-11-26T22:30:00Z'));
+  await device.onFeaturesUpdated({ data: [stats(10)] });
+  jest.setSystemTime(Date.parse('2026-11-26T23:30:00Z'));
+  await device.onFeaturesUpdated({ data: [stats(12)] });
+  expect(device.driver._calculatePollInterval).toHaveBeenCalledWith(device);
+  expect(device.getCapabilityValue('measure_compressor_number.compressorStartsToday')).toBe(2);
+});
+
 test('gas yesterday takes the unit the device reports', async () => {
   const { device } = await createDevice();
   await device.onFeaturesUpdated({ data: [temperature(45), gas('kilowattHour')] });

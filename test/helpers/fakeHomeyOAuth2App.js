@@ -28,6 +28,7 @@ class FakeOAuth2Device {
     this.setUnavailable = jest.fn(async () => {
       this.__available = false;
     });
+    this.setLastSeenAt = jest.fn(async () => {});
     this.addCapability = jest.fn(async (id) => {
       if (!this.__values.has(id)) this.__values.set(id, null);
     });

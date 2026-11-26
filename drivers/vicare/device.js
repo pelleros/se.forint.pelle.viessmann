@@ -27,6 +27,7 @@ const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
+const { runMigrations, versionBefore } = require('./migrations');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -237,36 +238,10 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return true;
   }
 
+  // Store migrations, see migrations.js
   async checkUpgradeSpecifics() {
-    if (!this.getStoreValue('installationId')) {
-      // 1.0.2 & 1.0.3 => 1.0.4, add roles and operatingModes and store them
-      const {
-        installationId, gatewaySerial, deviceId, roles, operatingModes,
-      } = this.getData();
-      await this.setStoreValue('installationId', installationId);
-      await this.setStoreValue('gatewaySerial', gatewaySerial);
-      await this.setStoreValue('deviceId', deviceId);
-      if (!roles) {
-        // 1.0.2 => 1.0.4
-        await this.setStoreValue('roles', ['type:heating', 'type:heatpump', 'type:dhw']);
-        await this.setStoreValue('operatingModes', [
-          { id: 'dhw', title: { en: 'Hot water' } },
-          { id: 'dhwAndHeating', title: { en: 'Hot water and Heating' } },
-          { id: 'standby', title: { en: 'Standby' } },
-        ]);
-      } else {
-        // 1.0.3 => 1.0.4
-        await this.setStoreValue('roles', roles);
-        await this.setStoreValue('operatingModes', operatingModes);
-      }
-    }
-    // Refresh older pairings once so circuit discovery does not require re-pairing.
-    if (this.getStoreValue('heatingCircuitId') == null || !this.getStoreValue('commandMetadata')) {
-      await this.refreshStoredMetadata();
-    }
-    if (this.storeVersionBefore('1.0.9')) {
-      await this.setStoreValue('version', '1.0.9');
-    }
+    const ran = await runMigrations(this);
+    if (ran.length > 0) this.log('Store migrations run:', ran.join(', '));
   }
 
   /*
@@ -345,6 +320,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
 
       await this.setAvailabilitySafely(true);
+      await this.markSeen();
     } catch (error) {
       this.error('Error processing features update:', error);
       await this.setAvailabilitySafely(false, error);
@@ -358,6 +334,16 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   */
   readCapabilityValues(response) {
     return featureMapper.readValues(response, this.getRoles());
+  }
+
+  // Homey shows when the device was last heard from: after every successful update (a poll, or
+  // the read when the heating circuit changes)
+  async markSeen() {
+    try {
+      await this.setLastSeenAt();
+    } catch (error) {
+      this.error('Could not set the last seen time:', error);
+    }
   }
 
   // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
@@ -615,15 +601,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   storeVersionBefore(targetVersion) {
-    const currentVersion = this.getStoreValue('version');
-    const parts1 = (currentVersion || '0.0.0').split('.').map(Number);
-    const parts2 = targetVersion.split('.').map(Number);
-
-    for (let i = 0; i < 3; i++) {
-      if (parts1[i] > parts2[i]) return false;
-      if (parts1[i] < parts2[i]) return true;
-    }
-    return false;
+    return versionBefore(this.getStoreValue('version'), targetVersion);
   }
 
 };

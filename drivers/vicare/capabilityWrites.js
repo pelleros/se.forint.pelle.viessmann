@@ -24,18 +24,20 @@
 
 // Writing a capability value, from a capability listener or a Flow action. A configured
 // capability writes through its command on the feature path the device has (newer devices name
-// some programs differently), with device.executeCommand. A derived capability (config/*.js →
-// DERIVED) plans its own commands, which commands.js sends in order, like every other write.
+// some programs differently), with device.executeCommand (executeCommand here, which sends it
+// with commands.js). A derived capability (config/*.js → DERIVED) plans its own commands, which
+// commands.js sends in order, like every other write. A mode the heating circuit does not have
+// is refused before anything is sent (checkOperatingMode).
 //
 // After a write the device shows the new values at once (showWrittenValues): the capabilities
 // written, and the derived capabilities computed the way the next poll will compute them, from
 // the features the device last heard of with the written values in place. So the standard
 // thermostat mode follows a new operating mode right away, without an API call.
 
-const { FEATURES } = require('./config');
+const { FEATURES, PATHS } = require('./config');
 const { featureMapper } = require('./featureMapper');
-const { sendCommands } = require('./commands');
-const { userErrorFrom } = require('./userErrors');
+const { sendCommands, sendCapabilityValue } = require('./commands');
+const { userError, userErrorFrom } = require('./userErrors');
 const { knownFeatures } = require('./featureCards');
 const { withWrittenValues } = require('./derivedCapabilities');
 
@@ -45,9 +47,11 @@ const { withWrittenValues } = require('./derivedCapabilities');
  * The parts of a device a write needs.
  * @typedef {import('./commands').CommandDevice & {
  *   _features?: string[],
+ *   _operatingModes?: { id: string }[],
  *   deviceContext: () => import('./config/types').DeviceContext,
  *   executeCommand: (path: string, capability: CapabilityConfig, value: any) => Promise<any>,
  *   checkOperatingMode: (path: string, mode: any) => void,
+ *   showWrittenValues: (values: Record<string, any>) => Promise<void>,
  *   setCapabilityValueIfPossible: (capabilityName: string, value: any) => Promise<void>,
  *   readCapabilityValues: (response: { data: any[] }) => Map<string, { value: any, gone: boolean }>,
  *   _featureCache?: any,
@@ -112,6 +116,39 @@ async function showWrittenValues(device, values) {
 }
 
 /**
+ * Refuses an operating mode that the device's heating circuit does not have (set-operating-mode
+ * offers every mode the app knows), before anything is sent. Without stored modes every mode
+ * passes.
+ * @param {WriteDevice} device
+ * @param {string} path circuit-normalized feature path
+ * @param {any} value
+ */
+function checkOperatingMode(device, path, value) {
+  if (path === PATHS.HEATING_CIRCUIT_0_MODE && device._operatingModes?.length
+    && !device._operatingModes.some((mode) => mode.id === value)) {
+    throw userError(device, 'mode_not_supported', { mode: value });
+  }
+}
+
+/**
+ * Writes a configured capability through commands.js, then shows the value on it, on the
+ * capabilities that show the same property and on the derived capabilities that follow from it.
+ * `restoring`: undoing a temporary change (boost.js), which the account's write allowance never
+ * refuses.
+ * @param {WriteDevice} device
+ * @param {string} path circuit-normalized feature path
+ * @param {CapabilityConfig} capability
+ * @param {any} value
+ * @param {{ restoring?: boolean }} [options]
+ * @returns {Promise<boolean>}
+ */
+async function executeCommand(device, path, capability, value, { restoring = false } = {}) {
+  await sendCapabilityValue(device, path, capability, value, { check: () => device.checkOperatingMode(path, value), restoring });
+  await device.showWrittenValues(Object.fromEntries(capabilitiesShowing(path, capability).map((name) => [name, value])));
+  return true;
+}
+
+/**
  * Writes `value` to a capability of the device. Throws for a capability that cannot be changed,
  * and the user's text for a value the device cannot take.
  * @param {WriteDevice} device
@@ -141,5 +178,5 @@ async function writeCapability(device, capabilityName, value) {
 }
 
 module.exports = {
-  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability,
+  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability, executeCommand, checkOperatingMode,
 };

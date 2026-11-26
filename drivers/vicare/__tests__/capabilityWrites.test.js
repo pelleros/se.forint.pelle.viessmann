@@ -10,7 +10,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 
 const { PATHS, getCapability, getAllCapabilities } = require('../config');
 const {
-  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability,
+  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability, executeCommand, checkOperatingMode,
 } = require('../capabilityWrites');
 const { featureMapper } = require('../featureMapper');
 const { recordFeatures } = require('../featureCards');
@@ -140,4 +140,37 @@ describe('showing written values at once', () => {
     await showWrittenValues(charge, { 'thermostat_mode.hotWaterOneTimeCharge': 'activate' });
     expect(charge.readCapabilityValues).not.toHaveBeenCalled();
   });
+});
+
+describe('a configured capability', () => {
+  test('is sent with its command, then shows on every capability of the same property', async () => {
+    const target = device();
+    target.showWrittenValues = jest.fn(async () => {});
+    await expect(executeCommand(target, PATHS.HEATING_CIRCUIT_0_TARGET, HEATING_TARGET, 21)).resolves.toBe(true);
+    expect(sent(target)).toEqual([[PATHS.HEATING_CIRCUIT_0_TARGET, 'setTemperature', { targetTemperature: 21 }]]);
+    expect(target.checkOperatingMode).toHaveBeenCalledWith(PATHS.HEATING_CIRCUIT_0_TARGET, 21);
+    expect(target.showWrittenValues).toHaveBeenCalledWith({ 'target_temperature.heating': 21, target_temperature: 21 });
+    expect(target.remembered).toEqual([['target_temperature.heating', 21]]);
+  });
+
+  test('a refused check sends and shows nothing', async () => {
+    const target = device();
+    target.showWrittenValues = jest.fn(async () => {});
+    target.checkOperatingMode.mockImplementation(() => {
+      throw new Error('refused');
+    });
+    await expect(executeCommand(target, PATHS.HEATING_CIRCUIT_0_TARGET, HEATING_TARGET, 21)).rejects.toThrow('refused');
+    expect(sent(target)).toEqual([]);
+    expect(target.showWrittenValues).not.toHaveBeenCalled();
+  });
+});
+
+test('an operating mode the heating circuit does not have is refused in the user\'s language', () => {
+  const target = { homey: { __: () => undefined }, _operatingModes: [{ id: 'dhw' }, { id: 'dhwAndHeating' }] };
+  expect(() => checkOperatingMode(target, PATHS.HEATING_CIRCUIT_0_MODE, 'forcedReduced'))
+    .toThrow(expect.objectContaining({ code: 'mode_not_supported' }));
+  expect(() => checkOperatingMode(target, PATHS.HEATING_CIRCUIT_0_MODE, 'dhw')).not.toThrow();
+  // Other writes, and devices whose modes are not known, are not checked
+  expect(() => checkOperatingMode(target, PATHS.HEATING_CIRCUIT_0_TARGET, 'forcedReduced')).not.toThrow();
+  expect(() => checkOperatingMode({ _operatingModes: [] }, PATHS.HEATING_CIRCUIT_0_MODE, 'forcedReduced')).not.toThrow();
 });

@@ -26,9 +26,11 @@
 // `client_id` asks for the Client ID when none is saved; after the login `pair_check` shows what
 // the account has, or why nothing can be added, and offers a report for the developer, which needs
 // only the login. The device list reuses the check's result, so the API is read once. Also the
-// names new devices get and the checks with specific messages.
+// device list's entries (driver.onPairListDevices), the names new devices get, the checks with
+// specific messages and what the pairing log says about the account.
 
-const { translate } = require('../../lib/errorMessages');
+const { translate, apiStateMessage } = require('../../lib/errorMessages');
+const { apiErrorState } = require('../../lib/apiError');
 const { collectReport, summarizeReport } = require('../../lib/report');
 
 // Homey's redirect URI for OAuth logins, which the user enters in the Viessmann client
@@ -89,6 +91,110 @@ function checkInstallations(installations, t) {
     const types = [...new Set(devices.map((device) => [device?.deviceType, device?.modelId].filter(Boolean).join(' ')))];
     throw new Error(t('pair.no_heating_device', { types: types.join(', ') || '–' }));
   }
+}
+
+/**
+ * What pairing found, for the log: counts, device types and models, no ids or personal data
+ * (the installations response contains serials, installation ids and the address).
+ * @param {any} response the installations response
+ * @returns {string}
+ */
+function summarizeInstallations(response) {
+  const installations = Array.isArray(response?.data) ? response.data : [];
+  const gateways = installations.flatMap((/** @type {any} */ installation) => installation.gateways || []);
+  const devices = gateways.flatMap((/** @type {any} */ gateway) => gateway.devices || []);
+  const describe = (/** @type {any[]} */ items, /** @type {(item: any) => string} */ describeItem) => (items.length > 0 ? `: ${items.map(describeItem).join(', ')}` : '');
+  const gatewayType = (/** @type {any} */ gateway) => gateway.gatewayType || 'unknown type';
+  const deviceType = (/** @type {any} */ device) => [device.deviceType, device.modelId].filter(Boolean).join(' ') || 'unknown type';
+  return `${installations.length} installation(s), ${gateways.length} gateway(s)${describe(gateways, gatewayType)}, `
+    + `${devices.length} device(s)${describe(devices, deviceType)}`;
+}
+
+/**
+ * The devices that can be added, of type heating, with their gateway, in the order of the
+ * installations response.
+ * @param {any} installations the installations response (checked with checkInstallations)
+ * @returns {Generator<{ gateway: any, device: any }>}
+ */
+function* heatingDevices(installations) {
+  for (const installation of installations.data) {
+    for (const gateway of installation.gateways) {
+      for (const device of gateway.devices) {
+        if (device.deviceType === 'heating') yield { gateway, device };
+      }
+    }
+  }
+}
+
+/**
+ * True when the installation list reports the gateway or the device as offline.
+ * @param {any} gateway
+ * @param {any} device
+ * @returns {boolean}
+ */
+function reportedOffline(gateway, device) {
+  return [gateway?.aggregatedStatus, device?.status]
+    .some((status) => typeof status === 'string' && status.toLowerCase() === 'offline');
+}
+
+/**
+ * The error for a device whose features could not be read: without a clearer cause, the
+ * installation list may already say that the gateway or the device is offline.
+ * @param {any} error
+ * @param {any} gateway
+ * @param {any} device
+ * @returns {any}
+ */
+function featureReadError(error, gateway, device) {
+  if (!apiErrorState(error) && reportedOffline(gateway, device)) {
+    return Object.assign(new Error(`Gateway offline: ${error?.message}`, { cause: error }), { apiReason: 'GATEWAY_OFFLINE' });
+  }
+  return error;
+}
+
+/**
+ * A device for Homey's device list. Its `data.id` and store keys are frozen: never change them
+ * (CONTRIBUTING.md, ground rule 1).
+ * @param {any} gateway
+ * @param {any} device the device in the installations response
+ * @param {import('./deviceMetadata').CircuitMetadata} metadata read from its features
+ * @param {{ name: string, version: string }} options its name and the app version
+ */
+function pairedDevice(gateway, device, metadata, { name, version }) {
+  const {
+    features, constraints, operatingModes, heatingCircuitId, commandMetadata,
+  } = metadata;
+  return {
+    name,
+    data: {
+      id: `${gateway.installationId}-${gateway.serial}-${device.id}`,
+    },
+    store: {
+      installationId: gateway.installationId,
+      gatewaySerial: gateway.serial,
+      deviceId: device.id,
+      roles: device.roles,
+      features,
+      constraints,
+      operatingModes,
+      heatingCircuitId,
+      commandMetadata,
+      version,
+    },
+  };
+}
+
+/**
+ * The error to show while adding a device: a translated message for a known API state.
+ * @param {any} homey
+ * @param {any} error
+ * @param {number} [now]
+ * @returns {any}
+ */
+function pairingError(homey, error, now = Date.now()) {
+  const retryAt = Number.isFinite(error?.retryAfterMs) ? now + error.retryAfterMs : undefined;
+  const message = apiStateMessage(homey, error, { retryAt, pairing: true });
+  return message ? new Error(message, { cause: error }) : error;
 }
 
 /**
@@ -225,5 +331,14 @@ class PairSession {
 }
 
 module.exports = {
-  PairSession, modelName, deviceName, checkInstallations,
+  PairSession,
+  modelName,
+  deviceName,
+  checkInstallations,
+  summarizeInstallations,
+  heatingDevices,
+  reportedOffline,
+  featureReadError,
+  pairedDevice,
+  pairingError,
 };

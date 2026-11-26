@@ -20,24 +20,36 @@
 
 'use strict';
 
+// One Viessmann device on Homey. This class holds the device's state (ids, stored metadata,
+// roles, settings being saved) and wires the Homey SDK's lifecycle to the modules that do the
+// work; the driver (driver.js) polls it and hands every response to onFeaturesUpdated:
+//
+//   capabilitySetup.js   which capabilities the device has, their options, modes and listeners
+//   featureUpdates.js    a features response: values, triggers, availability
+//   deviceMetadata.js    the stored features, limits, modes and command metadata, and how they grow
+//   capabilityWrites.js  writing a capability value (commands.js sends every command)
+//   deviceSettings.js    what changing a device setting does (interval, optional groups, circuit)
+//   deviceMonitor.js     the rest of a poll: computed values, status, event log, health
+//   migrations.js        store migrations, run on every start
+//
+// Other modules reach the device through the methods below, so a method stays here, as a
+// one-line delegation that returns the module's promise, when another module or a test calls it.
+
 const { OAuth2Device } = require('homey-oauth2app');
-const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
-const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
+const { inferRoles, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
-const { MODE_TITLES } = require('./config/modes');
-const { featureMapper, mergeOperatingModes } = require('./featureMapper');
+const { featureMapper } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
-const { writeCapability, capabilitiesShowing, showWrittenValues } = require('./capabilityWrites');
+const capabilitySetup = require('./capabilitySetup');
+const capabilityWrites = require('./capabilityWrites');
+const deviceMetadata = require('./deviceMetadata');
+const deviceSettings = require('./deviceSettings');
+const { applyFeaturesResponse, showValue } = require('./featureUpdates');
 const { runMigrations, versionBefore } = require('./migrations');
 const { DeviceMonitor } = require('./deviceMonitor');
-const { translate } = require('../../lib/errorMessages');
-const { withinPlan, PLANNED_LIMIT } = require('./pollPlan');
-const { isGroupSetting, enabledGroups } = require('./optionalGroups');
-const { fireValueTriggers } = require('./flowHandlers');
-const { recordFeatures } = require('./featureCards');
+const { enabledGroups } = require('./optionalGroups');
+const { pollFilter, pollingKey } = require('./pollPlan');
 const { boostsOf } = require('./boost');
-const { sendCapabilityValue } = require('./commands');
-const { userError } = require('./userErrors');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -103,57 +115,47 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  async initializeCapabilities() {
-    // Without a stored feature list (pairings older than 1.0.9 whose refresh failed) every
-    // capability would look obsolete; leave them alone until the refresh succeeds
-    if (!Array.isArray(this._features)) {
-      this.error('No stored feature list, capabilities are left unchanged');
-      return;
-    }
-
-    const roles = this.getRoles();
-    const groups = this.getEnabledGroups();
-    // Inferred roles (see roles.js) only ever add capabilities: without role tags of its own,
-    // a device keeps every capability whose feature is stored. Capabilities of an optional
-    // group that is turned off are removed (optionalGroups.js)
-    const keepAllowed = (path) => featureMapper.isInEnabledGroup(path, groups)
-      && (!hasRoleTags(this._roles) || this.hasRequiredRole(path, roles));
-
-    // Remove capabilities that are no longer in config or don't match device roles
-    for (const existingCap of this.getCapabilities()) {
-      if (!featureMapper.isProduced(existingCap, this._features, keepAllowed)) {
-        await this.removeCapability(existingCap);
-        this.log(`Removed capability: ${existingCap}`);
-      }
-    }
-
-    // Add configured capabilities if device has required role and feature is enabled, with the
-    // API's temperature limits as min/max/step
-    for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles, groups)) {
-      if (this.hasCapability(capabilityName)) continue;
-      try {
-        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, this.deviceContext()));
-        await this.addCapability(capabilityName);
-      } catch (err) {
-        this.error(`Error handling capability ${capabilityName} for ${path}:`, err);
-      }
-    }
+  async onOAuth2Uninit() {
+    await this.stopUpdates();
   }
 
-  // Options from the config and the API's limits, for the feature path the device has (newer
-  // devices name some programs differently)
-  async updateCapabilityOptions() {
-    const context = this.deviceContext();
-    for (const capabilityName of this.getCapabilities()) {
-      const derived = featureMapper.derivedByName(capabilityName);
-      const path = derived ? derived.sources[0] : featureMapper.commandTarget(capabilityName, this._features)?.path;
-      if (!path) continue;
-      try {
-        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints, context));
-      } catch (error) {
-        this.error(`Could not update the options of ${capabilityName}:`, error);
-      }
-    }
+  async onOAuth2Deleted() {
+    // Stop polling right away: a poll that runs after deletion fails with device_not_found
+    await this.stopUpdates();
+  }
+
+  // Stops polling, the event log and the timers of temporary changes (the store keeps those)
+  async stopUpdates() {
+    this._uninitialized = true;
+    this._monitor?.stopEventLog();
+    this._boosts?.stop();
+    await this.driver._stopPolling(this.getPollingKey());
+  }
+
+  // Store migrations, see migrations.js
+  async checkUpgradeSpecifics() {
+    const ran = await runMigrations(this);
+    if (ran.length > 0) this.log('Store migrations run:', ran.join(', '));
+  }
+
+  storeVersionBefore(targetVersion) {
+    return versionBefore(this.getStoreValue('version'), targetVersion);
+  }
+
+  /* The device's state, as the modules read it */
+
+  /*
+    Roles to check `requireRole` against: the stored roles or, when they contain no role tag
+    that FEATURES uses (newer models), roles inferred from the stored features and from
+    responses (see roles.js).
+  */
+  getRoles() {
+    return effectiveRoles(this._roles, [...inferRoles(this._features), ...(this._responseRoles || [])]);
+  }
+
+  // The optional groups of values that are turned on (optionalGroups.js)
+  getEnabledGroups() {
+    return this._enabledGroups || enabledGroups((key) => this.getSetting?.(key));
   }
 
   /*
@@ -178,181 +180,62 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  async initializeOperatingModes() {
-    // Not that bad if this fails, we can just use the default operating modes
-    try {
-      // Translated titles for the modes the app knows
-      const deviceModes = (Array.isArray(this._operatingModes) ? this._operatingModes : [])
-        .map((mode) => (MODE_TITLES[mode?.id] ? { id: mode.id, title: MODE_TITLES[mode.id] } : mode));
-      // Without known device modes, keep whatever the capability offers today
-      if (deviceModes.length === 0) return;
-
-      const { capabilityName } = getCapability(PATHS.HEATING_CIRCUIT_0_MODE);
-      if (!this.hasCapability(capabilityName)) return;
-
-      const capabilityOptions = this.getCapabilityOptions(capabilityName) || {};
-      const currentModes = Array.isArray(capabilityOptions.values) ? capabilityOptions.values : [];
-
-      // Existing values the device supports (in their current order), then device modes not yet present
-      const values = mergeOperatingModes(currentModes, deviceModes);
-
-      if (process.env.DEBUG) {
-        this.log('[ViessmannDevice::initializeOperatingModes] Operating modes:', values.map((mode) => mode.id));
-      }
-      await this.setCapabilityOptions(capabilityName, { ...capabilityOptions, values });
-    } catch (err) {
-      if (process.env.DEBUG) {
-        this.log('Error initializing operating modes:', err);
-      }
-    }
+  // The update interval and event log settings (pollSettings during a change, before Homey saves it)
+  getPollSetting(key) {
+    return this._pollSettings?.[key] ?? this.getSetting?.(key);
   }
 
-  async registerCapabilityListeners() {
-    if (!Array.isArray(this._listeners)) this._listeners = [];
-
-    for (const capabilityName of featureMapper.writableCapabilities()) {
-      if (this._listeners.includes(capabilityName)) continue;
-      try {
-        const registered = this.registerCapabilityListenerIfPossible(capabilityName, async (value) => {
-          if (process.env.DEBUG) {
-            this.log(`${capabilityName}:`, value);
-          }
-          // A write that does not change the value (e.g. a Matter bridge or voice assistant
-          // repeating the current set point) sends nothing to Viessmann
-          if (value === this.getCapabilityValue(capabilityName)) return;
-          await this.writeCapability(capabilityName, value);
-        });
-
-        // Only remember capabilities that really got a listener, so a capability
-        // added later (e.g. by feature discovery) gets one on the next run
-        if (registered) {
-          this._listeners.push(capabilityName);
-        }
-      } catch (err) {
-        this.error(`Error setting up listener for ${capabilityName}:`, err);
-      }
-    }
+  // Key of this device's poller in the driver
+  getPollingKey() {
+    return pollingKey({ installationId: this._installationId, gatewaySerial: this._gatewaySerial, deviceId: this._deviceId });
   }
 
-  // Writes a capability value, from a capability listener or a Flow action (capabilityWrites.js)
-  async writeCapability(capabilityName, value) {
-    return writeCapability(this, capabilityName, value);
+  // What the device does with a poll beyond copying values: see deviceMonitor.js
+  getMonitor() {
+    if (!this._monitor) this._monitor = new DeviceMonitor(this);
+    return this._monitor;
   }
 
-  // Writes a capability through commands.js, then shows the value on it, on the capabilities that
-  // show the same property and on the derived capabilities that follow from it. `restoring`:
-  // undoing a temporary change (boost.js), which the account's write allowance never refuses
-  async executeCommand(path, capability, value, { restoring = false } = {}) {
-    await sendCapabilityValue(this, path, capability, value, { check: () => this.checkOperatingMode(path, value), restoring });
-    await this.showWrittenValues(Object.fromEntries(capabilitiesShowing(path, capability).map((name) => [name, value])));
-    return true;
+  /* Capabilities (capabilitySetup.js) */
+
+  initializeCapabilities() {
+    return capabilitySetup.initializeCapabilities(this);
   }
 
-  // Shows written values at once, with the derived capabilities that follow from them (capabilityWrites.js)
-  async showWrittenValues(values) {
-    await showWrittenValues(this, values);
+  // Options from the config and the API's limits, for the feature path the device has
+  updateCapabilityOptions() {
+    return capabilitySetup.updateCapabilityOptions(this);
   }
 
-  // set-operating-mode offers modes a circuit may not have: refuse those before sending
-  checkOperatingMode(path, value) {
-    if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
-      && !this._operatingModes.some((mode) => mode.id === value)) {
-      throw userError(this, 'mode_not_supported', { mode: value });
-    }
+  initializeOperatingModes() {
+    return capabilitySetup.initializeOperatingModes(this);
   }
 
-  // Store migrations, see migrations.js
-  async checkUpgradeSpecifics() {
-    const ran = await runMigrations(this);
-    if (ran.length > 0) this.log('Store migrations run:', ran.join(', '));
+  registerCapabilityListeners() {
+    return capabilitySetup.registerCapabilityListeners(this);
   }
 
-  /*
-    Re-reads the device's features from the API and stores what pairing stores today
-    (heating circuit, constraints, operating modes, command metadata). The stored feature
-    list becomes the union of the old and the fresh list, so a sensor that is disabled or
-    notConnected at this moment keeps its capability. The refresh is not needed to run the
-    device: a failure is logged and the refresh is retried on the next start.
-  */
-  async refreshStoredMetadata() {
-    try {
-      const metadata = await this.driver._getEnabledFeaturesAndOpModes(
-        this.oAuth2Client,
-        this.getStoreValue('installationId'),
-        this.getStoreValue('gatewaySerial'),
-        this.getStoreValue('deviceId'),
-        this.getSetting?.('heatingCircuit') || 'auto',
-      );
-      const merged = this.mergeRefreshedMetadata(metadata);
-      // heatingCircuitId and commandMetadata go last: until both are stored, the next start
-      // runs the refresh again
-      for (const key of ['features', 'constraints', 'operatingModes', 'commandMetadata', 'heatingCircuitId']) {
-        if (merged[key] !== undefined) await this.setStoreValue(key, merged[key]);
-      }
-    } catch (error) {
-      this.error('Could not refresh the device metadata, retrying on the next start:', error);
-    }
+  /* Stored metadata (deviceMetadata.js) */
+
+  // Re-reads the features from the API and stores the merged metadata (the 1.0.15 migration)
+  refreshStoredMetadata() {
+    return deviceMetadata.refreshStoredMetadata(this);
   }
 
-  /*
-    Combines freshly read metadata with what the device has stored. The feature list only
-    grows. Constraints are merged per feature, and stored operating modes are kept when the
-    API reports none right now. Everything else comes from the fresh metadata.
-  */
+  // Freshly read metadata merged with the stored metadata: the feature list only grows
   mergeRefreshedMetadata(metadata) {
-    const storedFeatures = this.getStoreValue('features');
-    const features = Array.isArray(storedFeatures) ? [...storedFeatures] : [];
-    for (const feature of Array.isArray(metadata?.features) ? metadata.features : []) {
-      if (!features.includes(feature)) features.push(feature);
-    }
-    const storedModes = this.getStoreValue('operatingModes');
-    return {
-      ...metadata,
-      features,
-      constraints: { ...this.getStoreValue('constraints'), ...metadata?.constraints },
-      operatingModes: metadata?.operatingModes?.length ? metadata.operatingModes : storedModes,
-    };
+    return deviceMetadata.mergeWithStored(this, metadata);
   }
 
-  async onFeaturesUpdated(rawResponse, extendedResponse, { triggers = true } = {}) {
-    try {
-      // Not a features response at all. Single odd entries or values in one are skipped below.
-      if (!Array.isArray(rawResponse?.data)) throw new Error('Invalid features response: no feature list');
-      const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
-      this._commands = featureMapper.updatedCommands(response, this._commands);
-      // For the Flow cards that read any feature (featureCards.js)
-      recordFeatures(this, response, { complete: Boolean(extendedResponse) });
-      if (process.env.DEBUG) {
-        this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
-      }
-      if (extendedResponse) {
-        await this.addNewFeatures(response);
-      }
-      await this.addInferredRoles(response.data);
+  // Stores metadata and sets the device up for it again (circuit change, maintenance action)
+  applyCircuitMetadata(metadata) {
+    return deviceMetadata.applyMetadata(this, metadata);
+  }
 
-      for (const [capabilityName, reading] of this.readCapabilityValues(response)) {
-        if (reading.value !== undefined) {
-          await this.setCapabilityValueIfPossible(capabilityName, reading.value, { trigger: triggers });
-        } else if (reading.gone && this.hasCapability(capabilityName) && this.getCapabilityValue(capabilityName) !== null) {
-          // The last value would stay on screen and in Insights for good; the capability stays
-          this.log(`${capabilityName} is no longer reported, clearing its value`);
-          await this.setCapabilityValueIfPossible(capabilityName, null, { trigger: false });
-        }
-      }
+  /* Features responses (featureUpdates.js) */
 
-      // Computed values, faults, frozen values and write checks (never throws)
-      await this.getMonitor().onResponse(response, { triggers });
-
-      if (process.env.DEBUG) {
-        this.log('Feature update processing completed');
-      }
-
-      await this.setAvailabilitySafely(true);
-      await this.markSeen();
-    } catch (error) {
-      this.error('Error processing features update:', error);
-      await this.setAvailabilitySafely(false, error);
-    }
+  onFeaturesUpdated(rawResponse, extendedResponse, options = {}) {
+    return applyFeaturesResponse(this, rawResponse, extendedResponse, options);
   }
 
   /*
@@ -364,140 +247,51 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return featureMapper.readValues(response, this.getRoles(), { language: this.homeyLanguage(), features: this._features });
   }
 
-  // Homey shows when the device was last heard from: after every successful update (a poll, or
-  // the read when the heating circuit changes)
-  async markSeen() {
-    try {
-      await this.setLastSeenAt();
-    } catch (error) {
-      this.error('Could not set the last seen time:', error);
-    }
+  // `trigger: false` updates the value without firing its trigger cards
+  setCapabilityValueIfPossible(capabilityName, value, options = {}) {
+    return showValue(this, capabilityName, value, options);
   }
 
-  // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
-  // deleted meanwhile; log that instead of letting the rejection go unhandled
-  async setAvailabilitySafely(available, message) {
-    try {
-      if (available) {
-        await this.setAvailable();
-      } else {
-        await this.setUnavailable(message);
-      }
-    } catch (error) {
-      this.error(`Could not mark device as ${available ? 'available' : 'unavailable'}:`, error);
-    }
+  // A failed poll, for the health on the settings page
+  recordPollError(error) {
+    this.getMonitor().onPollError(error);
   }
 
-  /*
-    Store features that an extended (unfiltered) poll reports as enabled but the device
-    does not know yet, then add their capabilities and listeners. The stored list only
-    ever grows: a feature that is missing or notConnected in one response is kept.
-    Failures are logged and retried on the next extended poll; they must not make the
-    device unavailable.
-  */
-  async addNewFeatures(response) {
-    try {
-      const knownFeatures = Array.isArray(this._features) ? this._features : [];
-      const newFeatures = featureMapper.newFeatures(response, knownFeatures);
-      if (newFeatures.length === 0) return;
+  /* Writes (capabilityWrites.js) */
 
-      this.log('New features found:', newFeatures);
-      const features = [...knownFeatures, ...newFeatures];
-      await this.setStoreValue('features', features);
-      this._features = features;
-
-      await this.initializeCapabilities();
-      await this.registerCapabilityListeners();
-    } catch (error) {
-      this.error('Error adding new features:', error);
-    }
+  // Writes a capability value, from a capability listener or a Flow action
+  writeCapability(capabilityName, value) {
+    return capabilityWrites.writeCapability(this, capabilityName, value);
   }
 
-  /*
-    Roles to check `requireRole` against: the stored roles or, when they contain no role tag
-    that FEATURES uses (newer models), roles inferred from the stored features and from
-    responses (see roles.js).
-  */
-  getRoles() {
-    return effectiveRoles(this._roles, [...inferRoles(this._features), ...(this._responseRoles || [])]);
+  // Writes a configured capability on `path` and shows the value. `restoring`: undoing a
+  // temporary change (boost.js), which the account's write allowance never refuses
+  executeCommand(path, capability, value, options = {}) {
+    return capabilityWrites.executeCommand(this, path, capability, value, options);
   }
 
-  hasRequiredRole(featurePath, roles = this.getRoles()) {
-    return featureMapper.hasRequiredRole(featurePath, roles);
+  // Shows written values at once, with the derived capabilities that follow from them
+  showWrittenValues(values) {
+    return capabilityWrites.showWrittenValues(this, values);
   }
 
-  // The optional groups of values that are turned on (optionalGroups.js)
-  getEnabledGroups() {
-    return this._enabledGroups || enabledGroups((key) => this.getSetting?.(key));
+  // set-operating-mode offers modes a circuit may not have: refuse those before sending
+  checkOperatingMode(path, value) {
+    capabilityWrites.checkOperatingMode(this, path, value);
   }
 
-  /*
-    A response can show a role that the stored features do not (e.g. `heating.compressors`
-    listing a compressor): remember it and add the capabilities it allows. Like addNewFeatures,
-    a failure is logged and must not make the device unavailable.
-  */
-  async addInferredRoles(featureData) {
-    try {
-      if (hasRoleTags(this._roles)) return;
-      const known = this.getRoles();
-      const learned = inferRoles([], featureData).filter((role) => !known.includes(role));
-      if (learned.length === 0) return;
-      this.log('Roles inferred from the features:', learned);
-      this._responseRoles = [...(this._responseRoles || []), ...learned];
-      await this.initializeCapabilities();
-      await this.registerCapabilityListeners();
-    } catch (error) {
-      this.error('Error adding capabilities for inferred roles:', error);
-    }
+  /* Settings (deviceSettings.js) */
+
+  onSettings(event) {
+    return deviceSettings.applySettings(this, event);
   }
 
-  getConfigCapabilityByName(capabilityName) {
-    return featureMapper.capabilityByName(capabilityName);
+  // Adds or removes the capabilities of the optional groups (optionalGroups.js)
+  applyEnabledGroups(groups) {
+    return deviceSettings.applyEnabledGroups(this, groups);
   }
 
-  // `trigger: false` updates the value without firing its trigger card
-  async setCapabilityValueIfPossible(capabilityName, value, { trigger = true } = {}) {
-    try {
-      if (this.hasCapability(capabilityName)) {
-        const capability = this.getConfigCapabilityByName(capabilityName);
-        if (!capability) {
-          this.error(`No configuration found for capability: ${capabilityName}`);
-          return;
-        }
-
-        // Compare with the value the capability shows (after value mapping)
-        const currentValue = this.getCapabilityValue(capabilityName);
-        const displayed = featureMapper.displayValue(capabilityName, value);
-        if (currentValue !== displayed) {
-          await this.setCapabilityValue(capabilityName, displayed);
-          await this._boosts?.valueChanged(capabilityName, displayed);
-          if (!trigger) return;
-          await fireValueTriggers(this, capabilityName, displayed, currentValue);
-
-          try {
-            const triggerCard = this.driver.getTriggerCard(capabilityName);
-            if (triggerCard) {
-              await triggerCard.trigger(this, { mode: value }, {});
-            }
-          } catch (error) {
-            // Ignore if no trigger card exists
-          }
-        }
-      }
-    } catch (error) {
-      this.error(`Failed to set capability ${capabilityName}:`, error);
-    }
-  }
-
-  // Returns true when the listener was registered
-  registerCapabilityListenerIfPossible(capabilityName, listener) {
-    if (this.hasCapability(capabilityName)) {
-      this.registerCapabilityListener(capabilityName, listener);
-      return true;
-    }
-    this.log(`Capability ${capabilityName} not found, skipping listener registration`);
-    return false;
-  }
+  /* The Viessmann API */
 
   async getGatewayFeatures() {
     return this.oAuth2Client.getGatewayFeatures({
@@ -507,131 +301,17 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     });
   }
 
+  // All features, or (`useFilter`) only the paths the app polls, on the device's heating circuit
   async getFeatures({ useFilter = false } = {}) {
-    const featuresFilter = useFilter
-      ? Object.values(PATHS).map((path) => resolveCircuitPath(path, this._heatingCircuitId)).join(',')
-      : undefined;
-
     return this.oAuth2Client.getFeatures({
       installationId: this._installationId,
       gatewaySerial: this._gatewaySerial,
       deviceId: this._deviceId,
-      filter: featuresFilter,
+      filter: useFilter ? pollFilter(this._heatingCircuitId) : undefined,
     });
   }
 
-  /*
-    Get the compressor status
-  */
-  async isCompressorRunning() {
-    const { capabilityName } = getCapability(PATHS.COMPRESSOR);
-    return this.getCapabilityValue(capabilityName);
-  }
-
-  // Key of this device's poller in the driver
-  getPollingKey() {
-    return `${this._installationId}-${this._gatewaySerial}-${this._deviceId}`;
-  }
-
-  async onSettings({ newSettings, changedKeys }) {
-    const pollSettingsChanged = changedKeys.includes('pollInterval') || changedKeys.includes('eventLog');
-    // Refused before anything changes
-    if (pollSettingsChanged) this.checkPollSettings(newSettings);
-    if (changedKeys.includes('heatingCircuit')) await this.changeHeatingCircuit(newSettings);
-    if (changedKeys.some(isGroupSetting)) await this.applyEnabledGroups(enabledGroups(newSettings));
-    if (pollSettingsChanged) await this.applyPollSettings(newSettings);
-  }
-
-  // Adds or removes the capabilities of the optional groups (optionalGroups.js)
-  async applyEnabledGroups(groups) {
-    this._enabledGroups = groups;
-    await this.initializeCapabilities();
-    await this.updateCapabilityOptions();
-    await this.registerCapabilityListeners();
-  }
-
-  // The update interval and event log settings (pollSettings during a change, before Homey saves it)
-  getPollSetting(key) {
-    return this._pollSettings?.[key] ?? this.getSetting?.(key);
-  }
-
-  // Refuses settings that would plan more API calls a day than the account can spare (pollPlan.js)
-  checkPollSettings(newSettings) {
-    const settings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
-    const calls = this.driver.plannedCallsPerDay(this.getStoreValue('OAuth2SessionId'), { device: this, settings });
-    if (!withinPlan(calls)) throw new Error(translate(this.homey, 'device_settings.too_many_calls', { calls, limit: PLANNED_LIMIT }));
-  }
-
-  async applyPollSettings(newSettings) {
-    this._pollSettings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
-    if (this._uninitialized) return;
-    // Reschedules the next poll with the new interval, without an extra poll
-    await this.driver._startPolling(this, this.getPollingKey());
-    this.getMonitor().scheduleEventLog();
-  }
-
-  async changeHeatingCircuit(newSettings) {
-    const selectedCircuit = String(newSettings.heatingCircuit).trim();
-    if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
-      throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
-    }
-    // One unfiltered read gives both the new circuit's metadata and its current values
-    const response = await this.getFeatures();
-    let fresh;
-    try {
-      fresh = this.driver._readDeviceMetadata(response, selectedCircuit);
-    } catch (error) {
-      // Homey shows the message and keeps the previous value; nothing has changed yet
-      if (error.code === 'heating_circuit_not_available') throw new Error(this.circuitNotAvailableMessage(error));
-      throw error;
-    }
-    const metadata = this.mergeRefreshedMetadata(fresh);
-    // Pausing (not replacing) the poller keeps its backoff and Retry-After; a poll still in
-    // progress for the old circuit is dropped
-    await this.driver._pausePolling(this.getPollingKey());
-    const previous = {
-      heatingCircuitId: this._heatingCircuitId,
-      // The feature list only grows, also when the switch is rolled back
-      features: metadata.features,
-      constraints: this._constraints,
-      operatingModes: this._operatingModes,
-      commandMetadata: this._commands,
-    };
-    const circuitChanged = metadata.heatingCircuitId !== previous.heatingCircuitId;
-    try {
-      await this.applyCircuitMetadata(metadata);
-      if (circuitChanged) await this.clearValuesNotReportedBy(fresh.features);
-      // Show the new circuit's values now, without waiting for (or adding) a poll. A different
-      // mode on the new circuit is not a mode change, so heating-mode-changed does not fire.
-      await this.onFeaturesUpdated(response, false, { triggers: !circuitChanged });
-    } catch (error) {
-      await this.applyCircuitMetadata(previous);
-      throw error;
-    } finally {
-      this.resumePolling();
-    }
-  }
-
-  /*
-    After switching circuits, per-circuit capabilities whose feature the new circuit does not
-    report would keep showing the old circuit's values. Their values become unknown (null);
-    the capabilities themselves stay.
-  */
-  async clearValuesNotReportedBy(reportedFeatures = []) {
-    for (const [path, feature] of Object.entries(FEATURES)) {
-      if (!path.startsWith('heating.circuits.0.') || reportedFeatures.includes(path)) continue;
-      for (const { capabilityName } of feature.capabilities) {
-        if (this.hasCapability(capabilityName) && this.getCapabilityValue(capabilityName) !== null) {
-          try {
-            await this.setCapabilityValue(capabilityName, null);
-          } catch (error) {
-            this.error(`Could not clear ${capabilityName}:`, error);
-          }
-        }
-      }
-    }
-  }
-
+  // Polls again after a pause (circuit change, maintenance action), or starts polling
   resumePolling() {
     if (this._uninitialized) return;
     const key = this.getPollingKey();
@@ -640,55 +320,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     }
   }
 
-  // The error for a heating circuit the installation does not have, in the user's language
-  circuitNotAvailableMessage({ circuit, available, message }) {
-    const tags = { circuit, available: available.length > 0 ? available.join(', ') : '–' };
-    const translated = this.homey?.__?.('device_settings.heating_circuit_not_available', tags);
-    return typeof translated === 'string' && !translated.startsWith('device_settings.') ? translated : message;
-  }
-
-  async applyCircuitMetadata(metadata) {
-    for (const [key, value] of Object.entries(metadata)) await this.setStoreValue(key, value);
-    this._heatingCircuitId = metadata.heatingCircuitId;
-    this._features = metadata.features;
-    this._constraints = metadata.constraints;
-    this._operatingModes = metadata.operatingModes;
-    this._commands = metadata.commandMetadata;
-    await this.initializeCapabilities();
-    await this.updateCapabilityOptions();
-    await this.initializeOperatingModes();
-    await this.registerCapabilityListeners();
-  }
-
-  async onOAuth2Uninit() {
-    // Stop polling for this device
-    this._uninitialized = true;
-    this._monitor?.stopEventLog();
-    this._boosts?.stop();
-    await this.driver._stopPolling(this.getPollingKey());
-  }
-
-  async onOAuth2Deleted() {
-    // Stop polling right away: a poll that runs after deletion fails with device_not_found
-    this._uninitialized = true;
-    this._monitor?.stopEventLog();
-    this._boosts?.stop();
-    await this.driver._stopPolling(this.getPollingKey());
-  }
-
-  storeVersionBefore(targetVersion) {
-    return versionBefore(this.getStoreValue('version'), targetVersion);
-  }
-
-  // What the device does with a poll beyond copying values: see deviceMonitor.js
-  getMonitor() {
-    if (!this._monitor) this._monitor = new DeviceMonitor(this);
-    return this._monitor;
-  }
-
-  // A failed poll, for the health on the settings page
-  recordPollError(error) {
-    this.getMonitor().onPollError(error);
+  /*
+    Get the compressor status
+  */
+  async isCompressorRunning() {
+    const { capabilityName } = getCapability(PATHS.COMPRESSOR);
+    return this.getCapabilityValue(capabilityName);
   }
 
 };

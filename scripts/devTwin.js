@@ -56,21 +56,32 @@ const IS_WINDOWS = process.platform === 'win32';
 const POLL_SEARCH_DIRS = ['drivers', 'lib'];
 const POLL_SKIP_DIRS = new Set(['__tests__', 'node_modules']);
 
+// A definition `NAME = <product of integer literals>;`, also as `static`, `const`/`let`/`var` or
+// `this.` (120000, 2 * 60_000, 2 * 60 * 1000, ...)
+const definitionOf = (name) => new RegExp(
+  `^([ \\t]*(?:static\\s+|const\\s+|let\\s+|var\\s+|this\\.)?${name}\\s*=\\s*)(\\d[\\d_]*(?:\\s*\\*\\s*\\d[\\d_]*)*)(\\s*;)`,
+  'gm',
+);
+
 /*
- * Poll interval patterns, one entry per way a released or upcoming version defines it.
- * Up to v1.0.14 and on main (and in PR #6, whose lib/DevicePoller.js reads the interval from the
- * driver) drivers/vicare/driver.js has the class field
- *     MIN_POLL_INTERVAL = 2 * 60 * 1000;
- * and polls every MIN_POLL_INTERVAL × number of devices. The pattern also accepts `static`,
- * `const`/`let` and `this.` forms and any product of integer literals (120000, 2 * 60_000, ...).
- * A ref that defines its interval another way fails loudly (see patchPollIntervals) so that the
- * twin never silently polls at the real app's rate; add a pattern here when that happens.
+ * Poll interval patterns, one entry per way a released or upcoming version defines it, newest
+ * first. Only the newest pattern a ref has is patched (see patchPollIntervals): a ref can still
+ * define an older constant that nothing reads any more.
+ *
+ *  - AUTO_INTERVAL_PER_DEVICE: from the first 2.0.0 builds with drivers/vicare/pollPlan.js. The
+ *    automatic interval ("auto", the default of the device setting pollInterval) is
+ *    AUTO_INTERVAL_PER_DEVICE × number of devices, and a chosen interval shorter than it counts
+ *    as automatic. Until it was removed, those refs also define an unused MIN_POLL_INTERVAL in
+ *    driver.js.
+ *  - MIN_POLL_INTERVAL: up to v1.0.16 and the 2.0.0 builds before pollPlan.js, the class field in
+ *    drivers/vicare/driver.js, with the same meaning.
+ *
+ * A ref that defines its interval another way fails loudly, so that the twin never silently polls
+ * at the real app's rate; add a pattern here when that happens.
  */
 const POLL_PATTERNS = [
-  {
-    name: 'MIN_POLL_INTERVAL',
-    regex: /^([ \t]*(?:static\s+|const\s+|let\s+|var\s+|this\.)?MIN_POLL_INTERVAL\s*=\s*)(\d[\d_]*(?:\s*\*\s*\d[\d_]*)*)(\s*;)/gm,
-  },
+  { name: 'AUTO_INTERVAL_PER_DEVICE', regex: definitionOf('AUTO_INTERVAL_PER_DEVICE') },
+  { name: 'MIN_POLL_INTERVAL', regex: definitionOf('MIN_POLL_INTERVAL') },
 ];
 
 const USAGE = `Usage: node scripts/devTwin.js <build|install|run> [options] [-- <Homey CLI arguments>]
@@ -183,17 +194,18 @@ function evaluateProduct(expression) {
 }
 
 /*
- * Rewrites every recognised poll interval definition in one source file to `minutes` minutes.
- * Returns the new source and one change record per definition. Throws if the new interval would
- * be shorter than the one in the source: the twin must never poll more often than the real app.
+ * Rewrites every definition of the given poll interval patterns (default: all) in one source file
+ * to `minutes` minutes. Returns the new source and one change record per definition. Throws if the
+ * new interval would be shorter than the one in the source: the twin must never poll more often
+ * than the real app.
  */
-function patchPollInterval(source, minutes) {
+function patchPollInterval(source, minutes, patterns = POLL_PATTERNS) {
   if (!Number.isSafeInteger(minutes) || minutes < 1) throw new Error(`Invalid poll interval: ${minutes} minutes`);
   const toMs = minutes * 60 * 1000;
   const changes = [];
   let patched = source;
 
-  for (const { name, regex } of POLL_PATTERNS) {
+  for (const { name, regex } of patterns) {
     patched = patched.replace(regex, (match, head, expression, tail, offset) => {
       const fromMs = evaluateProduct(expression);
       if (toMs < fromMs) {
@@ -229,28 +241,36 @@ function listJsFiles(dir) {
 }
 
 /*
- * Patches the poll interval in every app source file of `appDir` (drivers/ and lib/, tests
- * excluded) and writes the changed files. Throws when no definition is recognised, unless
- * allowDefaultPoll is set. Returns the change records, each with the relative file path.
+ * Patches the poll interval in the app source files of `appDir` (drivers/ and lib/, tests
+ * excluded) and writes the changed files. Only the newest pattern in POLL_PATTERNS that the ref
+ * defines is patched; older constants it still has are left alone. Throws when no definition is
+ * recognised, unless allowDefaultPoll is set. Returns the change records, each with the relative
+ * file path.
  */
 function patchPollIntervals(appDir, minutes, { allowDefaultPoll = false } = {}) {
-  const changes = [];
-  for (const file of POLL_SEARCH_DIRS.flatMap((dir) => listJsFiles(path.join(appDir, dir)))) {
-    const source = fs.readFileSync(file, 'utf8');
-    const result = patchPollInterval(source, minutes);
-    if (result.changes.length === 0) continue;
-    fs.writeFileSync(file, result.source);
-    const relative = path.relative(appDir, file).split(path.sep).join('/');
-    changes.push(...result.changes.map((change) => ({ file: relative, ...change })));
+  const files = POLL_SEARCH_DIRS.flatMap((dir) => listJsFiles(path.join(appDir, dir)))
+    .map((file) => ({ file, source: fs.readFileSync(file, 'utf8') }));
+
+  for (const pattern of POLL_PATTERNS) {
+    const patched = files.map(({ file, source }) => ({ file, ...patchPollInterval(source, minutes, [pattern]) }))
+      .filter((result) => result.changes.length > 0);
+    if (patched.length === 0) continue;
+    const changes = [];
+    for (const result of patched) {
+      fs.writeFileSync(result.file, result.source);
+      const relative = path.relative(appDir, result.file).split(path.sep).join('/');
+      changes.push(...result.changes.map((change) => ({ file: relative, ...change })));
+    }
+    return changes;
   }
 
-  if (changes.length === 0 && !allowDefaultPoll) {
+  if (!allowDefaultPoll) {
     throw new Error('No poll interval definition recognised in drivers/ or lib/ of this ref '
       + `(known patterns: ${POLL_PATTERNS.map((pattern) => pattern.name).join(', ')}). The twin would poll the `
       + 'Viessmann API as often as the real app. Add the pattern to POLL_PATTERNS in scripts/devTwin.js, or pass '
       + '--allow-default-poll to build it anyway.');
   }
-  return changes;
+  return [];
 }
 
 // The id and name of the twin, or of the fixture twin

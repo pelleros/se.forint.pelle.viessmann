@@ -22,9 +22,9 @@
 
 'use strict';
 
-// How the Flow cards with a `kind` in flowCards.js run (cards without one read or write their
-// capability directly, in driver.js). One table per card group, keyed by kind, so a new card
-// type is one entry here and its mapping in flowCards.js:
+// How the Flow cards in flowCards.js run. Cards without a `kind` read or write their capability
+// directly (registerFlowCards). Cards with a kind run from one table per card group, keyed by
+// kind, so a new card type is one entry here and its mapping in flowCards.js:
 //
 //   CONDITIONS  answer from the card's arguments; capability conditions use knownValue, which
 //               fails while the value is unknown (null) instead of answering "no". The generic
@@ -226,6 +226,39 @@ function registerAutocomplete(card, mapping) {
 }
 
 /**
+ * Registers the run listeners of the condition and action cards without a kind: a condition
+ * answers with its capability's value, an action writes its first argument to its capability
+ * (device.writeCapability: the feature path the device has, or a derived capability's commands).
+ * A card that cannot be registered is logged; the others still work.
+ * @param {{ homey: any, log: (...args: any[]) => void, error: (...args: any[]) => void }} driver
+ * @param {{ conditions: FlowCardMapping[], actions: FlowCardMapping[] }} cards
+ */
+function registerPlainFlowCards(driver, { conditions, actions }) {
+  for (const condition of conditions.filter((mapping) => !mapping.kind)) {
+    driver.log(`Registering condition: ${condition.id}`);
+    try {
+      const card = driver.homey.flow.getConditionCard(condition.id);
+      card.registerRunListener(async (/** @type {CardArgs} */ args) => args.device.getCapabilityValue(condition.capability));
+    } catch (error) {
+      driver.error(`Failed to register condition ${condition.id}:`, error);
+    }
+  }
+  for (const action of actions.filter((mapping) => !mapping.kind)) {
+    driver.log(`Registering action: ${action.id}`);
+    try {
+      const card = driver.homey.flow.getActionCard(action.id);
+      card.registerRunListener(async (/** @type {CardArgs} */ args) => {
+        const { device, ...actionArgs } = args;
+        const value = actionArgs[Object.keys(actionArgs)[0]]; // the value of the first argument
+        return device.writeCapability(action.capability, value);
+      });
+    } catch (error) {
+      driver.error(`Failed to register action ${action.id}:`, error);
+    }
+  }
+}
+
+/**
  * Registers the run (and autocomplete) listeners of the condition and action cards with a kind.
  * A card that cannot be registered is logged; the others still work.
  * @param {{ homey: any, error: (...args: any[]) => void }} driver
@@ -252,6 +285,27 @@ function registerFlowCardsWithKind(driver, { conditions, actions }) {
   }
 }
 
+/**
+ * Registers the run listeners of every condition and action card: those without a kind, then
+ * those with one. Trigger cards are fired by the app (driver.js keeps them per capability).
+ * @param {{ homey: any, log: (...args: any[]) => void, error: (...args: any[]) => void }} driver
+ * @param {{ conditions: FlowCardMapping[], actions: FlowCardMapping[] }} cards
+ */
+function registerFlowCards(driver, cards) {
+  registerPlainFlowCards(driver, cards);
+  registerFlowCardsWithKind(driver, cards);
+}
+
 module.exports = {
-  CONDITIONS, TRIGGERS, ACTIONS, AUTOCOMPLETE, knownValue, checkCondition, runAction, fireValueTriggers, registerFlowCardsWithKind,
+  CONDITIONS,
+  TRIGGERS,
+  ACTIONS,
+  AUTOCOMPLETE,
+  knownValue,
+  checkCondition,
+  runAction,
+  fireValueTriggers,
+  registerFlowCards,
+  registerPlainFlowCards,
+  registerFlowCardsWithKind,
 };

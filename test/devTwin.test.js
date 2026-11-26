@@ -20,13 +20,14 @@ const V1_0_14_REF = '874e0df';
 // Verbatim copy of `git show 874e0df:drivers/vicare/driver.js` (v1.0.14, the App Store version
 // the upgrade test starts from). Stored as .txt so that ESLint and Jest leave it alone.
 const V1_0_14_DRIVER = fs.readFileSync(path.join(__dirname, 'devTwin', 'driver-v1.0.14.js.txt'), 'utf8');
-// The driver of the checked-out version: if a change moves or renames the poll interval, this
+// The poll plan of the checked-out version: if a change moves or renames the poll interval, this
 // test fails until scripts/devTwin.js learns the new pattern.
-const CURRENT_DRIVER = fs.readFileSync(path.join(REPO_ROOT, 'drivers', 'vicare', 'driver.js'), 'utf8');
+const CURRENT_POLL_PLAN = fs.readFileSync(path.join(REPO_ROOT, 'drivers', 'vicare', 'pollPlan.js'), 'utf8');
+const MINUTE = 60 * 1000;
 
 function compiles(source) {
   // Syntax check only; nothing is executed.
-  return new vm.Script(source, { filename: 'driver.js' }) instanceof vm.Script;
+  return new vm.Script(source, { filename: 'source.js' }) instanceof vm.Script;
 }
 
 function makeTempDir() {
@@ -41,17 +42,17 @@ function writeFile(root, relative, content) {
 
 describe('patchPollInterval', () => {
   describe.each([
-    ['v1.0.14 (874e0df)', V1_0_14_DRIVER],
-    ['the checked-out driver.js', CURRENT_DRIVER],
-  ])('on %s', (label, source) => {
-    it('rewrites the one MIN_POLL_INTERVAL definition from 2 to 10 minutes', () => {
+    ['v1.0.14 (874e0df), driver.js', V1_0_14_DRIVER, 'MIN_POLL_INTERVAL', 'MIN_POLL_INTERVAL'],
+    ['the checked-out pollPlan.js', CURRENT_POLL_PLAN, 'AUTO_INTERVAL_PER_DEVICE', 'const AUTO_INTERVAL_PER_DEVICE'],
+  ])('on %s', (label, source, pattern, definition) => {
+    it(`rewrites the one ${pattern} definition from 2 to 10 minutes`, () => {
       const { source: patched, changes } = patchPollInterval(source, 10);
 
       expect(changes).toHaveLength(1);
       expect(changes[0]).toMatchObject({
-        pattern: 'MIN_POLL_INTERVAL',
-        before: 'MIN_POLL_INTERVAL = 2 * 60 * 1000;',
-        after: 'MIN_POLL_INTERVAL = 10 * 60 * 1000; // dev twin, was 2 * 60 * 1000',
+        pattern,
+        before: `${definition} = 2 * 60 * 1000;`,
+        after: `${definition} = 10 * 60 * 1000; // dev twin, was 2 * 60 * 1000`,
         fromMs: 2 * 60 * 1000,
         toMs: 10 * 60 * 1000,
       });
@@ -88,17 +89,19 @@ describe('patchPollInterval', () => {
   });
 
   it.each([
-    ['  MIN_POLL_INTERVAL = 120000;', 120000],
-    ['  MIN_POLL_INTERVAL = 2 * 60_000;', 120000],
-    ['  static MIN_POLL_INTERVAL = 2 * 60 * 1000;', 120000],
-    ['const MIN_POLL_INTERVAL = 3 * 60 * 1000;', 180000],
-    ['    this.MIN_POLL_INTERVAL = 2 * 60 * 1000;', 120000],
-  ])('recognises %s', (line, fromMs) => {
+    ['  MIN_POLL_INTERVAL = 120000;', 'MIN_POLL_INTERVAL', 120000],
+    ['  MIN_POLL_INTERVAL = 2 * 60_000;', 'MIN_POLL_INTERVAL', 120000],
+    ['  static MIN_POLL_INTERVAL = 2 * 60 * 1000;', 'MIN_POLL_INTERVAL', 120000],
+    ['const MIN_POLL_INTERVAL = 3 * 60 * 1000;', 'MIN_POLL_INTERVAL', 180000],
+    ['    this.MIN_POLL_INTERVAL = 2 * 60 * 1000;', 'MIN_POLL_INTERVAL', 120000],
+    ['const AUTO_INTERVAL_PER_DEVICE = 2 * 60 * 1000;', 'AUTO_INTERVAL_PER_DEVICE', 120000],
+    ['let AUTO_INTERVAL_PER_DEVICE = 120_000;', 'AUTO_INTERVAL_PER_DEVICE', 120000],
+  ])('recognises %s', (line, name, fromMs) => {
     const { source, changes } = patchPollInterval(`'use strict';\n${line}\n`, 15);
 
     expect(changes).toHaveLength(1);
-    expect(changes[0].fromMs).toBe(fromMs);
-    expect(source).toContain('MIN_POLL_INTERVAL = 15 * 60 * 1000;');
+    expect(changes[0]).toMatchObject({ pattern: name, fromMs });
+    expect(source).toContain(`${name} = 15 * 60 * 1000;`);
   });
 
   it.each([
@@ -106,6 +109,7 @@ describe('patchPollInterval', () => {
     ['a computed value', 'MIN_POLL_INTERVAL = this.homey.settings.get("poll") * 60000;'],
     ['another name', 'POLL_INTERVAL = 2 * 60 * 1000;'],
     ['a usage', 'return this.MIN_POLL_INTERVAL * deviceCount;'],
+    ['a usage of the automatic interval', 'return AUTO_INTERVAL_PER_DEVICE * Math.max(1, deviceCount);'],
   ])('ignores %s', (label, line) => {
     expect(patchPollInterval(`${line}\n`, 10).changes).toEqual([]);
   });
@@ -138,10 +142,39 @@ describe('patchPollIntervals', () => {
       .toContain('MIN_POLL_INTERVAL = 2 * 60 * 1000;');
   });
 
+  it('patches only the newest interval a ref defines, not an older constant nothing reads', () => {
+    // main from pollPlan.js until 2.0.0 removed the unused class field from driver.js
+    writeFile(dir, 'drivers/vicare/driver.js', V1_0_14_DRIVER);
+    writeFile(dir, 'drivers/vicare/pollPlan.js', CURRENT_POLL_PLAN);
+
+    const changes = patchPollIntervals(dir, 10);
+
+    expect(changes.map(({ file, pattern }) => [file, pattern])).toEqual([['drivers/vicare/pollPlan.js', 'AUTO_INTERVAL_PER_DEVICE']]);
+    expect(fs.readFileSync(path.join(dir, 'drivers/vicare/driver.js'), 'utf8')).toBe(V1_0_14_DRIVER);
+  });
+
+  it('gives the checked-out app an automatic interval of 10 minutes per device', () => {
+    fs.cpSync(path.join(REPO_ROOT, 'drivers'), path.join(dir, 'drivers'), { recursive: true });
+    fs.cpSync(path.join(REPO_ROOT, 'lib'), path.join(dir, 'lib'), { recursive: true });
+
+    const changes = patchPollIntervals(dir, 10);
+
+    expect(changes.map(({ file, pattern }) => [file, pattern])).toEqual([['drivers/vicare/pollPlan.js', 'AUTO_INTERVAL_PER_DEVICE']]);
+    // The patched copy, as the twin runs it
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    const { pollInterval } = require(path.join(dir, 'drivers/vicare/pollPlan.js'));
+    expect(pollInterval('auto', 3)).toBe(30 * MINUTE);
+    expect(pollInterval(undefined, 1)).toBe(10 * MINUTE);
+    expect(pollInterval('15', 3)).toBe(15 * MINUTE);
+    // A shorter chosen interval counts as automatic: the twin never polls more often
+    expect(pollInterval('2', 1)).toBe(10 * MINUTE);
+  });
+
   it('fails with a clear error when no poll interval is recognised', () => {
     writeFile(dir, 'drivers/vicare/driver.js', 'POLL_EVERY = 2 * 60 * 1000;\n');
 
-    expect(() => patchPollIntervals(dir, 10)).toThrow(/No poll interval definition recognised.*--allow-default-poll/s);
+    expect(() => patchPollIntervals(dir, 10))
+      .toThrow(/No poll interval definition recognised.*AUTO_INTERVAL_PER_DEVICE, MIN_POLL_INTERVAL.*--allow-default-poll/s);
   });
 
   it('continues without a patch when --allow-default-poll is given', () => {

@@ -19,9 +19,13 @@ Homey treats the twin as a separate app. It has its own app settings (its own Cl
 `scripts/devTwin.js` builds it (`npm run homey:twin -- <command> ...`):
 
 1. Exports the committed tree of `--ref` (default `HEAD`) with `git archive` into a new temporary directory outside the repository (`$TMPDIR/vicare-dev-twin-<sha>-…`). Uncommitted changes and untracked files such as `documentation/` are not included.
-2. Sets the twin's ID and name in `.homeycompose/app.json` (and `app.json`), and the poll interval in `drivers/vicare/driver.js` (`MIN_POLL_INTERVAL`). If a ref defines its poll interval in a way the script doesn't recognise, it stops instead of building a twin that polls at the real app's rate; teach `POLL_PATTERNS` in the script the new form, or pass `--allow-default-poll` if you really mean it.
+2. Sets the twin's ID and name in `.homeycompose/app.json` (and `app.json`), and its poll interval, where the ref reads it:
+   - from 2.0.0 (`drivers/vicare/pollPlan.js`): `AUTO_INTERVAL_PER_DEVICE`, the automatic interval of the device setting *Update interval* (the default). A device whose chosen interval is shorter than `--poll-minutes` polls at the automatic interval, so the twin never polls more often; a longer one is used as it is;
+   - up to 1.0.16 and the first 2.0.0 builds: `MIN_POLL_INTERVAL` in `drivers/vicare/driver.js`.
+
+   Only the newer of the two that a ref defines is changed: some 2.0.0 builds still define an unused `MIN_POLL_INTERVAL` in `driver.js`, which is left alone. If a ref defines its poll interval in neither way, the script stops instead of building a twin that polls at the real app's rate; teach `POLL_PATTERNS` in the script the new form, or pass `--allow-default-poll` if you really mean it.
 3. Runs `npm ci --ignore-scripts` (old versions have an npm script named `install` that would run `homey app install`) and the ref's own `scripts/generateFlowCompose.js`, if it has one.
-4. Runs `homey app build` (and, for `build`, `homey app validate --level publish`), then checks that the built `app.json` has the twin's ID and name and that the built driver has the new poll interval.
+4. Runs `homey app build` (and, for `build`, `homey app validate --level publish`), then checks that the built `app.json` has the twin's ID and name and that the built file has the new poll interval.
 5. For `install` and `run` only: prints the exact Homey CLI command, the directory and the Homey selected in the Homey CLI, and asks `Continue? [y/N]`. Only `y` runs it.
 
 | Command | What it does |

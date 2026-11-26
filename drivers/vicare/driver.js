@@ -31,6 +31,7 @@ const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
 } = require('../../lib/apiError');
 const { apiStateMessage } = require('../../lib/errorMessages');
+const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
 
 // Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
 // is often a temporary fault on its side that is fixed within hours; a gateway is often back
@@ -183,7 +184,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       },
       retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
-        this.error(`Error polling device ${deviceKey}:`, error);
+        this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
         // Say right away what the user should know: Viessmann refuses access, the quota
         // is used up (when its reset is known), the gateway is offline, or only a new login
         // helps. Everything else is retried with backoff.
@@ -204,14 +205,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Registered before the first poll, so that _stopPolling (e.g. when the device is
     // deleted) also stops a poll that is still in progress
     this._devicePollers.set(deviceKey, poller);
-    this.log(`Performing initial poll for device: ${deviceKey}`);
+    this.log(`Performing initial poll for device: ${maskDeviceKey(deviceKey)}`);
     await poller.start();
   }
 
   async _stopPolling(deviceKey) {
     const poller = this._devicePollers.get(deviceKey);
     if (!poller) return;
-    this.log(`Stopping polling for device: ${deviceKey}`);
+    this.log(`Stopping polling for device: ${maskDeviceKey(deviceKey)}`);
     this._devicePollers.delete(deviceKey);
     await poller.stop();
   }
@@ -238,7 +239,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         await device.setUnavailable(message);
       }
     } catch (error) {
-      this.error(`Could not mark device ${deviceKey} as ${available ? 'available' : 'unavailable'}:`, error);
+      this.error(`Could not mark device ${maskDeviceKey(deviceKey)} as ${available ? 'available' : 'unavailable'}:`, error);
     }
   }
 
@@ -264,8 +265,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
           for (const device of gateway.devices) {
             if (device.deviceType === 'heating') {
               if (process.env.DEBUG) {
-                this.log('[ViessmannDriver::onPairListDevices] installationId:', gateway.installationId);
-                this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', gateway.serial);
+                this.log('[ViessmannDriver::onPairListDevices] installationId:', maskId(gateway.installationId));
+                this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', maskId(gateway.serial));
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 

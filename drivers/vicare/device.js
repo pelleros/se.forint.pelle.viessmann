@@ -26,6 +26,7 @@ const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircu
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
+const { maskId } = require('../../lib/logPrivacy');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -54,14 +55,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     this._commands = this.getStoreValue('commandMetadata');
 
     if (process.env.DEBUG) {
+      // Ids masked, and counts instead of the stored lists (see lib/logPrivacy.js)
       this.log(
-        'ViessmannDevice::onOAuth2Init installationId:', this._installationId,
-        'gatewaySerial:', this._gatewaySerial,
+        'ViessmannDevice::onOAuth2Init installationId:', maskId(this._installationId),
+        'gatewaySerial:', maskId(this._gatewaySerial),
         'deviceId:', this._deviceId,
         'roles:', this._roles,
-        'features:', this._features,
-        'constraints:', this._constraints,
-        'operatingModes:', this._operatingModes,
+        'features:', Array.isArray(this._features) ? this._features.length : this._features,
+        'operatingModes:', Array.isArray(this._operatingModes) ? this._operatingModes.map((mode) => mode.id) : this._operatingModes,
         'version:', this.getStoreValue('version'),
       );
     }

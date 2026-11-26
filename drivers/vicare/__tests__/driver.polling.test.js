@@ -46,6 +46,13 @@ const REPAIR = 'Authentication failed, open the device and choose Repair';
 const { PATHS } = require('../config');
 
 const DEVICE_KEY = '123456-0000000000000000-0';
+// The log shows the device key with the installation id and gateway serial masked
+const LOGGED_KEY = '…456-…000-0';
+const expectNoIdsLogged = (driver) => {
+  const logged = JSON.stringify([...driver.log.mock.calls, ...driver.error.mock.calls].map((call) => call.map(String)));
+  expect(logged).not.toContain('123456');
+  expect(logged).not.toContain('0000000000000000');
+};
 const POLL_INTERVAL = 120000;
 const EXTENDED = 0.01; // Math.random() below 0.03 triggers an extended poll
 const REGULAR = 0.5;
@@ -410,7 +417,8 @@ describe('ViessmannDriver polling after the device is deleted', () => {
 
     expect(rejections).toEqual([]);
     expect(device.setUnavailable).toHaveBeenCalledWith('Multiple communication errors');
-    expect(driver.error).toHaveBeenCalledWith(expect.stringContaining(DEVICE_KEY), deviceNotFound);
+    expect(driver.error).toHaveBeenCalledWith(expect.stringContaining(LOGGED_KEY), deviceNotFound);
+    expectNoIdsLogged(driver);
   });
 
   test('a rejected setAvailable is logged, not an unhandled rejection', async () => {
@@ -426,6 +434,7 @@ describe('ViessmannDriver polling after the device is deleted', () => {
     });
 
     expect(rejections).toEqual([]);
-    expect(driver.error).toHaveBeenCalledWith(expect.stringContaining(DEVICE_KEY), deviceNotFound);
+    expect(driver.error).toHaveBeenCalledWith(expect.stringContaining(LOGGED_KEY), deviceNotFound);
+    expectNoIdsLogged(driver);
   });
 });

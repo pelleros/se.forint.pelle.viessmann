@@ -6,5 +6,5 @@
     "insights": true,
     "uiComponent": "sensor",
     "decimals": 1,
-    "icon": "/assets/compressor.svg"
+    "icon": "/assets/cop.svg"
 }

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "se.forint.pelle.viessmann",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -593,7 +593,7 @@
       "insights": true,
       "uiComponent": "sensor",
       "decimals": 1,
-      "icon": "/assets/compressor.svg"
+      "icon": "/assets/cop.svg"
     },
     "measure_fuelcell_active": {
       "type": "boolean",

@@ -8,13 +8,14 @@ What's planned for the Viessmann ViCare app for Homey. This is a hobby project m
 - **New sensors appear by themselves** when your installation reports them. You never need to remove and re-add a device.
 - **Every release goes to the test channel first:** <https://homey.app/a/se.forint.pelle.viessmann/test/>
 
-## Next: 1.0.15
+## Next: 1.0.15 (release candidate in the test channel)
 
-- More reliable updates, clearer error messages instead of a generic "Error", and a clear "repair the device" message when the Viessmann login has expired.
+- More reliable updates, clearer error messages instead of a generic "Error" (also when the API limit is reached or the gateway is offline), and a clear "repair the device" message when the Viessmann login has expired.
 - Support for installations that only have heating circuit 1, and a setting to choose the heating circuit.
 - "Forced normal" and "forced reduced" in the operating mode Flow card.
 - Clearer setup instructions in English, German, Dutch, French and Swedish.
-- Planned: COP and compressor load for heat pumps, and troubleshooting data that is anonymized automatically so it is safe to share.
+- COP and compressor load for heat pumps, start and runtime counters in Insights, and "started"/"stopped" on the timeline.
+- Troubleshooting data that is anonymized automatically, so it is safe to share.
 
 ## Later
 

@@ -43,6 +43,10 @@
       "title": "Felsökning",
       "description": "Rapporten nedan visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst rapporten privat till utvecklaren i stället för att dela den offentligt."
     },
+    "extra_devices": {
+      "title": "Valfria extra enheter",
+      "text": "Utöver ViCare finns under \"Lägg till enhet\" också Värmekrets (termostat), Varmvatten (termostat) och Smart Climate-rum. Lägg bara till dem om du behöver dem: en värmekrets som egen termostat (annan zon, Google Home, röst), varmvatten för Google Home eller röst, eller dina ViCare Smart Climate-rum (bara läsning). Värmekretsar och varmvatten använder ViCare-enhetens uppdateringar och kostar inga extra API-anrop; rummen läses var 15:e minut, ungefär 96 anrop om dagen för alla rum tillsammans."
+    },
     "health": {
       "title": "Status",
       "description": "API-anrop som appen har använt i dag per Viessmann-konto, och varje enhets senaste uppdatering. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma konto, och börjar räkna om vid midnatt UTC.",

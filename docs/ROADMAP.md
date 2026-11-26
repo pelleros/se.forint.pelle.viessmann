@@ -11,7 +11,7 @@ What's planned for the Viessmann ViCare app for Homey. This is a hobby project m
 ## Next: 1.0.15 (release candidate in the test channel)
 
 - More reliable updates, clearer error messages instead of a generic "Error" (also when the API limit is reached or the gateway is offline), and a clear "repair the device" message when the Viessmann login has expired.
-- Support for installations that only have heating circuit 1, and a setting to choose the heating circuit.
+- Support for installations without the first heating circuit, and a setting to choose the heating circuit.
 - "Forced normal" and "forced reduced" in the operating mode Flow card.
 - Clearer setup instructions in English, German, Dutch, French and Swedish.
 - COP and compressor load for heat pumps, start and runtime counters in Insights, and "started"/"stopped" on the timeline.

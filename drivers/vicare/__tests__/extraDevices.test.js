@@ -47,6 +47,7 @@ async function addMainDevice(setup, fixture, client) {
   device.__settings = { heatingCircuit: 'auto' };
   device.setWarning = jest.fn(async () => {});
   device.unsetWarning = jest.fn(async () => {});
+  device.getName = () => 'Viessmann Vitocal 250';
   device.oAuth2Client = client;
   setup.vicare.getDevices = () => [device];
   await device.onOAuth2Init();
@@ -355,7 +356,7 @@ describe('pairing', () => {
     const setup = extraHomey();
     const client = pairingClient([heating, roomControl], { 0: 'pyvicare/Vitocal250A_TwoCircuits', 'RoomControl-1': 'pyvicare/RoomControlOne' });
     const circuits = await setup.extra.circuit.onPairListDevices({ oAuth2Client: client });
-    expect(circuits.map((entry) => entry.name)).toEqual(['Vitocal 250 heating circuit 0', 'Vitocal 250 heating circuit 1']);
+    expect(circuits.map((entry) => entry.name)).toEqual(['Vitocal 250 heating circuit 1', 'Vitocal 250 heating circuit 2']);
     expect(client.getFeatures).toHaveBeenCalledTimes(1);
     const rooms = await setup.extra.room.onPairListDevices({ oAuth2Client: client });
     expect(rooms.map((entry) => entry.data.id)).toEqual(['0', '1', '2'].map((room) => `${pollingKey(ROOM_IDS)}-room-${room}`));
@@ -413,20 +414,27 @@ describe('pairing', () => {
   });
 });
 
-test('every extra driver has the same pairing views; the Client ID view is the ViCare driver\'s', () => {
+test('the extra drivers\' pairing views are byte-identical copies of their canonical source', () => {
   // eslint-disable-next-line global-require
   const fs = require('fs');
   // eslint-disable-next-line global-require
   const path = require('path');
+  // eslint-disable-next-line global-require
+  const { EXTRA_DRIVERS } = require('../extraPairing');
   const drivers = path.join(__dirname, '../..');
-  const read = (driver, view) => fs.readFileSync(path.join(drivers, driver, 'pair', `${view}.html`), 'utf8');
-  for (const driver of ['heating-circuit', 'hot-water', 'room']) {
-    expect(read(driver, 'client_id')).toBe(read('vicare', 'client_id'));
-    expect(read(driver, 'intro')).toBe(read('heating-circuit', 'intro'));
+  const read = (driver, view) => fs.readFileSync(path.join(drivers, driver, 'pair', `${view}.html`));
+  // The Client ID view is the ViCare driver's; the intro view's source is the heating circuit's
+  const CANONICAL = { client_id: 'vicare', intro: 'heating-circuit' };
+  const stale = [];
+  for (const driver of Object.values(EXTRA_DRIVERS)) {
+    for (const [view, source] of Object.entries(CANONICAL)) {
+      if (!read(driver, view).equals(read(source, view))) stale.push(`drivers/${driver}/pair/${view}.html (copy drivers/${source}/pair/${view}.html)`);
+    }
     // eslint-disable-next-line global-require, import/no-dynamic-require
     const compose = require(path.join(drivers, driver, 'driver.compose.json'));
     expect(compose.pair.map((view) => view.id)).toEqual(['intro', 'client_id', 'login_oauth2', 'list_devices', 'add_devices']);
   }
+  if (stale.length > 0) throw new Error(`Pairing views out of date:\n  ${stale.join('\n  ')}`);
 });
 
 test('a hot water write that did not take is reported with its unit', async () => {
@@ -442,4 +450,36 @@ test('a hot water write that did not take is reported with its unit', async () =
   }
   expect(device.setWarning).toHaveBeenCalledWith(expect.stringMatching(/55 °C instead of 50 °C/));
   expect(device.getMonitor().writeProblem('thermostat_mode.unknown', 1, 2).options).toEqual({});
+});
+
+describe('health on the settings page', () => {
+  // eslint-disable-next-line global-require
+  const api = require('../../../api');
+
+  test('lists the extra devices that make calls of their own, not those sharing the ViCare device\'s updates', async () => {
+    const setup = extraHomey();
+    setup.homey.app = { getSavedOAuth2Sessions: () => ({ 'session-1': {} }) };
+    const heatPump = fixtureClient(findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features);
+    const rooms = fixtureClient(findFixtureDevice('pyvicare/RoomControlOne').features);
+    const [circuitZero, circuitOne] = entries('circuit', 'pyvicare/Vitocal250A_TwoCircuits');
+    await addExtraDevice(setup, 'circuit', circuitZero, heatPump);
+    await addExtraDevice(setup, 'room', entries('room', 'pyvicare/RoomControlOne', 'RoomControl-1')[0], rooms);
+
+    let health = await api.getHealth({ homey: setup.homey });
+    expect(health.devices.map(({ name, intervalMinutes }) => [name, intervalMinutes])).toEqual([
+      ['Vitocal 250 heating circuit 1', 2],
+      ['Smart Climate room 1', 15],
+    ]);
+    expect(health.devices[0]).toMatchObject({
+      account: 1, available: true, eventLogMinutes: 0, lastUpdateAt: expect.any(Number),
+    });
+    expect(health.accounts).toEqual([expect.objectContaining({ account: 1, plannedPerDay: 720 + 96, devices: 2 })]);
+
+    // With the ViCare device, a heating circuit shares its updates: only the ViCare device is listed
+    await addMainDevice(setup, 'pyvicare/Vitocal250A_TwoCircuits', heatPump);
+    await addExtraDevice(setup, 'circuit', circuitOne, heatPump);
+    health = await api.getHealth({ homey: setup.homey });
+    expect(health.devices.map(({ name }) => name)).toEqual(['Viessmann Vitocal 250', 'Smart Climate room 1']);
+    expect(health.accounts[0].plannedPerDay).toBe(720 + 96);
+  });
 });

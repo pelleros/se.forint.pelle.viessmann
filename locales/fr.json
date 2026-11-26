@@ -43,6 +43,10 @@
       "title": "Dépannage",
       "description": "Le rapport ci-dessous affiche les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux l'envoyer au développeur en privé plutôt que de le publier."
     },
+    "extra_devices": {
+      "title": "Appareils supplémentaires facultatifs",
+      "text": "En plus de ViCare, « Ajouter un appareil » propose Circuit de chauffage (thermostat), Eau chaude (thermostat) et Pièce Smart Climate. Ajoutez-les seulement si vous en avez besoin : un circuit de chauffage comme thermostat à part (autre zone, Google Home, voix), l'eau chaude pour Google Home ou la voix, ou vos pièces ViCare Smart Climate (en lecture seule). Les circuits de chauffage et l'eau chaude utilisent les mises à jour de l'appareil ViCare et ne coûtent aucun appel API en plus ; les pièces sont lues toutes les 15 minutes, environ 96 appels par jour pour toutes les pièces ensemble."
+    },
     "health": {
       "title": "État",
       "description": "Les appels API utilisés aujourd'hui par l'application pour chaque compte Viessmann, et la dernière mise à jour de chaque appareil. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte, et recommence à compter à minuit UTC.",

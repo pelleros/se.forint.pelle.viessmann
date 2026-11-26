@@ -43,6 +43,10 @@
         "title": "Troubleshooting",
         "description": "The report below shows the data the app gets from Viessmann, which helps the developer when something does not work. It needs at least one added device. Serial numbers, IDs, your address and similar details are anonymized automatically and show up as placeholders such as \"anonymized-serial-1\". Still, it is best to send it to the developer privately rather than post it publicly."
       },
+      "extra_devices": {
+        "title": "Optional extra devices",
+        "text": "Besides ViCare, \"Add device\" offers Heating circuit (thermostat), Hot water (thermostat) and Smart Climate room. Add them only if you need them: a heating circuit as a thermostat of its own (another zone, Google Home, voice), hot water for Google Home or voice, or your ViCare Smart Climate rooms (read-only). Heating circuits and hot water share the updates of the ViCare device and cost no extra API calls; rooms are read every 15 minutes, about 96 calls a day for all rooms together."
+      },
       "health": {
         "title": "Status",
         "description": "API calls the app used today per Viessmann account, and the last update of each device. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same account, and starts counting again at midnight UTC.",

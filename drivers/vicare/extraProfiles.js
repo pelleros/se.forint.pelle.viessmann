@@ -82,6 +82,10 @@ const { resolveCircuitPath, normalizeCircuitFeatures, featureEntries } = require
  */
 
 const TEMPERATURE = { units: '°C', decimals: 1 };
+// Values the ViCare device shows too: their history stays there, so no second graph of them
+const NO_SECOND_HISTORY = { preventInsights: true };
+// Values only an extra device shows (rooms): their history is here
+const OWN_HISTORY = { preventInsights: false };
 
 const TITLES = {
   roomTemperature: {
@@ -107,7 +111,7 @@ const TITLES = {
     en: 'Humidity', de: 'Luftfeuchtigkeit', nl: 'Luchtvochtigheid', fr: 'Humidité', sv: 'Luftfuktighet',
   },
   roomSetPoint: {
-    en: 'Set point', de: 'Solltemperatur', nl: 'Ingestelde temperatuur', fr: 'Consigne', sv: 'Börvärde',
+    en: 'Set point', de: 'Sollwert', nl: 'Ingestelde temperatuur', fr: 'Consigne', sv: 'Börvärde',
   },
 };
 
@@ -155,14 +159,14 @@ const CONFIGURED = {
       source: 'target_temperature',
       paths: [PATHS.HEATING_CIRCUIT_0_TARGET, PATHS.HEATING_CIRCUIT_0_TARGET_E3],
       writable: true,
-      options: (context) => ({ ...sourceOptions('target_temperature', context), preventInsights: false }),
+      options: (context) => ({ ...sourceOptions('target_temperature', context), ...NO_SECOND_HISTORY }),
     },
     {
       // Only a real room sensor: Homey uses it as the temperature of the device's zone
       name: 'measure_temperature',
       source: 'measure_temperature',
       paths: [PATHS.HEATING_CIRCUIT_0_ROOM_TEMPERATURE],
-      options: () => ({ title: TITLES.roomTemperature, ...TEMPERATURE }),
+      options: () => ({ title: TITLES.roomTemperature, ...TEMPERATURE, ...NO_SECOND_HISTORY }),
     },
     {
       name: 'thermostat_mode',
@@ -183,14 +187,14 @@ const CONFIGURED = {
       paths: [PATHS.HOT_WATER_TARGET],
       writable: true,
       options: (context) => ({
-        title: TITLES.hotWaterTarget, units: '°C', ...limitsOf('target_temperature.hotWater', context), preventInsights: false,
+        title: TITLES.hotWaterTarget, units: '°C', ...limitsOf('target_temperature.hotWater', context), ...NO_SECOND_HISTORY,
       }),
     },
     {
       name: 'measure_temperature',
       source: 'measure_temperature.hotWater',
       paths: [PATHS.HOT_WATER_TEMP],
-      options: () => ({ title: TITLES.hotWaterTemperature, ...TEMPERATURE }),
+      options: () => ({ title: TITLES.hotWaterTemperature, ...TEMPERATURE, ...NO_SECOND_HISTORY }),
     },
     {
       name: 'thermostat_mode',
@@ -216,8 +220,8 @@ const CONFIGURED = {
 
 /**
  * The values of a room (`rooms.<id>.*` of the ViCare Smart Climate device). The set point is the
- * room's heating level, or its normal level where the device has comfort, normal and reduced
- * levels.
+ * room's heating set point in force now; a device that does not report it shows none (its
+ * comfort, normal and reduced levels need not be the one in force).
  * @param {string} roomId
  * @returns {ExtraCapability[]}
  */
@@ -230,22 +234,21 @@ function roomCapabilities(roomId) {
       name: 'measure_temperature',
       paths: [`${room}.sensors.temperature`],
       reads: [read(`${room}.sensors.temperature`, 'value.value')],
-      options: () => ({ title: TITLES.roomTemperature, ...TEMPERATURE }),
+      options: () => ({ title: TITLES.roomTemperature, ...TEMPERATURE, ...OWN_HISTORY }),
     },
     {
       name: 'measure_humidity',
       paths: [`${room}.sensors.humidity`],
       reads: [read(`${room}.sensors.humidity`, 'value.value')],
-      options: () => ({ title: TITLES.humidity, units: '%', decimals: 0 }),
+      options: () => ({
+        title: TITLES.humidity, units: '%', decimals: 0, ...OWN_HISTORY,
+      }),
     },
     {
       name: 'measure_temperature.setPoint',
-      paths: [`${room}.temperature.levels.heating`, `${room}.temperature.levels.normal.heating`],
-      reads: [
-        read(`${room}.temperature.levels.heating`, 'temperature.value'),
-        read(`${room}.temperature.levels.normal.heating`, 'temperature.value'),
-      ],
-      options: () => ({ title: TITLES.roomSetPoint, ...TEMPERATURE }),
+      paths: [`${room}.temperature.levels.heating`],
+      reads: [read(`${room}.temperature.levels.heating`, 'temperature.value')],
+      options: () => ({ title: TITLES.roomSetPoint, ...TEMPERATURE, ...OWN_HISTORY }),
     },
   ];
 }

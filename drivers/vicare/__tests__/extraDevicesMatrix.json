@@ -9,11 +9,11 @@
     "vitocal_222_2024": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -25,8 +25,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":51.6}
         }
@@ -35,11 +35,11 @@
     "vitocal_222": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -51,8 +51,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":49.4}
         }
@@ -61,12 +61,12 @@
     "vitodens_200_2016": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900003-9999000000000006-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"measure_temperature":23,"thermostat_mode":"heat"}
@@ -78,8 +78,8 @@
           "id": "900003-9999000000000006-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":48.7}
         }
@@ -88,11 +88,11 @@
     "vitodens_200_dh": {
       "circuit": [
         {
-          "name": "Vitodens 200 heating circuit 0",
+          "name": "Vitodens 200 heating circuit 1",
           "id": "900004-9999000000000009-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -104,8 +104,8 @@
           "id": "900004-9999000000000009-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":45.5,"thermostat_mode":"heat"}
@@ -115,12 +115,12 @@
     "vitodens_200_e3": {
       "circuit": [
         {
-          "name": "Vitodens 200 heating circuit 0",
+          "name": "Vitodens 200 heating circuit 1",
           "id": "900002-9999000000000004-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"measure_temperature":22,"thermostat_mode":"heat"}
@@ -132,8 +132,8 @@
           "id": "900002-9999000000000004-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":52.6,"thermostat_mode":"heat"}
@@ -143,11 +143,11 @@
     "vitovalor_pt2": {
       "circuit": [
         {
-          "name": "Vitovalor PT2 heating circuit 0",
+          "name": "Vitovalor PT2 heating circuit 1",
           "id": "900005-9999000000000011-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -159,8 +159,8 @@
           "id": "900005-9999000000000011-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":42.3,"thermostat_mode":"heat"}
@@ -170,11 +170,11 @@
     "pyvicare/Ecotronic": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":24,"thermostat_mode":"heat"}
@@ -186,24 +186,22 @@
         {
           "name": "Smart Climate room 1",
           "id": "900001-9999000000000001-0-room-0",
-          "capabilities": ["measure_temperature","measure_humidity","measure_temperature.setPoint"],
+          "capabilities": ["measure_temperature","measure_humidity"],
           "options": {
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
-            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0},
-            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Solltemperatur","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1}
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":false},
+            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0,"preventInsights":false}
           },
-          "values": {"measure_temperature":23.4,"measure_humidity":49,"measure_temperature.setPoint":18}
+          "values": {"measure_temperature":23.4,"measure_humidity":49}
         },
         {
           "name": "Smart Climate room 2",
           "id": "900001-9999000000000001-0-room-1",
-          "capabilities": ["measure_temperature","measure_humidity","measure_temperature.setPoint"],
+          "capabilities": ["measure_temperature","measure_humidity"],
           "options": {
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
-            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0},
-            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Solltemperatur","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1}
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":false},
+            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0,"preventInsights":false}
           },
-          "values": {"measure_temperature":22.8,"measure_humidity":56,"measure_temperature.setPoint":22}
+          "values": {"measure_temperature":22.8,"measure_humidity":56}
         }
       ]
     },
@@ -214,9 +212,9 @@
           "id": "900001-9999000000000001-0-room-0",
           "capabilities": ["measure_temperature","measure_humidity","measure_temperature.setPoint"],
           "options": {
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
-            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0},
-            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Solltemperatur","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1}
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":false},
+            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0,"preventInsights":false},
+            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Sollwert","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1,"preventInsights":false}
           },
           "values": {"measure_temperature":20.4,"measure_humidity":53,"measure_temperature.setPoint":20.5}
         },
@@ -225,9 +223,9 @@
           "id": "900001-9999000000000001-0-room-1",
           "capabilities": ["measure_temperature","measure_humidity","measure_temperature.setPoint"],
           "options": {
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
-            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0},
-            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Solltemperatur","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1}
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":false},
+            "measure_humidity": {"title":{"en":"Humidity","de":"Luftfeuchtigkeit","nl":"Luchtvochtigheid","fr":"Humidité","sv":"Luftfuktighet"},"units":"%","decimals":0,"preventInsights":false},
+            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Sollwert","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1,"preventInsights":false}
           },
           "values": {"measure_temperature":20.5,"measure_humidity":45,"measure_temperature.setPoint":18}
         },
@@ -236,8 +234,8 @@
           "id": "900001-9999000000000001-0-room-2",
           "capabilities": ["measure_temperature","measure_temperature.setPoint"],
           "options": {
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
-            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Solltemperatur","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1}
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":false},
+            "measure_temperature.setPoint": {"title":{"en":"Set point","de":"Sollwert","nl":"Ingestelde temperatuur","fr":"Consigne","sv":"Börvärde"},"units":"°C","decimals":1,"preventInsights":false}
           },
           "values": {"measure_temperature":19.4,"measure_temperature.setPoint":19}
         }
@@ -246,11 +244,11 @@
     "pyvicare/Solar": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":33,"thermostat_mode":"heat"}
@@ -262,7 +260,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":50}
         }
@@ -271,12 +269,12 @@
     "pyvicare/Vitocal111S": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"measure_temperature":23.6,"thermostat_mode":"auto"}
@@ -288,8 +286,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":48,"measure_temperature":47.6}
         }
@@ -298,11 +296,11 @@
     "pyvicare/Vitocal151A": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":24,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":24,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"cool","title":{"en":"Cool","de":"Kühlen","nl":"Koelen","fr":"Refroidissement","sv":"Kyla"}},{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"off"}
@@ -314,7 +312,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"thermostat_mode":"heat"}
@@ -324,12 +322,12 @@
     "pyvicare/Vitocal200": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"measure_temperature":22,"thermostat_mode":"auto"}
@@ -341,7 +339,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":50}
         }
@@ -350,11 +348,11 @@
     "pyvicare/Vitocal200A_SystemController": {
       "circuit": [
         {
-          "name": "Viessmann heating heating circuit 0",
+          "name": "Viessmann heating heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -366,8 +364,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":51.4,"thermostat_mode":"heat"}
@@ -377,11 +375,11 @@
     "pyvicare/Vitocal200S-with-Vitovent300W": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"off"}
@@ -393,8 +391,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":48,"measure_temperature":32.1}
         }
@@ -403,11 +401,11 @@
     "pyvicare/Vitocal200S": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"off"}
@@ -419,7 +417,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":40}
         }
@@ -428,21 +426,21 @@
     "pyvicare/Vitocal200S_AWB-M-E-AC-201.D10": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
         },
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"off"}
@@ -452,11 +450,11 @@
     "pyvicare/Vitocal200S_E8NEV": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -468,7 +466,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"thermostat_mode":"heat"}
@@ -478,12 +476,12 @@
     "pyvicare/Vitocal222S-with-Vitovent": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":23,"measure_temperature":25.1,"thermostat_mode":"auto"}
@@ -495,7 +493,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":45}
         }
@@ -504,11 +502,11 @@
     "pyvicare/Vitocal222S": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"thermostat_mode":"heat"}
@@ -520,8 +518,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":52,"measure_temperature":50.9,"thermostat_mode":"heat"}
@@ -531,11 +529,11 @@
     "pyvicare/Vitocal250A": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -547,8 +545,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":55,"measure_temperature":46.8,"thermostat_mode":"heat"}
@@ -558,21 +556,21 @@
     "pyvicare/Vitocal250A_NoiseReduction": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
         },
         {
-          "name": "Viessmann heat pump heating circuit 2",
+          "name": "Viessmann heat pump heating circuit 3",
           "id": "900001-9999000000000001-0-circuit-2",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -584,8 +582,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":46,"measure_temperature":48.3,"thermostat_mode":"heat"}
@@ -595,21 +593,21 @@
     "pyvicare/Vitocal250A_TwoCircuits": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"heat"}
         },
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -621,8 +619,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":54.8,"thermostat_mode":"heat"}
@@ -632,11 +630,11 @@
     "pyvicare/Vitocal252": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -648,8 +646,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":46.7,"thermostat_mode":"heat"}
@@ -659,11 +657,11 @@
     "pyvicare/Vitocal252A": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -675,8 +673,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":35.6,"thermostat_mode":"heat"}
@@ -690,8 +688,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":55,"measure_temperature":55.3,"thermostat_mode":"heat"}
@@ -701,11 +699,11 @@
     "pyvicare/Vitocal300G_CU401B": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"heat"}
@@ -717,8 +715,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":52.4}
         }
@@ -727,23 +725,23 @@
     "pyvicare/Vitocal333G-with-Vitovent300F": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"measure_temperature":21.4,"thermostat_mode":"heat"}
         },
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"measure_temperature":21.4,"thermostat_mode":"heat"}
@@ -755,8 +753,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":45,"measure_temperature":45.1}
         }
@@ -765,11 +763,11 @@
     "pyvicare/Vitocal333G": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 0",
+          "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"heat"}
@@ -781,8 +779,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":47.5}
         }
@@ -791,11 +789,11 @@
     "pyvicare/Vitocaldens222F": {
       "circuit": [
         {
-          "name": "Viessmann heat pump heating circuit 1",
+          "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":10,"max":30,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -807,7 +805,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":54}
         }
@@ -816,11 +814,11 @@
     "pyvicare/Vitodens050W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":20,"max":82,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":20,"max":82,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"off"}
@@ -832,8 +830,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":55,"measure_temperature":55.9,"thermostat_mode":"heat"}
@@ -847,8 +845,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"measure_temperature":54.1,"thermostat_mode":"heat"}
@@ -858,11 +856,11 @@
     "pyvicare/Vitodens100W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":2,"max":80,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":2,"max":80,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":50,"thermostat_mode":"heat"}
@@ -874,8 +872,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":25,"measure_temperature":36.9,"thermostat_mode":"heat"}
@@ -885,12 +883,12 @@
     "pyvicare/Vitodens100W_B1HC-26": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":8,"max":30,"step":0.5},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":8,"max":30,"step":0.5},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"measure_temperature":21.29,"thermostat_mode":"heat"}
@@ -902,7 +900,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":67,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":67,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":55}
         }
@@ -911,12 +909,12 @@
     "pyvicare/Vitodens111W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":8,"max":30,"step":0.5},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":8,"max":30,"step":0.5},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"measure_temperature":22.78,"thermostat_mode":"off"}
@@ -928,7 +926,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":30,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":41}
         }
@@ -937,11 +935,11 @@
     "pyvicare/Vitodens200W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"thermostat_mode":"off"}
@@ -953,7 +951,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":55}
         }
@@ -962,21 +960,21 @@
     "pyvicare/Vitodens200W_2": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"off"}
         },
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"off"}
@@ -988,7 +986,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":55}
         }
@@ -997,11 +995,11 @@
     "pyvicare/Vitodens200W_B2HA": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"off"}
@@ -1013,7 +1011,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":45}
         }
@@ -1022,11 +1020,11 @@
     "pyvicare/Vitodens200W_B2HF": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"thermostat_mode":"heat"}
@@ -1038,8 +1036,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":47,"measure_temperature":57.4,"thermostat_mode":"heat"}
@@ -1049,11 +1047,11 @@
     "pyvicare/Vitodens222W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"thermostat_mode":"heat"}
@@ -1065,7 +1063,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":55}
         }
@@ -1074,21 +1072,21 @@
     "pyvicare/Vitodens300W": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":21,"thermostat_mode":"off"}
         },
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":23,"thermostat_mode":"off"}
@@ -1100,7 +1098,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":58}
         }
@@ -1109,21 +1107,21 @@
     "pyvicare/Vitodens300W_B3HF-19": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"off"}
         },
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"off"}
@@ -1135,8 +1133,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":35,"measure_temperature":54.6,"thermostat_mode":"heat"}
@@ -1146,21 +1144,21 @@
     "pyvicare/Vitodens333F": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":3,"thermostat_mode":"off"}
         },
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"off"}
@@ -1172,7 +1170,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":90,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":90,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":55}
         }
@@ -1181,11 +1179,11 @@
     "pyvicare/Vitodens343F_B3UF": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 0",
+          "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":19,"thermostat_mode":"heat"}
@@ -1197,7 +1195,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":50}
         }
@@ -1206,11 +1204,11 @@
     "pyvicare/Vitodens_100_BHC_0421": {
       "circuit": [
         {
-          "name": "Vitodens 100 BHC heating circuit 0",
+          "name": "Vitodens 100 BHC heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":20,"max":82,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":20,"max":82,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":40,"thermostat_mode":"off"}
@@ -1222,8 +1220,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":41,"measure_temperature":40.8,"thermostat_mode":"heat"}
@@ -1233,12 +1231,12 @@
     "pyvicare/VitolaUniferral": {
       "circuit": [
         {
-          "name": "VitolaUniferral heating circuit 0",
+          "name": "VitolaUniferral heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
-            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
+            "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":20,"measure_temperature":20.3,"thermostat_mode":"heat"}
@@ -1250,7 +1248,7 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true}
           },
           "values": {"target_temperature":60}
         }
@@ -1259,11 +1257,11 @@
     "pyvicare/Vitoladens300-C_J3RA": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"thermostat_mode":"off"}
@@ -1275,8 +1273,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1}
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true}
           },
           "values": {"target_temperature":38,"measure_temperature":60.8}
         }
@@ -1285,11 +1283,11 @@
     "pyvicare/VitovalorPT2": {
       "circuit": [
         {
-          "name": "Viessmann boiler heating circuit 1",
+          "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
           "capabilities": ["target_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":false,"min":3,"max":37,"step":1},
+            "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":22,"thermostat_mode":"heat"}
@@ -1301,8 +1299,8 @@
           "id": "900001-9999000000000001-0-hotwater",
           "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
           "options": {
-            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":false},
-            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1},
+            "target_temperature": {"title":{"en":"Hot water set point","de":"Warmwasser-Solltemperatur","nl":"Gewenste warmwatertemperatuur","fr":"Consigne eau chaude","sv":"Börvärde varmvatten"},"units":"°C","min":10,"max":60,"step":1,"preventInsights":true},
+            "measure_temperature": {"title":{"en":"Hot water temperature","de":"Warmwassertemperatur","nl":"Warmwatertemperatuur","fr":"Température eau chaude","sv":"Varmvattentemperatur"},"units":"°C","decimals":1,"preventInsights":true},
             "thermostat_mode": {"title":{"en":"Hot water on/off","de":"Warmwasser an/aus","nl":"Warm water aan/uit","fr":"Eau chaude marche/arrêt","sv":"Varmvatten på/av"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
           },
           "values": {"target_temperature":52,"measure_temperature":50,"thermostat_mode":"heat"}

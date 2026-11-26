@@ -48,7 +48,13 @@ module.exports = {
   */
   async getHealth({ homey }) {
     const driver = homey.drivers.getDriver('vicare');
-    const devices = driver.getDevices();
+    // The ViCare devices, and the extra devices that make calls of their own (rooms, or heating
+    // circuits and hot water without a ViCare device); the others share a ViCare device's updates
+    const polled = [
+      ...driver.getDevices().map((device) => ({ device, interval: driver._calculatePollInterval(device) })),
+      ...(driver.sharedPollDevices?.() || []),
+    ];
+    const devices = polled.map(({ device }) => device);
     const quota = ApiQuota.for(homey);
     const sessions = Object.keys(homey.app.getSavedOAuth2Sessions?.() || {});
     for (const device of devices) {
@@ -65,11 +71,11 @@ module.exports = {
         plannedPerDay: driver.plannedCallsPerDay(sessionId),
         devices: devices.filter((device) => device.getStoreValue('OAuth2SessionId') === sessionId).length,
       })),
-      devices: devices.map((device) => ({
+      devices: polled.map(({ device, interval }) => ({
         name: device.getName(),
         account: accountOf(device),
         available: device.getAvailable(),
-        intervalMinutes: Math.round(driver._calculatePollInterval(device) / 60000),
+        intervalMinutes: Math.round(interval / 60000),
         eventLogMinutes: Number(device.getPollSetting?.('eventLog')) || 0,
         ...device.getMonitor().health,
       })),

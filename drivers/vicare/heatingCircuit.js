@@ -1,5 +1,12 @@
 'use strict';
 
+// The number users see for a heating circuit: the API counts from 0, people (and the ViCare app)
+// from 1. Only in texts: ids, setting values and data.ids keep the API's index
+function circuitNumber(circuitId) {
+  const index = Number(circuitId);
+  return Number.isInteger(index) && index >= 0 ? String(index + 1) : String(circuitId);
+}
+
 // Keep existing capability/Flow identifiers while resolving API paths per device.
 function resolveCircuitPath(path, circuitId = '0') {
   return path.replace(/^heating\.circuits\.0\./, `heating.circuits.${circuitId}.`);
@@ -58,5 +65,5 @@ function normalizeCircuitFeatures(response, circuitId = '0') {
 }
 
 module.exports = {
-  resolveCircuitPath, detectHeatingCircuit, enabledCircuits, normalizeCircuitFeatures, featureEntries,
+  resolveCircuitPath, detectHeatingCircuit, enabledCircuits, normalizeCircuitFeatures, featureEntries, circuitNumber,
 };

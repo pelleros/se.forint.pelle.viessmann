@@ -42,8 +42,8 @@ test('circuits and hot water are listed for heating devices, rooms for the Smart
 test('one thermostat per enabled heating circuit, named after the model and the circuit', () => {
   const entries = entriesOf('circuit', 'pyvicare/Vitocal250A_TwoCircuits');
   expect(entries.map((entry) => [entry.name, entry.data.id])).toEqual([
-    ['Vitocal 250 heating circuit 0', '900001-9999000000000001-0-circuit-0'],
-    ['Vitocal 250 heating circuit 1', '900001-9999000000000001-0-circuit-1'],
+    ['Vitocal 250 heating circuit 1', '900001-9999000000000001-0-circuit-0'],
+    ['Vitocal 250 heating circuit 2', '900001-9999000000000001-0-circuit-1'],
   ]);
   const [, second] = entries;
   expect(second.capabilities).toEqual(['target_temperature', 'thermostat_mode']);
@@ -57,9 +57,9 @@ test('one thermostat per enabled heating circuit, named after the model and the 
   expect(second.store.operatingModes.map((mode) => mode.id)).toEqual(['heating', 'standby']);
 });
 
-test('a device with only circuit 1 gets a thermostat for circuit 1', () => {
-  expect(entriesOf('circuit', 'pyvicare/Vitocal200S-with-Vitovent300W').map((entry) => entry.data.id))
-    .toEqual(['900001-9999000000000001-0-circuit-1']);
+test('a device with only its second circuit (API index 1) gets a thermostat for it, named circuit 2', () => {
+  expect(entriesOf('circuit', 'pyvicare/Vitocal200S-with-Vitovent300W').map((entry) => [entry.name, entry.data.id]))
+    .toEqual([['Vitocal 250 heating circuit 2', '900001-9999000000000001-0-circuit-1']]);
 });
 
 test('a hot water heat pump without heating circuits gets hot water only', () => {
@@ -96,11 +96,12 @@ test('a circuit\'s own name is added; Viessmann\'s default name is not', () => {
     { feature: 'heating.circuits.1.name', properties: { name: { value: ' Floor heating ' } } },
   ];
   expect(circuitName(data, '0')).toBeUndefined();
+  expect(circuitName([{ feature: 'heating.circuits.0', properties: { name: { value: 'Heizkreis 1' } } }], '0')).toBeUndefined();
   expect(circuitName(data, '1')).toBe('Floor heating');
   expect(circuitName(data, '2')).toBeUndefined();
   const raw = findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits').features;
   const named = { ...raw, data: raw.data.map((item) => (item.feature === 'heating.circuits.1' ? { ...item, properties: { ...item.properties, name: { type: 'string', value: 'Upstairs' } } } : item)) };
-  expect(extraEntries('circuit', sourceOf(), named, { t, version: '2.0.0' })[1].name).toBe('Vitocal 250 heating circuit 1 (Upstairs)');
+  expect(extraEntries('circuit', sourceOf(), named, { t, version: '2.0.0' })[1].name).toBe('Vitocal 250 heating circuit 2 (Upstairs)');
 });
 
 test('without a product name the model is what the device is', () => {

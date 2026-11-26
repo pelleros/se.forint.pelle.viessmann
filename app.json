@@ -311,35 +311,25 @@
             "sv": "Värmekrets"
           },
           "hint": {
-            "en": "The heating circuit this device reads and controls. Automatic uses circuit 0, or the first enabled circuit when the installation has no circuit 0. A circuit the installation does not have is refused.",
-            "de": "Der Heizkreis, den dieses Gerät ausliest und steuert. Automatisch verwendet Heizkreis 0 oder, wenn die Anlage keinen Heizkreis 0 hat, den ersten aktiven Heizkreis. Ein Heizkreis, den die Anlage nicht hat, wird abgelehnt.",
-            "nl": "Het verwarmingscircuit dat dit apparaat uitleest en bedient. Automatisch gebruikt circuit 0, of het eerste actieve circuit als de installatie geen circuit 0 heeft. Een circuit dat de installatie niet heeft, wordt geweigerd.",
-            "fr": "Le circuit de chauffage que cet appareil lit et commande. Automatique utilise le circuit 0 ou, si l'installation n'a pas de circuit 0, le premier circuit actif. Un circuit absent de l'installation est refusé.",
-            "sv": "Den värmekrets som enheten läser av och styr. Automatiskt använder krets 0, eller den första aktiva kretsen om anläggningen saknar krets 0. En krets som anläggningen inte har nekas."
+            "en": "The heating circuit this device reads and controls. Automatic uses circuit 1, or the first enabled circuit when the installation has no circuit 1. A circuit the installation does not have is refused.",
+            "de": "Der Heizkreis, den dieses Gerät ausliest und steuert. Automatisch verwendet Heizkreis 1 oder, wenn die Anlage keinen Heizkreis 1 hat, den ersten aktiven Heizkreis. Ein Heizkreis, den die Anlage nicht hat, wird abgelehnt.",
+            "nl": "Het verwarmingscircuit dat dit apparaat uitleest en bedient. Automatisch gebruikt circuit 1, of het eerste actieve circuit als de installatie geen circuit 1 heeft. Een circuit dat de installatie niet heeft, wordt geweigerd.",
+            "fr": "Le circuit de chauffage que cet appareil lit et commande. Automatique utilise le circuit 1 ou, si l'installation n'a pas de circuit 1, le premier circuit actif. Un circuit absent de l'installation est refusé.",
+            "sv": "Den värmekrets som enheten läser av och styr. Automatiskt använder krets 1, eller den första aktiva kretsen om anläggningen saknar krets 1. En krets som anläggningen inte har nekas."
           },
           "values": [
             {
               "id": "auto",
               "label": {
-                "en": "Automatic (circuit 0 or the first enabled one)",
-                "de": "Automatisch (Heizkreis 0 oder der erste aktive)",
-                "nl": "Automatisch (circuit 0 of het eerste actieve)",
-                "fr": "Automatique (circuit 0 ou le premier actif)",
-                "sv": "Automatiskt (krets 0 eller den första aktiva)"
+                "en": "Automatic (circuit 1 or the first enabled one)",
+                "de": "Automatisch (Heizkreis 1 oder der erste aktive)",
+                "nl": "Automatisch (circuit 1 of het eerste actieve)",
+                "fr": "Automatique (circuit 1 ou le premier actif)",
+                "sv": "Automatiskt (krets 1 eller den första aktiva)"
               }
             },
             {
               "id": "0",
-              "label": {
-                "en": "Circuit 0",
-                "de": "Heizkreis 0",
-                "nl": "Circuit 0",
-                "fr": "Circuit 0",
-                "sv": "Krets 0"
-              }
-            },
-            {
-              "id": "1",
               "label": {
                 "en": "Circuit 1",
                 "de": "Heizkreis 1",
@@ -349,7 +339,7 @@
               }
             },
             {
-              "id": "2",
+              "id": "1",
               "label": {
                 "en": "Circuit 2",
                 "de": "Heizkreis 2",
@@ -359,13 +349,23 @@
               }
             },
             {
-              "id": "3",
+              "id": "2",
               "label": {
                 "en": "Circuit 3",
                 "de": "Heizkreis 3",
                 "nl": "Circuit 3",
                 "fr": "Circuit 3",
                 "sv": "Krets 3"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Circuit 4",
+                "de": "Heizkreis 4",
+                "nl": "Circuit 4",
+                "fr": "Circuit 4",
+                "sv": "Krets 4"
               }
             }
           ]

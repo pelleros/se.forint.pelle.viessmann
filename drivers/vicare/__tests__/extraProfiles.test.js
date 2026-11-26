@@ -38,6 +38,9 @@ describe('heating circuit', () => {
     });
     expect(heatOnly.thermostat_mode.values.map((value) => value.id)).toEqual(['heat', 'off']);
     expect(heatOnly.thermostat_mode.uiComponent).toBeUndefined();
+    // The ViCare device keeps the history of the set point and the room temperature
+    expect(heatOnly.target_temperature.preventInsights).toBe(true);
+    expect(optionsFor('circuit', metadata('vitodens_200_2016')).measure_temperature.preventInsights).toBe(true);
     const cooling = optionsFor('circuit', metadata('pyvicare/Vitocal151A'));
     expect(cooling.thermostat_mode.values.map((value) => value.id)).toEqual(['heat', 'cool', 'auto', 'off']);
   });
@@ -95,6 +98,7 @@ describe('hot water', () => {
     const options = optionsFor('hotWater', context);
     expect(options.target_temperature).toMatchObject({ units: '°C', min: expect.any(Number), max: expect.any(Number) });
     expect(options.thermostat_mode.values.map((value) => value.id)).toEqual(['heat', 'off']);
+    expect([options.target_temperature.preventInsights, options.measure_temperature.preventInsights]).toEqual([true, true]);
     // Without an off mode: no thermostat mode (heat only)
     expect(capabilitiesFor('hotWater', metadata('vitocal_222'))).toEqual(['target_temperature', 'measure_temperature']);
   });
@@ -126,7 +130,7 @@ describe('hot water', () => {
 });
 
 describe('room', () => {
-  test('temperature, humidity where connected, and the set point (heating level, else normal level)', () => {
+  test('temperature, humidity where connected, and the set point in force; their history is the room\'s own', () => {
     const one = features('pyvicare/RoomControlOne');
     const connected = one.data.filter((item) => item.isEnabled && item.properties?.status?.value !== 'notConnected').map((item) => item.feature);
     expect(capabilitiesFor('room', { roomId: '2', features: connected })).toEqual(['measure_temperature', 'measure_temperature.setPoint']);
@@ -134,8 +138,15 @@ describe('room', () => {
     expect(Object.fromEntries([...valuesFor('room', { roomId: '0' }, response)].map(([name, { value }]) => [name, value]))).toEqual({
       measure_temperature: 20.4, measure_humidity: 53, 'measure_temperature.setPoint': 20.5,
     });
-    const levels = responseFor('room', { roomId: '1' }, features('pyvicare/RoomControl'));
-    expect(valuesFor('room', { roomId: '1' }, levels).get('measure_temperature.setPoint').value).toBe(22);
+    // Only comfort, normal and reduced levels, none of them necessarily in force: no set point
+    const levels = features('pyvicare/RoomControl');
+    const levelPaths = levels.data.filter((item) => item.isEnabled).map((item) => item.feature);
+    expect(capabilitiesFor('room', { roomId: '1', features: levelPaths })).toEqual(['measure_temperature', 'measure_humidity']);
+    expect(valuesFor('room', { roomId: '1' }, responseFor('room', { roomId: '1' }, levels)).get('measure_temperature.setPoint'))
+      .toEqual({ value: undefined, gone: true });
+    const options = optionsFor('room', { roomId: '2', features: connected });
+    expect(options['measure_temperature.setPoint']).toMatchObject({ title: { en: 'Set point', de: 'Sollwert' }, preventInsights: false });
+    expect(options.measure_temperature.preventInsights).toBe(false);
   });
 
   test('a sensor no longer connected clears its value; rooms have nothing to write', () => {

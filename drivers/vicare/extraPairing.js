@@ -30,7 +30,7 @@
 
 const { modelName, deviceName } = require('./pairSession');
 const { readDeviceMetadata } = require('./deviceMetadata');
-const { enabledCircuits, featureEntries } = require('./heatingCircuit');
+const { enabledCircuits, featureEntries, circuitNumber } = require('./heatingCircuit');
 const { isConnected } = require('./featureMapper');
 const { pollingKey } = require('./pollPlan');
 const { profileOf, capabilitiesFor, optionsFor } = require('./extraProfiles');
@@ -44,8 +44,8 @@ const EXTRA_DRIVERS = { circuit: 'heating-circuit', hotWater: 'hot-water', room:
 // The Viessmann device type each kind is listed for
 const SOURCE_TYPES = { circuit: 'heating', hotWater: 'heating', room: 'roomControl' };
 
-// A circuit name that only says which circuit it is (Viessmann's or the anonymized default)
-const DEFAULT_CIRCUIT_NAME = /^heating circuit \d+$/i;
+// A circuit name that only says which circuit it is (a default name, in any app language)
+const DEFAULT_CIRCUIT_NAME = /^(heating circuit|heizkreis|hk|verwarmingscircuit|circuit de chauffage|circuit|värmekrets|krets)\s*\d+$/i;
 
 /**
  * The `data.id` of an extra device. Frozen once released (CONTRIBUTING.md, ground rule 1): the
@@ -163,7 +163,8 @@ function circuitEntries(source, rawResponse, { t, version }) {
     const capabilities = capabilitiesFor('circuit', context);
     if (!capabilities.includes('target_temperature') && !capabilities.includes('thermostat_mode')) return [];
     const ownName = circuitName(data, circuitId);
-    const name = t('pair.extra.circuit_name', { model: heatingDeviceName(source.device, t), circuit: circuitId })
+    // Counted from 1, as in the ViCare app and the ViCare device's circuit setting
+    const name = t('pair.extra.circuit_name', { model: heatingDeviceName(source.device, t), circuit: circuitNumber(circuitId) })
       + (ownName ? ` (${ownName})` : '');
     return [entryOf('circuit', source, context, { name, part: circuitId, version })];
   });

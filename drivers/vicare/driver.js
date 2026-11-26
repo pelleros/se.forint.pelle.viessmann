@@ -195,6 +195,15 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     return plannedCallsPerDay(settings, this._polledDeviceCount()) + sharedPollCallsPerDay(sharedPolls);
   }
 
+  // The extra devices whose Viessmann device is polled for them alone (rooms, or heating circuits
+  // and hot water without a ViCare device), with that poll's interval: for the health on the
+  // settings page
+  sharedPollDevices() {
+    return [...this._pollTargets.entries()]
+      .filter(([, target]) => !target.main)
+      .flatMap(([key, target]) => [...target.followers].map((device) => ({ device, interval: this._groupInterval(key) })));
+  }
+
   async _updateAllPollingIntervals() {
     const newInterval = this._calculatePollInterval();
     const devices = this.getDevices();

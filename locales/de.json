@@ -17,8 +17,7 @@
     "save": "Speichern",
     "saved": "Client ID gespeichert! Du kannst jetzt dein Viessmann-Gerät in Homey hinzufügen.",
     "error": {
-      "invalid_client_id": "Bitte gib eine gültige Client ID ein",
-      "no_device_selected": "Bitte wähle zuerst ein Gerät aus"
+      "invalid_client_id": "Bitte gib eine gültige Client ID ein"
     },
     "problems": {
       "title": "Häufige Probleme",
@@ -31,8 +30,8 @@
         "fix": "Prüfe, ob deine Heizung in der ViCare-App erscheint und online ist. Achte darauf, dass die Client ID oben gespeichert war, bevor du mit dem Hinzufügen des Geräts begonnen hast. Wenn du sie gerade erst gespeichert oder geändert hast, schließe das Fenster zum Hinzufügen von Geräten und beginne noch einmal."
       },
       "no_oauth2_client": {
-        "title": "„No OAuth2 Client Found“ bei den Werkzeugen zur Fehlerbehebung",
-        "fix": "Die Werkzeuge unten nutzen die Anmeldung eines hinzugefügten Geräts. Füge zuerst ein Viessmann-ViCare-Gerät hinzu und versuche es dann erneut."
+        "title": "„No OAuth2 Client Found“ beim Erstellen des Berichts",
+        "fix": "Der Bericht auf dieser Seite nutzt die Anmeldung eines hinzugefügten Geräts. Füge zuerst ein Viessmann-ViCare-Gerät hinzu und versuche es dann erneut. Beim Hinzufügen eines Geräts lässt sich der Bericht auch direkt nach der Viessmann-Anmeldung erstellen, ohne ein Gerät hinzuzufügen."
       },
       "reauth": {
         "title": "Gerät nach Wochen oder Monaten nicht verfügbar („Authentication failed“ oder Verbindung verloren)",
@@ -42,25 +41,7 @@
     },
     "troubleshooting": {
       "title": "Fehlerbehebung",
-      "description": "Diese Werkzeuge zeigen die Daten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Seriennummern, IDs, deine Adresse und ähnliche Angaben werden automatisch anonymisiert und erscheinen als Platzhalter wie „anonymized-serial-1“. Schicke die Daten trotzdem am besten privat an den Entwickler, statt sie öffentlich zu posten.",
-      "installations": {
-        "title": "Installationsdaten",
-        "description": "Zeigt Details zu deiner Viessmann-Installation und den verbundenen Geräten",
-        "get": "Installationsdaten abrufen",
-        "copy": "In die Zwischenablage kopieren"
-      },
-      "features": {
-        "title": "Gerätefunktionen",
-        "description": "Zeigt die verfügbaren Funktionen und aktuellen Werte deines Geräts",
-        "get": "Funktionsdaten abrufen",
-        "copy": "In die Zwischenablage kopieren"
-      },
-      "device": {
-        "title": "Geräteauswahl",
-        "description": "Wähle das Gerät, dessen Funktionen abgerufen werden sollen",
-        "select": "Gerät auswählen...",
-        "refresh": "Geräte aktualisieren"
-      }
+      "description": "Der Bericht unten zeigt die Daten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Seriennummern, IDs, deine Adresse und ähnliche Angaben werden automatisch anonymisiert und erscheinen als Platzhalter wie „anonymized-serial-1“. Schicke ihn trotzdem am besten privat an den Entwickler, statt ihn öffentlich zu posten."
     },
     "health": {
       "title": "Status",

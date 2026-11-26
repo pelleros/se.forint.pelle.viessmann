@@ -1,7 +1,8 @@
 'use strict';
 
-// The troubleshooting Web API (api.js) must never hand out real identifiers or personal data:
-// users paste its output into forum posts and e-mails.
+// The report for the developer (api.js → /report, lib/report.js) must never hand out real
+// identifiers or personal data: users send it in diagnostic reports and paste it into forum posts
+// and e-mails. Both the full report and the summary lines it writes to the app's log are checked.
 
 const fs = require('fs');
 const path = require('path');
@@ -99,32 +100,29 @@ function rawFeatures() {
   };
 }
 
-// A Homey with one paired device for each { installations, features } pair, the way pairing creates them
-function fakeHomey(sources) {
-  const devices = sources.flatMap(({ installations, features }) => installations.data.flatMap((installation) => installation.gateways
-    .flatMap((gateway) => gateway.devices
-      .filter((device) => device.deviceType === 'heating')
-      .map((device) => ({
-        getData: () => ({ id: `${gateway.installationId}-${gateway.serial}-${device.id}` }),
-        getStore: () => ({ installationId: gateway.installationId, gatewaySerial: gateway.serial, deviceId: device.id }),
-        getName: () => `Viessmann (${gateway.installationId})`,
-        getFeatures: jest.fn(async () => clone(features)),
-      })))));
-  const client = { getInstallations: jest.fn(async () => clone(sources[0].installations)) };
+// A Homey whose saved login sees these installations; every heating device reports `features`
+function fakeHomey({ installations, features }) {
+  const heatingIds = installations.data.flatMap((installation) => installation.gateways
+    .flatMap((gateway) => gateway.devices.filter((device) => device.deviceType === 'heating').map((device) => device.id)));
+  const client = {
+    getInstallations: jest.fn(async () => clone(installations)),
+    getFeatures: jest.fn(async ({ deviceId }) => (heatingIds.includes(deviceId) ? clone(features) : { data: [] })),
+  };
   return {
-    app: { getFirstSavedOAuth2Client: () => client },
-    drivers: { getDriver: () => ({ getDevices: () => devices }) },
-    log: jest.fn(),
+    app: { getFirstSavedOAuth2Client: () => client, log: jest.fn() },
+    manifest: { version: '2.0.0' },
     error: jest.fn(),
-    __devices: devices,
   };
 }
 
+// The report and the summary lines the app logged for it
 async function exportAll(homey) {
-  const installations = await api.getInstallations({ homey });
-  const devices = await api.getDevices({ homey });
-  const features = await Promise.all(devices.map(({ deviceId }) => api.getFeatures({ homey, body: { deviceId } })));
-  return { installations, devices, features };
+  homey.app.log.mockClear();
+  const { report, summaryLines } = await api.getReport({ homey });
+  const logged = homey.app.log.mock.calls.map(([line]) => line);
+  expect(logged).toHaveLength(summaryLines);
+  const heating = report.devices.filter((device) => device.deviceType === 'heating');
+  return { report, logged, features: heating.map((device) => device.features) };
 }
 
 // Everything except the anonymized fields must come through unchanged
@@ -144,22 +142,22 @@ function payload(featuresResponse) {
   });
 }
 
-describe('troubleshooting export of a realistic installation', () => {
+describe('report of a realistic installation', () => {
   let homey;
   let exported;
 
   beforeAll(async () => {
-    homey = fakeHomey([{ installations: rawInstallations(), features: rawFeatures() }]);
+    homey = fakeHomey({ installations: rawInstallations(), features: rawFeatures() });
     exported = await exportAll(homey);
   });
 
-  test('contains no original identifier and no personal data', () => {
-    const text = JSON.stringify(exported);
+  test('contains no original identifier and no personal data, also in the logged summary', () => {
+    const text = JSON.stringify([exported.report, exported.logged]);
     for (const original of ORIGINALS) expect(text).not.toContain(original);
   });
 
   test('replaces identifiers with placeholders that are recognizable as such', () => {
-    const installation = exported.installations.data[0];
+    const installation = exported.report.installations.data[0];
     const gateway = installation.gateways[0];
     expect(installation.id).toMatch(PLACEHOLDER_PATTERNS.installationId);
     expect(gateway.serial).toMatch(PLACEHOLDER_PATTERNS.serial);
@@ -174,13 +172,9 @@ describe('troubleshooting export of a realistic installation', () => {
     expect(gateway.description).toBe(REDACTED);
   });
 
-  test('uses the same placeholders in the installations, devices and features data', () => {
-    const gateway = exported.installations.data[0].gateways[0];
+  test('uses the same placeholders in the installations and the features data', () => {
+    const gateway = exported.report.installations.data[0].gateways[0];
     const [features] = exported.features;
-    expect(exported.devices).toEqual([{
-      deviceId: `${gateway.installationId}-${gateway.serial}-0`,
-      name: `Viessmann (${gateway.installationId})`,
-    }]);
     expect(features.data[0].uri).toBe(`https://api.viessmann-climatesolutions.com/iot/v2/features/installations/${gateway.installationId}`
       + `/gateways/${gateway.serial}/devices/0/features/heating.dhw.temperature.main`);
     expect(features.data[0].gatewayId).toBe(gateway.serial);
@@ -193,49 +187,40 @@ describe('troubleshooting export of a realistic installation', () => {
     expect(payload(features)).toEqual(payload(rawFeatures()));
     expect(features.data[0].properties.value).toEqual({ type: 'number', value: 50, unit: 'celsius' });
     expect(features.data[0].timestamp).toBe(TIMESTAMP);
-    const device = exported.installations.data[0].gateways[0].devices[0];
+    const device = exported.report.installations.data[0].gateways[0].devices[0];
     expect(device).toMatchObject({ id: '0', modelId: 'E3_Vitodens_200_0821', roles: ['type:boiler'] });
+    expect(exported.report.devices[0]).toMatchObject({ id: '0', deviceType: 'heating', modelId: 'E3_Vitodens_200_0821' });
   });
 
-  test('stays the same in later exports of the same app instance', async () => {
-    const features = await api.getFeatures({ homey, body: { deviceId: exported.devices[0].deviceId } });
-    expect(features).toEqual(exported.features[0]);
-    expect(await api.getInstallations({ homey })).toEqual(exported.installations);
+  test('stays the same in later reports of the same app instance', async () => {
+    const later = await exportAll(homey);
+    expect(later.report.installations).toEqual(exported.report.installations);
+    expect(later.report.devices).toEqual(exported.report.devices);
   });
 
-  test('is consistent when the features are exported before the installations', async () => {
-    const other = fakeHomey([{ installations: rawInstallations(), features: rawFeatures() }]);
-    const [device] = await api.getDevices({ homey: other });
-    const features = await api.getFeatures({ homey: other, body: { deviceId: device.deviceId } });
-    const installations = await api.getInstallations({ homey: other });
-    const gateway = installations.data[0].gateways[0];
-    expect(device.deviceId).toBe(`${gateway.installationId}-${gateway.serial}-0`);
-    expect(features.data[0].uri).toContain(`/installations/${gateway.installationId}/gateways/${gateway.serial}/devices/0/`);
-    expect(features.data[1].properties.value.value).toBe(gateway.devices[0].boilerSerial);
-    expect(features.data[4].commands.setZigbeeController.params.deviceId.constraints.enum).toEqual([gateway.devices[2].id]);
-    for (const original of ORIGINALS) expect(JSON.stringify([device, features, installations])).not.toContain(original);
-  });
-
-  test('finds the device by its real data id too', async () => {
-    const realId = homey.__devices[0].getData().id;
-    expect(await api.getFeatures({ homey, body: { deviceId: realId } })).toEqual(exported.features[0]);
-  });
-
-  test('refuses unknown or missing device ids', async () => {
-    await expect(api.getFeatures({ homey, body: { deviceId: 'anonymized-installation-9-x-0' } })).rejects.toThrow('No device found');
-    await expect(api.getFeatures({ homey, body: {} })).rejects.toThrow('Device ID is required');
-    await expect(api.getFeatures({ homey })).rejects.toThrow('Device ID is required');
+  test('without an added device the error says so', async () => {
+    const withoutLogin = {
+      app: {
+        getFirstSavedOAuth2Client: () => {
+          throw new Error('No OAuth2 Client Found');
+        },
+        log: jest.fn(),
+      },
+      error: jest.fn(),
+    };
+    await expect(api.getReport({ homey: withoutLogin })).rejects.toThrow('No OAuth2 Client Found');
+    expect(withoutLogin.app.log).not.toHaveBeenCalled();
   });
 });
 
-describe('troubleshooting export of every fixture', () => {
+describe('report of every fixture', () => {
   const fixtureNames = fs.readdirSync(FIXTURES_DIR)
     .filter((file) => file.endsWith('_installations.json'))
     .map((file) => file.replace('_installations.json', ''))
     .sort();
 
-  // Every fake identifier in the fixtures (also inside URIs). The troubleshooting export treats
-  // them as real identifiers, so none of them may come through.
+  // Every fake identifier in the fixtures (also inside URIs). The report treats them as real
+  // identifiers, so none of them may come through.
   function fakeIdentifiers(node, found = new Set()) {
     if (Array.isArray(node)) node.forEach((item) => fakeIdentifiers(item, found));
     else if (node && typeof node === 'object') Object.values(node).forEach((value) => fakeIdentifiers(value, found));
@@ -254,10 +239,10 @@ describe('troubleshooting export of every fixture', () => {
     const known = fakeIdentifiers([installations, features]);
     expect(known.size).toBeGreaterThan(0);
 
-    const exported = await exportAll(fakeHomey([{ installations, features }]));
+    const exported = await exportAll(fakeHomey({ installations, features }));
     expect(exported.features).toHaveLength(1);
 
-    const text = JSON.stringify(exported);
+    const text = JSON.stringify([exported.report, exported.logged]);
     const survivors = [...known].filter((value) => new RegExp(`(?<![A-Za-z0-9])${value}(?![A-Za-z0-9])`).test(text));
     expect(survivors).toEqual([]);
     expect(payload(exported.features[0])).toEqual(payload(features));

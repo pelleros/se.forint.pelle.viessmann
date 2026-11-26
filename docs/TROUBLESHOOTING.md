@@ -83,12 +83,14 @@ device again.
 
 If it still fails, [send a diagnostic report](#sending-a-useful-report).
 
-### "No OAuth2 Client Found" (or "No device found") in the troubleshooting tools
+### "No OAuth2 Client Found" when preparing the report
 
-**Cause:** the troubleshooting tools on the settings page use the login of a device you have
-already added. Before the first device is added, there is no login to use.
+**Cause:** the report on the settings page uses the login of a device you have already added.
+Before the first device is added, there is no login to use.
 
-**Fix:** add a Viessmann ViCare device first, then try again.
+**Fix:** add a Viessmann ViCare device first, then try again. If the device cannot be added,
+prepare the report while adding it instead: right after the Viessmann login, choose "Can't find
+your device or values missing?"; it works without adding a device.
 
 ### Device unavailable: "Multiple communication errors" or "Viessmann HTTP …"
 
@@ -203,26 +205,23 @@ app such as Power by the Hour on these values.
 A good report makes the difference between a quick fix and a lot of guessing.
 
 1. **Report for the developer (one step):** when your device cannot be added or values are
-   missing, prepare a report: on the app's settings page under Troubleshooting ("Prepare report"),
-   or while adding a device, after the login ("Can't find your device or values missing?"). It
-   collects what Viessmann reports for your installation and all its devices, anonymized, and
-   works even when no device could be added. Then either send a diagnostic report (below), which
-   includes a summary of it, or copy it and send it to the developer.
-2. **Diagnostic report:** in the Homey app, open the Viessmann ViCare app (More > Apps > Viessmann
-   ViCare) and send a diagnostic report. Add a short message: what you did, what you expected, what
-   you saw (the exact error text), roughly when it happened, your Homey and app version, and which
-   heating system you have. The report contains the app's log and goes to the developer only.
-3. **Raw data from the settings page (optional):** under Troubleshooting on the app's settings
-   page, press "Get Installation Data", pick your device, press "Get Feature Data", and copy both.
-   This shows exactly what Viessmann sends to the app and is very useful when a value is missing or
-   wrong.
+   missing, press "Prepare report" on the app's settings page under Troubleshooting, or, while
+   adding a device, choose "Can't find your device or values missing?" after the login (this works
+   even when no device could be added). It collects exactly what Viessmann sends for your
+   installation and all its devices, in one step.
 
-   The app anonymizes this data before it shows it: serial numbers, installation, gateway and
-   device IDs, your address and similar details are replaced with placeholders such as
-   `anonymized-serial-1`. The same value always gets the same placeholder, so the data stays
-   useful. Still, it is best to send it privately, for example in a private message on the forum,
-   rather than post it publicly.
-4. **Where to ask:** the
+   The app anonymizes the report: serial numbers, installation, gateway and device IDs, your
+   address and similar details are replaced with placeholders such as `anonymized-serial-1`. The
+   same value always gets the same placeholder, so the data stays useful. Still, it is best to
+   send it privately rather than post it publicly.
+2. **Send it:** in the Homey app, open the Viessmann ViCare app (More > Apps > Viessmann ViCare)
+   and send a diagnostic report; it contains the app's log, including a summary of the report you
+   just prepared, and goes to the developer only. Add a short message: what you did, what you
+   expected, what you saw (the exact error text), roughly when it happened, your Homey and app
+   version, and which heating system you have. Instead, you can also press "Copy to clipboard"
+   under the report and send it to the developer privately, for example in a private message on
+   the forum.
+3. **Where to ask:** the
    [Homey Community Forum topic](https://community.homey.app/t/app-pro-viessmann-vicare-app-for-homey-pro/118749)
    or [GitHub issues](https://github.com/pelleros/se.forint.pelle.viessmann/issues).
 
@@ -239,7 +238,7 @@ otherwise it shows "Viessmann HTTP 429: API rate limit exceeded" and retries les
 The app spreads its requests so that it stays well below that limit. By default it fetches data
 about once every 2 minutes in total: with one device, that device is updated every 2 minutes; with
 two devices, each is updated every 4 minutes, and so on. That is roughly 720 calls per day, plus a
-few more for commands from flows, adding devices and the troubleshooting tools. A change is not
+few more for commands from flows, adding devices and the report for the developer. A change is not
 sent when the calls left today are needed for the regular updates, or after 20 changes to the
 account within 10 minutes.
 

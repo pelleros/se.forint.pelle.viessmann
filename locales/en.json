@@ -17,8 +17,7 @@
       "save": "Save",
       "saved": "Client ID saved successfully! You can now add your Viessmann device in Homey.",
       "error": {
-        "invalid_client_id": "Please enter a valid Client ID",
-        "no_device_selected": "Please select a device first"
+        "invalid_client_id": "Please enter a valid Client ID"
       },
       "problems": {
         "title": "Common problems",
@@ -31,8 +30,8 @@
           "fix": "Check that your heating system shows up and is online in the ViCare app. Make sure the Client ID above was saved before you started adding the device. If you saved or changed it just now, close the window for adding devices and start again."
         },
         "no_oauth2_client": {
-          "title": "\"No OAuth2 Client Found\" in the troubleshooting tools",
-          "fix": "The troubleshooting tools below use the login of an added device. Add a Viessmann ViCare device first, then try again."
+          "title": "\"No OAuth2 Client Found\" when preparing the report",
+          "fix": "The report on this page uses the login of an added device. Add a Viessmann ViCare device first, then try again. While adding a device, the report can also be prepared right after the Viessmann login, without adding a device."
         },
         "reauth": {
           "title": "Device unavailable after weeks or months (\"Authentication failed\" or connection lost)",
@@ -42,25 +41,7 @@
       },
       "troubleshooting": {
         "title": "Troubleshooting",
-        "description": "These tools show the data the app gets from Viessmann, which helps the developer when something does not work. They need at least one added device. Serial numbers, IDs, your address and similar details are anonymized automatically and show up as placeholders such as \"anonymized-serial-1\". Still, it is best to send the data to the developer privately rather than post it publicly.",
-        "installations": {
-          "title": "Installation Information",
-          "description": "Shows details about your Viessmann installation and connected devices",
-          "get": "Get Installation Data",
-          "copy": "Copy to Clipboard"
-        },
-        "features": {
-          "title": "Device Features",
-          "description": "Shows available features and current values for your device",
-          "get": "Get Feature Data",
-          "copy": "Copy to Clipboard"
-        },
-        "device": {
-          "title": "Device Selection",
-          "description": "Select which device to get features for",
-          "select": "Select a device...",
-          "refresh": "Refresh Devices"
-        }
+        "description": "The report below shows the data the app gets from Viessmann, which helps the developer when something does not work. It needs at least one added device. Serial numbers, IDs, your address and similar details are anonymized automatically and show up as placeholders such as \"anonymized-serial-1\". Still, it is best to send it to the developer privately rather than post it publicly."
       },
       "health": {
         "title": "Status",

@@ -17,8 +17,7 @@
     "save": "Spara",
     "saved": "Client ID:t är sparat! Nu kan du lägga till din Viessmann-enhet i Homey.",
     "error": {
-      "invalid_client_id": "Ange ett giltigt Client ID",
-      "no_device_selected": "Välj en enhet först"
+      "invalid_client_id": "Ange ett giltigt Client ID"
     },
     "problems": {
       "title": "Vanliga problem",
@@ -31,8 +30,8 @@
         "fix": "Kontrollera att din värmeanläggning syns och är online i ViCare-appen. Se till att Client ID:t ovan var sparat innan du började lägga till enheten. Om du nyss sparade eller ändrade det, stäng fönstret för att lägga till enheter och börja om."
       },
       "no_oauth2_client": {
-        "title": "\"No OAuth2 Client Found\" i felsökningsverktygen",
-        "fix": "Felsökningsverktygen nedan använder inloggningen från en tillagd enhet. Lägg till en Viessmann ViCare-enhet först och försök sedan igen."
+        "title": "\"No OAuth2 Client Found\" när rapporten förbereds",
+        "fix": "Rapporten på den här sidan använder inloggningen från en tillagd enhet. Lägg till en Viessmann ViCare-enhet först och försök sedan igen. När du lägger till en enhet kan rapporten också förberedas direkt efter Viessmann-inloggningen, utan att någon enhet läggs till."
       },
       "reauth": {
         "title": "Enheten är otillgänglig efter veckor eller månader (\"Authentication failed\" eller tappad anslutning)",
@@ -42,25 +41,7 @@
     },
     "troubleshooting": {
       "title": "Felsökning",
-      "description": "De här verktygen visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst datan privat till utvecklaren i stället för att dela den offentligt.",
-      "installations": {
-        "title": "Installationsinformation",
-        "description": "Visar detaljer om din Viessmann-installation och anslutna enheter",
-        "get": "Hämta installationsdata",
-        "copy": "Kopiera till urklipp"
-      },
-      "features": {
-        "title": "Enhetens funktioner",
-        "description": "Visar tillgängliga funktioner och aktuella värden för din enhet",
-        "get": "Hämta funktionsdata",
-        "copy": "Kopiera till urklipp"
-      },
-      "device": {
-        "title": "Välj enhet",
-        "description": "Välj vilken enhet du vill hämta funktioner för",
-        "select": "Välj en enhet...",
-        "refresh": "Uppdatera enheter"
-      }
+      "description": "Rapporten nedan visar den data som appen får från Viessmann. Det hjälper utvecklaren när något inte fungerar. Minst en enhet måste vara tillagd. Serienummer, id-nummer, din adress och liknande uppgifter anonymiseras automatiskt och visas som platshållare, till exempel ”anonymized-serial-1”. Skicka ändå helst rapporten privat till utvecklaren i stället för att dela den offentligt."
     },
     "health": {
       "title": "Status",

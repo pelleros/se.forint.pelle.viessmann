@@ -17,8 +17,7 @@
     "save": "Opslaan",
     "saved": "Client ID opgeslagen! Je kunt nu je Viessmann-apparaat toevoegen in Homey.",
     "error": {
-      "invalid_client_id": "Voer een geldige Client ID in",
-      "no_device_selected": "Kies eerst een apparaat"
+      "invalid_client_id": "Voer een geldige Client ID in"
     },
     "problems": {
       "title": "Veelvoorkomende problemen",
@@ -31,8 +30,8 @@
         "fix": "Controleer of je verwarming in de ViCare-app staat en online is. Zorg dat de Client ID hierboven was opgeslagen voordat je begon met het toevoegen van het apparaat. Heb je hem net pas opgeslagen of gewijzigd? Sluit dan het venster voor het toevoegen van apparaten en begin opnieuw."
       },
       "no_oauth2_client": {
-        "title": "\"No OAuth2 Client Found\" bij de hulpmiddelen voor probleemoplossing",
-        "fix": "De hulpmiddelen hieronder gebruiken de login van een toegevoegd apparaat. Voeg eerst een Viessmann ViCare-apparaat toe en probeer het dan opnieuw."
+        "title": "\"No OAuth2 Client Found\" bij het maken van het rapport",
+        "fix": "Het rapport op deze pagina gebruikt de login van een toegevoegd apparaat. Voeg eerst een Viessmann ViCare-apparaat toe en probeer het dan opnieuw. Tijdens het toevoegen van een apparaat kun je het rapport ook direct na de Viessmann-login maken, zonder een apparaat toe te voegen."
       },
       "reauth": {
         "title": "Apparaat na weken of maanden niet beschikbaar (\"Authentication failed\" of verbinding verbroken)",
@@ -42,25 +41,7 @@
     },
     "troubleshooting": {
       "title": "Probleemoplossing",
-      "description": "Deze hulpmiddelen tonen de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur de gegevens toch liever privé naar de ontwikkelaar dan ze openbaar te delen.",
-      "installations": {
-        "title": "Installatiegegevens",
-        "description": "Toont details over je Viessmann-installatie en de gekoppelde apparaten",
-        "get": "Installatiegegevens ophalen",
-        "copy": "Kopiëren naar klembord"
-      },
-      "features": {
-        "title": "Apparaatfuncties",
-        "description": "Toont de beschikbare functies en huidige waarden van je apparaat",
-        "get": "Functiegegevens ophalen",
-        "copy": "Kopiëren naar klembord"
-      },
-      "device": {
-        "title": "Apparaat kiezen",
-        "description": "Kies het apparaat waarvan je de functies wilt ophalen",
-        "select": "Kies een apparaat...",
-        "refresh": "Apparaten vernieuwen"
-      }
+      "description": "Het rapport hieronder toont de gegevens die de app van Viessmann krijgt. Dat helpt de ontwikkelaar als er iets niet werkt. Er moet minstens één apparaat zijn toegevoegd. Serienummers, ID's, je adres en vergelijkbare gegevens worden automatisch geanonimiseerd en verschijnen als plaatshouders zoals \"anonymized-serial-1\". Stuur het toch liever privé naar de ontwikkelaar dan het openbaar te delen."
     },
     "health": {
       "title": "Status",

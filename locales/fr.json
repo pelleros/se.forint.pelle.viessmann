@@ -17,8 +17,7 @@
     "save": "Enregistrer",
     "saved": "Client ID enregistré ! Vous pouvez maintenant ajouter votre appareil Viessmann dans Homey.",
     "error": {
-      "invalid_client_id": "Veuillez saisir un Client ID valide",
-      "no_device_selected": "Veuillez d'abord sélectionner un appareil"
+      "invalid_client_id": "Veuillez saisir un Client ID valide"
     },
     "problems": {
       "title": "Problèmes fréquents",
@@ -31,8 +30,8 @@
         "fix": "Vérifiez que votre chauffage apparaît et est en ligne dans l'app ViCare. Assurez-vous que le Client ID ci-dessus était enregistré avant de commencer l'ajout de l'appareil. Si vous venez de l'enregistrer ou de le modifier, fermez la fenêtre d'ajout d'appareils et recommencez."
       },
       "no_oauth2_client": {
-        "title": "« No OAuth2 Client Found » dans les outils de dépannage",
-        "fix": "Les outils de dépannage ci-dessous utilisent la connexion d'un appareil déjà ajouté. Ajoutez d'abord un appareil Viessmann ViCare, puis réessayez."
+        "title": "« No OAuth2 Client Found » lors de la préparation du rapport",
+        "fix": "Le rapport de cette page utilise la connexion d'un appareil déjà ajouté. Ajoutez d'abord un appareil Viessmann ViCare, puis réessayez. Pendant l'ajout d'un appareil, le rapport peut aussi être préparé juste après la connexion Viessmann, sans ajouter d'appareil."
       },
       "reauth": {
         "title": "Appareil indisponible après des semaines ou des mois (« Authentication failed » ou connexion perdue)",
@@ -42,25 +41,7 @@
     },
     "troubleshooting": {
       "title": "Dépannage",
-      "description": "Ces outils affichent les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux envoyer les données au développeur en privé plutôt que de les publier.",
-      "installations": {
-        "title": "Informations sur l'installation",
-        "description": "Affiche les détails de votre installation Viessmann et des appareils connectés",
-        "get": "Obtenir les données d'installation",
-        "copy": "Copier dans le presse-papiers"
-      },
-      "features": {
-        "title": "Fonctions de l'appareil",
-        "description": "Affiche les fonctions disponibles et les valeurs actuelles de votre appareil",
-        "get": "Obtenir les données des fonctions",
-        "copy": "Copier dans le presse-papiers"
-      },
-      "device": {
-        "title": "Choix de l'appareil",
-        "description": "Choisissez l'appareil dont vous voulez obtenir les fonctions",
-        "select": "Choisissez un appareil...",
-        "refresh": "Actualiser les appareils"
-      }
+      "description": "Le rapport ci-dessous affiche les données que l'app reçoit de Viessmann. Cela aide le développeur quand quelque chose ne fonctionne pas. Au moins un appareil doit être ajouté. Les numéros de série, les identifiants, votre adresse et les informations similaires sont anonymisés automatiquement et apparaissent sous forme de valeurs comme « anonymized-serial-1 ». Il vaut tout de même mieux l'envoyer au développeur en privé plutôt que de le publier."
     },
     "health": {
       "title": "État",

@@ -6,7 +6,8 @@
 
 const { PATHS } = require('../config');
 const {
-  pollInterval, plannedCallsPerDay, withinPlan, isExtendedPoll, pollFilter, pollingKey, PLANNED_LIMIT, EXTENDED_POLL_SHARE,
+  pollInterval, plannedCallsPerDay, sharedPollCallsPerDay, followersInterval, withinPlan, isExtendedPoll, pollFilter, pollingKey,
+  PLANNED_LIMIT, EXTENDED_POLL_SHARE, ROOM_POLL_INTERVAL,
 } = require('../pollPlan');
 
 const MINUTE = 60 * 1000;
@@ -50,4 +51,17 @@ test('a regular poll asks for every configured path, on the device\'s heating ci
 
 test('a device\'s poller is known by its installation, gateway and device id', () => {
   expect(pollingKey({ installationId: 1234567, gatewaySerial: '7637415022052208', deviceId: '0' })).toBe('1234567-7637415022052208-0');
+});
+
+test('a poll also asks for the paths of the extra devices that share it, each once', () => {
+  const paths = pollFilter('0', ['heating.circuits.1.operating.modes.active', 'heating.circuits.0.operating.modes.active']).split(',');
+  expect(paths).toHaveLength(Object.values(PATHS).length + 1);
+  expect(paths[paths.length - 1]).toBe('heating.circuits.1.operating.modes.active');
+});
+
+test('extra devices polled on their own: the longest interval they ask for, else automatic', () => {
+  expect(followersInterval([{ pollInterval: () => undefined }, {}])).toBeUndefined();
+  expect(followersInterval([{ pollInterval: () => ROOM_POLL_INTERVAL }, { pollInterval: () => 5 * MINUTE }])).toBe(15 * MINUTE);
+  expect(sharedPollCallsPerDay([ROOM_POLL_INTERVAL, 2 * MINUTE])).toBe(96 + 720);
+  expect(sharedPollCallsPerDay([])).toBe(0);
 });

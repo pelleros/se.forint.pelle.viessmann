@@ -68,7 +68,8 @@ describe('heating circuit', () => {
       min: 3, max: 37, step: 1, units: '°C',
     });
     expect(heatOnly.thermostat_mode.values.map((value) => value.id)).toEqual(['heat', 'off']);
-    expect(heatOnly.thermostat_mode.uiComponent).toBeUndefined();
+    // Not shown on the device: the operating mode picker offers every mode, as on the ViCare device
+    expect(heatOnly.thermostat_mode.uiComponent).toBeNull();
     // The ViCare device keeps the history of the set point and the room temperature
     expect(heatOnly.target_temperature.preventInsights).toBe(true);
     expect(optionsFor('circuit', metadata('vitodens_200_2016')).measure_temperature.preventInsights).toBe(true);

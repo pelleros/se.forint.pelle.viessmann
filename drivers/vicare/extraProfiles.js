@@ -198,6 +198,9 @@ const CONFIGURED = {
       options: (context) => ({
         title: TITLES.thermostatMode,
         values: standardModesFor(context.operatingModes).map(({ id, title }) => ({ id, title })),
+        // Not shown on the device, as on the ViCare device: the operating mode below offers every
+        // mode of the circuit. Google Home, voice assistants, the Matter bridge and Flows use it
+        uiComponent: null,
         preventInsights: true,
       }),
     },

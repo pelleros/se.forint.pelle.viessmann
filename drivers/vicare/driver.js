@@ -36,7 +36,7 @@ const { OAuth2Driver } = require('homey-oauth2app');
 const DevicePoller = require('../../lib/DevicePoller');
 const { FEATURES, PATHS } = require('./config');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
-const { registerFlowCards } = require('./flowHandlers');
+const { registerFlowCards, valueTriggerCards } = require('./flowHandlers');
 const { readDeviceMetadata } = require('./deviceMetadata');
 const { pollErrorMessage, translate } = require('../../lib/errorMessages');
 const { retryDelay } = require('../../lib/apiError');
@@ -89,8 +89,10 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   /* Flow cards */
 
   async _registerTriggerCards() {
-    // Register all triggers from FLOW_TRIGGERS
-    for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
+    // Register all triggers from FLOW_TRIGGERS: those with a kind per capability (flowHandlers.js)
+    const triggers = Object.values(FLOW_TRIGGERS);
+    this._valueTriggers = valueTriggerCards(this.homey, triggers);
+    for (const trigger of triggers.filter((candidate) => candidate.event || !candidate.kind)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       if (trigger.event) {
         this._eventTriggerCards.set(trigger.id, triggerCard);
@@ -98,8 +100,6 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         if (trigger.id === 'event-code-logged' && typeof triggerCard.registerRunListener === 'function') {
           triggerCard.registerRunListener(async (args, state) => matchesEventCode(args, state));
         }
-      } else if (trigger.kind) {
-        this._valueTriggers.set(trigger.capability, [...this.getValueTriggers(trigger.capability), { card: triggerCard, mapping: trigger }]);
       } else {
         this._triggerCards.set(trigger.capability, triggerCard);
       }

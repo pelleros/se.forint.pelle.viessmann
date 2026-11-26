@@ -12,6 +12,7 @@ const {
 } = require('../extraProfiles');
 const { readDeviceMetadata } = require('../deviceMetadata');
 const { featureMapper } = require('../featureMapper');
+const { MODE_TITLES } = require('../config/modes');
 const { findFixtureDevice } = require('../../../test/helpers/fixtureDevices');
 
 const features = (name) => findFixtureDevice(name).features;
@@ -23,12 +24,42 @@ const feature = (path, properties, extra = {}) => ({
 });
 
 describe('heating circuit', () => {
-  test('gets a set point and the standard mode; a room temperature only from a room sensor', () => {
-    expect(capabilitiesFor('circuit', metadata('pyvicare/Vitocal250A_TwoCircuits', '1'))).toEqual(['target_temperature', 'thermostat_mode']);
+  test('gets a set point, the standard mode, the operating mode and the program; a room temperature only from a room sensor', () => {
+    const modes = ['thermostat_mode', 'thermostat_mode.heating', 'thermostat_mode.heatingProgram'];
+    expect(capabilitiesFor('circuit', metadata('pyvicare/Vitocal250A_TwoCircuits', '1'))).toEqual(['target_temperature', ...modes]);
     // Vitodens 200 (2016) has a room sensor
     const withRoom = metadata('vitodens_200_2016');
     expect(withRoom.features).toContain('heating.circuits.0.sensors.temperature.room');
-    expect(capabilitiesFor('circuit', withRoom)).toEqual(['target_temperature', 'measure_temperature', 'thermostat_mode']);
+    expect(capabilitiesFor('circuit', withRoom)).toEqual(['target_temperature', 'measure_temperature', ...modes]);
+  });
+
+  test('the operating mode offers every mode of the circuit, forced normal and reduced too, as the ViCare device', () => {
+    const forced = optionsFor('circuit', metadata('pyvicare/Vitodens300W', '1'))['thermostat_mode.heating'];
+    expect(forced.values.map((value) => value.id)).toEqual(['dhw', 'dhwAndHeating', 'standby', 'forcedReduced', 'forcedNormal']);
+    expect(forced.values.find((value) => value.id === 'forcedNormal').title).toEqual(MODE_TITLES.forcedNormal);
+    expect(forced).toMatchObject({
+      title: {
+        en: 'Operating mode', de: 'Betriebsart', nl: 'Bedrijfsmodus', fr: 'Mode de fonctionnement', sv: 'Driftläge',
+      },
+      preventInsights: true,
+    });
+    const heatPump = optionsFor('circuit', metadata('pyvicare/Vitocal250A_TwoCircuits', '1'))['thermostat_mode.heating'];
+    expect(heatPump.values.map((value) => value.id)).toEqual(['heating', 'standby']);
+    // Modes not known (yet): the modes the ViCare device offers then
+    const unknown = optionsFor('circuit', { ...metadata('pyvicare/Vitocal250A_TwoCircuits', '1'), operatingModes: [] })['thermostat_mode.heating'];
+    expect(unknown.values).toEqual(featureMapper.configuredOptions('thermostat_mode.heating').values);
+  });
+
+  test('the program picker offers the circuit\'s own programs; a circuit without programs has none', () => {
+    const programs = (context) => optionsFor('circuit', context)['thermostat_mode.heatingProgram']?.values.map((value) => value.id);
+    expect(programs(metadata('pyvicare/Vitocal250A_TwoCircuits', '1'))).toEqual(['normal', 'reduced', 'comfort']);
+    expect(programs(metadata('pyvicare/Vitodens300W', '1'))).toEqual(['normal', 'reduced', 'comfort', 'eco']);
+    const context = metadata('pyvicare/Vitocal250A_TwoCircuits', '1');
+    const withoutPrograms = { ...context, features: context.features.filter((path) => !path.includes('.programs.')) };
+    expect(capabilitiesFor('circuit', withoutPrograms)).toEqual(['thermostat_mode', 'thermostat_mode.heating']);
+    // The active program alone, without a program to switch to: no picker either
+    const activeOnly = { ...context, features: [...withoutPrograms.features, 'heating.circuits.0.operating.programs.active'] };
+    expect(capabilitiesFor('circuit', activeOnly)).not.toContain('thermostat_mode.heatingProgram');
   });
 
   test('the set point has the device\'s limits; the modes are standard ones, cool and auto only where it can cool', () => {
@@ -51,6 +82,8 @@ describe('heating circuit', () => {
       'heating.circuits.1.operating.programs.normalHeating',
       'heating.circuits.1.sensors.temperature.room',
       'heating.circuits.1.operating.modes.active',
+      // The program switch's paths (comfort, eco, ...) are stored, never polled
+      'heating.circuits.1.operating.programs.active',
     ]);
   });
 
@@ -70,15 +103,20 @@ describe('heating circuit', () => {
     const values = valuesFor('circuit', context, response, readings(response));
     expect(values.get('target_temperature').value).toEqual(expect.any(Number));
     expect(values.get('thermostat_mode')).toEqual({ value: 'heat', gone: false });
+    expect(values.get('thermostat_mode.heating')).toEqual({ value: 'heating', gone: false });
+    expect(values.get('thermostat_mode.heatingProgram')).toEqual({ value: 'normal', gone: false });
   });
 
   test('writes go through the configured thermostat; the room temperature cannot be written', () => {
     const context = metadata('pyvicare/Vitocal250A_TwoCircuits', '1');
     expect(writableCapability('circuit', context, 'target_temperature').source).toBe('target_temperature');
     expect(writableCapability('circuit', context, 'thermostat_mode').source).toBe('thermostat_mode');
+    expect(writableCapability('circuit', context, 'thermostat_mode.heating').source).toBe('thermostat_mode.heating');
+    expect(writableCapability('circuit', context, 'thermostat_mode.heatingProgram').source).toBe('thermostat_mode.heatingProgram');
     expect(writableCapability('circuit', context, 'measure_temperature')).toBeUndefined();
     expect(shownFrom('circuit', context, 'thermostat_mode', 'off')).toEqual([{ name: 'thermostat_mode', value: 'off' }]);
-    expect(shownFrom('circuit', context, 'thermostat_mode.heating', 'standby')).toEqual([]);
+    expect(shownFrom('circuit', context, 'thermostat_mode.heating', 'standby')).toEqual([{ name: 'thermostat_mode.heating', value: 'standby' }]);
+    expect(shownFrom('circuit', context, 'measure_status_text', 'Heating')).toEqual([]);
   });
 
   test('a room sensor connected later is new; one not connected is not', () => {

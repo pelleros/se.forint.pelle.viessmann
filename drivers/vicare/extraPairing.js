@@ -79,13 +79,13 @@ function sourceDevices(kind, installations) {
 
 /**
  * Only what the extra device needs of the Viessmann device's metadata: its features, limits and
- * commands on the paths of its values.
+ * commands on the paths of its values and of their writes (each program of the circuit).
  * @param {ExtraKind} kind
  * @param {ExtraContext} context
  * @returns {ExtraContext}
  */
 function trimmed(kind, context) {
-  const paths = new Set(profileOf(kind, context).flatMap((capability) => capability.paths));
+  const paths = new Set(profileOf(kind, context).flatMap((capability) => [...capability.paths, ...(capability.writePaths || [])]));
   /** @param {Record<string, any> | undefined} perPath */
   const only = (perPath) => Object.fromEntries(Object.entries(perPath || {}).filter(([path]) => paths.has(path)));
   return {

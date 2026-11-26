@@ -51,535 +51,88 @@
       "path": "/report"
     }
   },
-  "drivers": [
-    {
-      "id": "heating-circuit",
-      "name": {
-        "en": "Heating circuit (thermostat)",
-        "de": "Heizkreis (Thermostat)",
-        "nl": "Verwarmingscircuit (thermostaat)",
-        "fr": "Circuit de chauffage (thermostat)",
-        "sv": "Värmekrets (termostat)"
-      },
-      "class": "thermostat",
-      "capabilities": [],
-      "capabilitiesOptions": {},
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "cloud"
-      ],
-      "images": {
-        "small": "/drivers/vicare/assets/images/small.png",
-        "large": "/drivers/vicare/assets/images/large.png",
-        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "intro",
-          "navigation": {
-            "next": "client_id"
-          }
-        },
-        {
-          "id": "client_id",
-          "navigation": {
-            "prev": "intro",
-            "next": "login_oauth2"
-          }
-        },
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ],
-      "repair": [
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2"
-        }
-      ]
-    },
-    {
-      "id": "hot-water",
-      "name": {
-        "en": "Hot water (thermostat)",
-        "de": "Warmwasser (Thermostat)",
-        "nl": "Warm water (thermostaat)",
-        "fr": "Eau chaude (thermostat)",
-        "sv": "Varmvatten (termostat)"
-      },
-      "class": "thermostat",
-      "capabilities": [],
-      "capabilitiesOptions": {},
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "cloud"
-      ],
-      "images": {
-        "small": "/drivers/vicare/assets/images/small.png",
-        "large": "/drivers/vicare/assets/images/large.png",
-        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "intro",
-          "navigation": {
-            "next": "client_id"
-          }
-        },
-        {
-          "id": "client_id",
-          "navigation": {
-            "prev": "intro",
-            "next": "login_oauth2"
-          }
-        },
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ],
-      "repair": [
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2"
-        }
-      ]
-    },
-    {
-      "id": "room",
-      "name": {
-        "en": "Smart Climate room",
-        "de": "Smart Climate Raum",
-        "nl": "Smart Climate-kamer",
-        "fr": "Pièce Smart Climate",
-        "sv": "Smart Climate-rum"
-      },
-      "class": "sensor",
-      "capabilities": [],
-      "capabilitiesOptions": {},
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "cloud"
-      ],
-      "images": {
-        "small": "/drivers/vicare/assets/images/small.png",
-        "large": "/drivers/vicare/assets/images/large.png",
-        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "intro",
-          "navigation": {
-            "next": "client_id"
-          }
-        },
-        {
-          "id": "client_id",
-          "navigation": {
-            "prev": "intro",
-            "next": "login_oauth2"
-          }
-        },
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ],
-      "repair": [
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2"
-        }
-      ]
-    },
-    {
-      "id": "vicare",
-      "name": {
-        "en": "ViCare"
-      },
-      "class": "heater",
-      "capabilities": [],
-      "capabilitiesOptions": {},
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "cloud"
-      ],
-      "images": {
-        "small": "/drivers/vicare/assets/images/small.png",
-        "large": "/drivers/vicare/assets/images/large.png",
-        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "client_id",
-          "navigation": {
-            "next": "login_oauth2"
-          }
-        },
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2",
-          "navigation": {
-            "next": "pair_check"
-          }
-        },
-        {
-          "id": "pair_check",
-          "navigation": {
-            "next": "list_devices"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ],
-      "repair": [
-        {
-          "id": "login_oauth2",
-          "template": "login_oauth2"
-        }
-      ],
-      "settings": [
-        {
-          "id": "heatingCircuit",
-          "type": "dropdown",
-          "value": "auto",
-          "label": {
-            "en": "Heating circuit",
-            "de": "Heizkreis",
-            "nl": "Verwarmingscircuit",
-            "fr": "Circuit de chauffage",
-            "sv": "Värmekrets"
-          },
-          "hint": {
-            "en": "The heating circuit this device reads and controls. Automatic uses circuit 1, or the first enabled circuit when the installation has no circuit 1. A circuit the installation does not have is refused.",
-            "de": "Der Heizkreis, den dieses Gerät ausliest und steuert. Automatisch verwendet Heizkreis 1 oder, wenn die Anlage keinen Heizkreis 1 hat, den ersten aktiven Heizkreis. Ein Heizkreis, den die Anlage nicht hat, wird abgelehnt.",
-            "nl": "Het verwarmingscircuit dat dit apparaat uitleest en bedient. Automatisch gebruikt circuit 1, of het eerste actieve circuit als de installatie geen circuit 1 heeft. Een circuit dat de installatie niet heeft, wordt geweigerd.",
-            "fr": "Le circuit de chauffage que cet appareil lit et commande. Automatique utilise le circuit 1 ou, si l'installation n'a pas de circuit 1, le premier circuit actif. Un circuit absent de l'installation est refusé.",
-            "sv": "Den värmekrets som enheten läser av och styr. Automatiskt använder krets 1, eller den första aktiva kretsen om anläggningen saknar krets 1. En krets som anläggningen inte har nekas."
-          },
-          "values": [
-            {
-              "id": "auto",
-              "label": {
-                "en": "Automatic (circuit 1 or the first enabled one)",
-                "de": "Automatisch (Heizkreis 1 oder der erste aktive)",
-                "nl": "Automatisch (circuit 1 of het eerste actieve)",
-                "fr": "Automatique (circuit 1 ou le premier actif)",
-                "sv": "Automatiskt (krets 1 eller den första aktiva)"
-              }
-            },
-            {
-              "id": "0",
-              "label": {
-                "en": "Circuit 1",
-                "de": "Heizkreis 1",
-                "nl": "Circuit 1",
-                "fr": "Circuit 1",
-                "sv": "Krets 1"
-              }
-            },
-            {
-              "id": "1",
-              "label": {
-                "en": "Circuit 2",
-                "de": "Heizkreis 2",
-                "nl": "Circuit 2",
-                "fr": "Circuit 2",
-                "sv": "Krets 2"
-              }
-            },
-            {
-              "id": "2",
-              "label": {
-                "en": "Circuit 3",
-                "de": "Heizkreis 3",
-                "nl": "Circuit 3",
-                "fr": "Circuit 3",
-                "sv": "Krets 3"
-              }
-            },
-            {
-              "id": "3",
-              "label": {
-                "en": "Circuit 4",
-                "de": "Heizkreis 4",
-                "nl": "Circuit 4",
-                "fr": "Circuit 4",
-                "sv": "Krets 4"
-              }
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "label": {
-            "en": "Updates and API calls",
-            "de": "Aktualisierung und API-Aufrufe",
-            "nl": "Updates en API-aanroepen",
-            "fr": "Mises à jour et appels API",
-            "sv": "Uppdateringar och API-anrop"
-          },
-          "children": [
-            {
-              "id": "pollInterval",
-              "type": "dropdown",
-              "value": "auto",
-              "label": {
-                "en": "Update interval",
-                "de": "Aktualisierungsintervall",
-                "nl": "Update-interval",
-                "fr": "Intervalle de mise à jour",
-                "sv": "Uppdateringsintervall"
-              },
-              "hint": {
-                "en": "How often the app reads this device from Viessmann. Each update is one API call. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same Viessmann account (for example Home Assistant). A choice that would need more for this account is refused. The settings page of the app shows the calls used today.",
-                "de": "Wie oft die App dieses Gerät bei Viessmann abfragt. Jede Abfrage ist ein API-Aufruf. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Viessmann-Konto nutzen (zum Beispiel Home Assistant). Eine Wahl, die für dieses Konto mehr bräuchte, wird abgelehnt. Die Einstellungsseite der App zeigt die heute verbrauchten Aufrufe.",
-                "nl": "Hoe vaak de app dit apparaat bij Viessmann uitleest. Elke update is één API-aanroep. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde Viessmann-account gebruiken (bijvoorbeeld Home Assistant). Een keuze die voor dit account meer nodig heeft, wordt geweigerd. De instellingenpagina van de app toont de aanroepen van vandaag.",
-                "fr": "À quelle fréquence l'application lit cet appareil chez Viessmann. Chaque mise à jour est un appel API. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte Viessmann (par exemple Home Assistant). Un choix qui en demanderait davantage pour ce compte est refusé. La page de réglages de l'application affiche les appels utilisés aujourd'hui.",
-                "sv": "Hur ofta appen läser av enheten hos Viessmann. Varje uppdatering är ett API-anrop. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma Viessmann-konto (till exempel Home Assistant). Ett val som skulle behöva fler för kontot nekas. Appens inställningssida visar dagens förbrukade anrop."
-              },
-              "values": [
-                {
-                  "id": "auto",
-                  "label": {
-                    "en": "Automatic: every 2 minutes per device (720 calls a day for all devices)",
-                    "de": "Automatisch: alle 2 Minuten pro Gerät (720 Aufrufe pro Tag für alle Geräte)",
-                    "nl": "Automatisch: elke 2 minuten per apparaat (720 aanroepen per dag voor alle apparaten)",
-                    "fr": "Automatique : toutes les 2 minutes par appareil (720 appels par jour pour tous les appareils)",
-                    "sv": "Automatiskt: varannan minut per enhet (720 anrop per dag för alla enheter)"
-                  }
-                },
-                {
-                  "id": "2",
-                  "label": {
-                    "en": "Every 2 minutes (720 calls a day)",
-                    "de": "Alle 2 Minuten (720 Aufrufe pro Tag)",
-                    "nl": "Elke 2 minuten (720 aanroepen per dag)",
-                    "fr": "Toutes les 2 minutes (720 appels par jour)",
-                    "sv": "Varannan minut (720 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "3",
-                  "label": {
-                    "en": "Every 3 minutes (480 calls a day)",
-                    "de": "Alle 3 Minuten (480 Aufrufe pro Tag)",
-                    "nl": "Elke 3 minuten (480 aanroepen per dag)",
-                    "fr": "Toutes les 3 minutes (480 appels par jour)",
-                    "sv": "Var 3:e minut (480 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "5",
-                  "label": {
-                    "en": "Every 5 minutes (288 calls a day)",
-                    "de": "Alle 5 Minuten (288 Aufrufe pro Tag)",
-                    "nl": "Elke 5 minuten (288 aanroepen per dag)",
-                    "fr": "Toutes les 5 minutes (288 appels par jour)",
-                    "sv": "Var 5:e minut (288 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "10",
-                  "label": {
-                    "en": "Every 10 minutes (144 calls a day)",
-                    "de": "Alle 10 Minuten (144 Aufrufe pro Tag)",
-                    "nl": "Elke 10 minuten (144 aanroepen per dag)",
-                    "fr": "Toutes les 10 minutes (144 appels par jour)",
-                    "sv": "Var 10:e minut (144 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "15",
-                  "label": {
-                    "en": "Every 15 minutes (96 calls a day)",
-                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
-                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
-                    "fr": "Toutes les 15 minutes (96 appels par jour)",
-                    "sv": "Var 15:e minut (96 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "30",
-                  "label": {
-                    "en": "Every 30 minutes (48 calls a day)",
-                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
-                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
-                    "fr": "Toutes les 30 minutes (48 appels par jour)",
-                    "sv": "Var 30:e minut (48 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "60",
-                  "label": {
-                    "en": "Every hour (24 calls a day)",
-                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
-                    "nl": "Elk uur (24 aanroepen per dag)",
-                    "fr": "Toutes les heures (24 appels par jour)",
-                    "sv": "Varje timme (24 anrop per dag)"
-                  }
-                }
-              ]
-            },
-            {
-              "id": "eventLog",
-              "type": "dropdown",
-              "value": "off",
-              "label": {
-                "en": "Event log",
-                "de": "Ereignisprotokoll",
-                "nl": "Gebeurtenissenlogboek",
-                "fr": "Journal des événements",
-                "sv": "Händelselogg"
-              },
-              "hint": {
-                "en": "Reads the event log of the heating system (faults, status messages) for the Flow triggers about events. Each read is one API call.",
-                "de": "Liest das Ereignisprotokoll der Heizung (Störungen, Statusmeldungen) für die Flow-Auslöser zu Ereignissen. Jedes Lesen ist ein API-Aufruf.",
-                "nl": "Leest het gebeurtenissenlogboek van de verwarming (storingen, statusmeldingen) voor de Flow-triggers over gebeurtenissen. Elke keer uitlezen is één API-aanroep.",
-                "fr": "Lit le journal des événements du chauffage (défauts, messages d'état) pour les déclencheurs Flow sur les événements. Chaque lecture est un appel API.",
-                "sv": "Läser värmesystemets händelselogg (fel, statusmeddelanden) för Flow-utlösarna om händelser. Varje läsning är ett API-anrop."
-              },
-              "values": [
-                {
-                  "id": "off",
-                  "label": {
-                    "en": "Off",
-                    "de": "Aus",
-                    "nl": "Uit",
-                    "fr": "Désactivé",
-                    "sv": "Av"
-                  }
-                },
-                {
-                  "id": "15",
-                  "label": {
-                    "en": "Every 15 minutes (96 calls a day)",
-                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
-                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
-                    "fr": "Toutes les 15 minutes (96 appels par jour)",
-                    "sv": "Var 15:e minut (96 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "30",
-                  "label": {
-                    "en": "Every 30 minutes (48 calls a day)",
-                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
-                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
-                    "fr": "Toutes les 30 minutes (48 appels par jour)",
-                    "sv": "Var 30:e minut (48 anrop per dag)"
-                  }
-                },
-                {
-                  "id": "60",
-                  "label": {
-                    "en": "Every hour (24 calls a day)",
-                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
-                    "nl": "Elk uur (24 aanroepen per dag)",
-                    "fr": "Toutes les heures (24 appels par jour)",
-                    "sv": "Varje timme (24 anrop per dag)"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "label": {
-            "en": "Optional values",
-            "de": "Zusätzliche Werte",
-            "nl": "Extra waarden",
-            "fr": "Valeurs supplémentaires",
-            "sv": "Extra värden"
-          },
-          "children": [
-            {
-              "id": "diagnosticValues",
-              "type": "checkbox",
-              "value": false,
-              "label": {
-                "en": "Diagnostic values",
-                "de": "Diagnosewerte",
-                "nl": "Diagnostische waarden",
-                "fr": "Valeurs de diagnostic",
-                "sv": "Diagnostikvärden"
-              },
-              "hint": {
-                "en": "Adds values that are mostly useful for troubleshooting, such as compressor temperatures and more pumps, where your installation reports them. Turning this off again removes these values from the device, including their history in Insights.",
-                "de": "Fügt Werte hinzu, die vor allem bei der Fehlersuche helfen, zum Beispiel Verdichtertemperaturen und weitere Pumpen, sofern Ihre Anlage sie meldet. Wird dies wieder ausgeschaltet, werden diese Werte vom Gerät entfernt, einschließlich ihres Verlaufs in Insights.",
-                "nl": "Voegt waarden toe die vooral nuttig zijn bij het oplossen van problemen, zoals compressortemperaturen en extra pompen, voor zover uw installatie ze meldt. Zet u dit weer uit, dan worden deze waarden van het apparaat verwijderd, inclusief hun geschiedenis in Insights.",
-                "fr": "Ajoute des valeurs surtout utiles au dépannage, comme les températures du compresseur et d'autres pompes, si votre installation les transmet. Si vous désactivez à nouveau cette option, ces valeurs sont retirées de l'appareil, y compris leur historique dans Insights.",
-                "sv": "Lägger till värden som främst är till nytta vid felsökning, till exempel kompressortemperaturer och fler pumpar, om anläggningen rapporterar dem. Stänger du av det igen tas värdena bort från enheten, inklusive deras historik i Insights."
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ],
   "flow": {
     "triggers": [
+      {
+        "id": "circuit-operating-mode-changed",
+        "title": {
+          "en": "Operating mode changed",
+          "de": "Betriebsart geändert",
+          "nl": "Bedrijfsmodus gewijzigd",
+          "fr": "Mode de fonctionnement modifié",
+          "sv": "Driftläget ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heating"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Operating mode",
+              "de": "Betriebsart",
+              "nl": "Bedrijfsmodus",
+              "fr": "Mode de fonctionnement",
+              "sv": "Driftläge"
+            },
+            "example": {
+              "en": "forcedNormal"
+            }
+          }
+        ],
+        "hint": {
+          "en": "The mode is given by its id, for example heating, standby, forcedNormal or forcedReduced.",
+          "de": "Die Betriebsart wird als Kennung angegeben, zum Beispiel heating, standby, forcedNormal oder forcedReduced.",
+          "nl": "De modus wordt als code gegeven, bijvoorbeeld heating, standby, forcedNormal of forcedReduced.",
+          "fr": "Le mode est donné par son identifiant, par exemple heating, standby, forcedNormal ou forcedReduced.",
+          "sv": "Läget anges med sitt id, till exempel heating, standby, forcedNormal eller forcedReduced."
+        }
+      },
+      {
+        "id": "circuit-program-changed",
+        "title": {
+          "en": "Program changed",
+          "de": "Programm geändert",
+          "nl": "Programma gewijzigd",
+          "fr": "Programme modifié",
+          "sv": "Programmet ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heatingProgram"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "program",
+            "type": "string",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "example": {
+              "en": "comfort"
+            }
+          }
+        ],
+        "hint": {
+          "en": "The program is one of normal, reduced, comfort and eco.",
+          "de": "Das Programm ist normal, reduced, comfort oder eco.",
+          "nl": "Het programma is normal, reduced, comfort of eco.",
+          "fr": "Le programme est normal, reduced, comfort ou eco.",
+          "sv": "Programmet är normal, reduced, comfort eller eco."
+        }
+      },
       {
         "id": "heating-mode-changed",
         "title": {
@@ -1301,6 +854,104 @@
     ],
     "conditions": [
       {
+        "id": "circuit-operating-mode-is",
+        "title": {
+          "en": "Operating mode !{{is|is not}} [[mode]]",
+          "de": "Betriebsart !{{ist|ist nicht}} [[mode]]",
+          "nl": "Bedrijfsmodus !{{is|is niet}} [[mode]]",
+          "fr": "Le mode de fonctionnement !{{est|n'est pas}} [[mode]]",
+          "sv": "Driftläget !{{är|är inte}} [[mode]]"
+        },
+        "titleFormatted": {
+          "en": "Operating mode !{{is|is not}} [[mode]]",
+          "de": "Betriebsart !{{ist|ist nicht}} [[mode]]",
+          "nl": "Bedrijfsmodus !{{is|is niet}} [[mode]]",
+          "fr": "Le mode de fonctionnement !{{est|n'est pas}} [[mode]]",
+          "sv": "Driftläget !{{är|är inte}} [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heating"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "title": {
+              "en": "Mode",
+              "de": "Betriebsart",
+              "nl": "Modus",
+              "fr": "Mode",
+              "sv": "Läge"
+            },
+            "placeholder": {
+              "en": "Choose a mode",
+              "de": "Betriebsart wählen",
+              "nl": "Kies een modus",
+              "fr": "Choisir un mode",
+              "sv": "Välj ett läge"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+          "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+          "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+          "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+          "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+        }
+      },
+      {
+        "id": "circuit-program-is",
+        "title": {
+          "en": "Program !{{is|is not}} [[program]]",
+          "de": "Programm !{{ist|ist nicht}} [[program]]",
+          "nl": "Programma !{{is|is niet}} [[program]]",
+          "fr": "Le programme !{{est|n'est pas}} [[program]]",
+          "sv": "Programmet !{{är|är inte}} [[program]]"
+        },
+        "titleFormatted": {
+          "en": "Program !{{is|is not}} [[program]]",
+          "de": "Programm !{{ist|ist nicht}} [[program]]",
+          "nl": "Programma !{{is|is niet}} [[program]]",
+          "fr": "Le programme !{{est|n'est pas}} [[program]]",
+          "sv": "Programmet !{{är|är inte}} [[program]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heatingProgram"
+          },
+          {
+            "name": "program",
+            "type": "autocomplete",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "placeholder": {
+              "en": "Choose a program",
+              "de": "Programm wählen",
+              "nl": "Kies een programma",
+              "fr": "Choisir un programme",
+              "sv": "Välj ett program"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+          "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+          "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+          "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+          "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+        }
+      },
+      {
         "id": "compressor-is-running",
         "title": {
           "en": "Compressor is !{{running|not running}}"
@@ -1969,6 +1620,104 @@
       }
     ],
     "actions": [
+      {
+        "id": "set-circuit-operating-mode",
+        "title": {
+          "en": "Change operating mode to [[mode]]",
+          "de": "Betriebsart ändern auf [[mode]]",
+          "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+          "fr": "Changer le mode de fonctionnement en [[mode]]",
+          "sv": "Byt driftläge till [[mode]]"
+        },
+        "titleFormatted": {
+          "en": "Change operating mode to [[mode]]",
+          "de": "Betriebsart ändern auf [[mode]]",
+          "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+          "fr": "Changer le mode de fonctionnement en [[mode]]",
+          "sv": "Byt driftläge till [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heating"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "title": {
+              "en": "Mode",
+              "de": "Betriebsart",
+              "nl": "Modus",
+              "fr": "Mode",
+              "sv": "Läge"
+            },
+            "placeholder": {
+              "en": "Choose a mode",
+              "de": "Betriebsart wählen",
+              "nl": "Kies een modus",
+              "fr": "Choisir un mode",
+              "sv": "Välj ett läge"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Offers only the modes this heating circuit has, including forced normal and forced reduced where it has them.",
+          "de": "Bietet nur die Betriebsarten dieses Heizkreises an, auch erzwungen normal und erzwungen reduziert, wenn er sie hat.",
+          "nl": "Biedt alleen de modi van dit verwarmingscircuit, ook geforceerd normaal en geforceerd verlaagd als het die heeft.",
+          "fr": "Propose uniquement les modes de ce circuit de chauffage, y compris normal forcé et réduit forcé s'il les a.",
+          "sv": "Visar bara de lägen värmekretsen har, även tvingad normal och tvingad sänkt om den har dem."
+        }
+      },
+      {
+        "id": "set-circuit-program",
+        "title": {
+          "en": "Set program to [[program]]",
+          "de": "Programm auf [[program]] setzen",
+          "nl": "Programma instellen op [[program]]",
+          "fr": "Régler le programme sur [[program]]",
+          "sv": "Ställ in program på [[program]]"
+        },
+        "titleFormatted": {
+          "en": "Set program to [[program]]",
+          "de": "Programm auf [[program]] setzen",
+          "nl": "Programma instellen op [[program]]",
+          "fr": "Régler le programme sur [[program]]",
+          "sv": "Ställ in program på [[program]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heating-circuit&capabilities=thermostat_mode.heatingProgram"
+          },
+          {
+            "name": "program",
+            "type": "autocomplete",
+            "title": {
+              "en": "Program",
+              "de": "Programm",
+              "nl": "Programma",
+              "fr": "Programme",
+              "sv": "Program"
+            },
+            "placeholder": {
+              "en": "Choose a program",
+              "de": "Programm wählen",
+              "nl": "Kies een programma",
+              "fr": "Choisir un programme",
+              "sv": "Välj ett program"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Offers only the programs this heating circuit has. Comfort and eco are switched on; switching one on ends the other. Normal and reduced follow the circuit's time program, so choosing one of them ends comfort or eco.",
+          "de": "Bietet nur die Programme dieses Heizkreises an. Komfort und Eco werden eingeschaltet; das eine beendet das andere. Normal und Reduziert folgen dem Zeitprogramm des Heizkreises, die Auswahl beendet daher Komfort oder Eco.",
+          "nl": "Biedt alleen de programma's van dit verwarmingscircuit. Comfort en eco worden ingeschakeld; het ene beëindigt het andere. Normaal en verlaagd volgen het tijdprogramma van het circuit, dus een van beide kiezen beëindigt comfort of eco.",
+          "fr": "Propose uniquement les programmes de ce circuit de chauffage. Confort et éco sont activés ; l'un arrête l'autre. Normal et réduit suivent le programme horaire du circuit : en choisir un arrête confort ou éco.",
+          "sv": "Visar bara de program värmekretsen har. Komfort och eko slås på; det ena avslutar det andra. Normal och sänkt följer kretsens tidsprogram, så att välja något av dem avslutar komfort eller eko."
+        }
+      },
       {
         "id": "set-operating-mode",
         "title": {
@@ -3105,6 +2854,533 @@
       }
     ]
   },
+  "drivers": [
+    {
+      "id": "heating-circuit",
+      "name": {
+        "en": "Heating circuit (thermostat)",
+        "de": "Heizkreis (Thermostat)",
+        "nl": "Verwarmingscircuit (thermostaat)",
+        "fr": "Circuit de chauffage (thermostat)",
+        "sv": "Värmekrets (termostat)"
+      },
+      "class": "thermostat",
+      "capabilities": [],
+      "capabilitiesOptions": {},
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/vicare/assets/images/small.png",
+        "large": "/drivers/vicare/assets/images/large.png",
+        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "intro",
+          "navigation": {
+            "next": "client_id"
+          }
+        },
+        {
+          "id": "client_id",
+          "navigation": {
+            "prev": "intro",
+            "next": "login_oauth2"
+          }
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ]
+    },
+    {
+      "id": "hot-water",
+      "name": {
+        "en": "Hot water (thermostat)",
+        "de": "Warmwasser (Thermostat)",
+        "nl": "Warm water (thermostaat)",
+        "fr": "Eau chaude (thermostat)",
+        "sv": "Varmvatten (termostat)"
+      },
+      "class": "thermostat",
+      "capabilities": [],
+      "capabilitiesOptions": {},
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/vicare/assets/images/small.png",
+        "large": "/drivers/vicare/assets/images/large.png",
+        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "intro",
+          "navigation": {
+            "next": "client_id"
+          }
+        },
+        {
+          "id": "client_id",
+          "navigation": {
+            "prev": "intro",
+            "next": "login_oauth2"
+          }
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "name": {
+        "en": "Smart Climate room",
+        "de": "Smart Climate Raum",
+        "nl": "Smart Climate-kamer",
+        "fr": "Pièce Smart Climate",
+        "sv": "Smart Climate-rum"
+      },
+      "class": "sensor",
+      "capabilities": [],
+      "capabilitiesOptions": {},
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/vicare/assets/images/small.png",
+        "large": "/drivers/vicare/assets/images/large.png",
+        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "intro",
+          "navigation": {
+            "next": "client_id"
+          }
+        },
+        {
+          "id": "client_id",
+          "navigation": {
+            "prev": "intro",
+            "next": "login_oauth2"
+          }
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ]
+    },
+    {
+      "id": "vicare",
+      "name": {
+        "en": "ViCare"
+      },
+      "class": "heater",
+      "capabilities": [],
+      "capabilitiesOptions": {},
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/vicare/assets/images/small.png",
+        "large": "/drivers/vicare/assets/images/large.png",
+        "xlarge": "/drivers/vicare/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "client_id",
+          "navigation": {
+            "next": "login_oauth2"
+          }
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2",
+          "navigation": {
+            "next": "pair_check"
+          }
+        },
+        {
+          "id": "pair_check",
+          "navigation": {
+            "next": "list_devices"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
+      "settings": [
+        {
+          "id": "heatingCircuit",
+          "type": "dropdown",
+          "value": "auto",
+          "label": {
+            "en": "Heating circuit",
+            "de": "Heizkreis",
+            "nl": "Verwarmingscircuit",
+            "fr": "Circuit de chauffage",
+            "sv": "Värmekrets"
+          },
+          "hint": {
+            "en": "The heating circuit this device reads and controls. Automatic uses circuit 1, or the first enabled circuit when the installation has no circuit 1. A circuit the installation does not have is refused.",
+            "de": "Der Heizkreis, den dieses Gerät ausliest und steuert. Automatisch verwendet Heizkreis 1 oder, wenn die Anlage keinen Heizkreis 1 hat, den ersten aktiven Heizkreis. Ein Heizkreis, den die Anlage nicht hat, wird abgelehnt.",
+            "nl": "Het verwarmingscircuit dat dit apparaat uitleest en bedient. Automatisch gebruikt circuit 1, of het eerste actieve circuit als de installatie geen circuit 1 heeft. Een circuit dat de installatie niet heeft, wordt geweigerd.",
+            "fr": "Le circuit de chauffage que cet appareil lit et commande. Automatique utilise le circuit 1 ou, si l'installation n'a pas de circuit 1, le premier circuit actif. Un circuit absent de l'installation est refusé.",
+            "sv": "Den värmekrets som enheten läser av och styr. Automatiskt använder krets 1, eller den första aktiva kretsen om anläggningen saknar krets 1. En krets som anläggningen inte har nekas."
+          },
+          "values": [
+            {
+              "id": "auto",
+              "label": {
+                "en": "Automatic (circuit 1 or the first enabled one)",
+                "de": "Automatisch (Heizkreis 1 oder der erste aktive)",
+                "nl": "Automatisch (circuit 1 of het eerste actieve)",
+                "fr": "Automatique (circuit 1 ou le premier actif)",
+                "sv": "Automatiskt (krets 1 eller den första aktiva)"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "Circuit 1",
+                "de": "Heizkreis 1",
+                "nl": "Circuit 1",
+                "fr": "Circuit 1",
+                "sv": "Krets 1"
+              }
+            },
+            {
+              "id": "1",
+              "label": {
+                "en": "Circuit 2",
+                "de": "Heizkreis 2",
+                "nl": "Circuit 2",
+                "fr": "Circuit 2",
+                "sv": "Krets 2"
+              }
+            },
+            {
+              "id": "2",
+              "label": {
+                "en": "Circuit 3",
+                "de": "Heizkreis 3",
+                "nl": "Circuit 3",
+                "fr": "Circuit 3",
+                "sv": "Krets 3"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Circuit 4",
+                "de": "Heizkreis 4",
+                "nl": "Circuit 4",
+                "fr": "Circuit 4",
+                "sv": "Krets 4"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Updates and API calls",
+            "de": "Aktualisierung und API-Aufrufe",
+            "nl": "Updates en API-aanroepen",
+            "fr": "Mises à jour et appels API",
+            "sv": "Uppdateringar och API-anrop"
+          },
+          "children": [
+            {
+              "id": "pollInterval",
+              "type": "dropdown",
+              "value": "auto",
+              "label": {
+                "en": "Update interval",
+                "de": "Aktualisierungsintervall",
+                "nl": "Update-interval",
+                "fr": "Intervalle de mise à jour",
+                "sv": "Uppdateringsintervall"
+              },
+              "hint": {
+                "en": "How often the app reads this device from Viessmann. Each update is one API call. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same Viessmann account (for example Home Assistant). A choice that would need more for this account is refused. The settings page of the app shows the calls used today.",
+                "de": "Wie oft die App dieses Gerät bei Viessmann abfragt. Jede Abfrage ist ein API-Aufruf. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Viessmann-Konto nutzen (zum Beispiel Home Assistant). Eine Wahl, die für dieses Konto mehr bräuchte, wird abgelehnt. Die Einstellungsseite der App zeigt die heute verbrauchten Aufrufe.",
+                "nl": "Hoe vaak de app dit apparaat bij Viessmann uitleest. Elke update is één API-aanroep. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde Viessmann-account gebruiken (bijvoorbeeld Home Assistant). Een keuze die voor dit account meer nodig heeft, wordt geweigerd. De instellingenpagina van de app toont de aanroepen van vandaag.",
+                "fr": "À quelle fréquence l'application lit cet appareil chez Viessmann. Chaque mise à jour est un appel API. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte Viessmann (par exemple Home Assistant). Un choix qui en demanderait davantage pour ce compte est refusé. La page de réglages de l'application affiche les appels utilisés aujourd'hui.",
+                "sv": "Hur ofta appen läser av enheten hos Viessmann. Varje uppdatering är ett API-anrop. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma Viessmann-konto (till exempel Home Assistant). Ett val som skulle behöva fler för kontot nekas. Appens inställningssida visar dagens förbrukade anrop."
+              },
+              "values": [
+                {
+                  "id": "auto",
+                  "label": {
+                    "en": "Automatic: every 2 minutes per device (720 calls a day for all devices)",
+                    "de": "Automatisch: alle 2 Minuten pro Gerät (720 Aufrufe pro Tag für alle Geräte)",
+                    "nl": "Automatisch: elke 2 minuten per apparaat (720 aanroepen per dag voor alle apparaten)",
+                    "fr": "Automatique : toutes les 2 minutes par appareil (720 appels par jour pour tous les appareils)",
+                    "sv": "Automatiskt: varannan minut per enhet (720 anrop per dag för alla enheter)"
+                  }
+                },
+                {
+                  "id": "2",
+                  "label": {
+                    "en": "Every 2 minutes (720 calls a day)",
+                    "de": "Alle 2 Minuten (720 Aufrufe pro Tag)",
+                    "nl": "Elke 2 minuten (720 aanroepen per dag)",
+                    "fr": "Toutes les 2 minutes (720 appels par jour)",
+                    "sv": "Varannan minut (720 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "3",
+                  "label": {
+                    "en": "Every 3 minutes (480 calls a day)",
+                    "de": "Alle 3 Minuten (480 Aufrufe pro Tag)",
+                    "nl": "Elke 3 minuten (480 aanroepen per dag)",
+                    "fr": "Toutes les 3 minutes (480 appels par jour)",
+                    "sv": "Var 3:e minut (480 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "5",
+                  "label": {
+                    "en": "Every 5 minutes (288 calls a day)",
+                    "de": "Alle 5 Minuten (288 Aufrufe pro Tag)",
+                    "nl": "Elke 5 minuten (288 aanroepen per dag)",
+                    "fr": "Toutes les 5 minutes (288 appels par jour)",
+                    "sv": "Var 5:e minut (288 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "10",
+                  "label": {
+                    "en": "Every 10 minutes (144 calls a day)",
+                    "de": "Alle 10 Minuten (144 Aufrufe pro Tag)",
+                    "nl": "Elke 10 minuten (144 aanroepen per dag)",
+                    "fr": "Toutes les 10 minutes (144 appels par jour)",
+                    "sv": "Var 10:e minut (144 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "15",
+                  "label": {
+                    "en": "Every 15 minutes (96 calls a day)",
+                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                    "fr": "Toutes les 15 minutes (96 appels par jour)",
+                    "sv": "Var 15:e minut (96 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "30",
+                  "label": {
+                    "en": "Every 30 minutes (48 calls a day)",
+                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                    "fr": "Toutes les 30 minutes (48 appels par jour)",
+                    "sv": "Var 30:e minut (48 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "60",
+                  "label": {
+                    "en": "Every hour (24 calls a day)",
+                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                    "nl": "Elk uur (24 aanroepen per dag)",
+                    "fr": "Toutes les heures (24 appels par jour)",
+                    "sv": "Varje timme (24 anrop per dag)"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "eventLog",
+              "type": "dropdown",
+              "value": "off",
+              "label": {
+                "en": "Event log",
+                "de": "Ereignisprotokoll",
+                "nl": "Gebeurtenissenlogboek",
+                "fr": "Journal des événements",
+                "sv": "Händelselogg"
+              },
+              "hint": {
+                "en": "Reads the event log of the heating system (faults, status messages) for the Flow triggers about events. Each read is one API call.",
+                "de": "Liest das Ereignisprotokoll der Heizung (Störungen, Statusmeldungen) für die Flow-Auslöser zu Ereignissen. Jedes Lesen ist ein API-Aufruf.",
+                "nl": "Leest het gebeurtenissenlogboek van de verwarming (storingen, statusmeldingen) voor de Flow-triggers over gebeurtenissen. Elke keer uitlezen is één API-aanroep.",
+                "fr": "Lit le journal des événements du chauffage (défauts, messages d'état) pour les déclencheurs Flow sur les événements. Chaque lecture est un appel API.",
+                "sv": "Läser värmesystemets händelselogg (fel, statusmeddelanden) för Flow-utlösarna om händelser. Varje läsning är ett API-anrop."
+              },
+              "values": [
+                {
+                  "id": "off",
+                  "label": {
+                    "en": "Off",
+                    "de": "Aus",
+                    "nl": "Uit",
+                    "fr": "Désactivé",
+                    "sv": "Av"
+                  }
+                },
+                {
+                  "id": "15",
+                  "label": {
+                    "en": "Every 15 minutes (96 calls a day)",
+                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                    "fr": "Toutes les 15 minutes (96 appels par jour)",
+                    "sv": "Var 15:e minut (96 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "30",
+                  "label": {
+                    "en": "Every 30 minutes (48 calls a day)",
+                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                    "fr": "Toutes les 30 minutes (48 appels par jour)",
+                    "sv": "Var 30:e minut (48 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "60",
+                  "label": {
+                    "en": "Every hour (24 calls a day)",
+                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                    "nl": "Elk uur (24 aanroepen per dag)",
+                    "fr": "Toutes les heures (24 appels par jour)",
+                    "sv": "Varje timme (24 anrop per dag)"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Optional values",
+            "de": "Zusätzliche Werte",
+            "nl": "Extra waarden",
+            "fr": "Valeurs supplémentaires",
+            "sv": "Extra värden"
+          },
+          "children": [
+            {
+              "id": "diagnosticValues",
+              "type": "checkbox",
+              "value": false,
+              "label": {
+                "en": "Diagnostic values",
+                "de": "Diagnosewerte",
+                "nl": "Diagnostische waarden",
+                "fr": "Valeurs de diagnostic",
+                "sv": "Diagnostikvärden"
+              },
+              "hint": {
+                "en": "Adds values that are mostly useful for troubleshooting, such as compressor temperatures and more pumps, where your installation reports them. Turning this off again removes these values from the device, including their history in Insights.",
+                "de": "Fügt Werte hinzu, die vor allem bei der Fehlersuche helfen, zum Beispiel Verdichtertemperaturen und weitere Pumpen, sofern Ihre Anlage sie meldet. Wird dies wieder ausgeschaltet, werden diese Werte vom Gerät entfernt, einschließlich ihres Verlaufs in Insights.",
+                "nl": "Voegt waarden toe die vooral nuttig zijn bij het oplossen van problemen, zoals compressortemperaturen en extra pompen, voor zover uw installatie ze meldt. Zet u dit weer uit, dan worden deze waarden van het apparaat verwijderd, inclusief hun geschiedenis in Insights.",
+                "fr": "Ajoute des valeurs surtout utiles au dépannage, comme les températures du compresseur et d'autres pompes, si votre installation les transmet. Si vous désactivez à nouveau cette option, ces valeurs sont retirées de l'appareil, y compris leur historique dans Insights.",
+                "sv": "Lägger till värden som främst är till nytta vid felsökning, till exempel kompressortemperaturer och fler pumpar, om anläggningen rapporterar dem. Stänger du av det igen tas värdena bort från enheten, inklusive deras historik i Insights."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "capabilities": {
     "measure_burner_active": {
       "type": "boolean",

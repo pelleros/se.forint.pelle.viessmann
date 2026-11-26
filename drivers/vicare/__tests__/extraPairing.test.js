@@ -46,7 +46,7 @@ test('one thermostat per enabled heating circuit, named after the model and the 
     ['Vitocal 250 heating circuit 2', '900001-9999000000000001-0-circuit-1'],
   ]);
   const [, second] = entries;
-  expect(second.capabilities).toEqual(['target_temperature', 'thermostat_mode']);
+  expect(second.capabilities).toEqual(['target_temperature', 'thermostat_mode', 'thermostat_mode.heating', 'thermostat_mode.heatingProgram']);
   expect(second.capabilitiesOptions.target_temperature).toMatchObject({ min: 3, max: 37 });
   expect(second.store).toMatchObject({
     ...IDS, heatingCircuitId: '1', roles: ['type:heatpump'], version: '2.0.0',
@@ -55,6 +55,12 @@ test('one thermostat per enabled heating circuit, named after the model and the 
   expect(second.store.features.every((path) => path.startsWith('heating.circuits.0.'))).toBe(true);
   expect(Object.keys(second.store.commandMetadata).every((path) => second.store.features.includes(path))).toBe(true);
   expect(second.store.operatingModes.map((mode) => mode.id)).toEqual(['heating', 'standby']);
+  // The programs it can switch to, with their commands
+  expect(second.store.features).toEqual(expect.arrayContaining([
+    'heating.circuits.0.operating.programs.active', 'heating.circuits.0.operating.programs.comfortHeating', 'heating.circuits.0.operating.programs.reducedHeating',
+  ]));
+  expect(Object.keys(second.store.commandMetadata['heating.circuits.0.operating.programs.comfortHeating'])).toEqual(expect.arrayContaining(['activate', 'deactivate']));
+  expect(second.store.features.some((path) => path.includes('Cooling') || path.includes('summerEco'))).toBe(false);
 });
 
 test('a device with only its second circuit (API index 1) gets a thermostat for it, named circuit 2', () => {

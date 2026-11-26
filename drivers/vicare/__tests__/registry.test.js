@@ -3,8 +3,9 @@
 'use strict';
 
 // Guards against breaking changes for existing users. See the comment in registry.json.
-// Capabilities come from config.js. Flow cards come from driver.flow.compose.json, which is
-// what Homey ships; flowCards.js holds their runtime mapping.
+// Capabilities come from config.js. Flow cards come from the drivers' driver.flow.compose.json
+// files, which is what Homey ships (card ids are app-wide, so the registry lists them together);
+// flowCards.js holds their runtime mapping.
 
 const fs = require('fs');
 const path = require('path');
@@ -14,29 +15,41 @@ const path = require('path');
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
 const registry = require('./registry.json');
-const flowCompose = require('../driver.flow.compose.json');
 const driverCompose = require('../driver.compose.json');
 const { FEATURES, DERIVED } = require('../config');
-const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
+const {
+  FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS, EXTRA_FLOW_CARDS,
+} = require('../flowCards');
 const { profileOf } = require('../extraProfiles');
 const { extraDataId, extraEntries, EXTRA_DRIVERS } = require('../extraPairing');
 const { findFixtureDevice } = require('../../../test/helpers/fixtureDevices');
 
 const REGISTRY_FILE = 'drivers/vicare/__tests__/registry.json';
-const FLOW_COMPOSE_FILE = 'drivers/vicare/driver.flow.compose.json';
+const FLOW_COMPOSE_FILE = 'drivers/*/driver.flow.compose.json';
 const DRIVER_COMPOSE_FILE = 'drivers/vicare/driver.compose.json';
+const DRIVERS_DIR = path.join(__dirname, '../..');
 const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/capabilities');
 
 // Homey system capabilities this app builds sub-capabilities on
 // (https://apps-sdk-v3.developer.homey.app/tutorial-device-capabilities.html).
 const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode', 'measure_power', 'alarm_problem', 'button', 'measure_humidity'];
 
-// Runtime mapping in flowCards.js per card group of the compose file
+// Runtime mapping in flowCards.js per card group of a compose file, per driver: the ViCare
+// driver's, and each extra driver's own (by its kind)
 const RUNTIME_FLOW_CARDS = {
   conditions: FLOW_CONDITIONS,
   actions: FLOW_ACTIONS,
   triggers: FLOW_TRIGGERS,
 };
+const RUNTIME_BY_DRIVER = {
+  vicare: RUNTIME_FLOW_CARDS,
+  ...Object.fromEntries(Object.entries(EXTRA_DRIVERS).map(([kind, id]) => [id, EXTRA_FLOW_CARDS[kind] || {}])),
+};
+// The Flow compose file of every driver that has one
+const FLOW_COMPOSES = Object.fromEntries(fs.readdirSync(DRIVERS_DIR)
+  .filter((id) => fs.existsSync(path.join(DRIVERS_DIR, id, 'driver.flow.compose.json')))
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  .map((id) => [id, require(path.join(DRIVERS_DIR, id, 'driver.flow.compose.json'))]));
 
 const producedCapabilities = new Set([...Object.values(FEATURES)
   .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)),
@@ -83,8 +96,8 @@ function findMissingSettingParts(source, target, { compareTypes = false } = {}) 
 }
 
 const shippedFlowCards = Object.fromEntries(Object.keys(RUNTIME_FLOW_CARDS)
-  .map((group) => [group, Object.fromEntries((flowCompose[group] || [])
-    .map((card) => [card.id, describeFlowCard(card)]))]));
+  .map((group) => [group, Object.fromEntries(Object.values(FLOW_COMPOSES).flatMap((compose) => (compose[group] || [])
+    .map((card) => [card.id, describeFlowCard(card)])))]));
 
 /**
  * Lists every flow card, argument, dropdown value and token in `source` that `target` lacks.
@@ -195,23 +208,31 @@ describe('flow card registry', () => {
     );
   });
 
+  test('flow card ids are unique across the drivers (Homey knows them app-wide)', () => {
+    const ids = Object.values(FLOW_COMPOSES).flatMap((compose) => Object.values(compose).flat().map((card) => card.id));
+    expectNone(ids.filter((id, index) => ids.indexOf(id) !== index), 'These flow card ids are used more than once:');
+  });
+
   test('every flow card in the compose file has a runtime mapping in flowCards.js and vice versa', () => {
     const unmapped = [];
     const undefinedInCompose = [];
-    for (const [group, runtimeCards] of Object.entries(RUNTIME_FLOW_CARDS)) {
-      const composeIds = Object.keys(shippedFlowCards[group]);
-      const runtimeIds = Object.values(runtimeCards).map((card) => card.id);
-      unmapped.push(...composeIds.filter((id) => !runtimeIds.includes(id)).map((id) => `${group} card '${id}'`));
-      undefinedInCompose.push(...runtimeIds.filter((id) => !composeIds.includes(id)).map((id) => `${group} card '${id}'`));
+    expect(Object.keys(FLOW_COMPOSES)).toEqual(expect.arrayContaining(['vicare', 'heating-circuit']));
+    for (const [driver, runtime] of Object.entries(RUNTIME_BY_DRIVER)) {
+      for (const group of Object.keys(RUNTIME_FLOW_CARDS)) {
+        const composeIds = (FLOW_COMPOSES[driver]?.[group] || []).map((card) => card.id);
+        const runtimeIds = Object.values(runtime[group] || {}).map((card) => card.id);
+        unmapped.push(...composeIds.filter((id) => !runtimeIds.includes(id)).map((id) => `${driver} ${group} card '${id}'`));
+        undefinedInCompose.push(...runtimeIds.filter((id) => !composeIds.includes(id)).map((id) => `${driver} ${group} card '${id}'`));
+      }
     }
     const problems = [];
     if (unmapped.length > 0) {
       problems.push(`These flow cards in ${FLOW_COMPOSE_FILE} have no runtime mapping in flowCards.js `
-        + `(FLOW_CONDITIONS/FLOW_ACTIONS/FLOW_TRIGGERS), so they would do nothing: ${unmapped.join(', ')}`);
+        + `(FLOW_CONDITIONS/FLOW_ACTIONS/FLOW_TRIGGERS, EXTRA_FLOW_CARDS), so they would do nothing: ${unmapped.join(', ')}`);
     }
     if (undefinedInCompose.length > 0) {
       problems.push(`flowCards.js maps these flow cards, but ${FLOW_COMPOSE_FILE} does not define them, so `
-        + `registering them in driver.js fails: ${undefinedInCompose.join(', ')}`);
+        + `registering them in driver.js or extraDriver.js fails: ${undefinedInCompose.join(', ')}`);
     }
     expectNone(problems, 'Flow cards in the compose file and flowCards.js do not match:');
   });
@@ -235,7 +256,6 @@ describe('device settings registry', () => {
 });
 
 describe('extra device drivers registry', () => {
-  const DRIVERS_DIR = path.join(__dirname, '../..');
   const kinds = Object.entries(EXTRA_DRIVERS);
   // Store keys the device writes itself, after pairing
   const RUNTIME_STORE_KEYS = { 'hot-water': ['lastHotWaterMode'] };

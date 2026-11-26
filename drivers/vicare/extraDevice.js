@@ -29,7 +29,8 @@
 // (driver.js → follow), and gets its values from the same response. Writes go through the same
 // path as the ViCare device's (capabilityWrites.js, commands.js), so the account's write
 // allowance, the command checks and the check that a write took apply alike. A value that
-// equals the current one is not sent (a Matter bridge or voice assistant repeating it).
+// equals the current one is not sent (a Matter bridge or voice assistant repeating it). A value
+// that changes fires the trigger cards of the device's driver (extraDriver.js).
 //
 // Each driver's device class sets KIND. The device stores what pairing read of its part of the
 // Viessmann device (extraPairing.js); the feature list only ever grows, and capabilities are only
@@ -45,6 +46,7 @@ const { effectiveRoles, inferRoles } = require('./roles');
 const { pollingKey, ROOM_POLL_INTERVAL } = require('./pollPlan');
 const { sameValue } = require('./writeChecks');
 const { userErrorFrom } = require('./userErrors');
+const { fireValueTriggers } = require('./flowHandlers');
 const profiles = require('./extraProfiles');
 
 // The driver that polls every Viessmann device
@@ -319,11 +321,15 @@ class ExtraDevice extends OAuth2Device {
     }
   }
 
-  // Shows a value on one of the device's own capabilities; a failure is logged
+  // Shows a value on one of the device's own capabilities and fires its trigger cards when it
+  // changed (its driver's cards with a kind, flowHandlers.js); a failure is logged
   async showValue(name, value) {
     try {
-      if (!this.hasCapability(name) || this.getCapabilityValue(name) === value) return;
+      if (!this.hasCapability(name)) return;
+      const previous = this.getCapabilityValue(name);
+      if (previous === value) return;
       await this.setCapabilityValue(name, value);
+      await fireValueTriggers(this, name, value, previous);
     } catch (error) {
       this.error(`Failed to set capability ${name}:`, error);
     }

@@ -1,0 +1,258 @@
+{
+  "triggers": [
+    {
+      "id": "circuit-operating-mode-changed",
+      "title": {
+        "en": "Operating mode changed",
+        "de": "Betriebsart geändert",
+        "nl": "Bedrijfsmodus gewijzigd",
+        "fr": "Mode de fonctionnement modifié",
+        "sv": "Driftläget ändrades"
+      },
+      "$filter": "capabilities=thermostat_mode.heating",
+      "args": [],
+      "tokens": [
+        {
+          "name": "mode",
+          "type": "string",
+          "title": {
+            "en": "Operating mode",
+            "de": "Betriebsart",
+            "nl": "Bedrijfsmodus",
+            "fr": "Mode de fonctionnement",
+            "sv": "Driftläge"
+          },
+          "example": {
+            "en": "forcedNormal"
+          }
+        }
+      ],
+      "hint": {
+        "en": "The mode is given by its id, for example heating, standby, forcedNormal or forcedReduced.",
+        "de": "Die Betriebsart wird als Kennung angegeben, zum Beispiel heating, standby, forcedNormal oder forcedReduced.",
+        "nl": "De modus wordt als code gegeven, bijvoorbeeld heating, standby, forcedNormal of forcedReduced.",
+        "fr": "Le mode est donné par son identifiant, par exemple heating, standby, forcedNormal ou forcedReduced.",
+        "sv": "Läget anges med sitt id, till exempel heating, standby, forcedNormal eller forcedReduced."
+      }
+    },
+    {
+      "id": "circuit-program-changed",
+      "title": {
+        "en": "Program changed",
+        "de": "Programm geändert",
+        "nl": "Programma gewijzigd",
+        "fr": "Programme modifié",
+        "sv": "Programmet ändrades"
+      },
+      "$filter": "capabilities=thermostat_mode.heatingProgram",
+      "args": [],
+      "tokens": [
+        {
+          "name": "program",
+          "type": "string",
+          "title": {
+            "en": "Program",
+            "de": "Programm",
+            "nl": "Programma",
+            "fr": "Programme",
+            "sv": "Program"
+          },
+          "example": {
+            "en": "comfort"
+          }
+        }
+      ],
+      "hint": {
+        "en": "The program is one of normal, reduced, comfort and eco.",
+        "de": "Das Programm ist normal, reduced, comfort oder eco.",
+        "nl": "Het programma is normal, reduced, comfort of eco.",
+        "fr": "Le programme est normal, reduced, comfort ou eco.",
+        "sv": "Programmet är normal, reduced, comfort eller eco."
+      }
+    }
+  ],
+  "conditions": [
+    {
+      "id": "circuit-operating-mode-is",
+      "title": {
+        "en": "Operating mode !{{is|is not}} [[mode]]",
+        "de": "Betriebsart !{{ist|ist nicht}} [[mode]]",
+        "nl": "Bedrijfsmodus !{{is|is niet}} [[mode]]",
+        "fr": "Le mode de fonctionnement !{{est|n'est pas}} [[mode]]",
+        "sv": "Driftläget !{{är|är inte}} [[mode]]"
+      },
+      "titleFormatted": {
+        "en": "Operating mode !{{is|is not}} [[mode]]",
+        "de": "Betriebsart !{{ist|ist nicht}} [[mode]]",
+        "nl": "Bedrijfsmodus !{{is|is niet}} [[mode]]",
+        "fr": "Le mode de fonctionnement !{{est|n'est pas}} [[mode]]",
+        "sv": "Driftläget !{{är|är inte}} [[mode]]"
+      },
+      "$filter": "capabilities=thermostat_mode.heating",
+      "args": [
+        {
+          "name": "mode",
+          "type": "autocomplete",
+          "title": {
+            "en": "Mode",
+            "de": "Betriebsart",
+            "nl": "Modus",
+            "fr": "Mode",
+            "sv": "Läge"
+          },
+          "placeholder": {
+            "en": "Choose a mode",
+            "de": "Betriebsart wählen",
+            "nl": "Kies een modus",
+            "fr": "Choisir un mode",
+            "sv": "Välj ett läge"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+        "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+        "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+        "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+        "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+      }
+    },
+    {
+      "id": "circuit-program-is",
+      "title": {
+        "en": "Program !{{is|is not}} [[program]]",
+        "de": "Programm !{{ist|ist nicht}} [[program]]",
+        "nl": "Programma !{{is|is niet}} [[program]]",
+        "fr": "Le programme !{{est|n'est pas}} [[program]]",
+        "sv": "Programmet !{{är|är inte}} [[program]]"
+      },
+      "titleFormatted": {
+        "en": "Program !{{is|is not}} [[program]]",
+        "de": "Programm !{{ist|ist nicht}} [[program]]",
+        "nl": "Programma !{{is|is niet}} [[program]]",
+        "fr": "Le programme !{{est|n'est pas}} [[program]]",
+        "sv": "Programmet !{{är|är inte}} [[program]]"
+      },
+      "$filter": "capabilities=thermostat_mode.heatingProgram",
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "de": "Programm",
+            "nl": "Programma",
+            "fr": "Programme",
+            "sv": "Program"
+          },
+          "placeholder": {
+            "en": "Choose a program",
+            "de": "Programm wählen",
+            "nl": "Kies een programma",
+            "fr": "Choisir un programme",
+            "sv": "Välj ett program"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Uses the last update from Viessmann, which can be a few minutes old.",
+        "de": "Verwendet die letzte Aktualisierung von Viessmann, die einige Minuten alt sein kann.",
+        "nl": "Gebruikt de laatste update van Viessmann, die enkele minuten oud kan zijn.",
+        "fr": "Utilise la dernière mise à jour de Viessmann, qui peut dater de quelques minutes.",
+        "sv": "Använder den senaste uppdateringen från Viessmann, som kan vara några minuter gammal."
+      }
+    }
+  ],
+  "actions": [
+    {
+      "id": "set-circuit-operating-mode",
+      "title": {
+        "en": "Change operating mode to [[mode]]",
+        "de": "Betriebsart ändern auf [[mode]]",
+        "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+        "fr": "Changer le mode de fonctionnement en [[mode]]",
+        "sv": "Byt driftläge till [[mode]]"
+      },
+      "titleFormatted": {
+        "en": "Change operating mode to [[mode]]",
+        "de": "Betriebsart ändern auf [[mode]]",
+        "nl": "Bedrijfsmodus wijzigen naar [[mode]]",
+        "fr": "Changer le mode de fonctionnement en [[mode]]",
+        "sv": "Byt driftläge till [[mode]]"
+      },
+      "$filter": "capabilities=thermostat_mode.heating",
+      "args": [
+        {
+          "name": "mode",
+          "type": "autocomplete",
+          "title": {
+            "en": "Mode",
+            "de": "Betriebsart",
+            "nl": "Modus",
+            "fr": "Mode",
+            "sv": "Läge"
+          },
+          "placeholder": {
+            "en": "Choose a mode",
+            "de": "Betriebsart wählen",
+            "nl": "Kies een modus",
+            "fr": "Choisir un mode",
+            "sv": "Välj ett läge"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Offers only the modes this heating circuit has, including forced normal and forced reduced where it has them.",
+        "de": "Bietet nur die Betriebsarten dieses Heizkreises an, auch erzwungen normal und erzwungen reduziert, wenn er sie hat.",
+        "nl": "Biedt alleen de modi van dit verwarmingscircuit, ook geforceerd normaal en geforceerd verlaagd als het die heeft.",
+        "fr": "Propose uniquement les modes de ce circuit de chauffage, y compris normal forcé et réduit forcé s'il les a.",
+        "sv": "Visar bara de lägen värmekretsen har, även tvingad normal och tvingad sänkt om den har dem."
+      }
+    },
+    {
+      "id": "set-circuit-program",
+      "title": {
+        "en": "Set program to [[program]]",
+        "de": "Programm auf [[program]] setzen",
+        "nl": "Programma instellen op [[program]]",
+        "fr": "Régler le programme sur [[program]]",
+        "sv": "Ställ in program på [[program]]"
+      },
+      "titleFormatted": {
+        "en": "Set program to [[program]]",
+        "de": "Programm auf [[program]] setzen",
+        "nl": "Programma instellen op [[program]]",
+        "fr": "Régler le programme sur [[program]]",
+        "sv": "Ställ in program på [[program]]"
+      },
+      "$filter": "capabilities=thermostat_mode.heatingProgram",
+      "args": [
+        {
+          "name": "program",
+          "type": "autocomplete",
+          "title": {
+            "en": "Program",
+            "de": "Programm",
+            "nl": "Programma",
+            "fr": "Programme",
+            "sv": "Program"
+          },
+          "placeholder": {
+            "en": "Choose a program",
+            "de": "Programm wählen",
+            "nl": "Kies een programma",
+            "fr": "Choisir un programme",
+            "sv": "Välj ett program"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Offers only the programs this heating circuit has. Comfort and eco are switched on; switching one on ends the other. Normal and reduced follow the circuit's time program, so choosing one of them ends comfort or eco.",
+        "de": "Bietet nur die Programme dieses Heizkreises an. Komfort und Eco werden eingeschaltet; das eine beendet das andere. Normal und Reduziert folgen dem Zeitprogramm des Heizkreises, die Auswahl beendet daher Komfort oder Eco.",
+        "nl": "Biedt alleen de programma's van dit verwarmingscircuit. Comfort en eco worden ingeschakeld; het ene beëindigt het andere. Normaal en verlaagd volgen het tijdprogramma van het circuit, dus een van beide kiezen beëindigt comfort of eco.",
+        "fr": "Propose uniquement les programmes de ce circuit de chauffage. Confort et éco sont activés ; l'un arrête l'autre. Normal et réduit suivent le programme horaire du circuit : en choisir un arrête confort ou éco.",
+        "sv": "Visar bara de program värmekretsen har. Komfort och eko slås på; det ena avslutar det andra. Normal och sänkt följer kretsens tidsprogram, så att välja något av dem avslutar komfort eller eko."
+      }
+    }
+  ]
+}

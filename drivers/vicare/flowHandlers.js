@@ -38,6 +38,7 @@
 //               an `arg`, the card's mapping names it (`argument`).
 //
 // Every handler also gets the card's mapping (flowCards.js), for kinds that several cards share.
+// The extra devices' drivers register their own cards with the same tables (extraDriver.js).
 
 const heatingCurve = require('./heatingCurve');
 const { boostsOf } = require('./boost');
@@ -58,6 +59,19 @@ function knownValue(device, mapping) {
   const value = device.getCapabilityValue(/** @type {string} */ (mapping.capability));
   if (value === null || value === undefined) throw userError(device, 'value_unknown');
   return value;
+}
+
+/**
+ * The id chosen in the card's `argument`, an autocomplete of the device's values; throws a
+ * translated error when nothing from the list was chosen.
+ * @param {CardArgs} args
+ * @param {FlowCardMapping} mapping
+ * @returns {string}
+ */
+function chosenId(args, mapping) {
+  const id = args[/** @type {string} */ (mapping.argument)]?.id;
+  if (typeof id !== 'string') throw userError(args.device, 'choose_from_list');
+  return id;
 }
 
 /**
@@ -101,6 +115,8 @@ const CONDITIONS = {
   isOn: (args, mapping) => knownValue(args.device, mapping) === true,
   // The value is the card's `argument` (a dropdown of the capability's values)
   equals: (args, mapping) => knownValue(args.device, mapping) === args[/** @type {string} */ (mapping.argument)],
+  // The value is the one chosen in the card's `argument` (an autocomplete of the device's values)
+  chooseValue: (args, mapping) => knownValue(args.device, mapping) === chosenId(args, mapping),
   compare: (args, mapping) => compareNumber(knownValue(args.device, mapping), args.comparison, Number(args.temperature)),
   // Any numeric feature of the device (featureCards.js), for standard Flows
   async compareFeature(args) {
@@ -138,9 +154,7 @@ const ACTIONS = {
   runCommand: (args) => featureCards.runCommand(args.device, args.command, args.parameters),
   // Writes the capability value chosen in the card's `argument` (an autocomplete of the device's values)
   chooseValue: async (args, mapping) => {
-    const id = args[/** @type {string} */ (mapping.argument)]?.id;
-    if (typeof id !== 'string') throw userError(args.device, 'choose_from_list');
-    await args.device.writeCapability(mapping.capability, id);
+    await args.device.writeCapability(mapping.capability, chosenId(args, mapping));
   },
   startHoliday: (args) => holiday.startHoliday(args.device, args.start, args.end),
   endHoliday: (args) => holiday.endHoliday(args.device),
@@ -189,6 +203,23 @@ function checkCondition(args, mapping) {
  */
 async function runAction(args, mapping) {
   return handlerFor(ACTIONS, mapping)(args, mapping);
+}
+
+/**
+ * The trigger cards with a kind, per capability: what fireValueTriggers fires, from the driver's
+ * getValueTriggers.
+ * @param {{ flow: { getDeviceTriggerCard: (id: string) => any } }} homey
+ * @param {FlowCardMapping[]} triggers
+ * @returns {Map<string, { card: any, mapping: FlowCardMapping }[]>}
+ */
+function valueTriggerCards(homey, triggers) {
+  /** @type {Map<string, { card: any, mapping: FlowCardMapping }[]>} */
+  const cards = new Map();
+  for (const mapping of triggers.filter((trigger) => trigger.kind && !trigger.event)) {
+    const { capability = '' } = mapping;
+    cards.set(capability, [...(cards.get(capability) || []), { card: homey.flow.getDeviceTriggerCard(mapping.id), mapping }]);
+  }
+  return cards;
 }
 
 /**
@@ -305,6 +336,7 @@ module.exports = {
   checkCondition,
   runAction,
   fireValueTriggers,
+  valueTriggerCards,
   registerFlowCards,
   registerPlainFlowCards,
   registerFlowCardsWithKind,

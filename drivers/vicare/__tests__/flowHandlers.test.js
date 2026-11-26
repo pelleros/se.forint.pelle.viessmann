@@ -13,7 +13,9 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
-const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
+const {
+  FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS, EXTRA_FLOW_CARDS,
+} = require('../flowCards');
 const { polledFixtureDevice } = require('../../../test/helpers/polledFixtureDevice');
 const {
   CONDITIONS, TRIGGERS, ACTIONS, AUTOCOMPLETE, checkCondition, fireValueTriggers, runAction,
@@ -73,10 +75,13 @@ async function pairedHeatPump(driver) {
 }
 
 test('every card kind in flowCards.js has its handler, and every handler a card', () => {
-  const kinds = (mappings) => Object.values(mappings).map((mapping) => mapping.kind).filter(Boolean);
-  expect([...new Set(kinds(FLOW_CONDITIONS))].sort()).toEqual(Object.keys(CONDITIONS).sort());
-  expect([...new Set(kinds(FLOW_TRIGGERS))].sort()).toEqual(Object.keys(TRIGGERS).sort());
-  expect([...new Set(kinds(FLOW_ACTIONS))].sort()).toEqual(Object.keys(ACTIONS).sort());
+  // The ViCare driver's cards and the extra drivers' own
+  const extra = Object.values(EXTRA_FLOW_CARDS);
+  const kinds = (mappings, group) => [...Object.values(mappings), ...extra.flatMap((cards) => Object.values(cards[group]))]
+    .map((mapping) => mapping.kind).filter(Boolean);
+  expect([...new Set(kinds(FLOW_CONDITIONS, 'conditions'))].sort()).toEqual(Object.keys(CONDITIONS).sort());
+  expect([...new Set(kinds(FLOW_TRIGGERS, 'triggers'))].sort()).toEqual(Object.keys(TRIGGERS).sort());
+  expect([...new Set(kinds(FLOW_ACTIONS, 'actions'))].sort()).toEqual(Object.keys(ACTIONS).sort());
   for (const kind of Object.keys(AUTOCOMPLETE)) expect(ACTIONS[kind] || CONDITIONS[kind]).toBeDefined();
 });
 

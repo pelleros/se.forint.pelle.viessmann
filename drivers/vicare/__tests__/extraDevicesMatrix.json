@@ -11,12 +11,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -37,12 +39,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -63,13 +67,15 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900003-9999000000000006-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"measure_temperature":23,"thermostat_mode":"heat"}
+          "values": {"target_temperature":19,"measure_temperature":23,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -90,12 +96,14 @@
         {
           "name": "Vitodens 200 heating circuit 1",
           "id": "900004-9999000000000009-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -117,13 +125,15 @@
         {
           "name": "Vitodens 200 heating circuit 1",
           "id": "900002-9999000000000004-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"measure_temperature":22,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"measure_temperature":22,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"comfort"}
         }
       ],
       "hotWater": [
@@ -145,12 +155,14 @@
         {
           "name": "Vitovalor PT2 heating circuit 1",
           "id": "900005-9999000000000011-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -172,12 +184,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":24,"thermostat_mode":"heat"}
+          "values": {"target_temperature":24,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ]
     },
@@ -246,12 +260,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":33,"thermostat_mode":"heat"}
+          "values": {"target_temperature":33,"thermostat_mode":"heat","thermostat_mode.heating":"forcedReduced","thermostat_mode.heatingProgram":"reduced"}
         }
       ],
       "hotWater": [
@@ -271,13 +287,15 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"Hot water, heating and cooling","de":"Warmwasser, Heizen und Kühlen","nl":"Warm water, verwarmen en koelen","fr":"Eau chaude, chauffage et refroidissement","sv":"Varmvatten, värme och kyla"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"measure_temperature":23.6,"thermostat_mode":"auto"}
+          "values": {"target_temperature":20,"measure_temperature":23.6,"thermostat_mode":"auto","thermostat_mode.heating":"dhwAndHeatingCooling","thermostat_mode.heatingProgram":"eco"}
         }
       ],
       "hotWater": [
@@ -298,12 +316,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":24,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"cool","title":{"en":"Cool","de":"Kühlen","nl":"Koelen","fr":"Refroidissement","sv":"Kyla"}},{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"cool","title":{"en":"Cool","de":"Kühlen","nl":"Koelen","fr":"Refroidissement","sv":"Kyla"}},{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"cooling","title":{"en":"Cooling","de":"Kühlen","nl":"Koelen","fr":"Refroidissement","sv":"Kyla"}},{"id":"heatingCooling","title":{"en":"Heating and cooling","de":"Heizen und Kühlen","nl":"Verwarmen en koelen","fr":"Chauffage et refroidissement","sv":"Värme och kyla"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"off"}
+          "values": {"target_temperature":20,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -324,13 +344,15 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"Hot water, heating and cooling","de":"Warmwasser, Heizen und Kühlen","nl":"Warm water, verwarmen en koelen","fr":"Eau chaude, chauffage et refroidissement","sv":"Varmvatten, värme och kyla"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"measure_temperature":22,"thermostat_mode":"auto"}
+          "values": {"target_temperature":22,"measure_temperature":22,"thermostat_mode":"auto","thermostat_mode.heating":"dhwAndHeatingCooling","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -350,12 +372,14 @@
         {
           "name": "Viessmann heating heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -377,12 +401,14 @@
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"off"}
+          "values": {"target_temperature":21,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -403,12 +429,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"off"}
+          "values": {"target_temperature":20,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -428,22 +456,26 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         },
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"off"}
+          "values": {"target_temperature":20,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         }
       ]
     },
@@ -452,12 +484,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -478,13 +512,15 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"auto","title":{"en":"Auto","de":"Automatisch","nl":"Automatisch","fr":"Automatique","sv":"Auto"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"Hot water, heating and cooling","de":"Warmwasser, Heizen und Kühlen","nl":"Warm water, verwarmen en koelen","fr":"Eau chaude, chauffage et refroidissement","sv":"Varmvatten, värme och kyla"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":23,"measure_temperature":25.1,"thermostat_mode":"auto"}
+          "values": {"target_temperature":23,"measure_temperature":25.1,"thermostat_mode":"auto","thermostat_mode.heating":"dhwAndHeatingCooling","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -504,12 +540,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"thermostat_mode":"heat"}
+          "values": {"target_temperature":22,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -531,12 +569,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -558,22 +598,26 @@
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         },
         {
           "name": "Viessmann heat pump heating circuit 3",
           "id": "900001-9999000000000001-0-circuit-2",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -595,22 +639,26 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"heat"}
+          "values": {"target_temperature":19,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         },
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -632,12 +680,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -659,12 +709,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -701,12 +753,14 @@
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -727,24 +781,28 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"measure_temperature":21.4,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"measure_temperature":21.4,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":null}
         },
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"measure_temperature":21.4,"thermostat_mode":"heat"}
+          "values": {"target_temperature":22,"measure_temperature":21.4,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -765,12 +823,14 @@
         {
           "name": "Viessmann heat pump heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"heat"}
+          "values": {"target_temperature":19,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -791,12 +851,14 @@
         {
           "name": "Viessmann heat pump heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":10,"max":30,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"reduced"}
         }
       ],
       "hotWater": [
@@ -816,12 +878,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":20,"max":82,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"off"}
+          "values": {"target_temperature":20,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -858,12 +922,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":2,"max":80,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":50,"thermostat_mode":"heat"}
+          "values": {"target_temperature":50,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -885,13 +951,15 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":8,"max":30,"step":0.5},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"measure_temperature":21.29,"thermostat_mode":"heat"}
+          "values": {"target_temperature":21,"measure_temperature":21.29,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"comfort"}
         }
       ],
       "hotWater": [
@@ -911,13 +979,15 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":8,"max":30,"step":0.5},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"measure_temperature":22.78,"thermostat_mode":"off"}
+          "values": {"target_temperature":21,"measure_temperature":22.78,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":"reduced"}
         }
       ],
       "hotWater": [
@@ -937,12 +1007,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"thermostat_mode":"off"}
+          "values": {"target_temperature":22,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -962,22 +1034,26 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"off"}
+          "values": {"target_temperature":21,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         },
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"off"}
+          "values": {"target_temperature":21,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -997,12 +1073,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"off"}
+          "values": {"target_temperature":20,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1022,12 +1100,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -1049,12 +1129,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"thermostat_mode":"heat"}
+          "values": {"target_temperature":22,"thermostat_mode":"heat","thermostat_mode.heating":"dhwAndHeating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -1074,22 +1156,26 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":21,"thermostat_mode":"off"}
+          "values": {"target_temperature":21,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         },
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":23,"thermostat_mode":"off"}
+          "values": {"target_temperature":23,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1109,22 +1195,26 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"off"}
+          "values": {"target_temperature":19,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         },
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"off"}
+          "values": {"target_temperature":19,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1146,22 +1236,26 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":3,"thermostat_mode":"off"}
+          "values": {"target_temperature":3,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         },
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"off"}
+          "values": {"target_temperature":19,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1181,12 +1275,14 @@
         {
           "name": "Viessmann boiler heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":19,"thermostat_mode":"heat"}
+          "values": {"target_temperature":19,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"comfort"}
         }
       ],
       "hotWater": [
@@ -1206,12 +1302,14 @@
         {
           "name": "Vitodens 100 BHC heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":20,"max":82,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":40,"thermostat_mode":"off"}
+          "values": {"target_temperature":40,"thermostat_mode":"off","thermostat_mode.heating":"standby","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1233,13 +1331,15 @@
         {
           "name": "VitolaUniferral heating circuit 1",
           "id": "900001-9999000000000001-0-circuit-0",
-          "capabilities": ["target_temperature","measure_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","measure_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
             "measure_temperature": {"title":{"en":"Room temperature","de":"Raumtemperatur","nl":"Kamertemperatuur","fr":"Température ambiante","sv":"Rumstemperatur"},"units":"°C","decimals":1,"preventInsights":true},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":20,"measure_temperature":20.3,"thermostat_mode":"heat"}
+          "values": {"target_temperature":20,"measure_temperature":20.3,"thermostat_mode":"heat","thermostat_mode.heating":"forcedNormal","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [
@@ -1259,12 +1359,14 @@
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"dhw","title":{"en":"Hot water","de":"Warmwasser","nl":"Warm water","fr":"Eau chaude","sv":"Varmvatten"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating","de":"Warmwasser und Heizung","nl":"Warm water en verwarming","fr":"Eau chaude et chauffage","sv":"Varmvatten och värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}},{"id":"forcedNormal","title":{"en":"Forced normal","de":"Erzwungen normal","nl":"Geforceerd normaal","fr":"Normal forcé","sv":"Tvingad normal"}},{"id":"forcedReduced","title":{"en":"Forced reduced","de":"Erzwungen reduziert","nl":"Geforceerd verlaagd","fr":"Réduit forcé","sv":"Tvingad sänkt"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}},{"id":"eco","title":{"en":"Eco","de":"Eco","nl":"Eco","fr":"Éco","sv":"Eko"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"thermostat_mode":"off"}
+          "values": {"target_temperature":22,"thermostat_mode":"off","thermostat_mode.heating":"dhw","thermostat_mode.heatingProgram":null}
         }
       ],
       "hotWater": [
@@ -1285,12 +1387,14 @@
         {
           "name": "Viessmann boiler heating circuit 2",
           "id": "900001-9999000000000001-0-circuit-1",
-          "capabilities": ["target_temperature","thermostat_mode"],
+          "capabilities": ["target_temperature","thermostat_mode","thermostat_mode.heating","thermostat_mode.heatingProgram"],
           "options": {
             "target_temperature": {"title":{"en":"Room target temperature","de":"Raum-Solltemperatur","nl":"Gewenste kamertemperatuur","fr":"Température ambiante souhaitée","sv":"Önskad rumstemperatur"},"units":"°C","preventInsights":true,"min":3,"max":37,"step":1},
-            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true}
+            "thermostat_mode": {"title":{"en":"Thermostat mode","de":"Thermostatmodus","nl":"Thermostaatmodus","fr":"Mode du thermostat","sv":"Termostatläge"},"values":[{"id":"heat","title":{"en":"Heat","de":"Heizen","nl":"Verwarmen","fr":"Chauffage","sv":"Värme"}},{"id":"off","title":{"en":"Off","de":"Aus","nl":"Uit","fr":"Arrêt","sv":"Av"}}],"preventInsights":true},
+            "thermostat_mode.heating": {"title":{"en":"Operating mode","de":"Betriebsart","nl":"Bedrijfsmodus","fr":"Mode de fonctionnement","sv":"Driftläge"},"values":[{"id":"heating","title":{"en":"Heating","de":"Heizung","nl":"Verwarming","fr":"Chauffage","sv":"Värme"}},{"id":"standby","title":{"en":"Standby","de":"Standby","nl":"Stand-by","fr":"Veille","sv":"Standby"}}],"preventInsights":true},
+            "thermostat_mode.heatingProgram": {"title":{"en":"Program","de":"Programm","nl":"Programma","fr":"Programme","sv":"Program"},"values":[{"id":"normal","title":{"en":"Normal","de":"Normal","nl":"Normaal","fr":"Normal","sv":"Normal"}},{"id":"reduced","title":{"en":"Reduced","de":"Reduziert","nl":"Verlaagd","fr":"Réduit","sv":"Sänkt"}},{"id":"comfort","title":{"en":"Comfort","de":"Komfort","nl":"Comfort","fr":"Confort","sv":"Komfort"}}],"preventInsights":true}
           },
-          "values": {"target_temperature":22,"thermostat_mode":"heat"}
+          "values": {"target_temperature":22,"thermostat_mode":"heat","thermostat_mode.heating":"heating","thermostat_mode.heatingProgram":"normal"}
         }
       ],
       "hotWater": [

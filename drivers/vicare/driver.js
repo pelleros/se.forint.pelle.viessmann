@@ -24,6 +24,7 @@ const { OAuth2Driver } = require('homey-oauth2app');
 const DevicePoller = require('../../lib/DevicePoller');
 const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
+const { featureMapper } = require('./featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 const {
@@ -126,17 +127,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Find the path and capability in FEATURES
-          for (const [path, feature] of Object.entries(FEATURES)) {
-            const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
-            if (capability) {
-              // Use executeCommand with the path and capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
-              return device.executeCommand(path, capability, value);
-            }
-          }
-
-          throw new Error(`No matching capability found for action: ${action.id}`);
+          // The feature path and capability the card writes through
+          const target = featureMapper.commandTarget(action.capability);
+          if (!target) throw new Error(`No matching capability found for action: ${action.id}`);
+          const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
+          return device.executeCommand(target.path, target.capability, value);
         });
       } catch (error) {
         this.error(`Failed to register action ${action.id}:`, error);
@@ -337,56 +332,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   // What a device stores from an unfiltered features response, for the selected circuit
   _readDeviceMetadata(rawResponse, selectedCircuit = 'auto') {
     const heatingCircuitId = detectHeatingCircuit(rawResponse.data, selectedCircuit);
-    const response = normalizeCircuitFeatures(rawResponse, heatingCircuitId);
-    const features = [];
-    const constraints = {};
-    const commandMetadata = {};
-
-    for (const feature of response.data) {
-      if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
-        features.push(feature.feature);
-
-        // Save constraints separately
-        if (feature.commands && typeof feature.commands === 'object') {
-          commandMetadata[feature.feature] = feature.commands;
-          constraints[feature.feature] = {};
-          Object.values(feature.commands).forEach((command) => {
-            Object.entries(command?.params || {}).forEach(([paramName, param]) => {
-              if (param?.constraints) {
-                constraints[feature.feature][paramName] = param.constraints;
-              }
-            });
-          });
-        }
-      }
-    }
-
-    // Get operating modes
-    const operatingModes = [];
-    try {
-      const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_CIRCUIT_0_MODE);
-
-      if (mainOpMode?.isEnabled) {
-        const formatString = (str) => {
-          return str.replace(/([A-Z])/g, ' $1')
-            .replace(/^./, (char) => char.toUpperCase())
-            .replace(/Dhw/g, 'DHW')
-            .trim();
-        };
-
-        for (const mode of mainOpMode.commands.setMode.params.mode.constraints.enum) {
-          operatingModes.push({
-            id: mode,
-            title: { en: formatString(mode) },
-          });
-        }
-      }
-    } catch (err) {
-      // not critical, just log
-      if (process.env.DEBUG) {
-        this.log('Error parsing operating modes:', err);
-      }
-    }
+    const {
+      features, constraints, operatingModes, commandMetadata,
+    } = featureMapper.deviceMetadata(normalizeCircuitFeatures(rawResponse, heatingCircuitId));
     return {
       features,
       constraints,

@@ -24,19 +24,8 @@ const { OAuth2Device } = require('homey-oauth2app');
 const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
-const {
-  FEATURES, PATHS, getCapability, getAllCapabilities, getCapabilityOptions,
-} = require('./config');
-
-// Reads a dot path such as 'value.value' from a feature's properties. Only a string, a boolean,
-// a finite number or null is a value a capability can take; anything else (objects, NaN, ...)
-// counts as no value, so the capability keeps its last value.
-const getPropertyValue = (properties, propertyPath) => {
-  const value = propertyPath.split('.')
-    .reduce((current, part) => (current == null ? undefined : current[part]), properties);
-  if (value === null || ['string', 'boolean'].includes(typeof value)) return value;
-  return Number.isFinite(value) ? value : undefined;
-};
+const { FEATURES, PATHS, getCapability } = require('./config');
+const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -113,58 +102,21 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     // Remove capabilities that are no longer in config or don't match device roles
     for (const existingCap of this.getCapabilities()) {
-      let shouldKeep = false;
-      for (const path of Object.values(PATHS)) {
-        try {
-          const capabilities = getAllCapabilities(path);
-          if (capabilities.some((cap) => cap.capabilityName === existingCap) && keepAllowed(path)) {
-            if (this._features.includes(path)) {
-              shouldKeep = true;
-              break;
-            }
-          }
-        } catch (err) {
-          continue;
-        }
-      }
-
-      if (!shouldKeep) {
+      if (!featureMapper.isProduced(existingCap, this._features, keepAllowed)) {
         await this.removeCapability(existingCap);
         this.log(`Removed capability: ${existingCap}`);
       }
     }
 
-    // Add configured capabilities if device has required role and feature is enabled
-    for (const path of Object.values(PATHS)) {
-      if (!this.hasRequiredRole(path, roles) || !this._features.includes(path)) continue;
-
+    // Add configured capabilities if device has required role and feature is enabled, with the
+    // API's temperature limits as min/max/step
+    for (const { path, capability: { capabilityName } } of featureMapper.capabilitiesFor(this._features, roles)) {
+      if (this.hasCapability(capabilityName)) continue;
       try {
-        const capabilities = getAllCapabilities(path);
-        for (const capability of capabilities) {
-          if (!this.hasCapability(capability.capabilityName)) {
-            // Set capability options
-            let capabilityOptions = getCapabilityOptions(capability.capabilityName);
-
-            // Update with constraints if they exist
-            if (this._constraints && this._constraints[path]) {
-              // For temperature/targetTemperature constraints
-              const tempConstraints = this._constraints[path].temperature || this._constraints[path].targetTemperature;
-              if (tempConstraints) {
-                capabilityOptions = {
-                  ...capabilityOptions,
-                  min: tempConstraints.min,
-                  max: tempConstraints.max,
-                  step: tempConstraints.stepping || capabilityOptions.step || 1,
-                };
-              }
-            }
-
-            await this.setCapabilityOptions(capability.capabilityName, capabilityOptions);
-            await this.addCapability(capability.capabilityName);
-          }
-        }
+        await this.setCapabilityOptions(capabilityName, featureMapper.optionsFor(capabilityName, path, this._constraints));
+        await this.addCapability(capabilityName);
       } catch (err) {
-        this.error(`Error handling capability for ${path}:`, err);
+        this.error(`Error handling capability ${capabilityName} for ${path}:`, err);
       }
     }
   }
@@ -173,10 +125,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     for (const [path, feature] of Object.entries(FEATURES)) {
       for (const capability of feature.capabilities) {
         if (!this.hasCapability(capability.capabilityName)) continue;
-        const options = { ...getCapabilityOptions(capability.capabilityName) };
-        const constraints = this._constraints?.[path];
-        const temperature = constraints?.temperature || constraints?.targetTemperature;
-        if (temperature) Object.assign(options, { min: temperature.min, max: temperature.max, step: temperature.stepping || options.step || 1 });
+        const options = featureMapper.optionsFor(capability.capabilityName, path, this._constraints);
         try {
           await this.setCapabilityOptions(capability.capabilityName, options);
         } catch (error) {
@@ -200,15 +149,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       const currentModes = Array.isArray(capabilityOptions.values) ? capabilityOptions.values : [];
 
       // Existing values the device supports (in their current order), then device modes not yet present
-      const supportedIds = new Set(deviceModes.map((mode) => mode.id));
-      const values = currentModes.filter((mode) => supportedIds.has(mode.id));
-      const presentIds = new Set(values.map((mode) => mode.id));
-      for (const mode of deviceModes) {
-        if (!presentIds.has(mode.id)) {
-          values.push(mode);
-          presentIds.add(mode.id);
-        }
-      }
+      const values = mergeOperatingModes(currentModes, deviceModes);
 
       if (process.env.DEBUG) {
         this.log('[ViessmannDevice::initializeOperatingModes] Operating modes:', values.map((mode) => mode.id));
@@ -226,7 +167,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
     for (const path of Object.values(PATHS)) {
       try {
-        const capabilities = getAllCapabilities(path);
+        const capabilities = FEATURES[path]?.capabilities || [];
 
         for (const capability of capabilities) {
           // Skip if no command is defined or listener already exists
@@ -379,12 +320,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       // Not a features response at all. Single odd entries or values in one are skipped below.
       if (!Array.isArray(rawResponse?.data)) throw new Error('Invalid features response: no feature list');
       const response = normalizeCircuitFeatures(rawResponse, this._heatingCircuitId);
-      const commands = { ...this._commands };
-      for (const feature of response.data) {
-        if (!feature.isEnabled) commands[feature.feature] = {};
-        else if (feature.commands && typeof feature.commands === 'object') commands[feature.feature] = feature.commands;
-      }
-      this._commands = commands;
+      this._commands = featureMapper.updatedCommands(response, this._commands);
       if (process.env.DEBUG) {
         this.log('Starting feature update processing...', 'extendedResponse:', extendedResponse);
       }
@@ -415,42 +351,12 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   /*
-    Reads every capability's value from a (circuit-normalized) features response. A capability
-    can be fed by more than one feature path: paths with `fallbackFor` are read only when the
-    other paths give no value. Returns capabilityName => { value, gone }: `value` is undefined
-    when no path gives one, and `gone` is true when none of the paths is reported as an enabled,
-    connected feature (a response without any mapped feature clears nothing).
+    Reads every capability's value from a (circuit-normalized) features response, for the
+    capabilities this device's roles allow (see FeatureMapper.readValues). Returns
+    capabilityName => { value, gone }.
   */
   readCapabilityValues(response) {
-    const reported = new Map(response.data.map((feature) => [feature.feature, feature]));
-    const absenceCounts = response.data.some((feature) => FEATURES[feature.feature]);
-    const roles = this.getRoles();
-    const roleAllows = ({ requireRole }) => !requireRole || roles.includes(requireRole);
-    const entries = Object.entries(FEATURES)
-      .filter(([, featureConfig]) => roleAllows(featureConfig))
-      .sort(([, a], [, b]) => Number(Boolean(a.fallbackFor)) - Number(Boolean(b.fallbackFor)));
-
-    const readings = new Map();
-    for (const [path, featureConfig] of entries) {
-      const feature = reported.get(path);
-      const connected = Boolean(feature?.isEnabled && feature.properties
-        && feature.properties.status?.value !== 'notConnected');
-      for (const { capabilityName, propertyPath } of featureConfig.capabilities) {
-        const reading = readings.get(capabilityName) || { value: undefined, gone: true };
-        readings.set(capabilityName, reading);
-        if (reading.value !== undefined) continue;
-        if (connected) {
-          reading.value = getPropertyValue(feature.properties, propertyPath);
-          reading.gone = false;
-          if (reading.value === undefined && process.env.DEBUG) {
-            this.log(`No value found for capability: ${capabilityName}, path: ${propertyPath}`);
-          }
-        } else if (!feature && !absenceCounts) {
-          reading.gone = false;
-        }
-      }
-    }
-    return readings;
+    return featureMapper.readValues(response, this.getRoles());
   }
 
   // setAvailable/setUnavailable reject (e.g. with 'device_not_found') when the device was
@@ -477,17 +383,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async addNewFeatures(response) {
     try {
       const knownFeatures = Array.isArray(this._features) ? this._features : [];
-      const newFeatures = [];
-      for (const feature of response?.data || []) {
-        if (
-          feature.isEnabled
-          && feature.properties?.status?.value !== 'notConnected'
-          && !knownFeatures.includes(feature.feature)
-          && !newFeatures.includes(feature.feature)
-        ) {
-          newFeatures.push(feature.feature);
-        }
-      }
+      const newFeatures = featureMapper.newFeatures(response, knownFeatures);
       if (newFeatures.length === 0) return;
 
       this.log('New features found:', newFeatures);
@@ -512,8 +408,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   hasRequiredRole(featurePath, roles = this.getRoles()) {
-    const feature = FEATURES[featurePath];
-    return !feature?.requireRole || roles.includes(feature.requireRole);
+    return featureMapper.hasRequiredRole(featurePath, roles);
   }
 
   /*
@@ -537,11 +432,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   getConfigCapabilityByName(capabilityName) {
-    for (const feature of Object.values(FEATURES)) {
-      const capability = feature.capabilities.find((cap) => cap.capabilityName === capabilityName);
-      if (capability) return { ...capability, requireRole: feature.requireRole };
-    }
-    return null;
+    return featureMapper.capabilityByName(capabilityName);
   }
 
   // `trigger: false` updates the value without firing its trigger card
@@ -557,12 +448,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
         // Compare with original value before value mapping
         const currentValue = this.getCapabilityValue(capabilityName);
         if (currentValue !== value) {
-          let processedValue = value;
-          if (capability.valueMapping && value in capability.valueMapping) {
-            processedValue = capability.valueMapping[value];
-          }
-
-          await this.setCapabilityValue(capabilityName, processedValue);
+          await this.setCapabilityValue(capabilityName, featureMapper.displayValue(capabilityName, value));
           if (!trigger) return;
 
           try {

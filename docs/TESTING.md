@@ -38,9 +38,9 @@ Viessmann's free plan allows about 1,450 API calls per day per user. The app mak
 
 ## One-time setup
 
-1. Install the Homey CLI (`npm install --global homey`), log in with `homey login` and select your Homey with `homey select`. The twin script never logs in or changes the selection; it shows which Homey is selected before it installs anything.
-2. Create a second client for the twin in the [Viessmann developer portal](https://app.developer.viessmann-climatesolutions.com/), as for the real app: a name such as "Homey dev twin", Google reCAPTCHA **off**, redirect URI `https://callback.athom.com/oauth2/callback`. A separate client keeps the twin's tokens and API usage apart from the real app's client, so a misbehaving test build can't eat into the real app's quota.
-3. After the first install of the twin, open *ViCare (dev)* in the Homey app (*More* > *Apps*), go to its settings and enter the second client's Client ID. App settings survive reinstalls over the same app ID; they are only lost when the twin is uninstalled (or installed with `--clean`).
+1. Install the Homey CLI (`npm install --global homey`), log in with `homey login` and select your Homey with `homey select`. The twin script never logs in or changes the selection; it shows which Homey is selected before it installs anything. If an install fails with "Missing File" right after `homey login`, run it once more before looking further: that happened once and the repeated install worked.
+2. The twin needs a Client ID. If the [Viessmann developer portal](https://app.developer.viessmann-climatesolutions.com/) lets you add a second client, create one for the twin as for the real app (a name such as "Homey dev twin", Google reCAPTCHA **off**, redirect URI `https://callback.athom.com/oauth2/callback`): it keeps the twin's tokens apart from the real app's. The free "Developer Portal Basic" package shows no way to add a second client; then use the real app's Client ID. The twin logs in on its own and gets its own tokens, and the API quota is shared either way (see above). After the twin's first login, check that the real app's device keeps updating.
+3. After the first install of the twin, open *ViCare (dev)* in the Homey app (*More* > *Apps*), go to its settings and enter the Client ID. App settings survive reinstalls over the same app ID; they are only lost when the twin is uninstalled (or installed with `--clean`).
 
 ## Upgrade test
 

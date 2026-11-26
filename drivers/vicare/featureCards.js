@@ -37,7 +37,8 @@
 
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { checkFeatureCommand, sendFeatureCommand } = require('./commands');
-const { flowError, takeWrite } = require('./flowMessages');
+const { userError } = require('./userErrors');
+const { takeWrite } = require('./writeLimits');
 
 const COMPLETE_READ_MAX_AGE_MS = 10 * 60 * 1000;
 const DEFAULT_MAX_AGE_MS = 3 * 60 * 1000;
@@ -47,7 +48,7 @@ const MAX_RESULTS = 50;
  * @typedef {{ feature: string, isEnabled?: boolean, properties?: Record<string, any>,
  *   commands?: Record<string, any> }} Feature
  * @typedef {{ features: Map<string, { feature: Feature, at: number }>, completeAt: number }} FeatureCache
- * @typedef {import('./commands').CommandDevice & import('./flowMessages').MessageDevice & {
+ * @typedef {import('./commands').CommandDevice & import('./userErrors').MessageDevice & {
  *   _featureCache?: FeatureCache,
  *   oAuth2Client: { getFeatures: (request: Record<string, any>) => Promise<any>,
  *     executeCommand: (request: Record<string, any>) => Promise<any> },
@@ -205,7 +206,7 @@ function commandChoices(device, query) {
  * @returns {Promise<any>}
  */
 async function readValue(device, choice, now = Date.now()) {
-  if (!choice?.path || !choice.property) throw flowError(device, 'choose_from_list');
+  if (!choice?.path || !choice.property) throw userError(device, 'choose_from_list');
   const pollInterval = device.driver?._calculatePollInterval?.();
   const maxAge = Number.isFinite(pollInterval) ? /** @type {number} */ (pollInterval) * 1.5 : DEFAULT_MAX_AGE_MS;
   let entry = cacheOf(device).features.get(choice.path);
@@ -214,12 +215,12 @@ async function readValue(device, choice, now = Date.now()) {
     entry = cacheOf(device).features.get(choice.path);
   }
   const realPath = resolveCircuitPath(choice.path, device._heatingCircuitId);
-  if (!entry?.feature.isEnabled || !entry.feature.properties) throw flowError(device, 'feature_not_reported', { feature: realPath });
+  if (!entry?.feature.isEnabled || !entry.feature.properties) throw userError(device, 'feature_not_reported', { feature: realPath });
   const property = entry.feature.properties[choice.property];
   if (!property || !('value' in property)) {
-    throw flowError(device, 'property_not_reported', { feature: realPath, property: choice.property });
+    throw userError(device, 'property_not_reported', { feature: realPath, property: choice.property });
   }
-  if (property.value === null || property.value === undefined) throw flowError(device, 'value_unknown');
+  if (property.value === null || property.value === undefined) throw userError(device, 'value_unknown');
   return property.value;
 }
 
@@ -232,7 +233,7 @@ async function readValue(device, choice, now = Date.now()) {
 async function readNumber(device, choice) {
   const value = await readValue(device, choice);
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw flowError(device, 'not_a_number', { feature: resolveCircuitPath(choice?.path || '', device._heatingCircuitId) });
+    throw userError(device, 'not_a_number', { feature: resolveCircuitPath(choice?.path || '', device._heatingCircuitId) });
   }
   return { number: value };
 }
@@ -262,9 +263,9 @@ function parseParameters(device, text) {
   try {
     parsed = JSON.parse(trimmed);
   } catch (error) {
-    throw flowError(device, 'invalid_parameters');
+    throw userError(device, 'invalid_parameters');
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw flowError(device, 'invalid_parameters');
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw userError(device, 'invalid_parameters');
   return parsed;
 }
 
@@ -276,12 +277,12 @@ function parseParameters(device, text) {
  * @param {string | undefined} parametersText
  */
 async function runCommand(device, choice, parametersText) {
-  if (!choice?.path || !choice.command) throw flowError(device, 'choose_from_list');
+  if (!choice?.path || !choice.command) throw userError(device, 'choose_from_list');
   const parameters = parseParameters(device, parametersText);
-  if (!device._commands) throw flowError(device, 'no_command_metadata');
+  if (!device._commands) throw userError(device, 'no_command_metadata');
   const known = device._commands[choice.path]?.[choice.command]?.params || {};
   const unknown = Object.keys(parameters).find((name) => !(name in known));
-  if (unknown !== undefined) throw flowError(device, 'unknown_parameter', { parameter: unknown });
+  if (unknown !== undefined) throw userError(device, 'unknown_parameter', { parameter: unknown });
   checkFeatureCommand(device, choice.path, choice.command, parameters);
   takeWrite(device, 'command');
   await sendFeatureCommand(device, choice.path, choice.command, parameters);

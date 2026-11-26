@@ -38,7 +38,8 @@
 
 const { featureMapper } = require('./featureMapper');
 const { capabilityCommand, checkFeatureCommand } = require('./commands');
-const { flowError, takeWrite } = require('./flowMessages');
+const { userError } = require('./userErrors');
+const { takeWrite } = require('./writeLimits');
 const heatingCurve = require('./heatingCurve');
 
 const STORE_KEY = 'boostRestores';
@@ -94,7 +95,7 @@ async function writeCapability(device, capabilityName, value) {
 const UNDO = {
   async hotWater(device, restore) {
     const current = device.getCapabilityValue(HOT_WATER_TARGET);
-    if (current == null) throw flowError(device, 'value_unknown');
+    if (current == null) throw userError(device, 'value_unknown');
     if (current !== restore.boosted) {
       device.log('Hot water target was changed in the meantime, leaving it as it is');
     } else if (restore.previous !== restore.boosted) {
@@ -111,7 +112,7 @@ const UNDO = {
   },
   async hotWaterCharge(device) {
     const charge = device.getCapabilityValue(HOT_WATER_CHARGE);
-    if (charge == null) throw flowError(device, 'value_unknown');
+    if (charge == null) throw userError(device, 'value_unknown');
     if (charge === 'activate') await writeCapability(device, HOT_WATER_CHARGE, 'deactivate');
   },
 };
@@ -165,7 +166,7 @@ class BoostController {
       const current = this.device.getCapabilityValue(HOT_WATER_TARGET);
       const running = this.restores().hotWater;
       const previous = running ? running.previous : current;
-      if (typeof previous !== 'number' || typeof current !== 'number') throw flowError(this.device, 'value_unknown');
+      if (typeof previous !== 'number' || typeof current !== 'number') throw userError(this.device, 'value_unknown');
       const write = capabilityWrite(HOT_WATER_TARGET, temperature);
       const changes = current !== temperature;
       if (changes) {

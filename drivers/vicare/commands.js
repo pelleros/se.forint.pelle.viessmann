@@ -26,7 +26,9 @@
 // capability write (device.executeCommand, with capabilityCommand), the heating curve (both of
 // its values at once) or the generic command card. A command is checked against the device's
 // command metadata before it is sent, goes to the device's heating circuit, and a response with
-// `success: false` is an error. Errors keep the API's reason, status and Retry-After.
+// `success: false` is an error. Errors keep the API's reason, status and Retry-After. Anything
+// that must happen around every write (e.g. confirming it on a later poll) belongs in
+// sendFeatureCommand, so that capability listeners and Flow cards get it alike.
 
 const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath } = require('./heatingCircuit');

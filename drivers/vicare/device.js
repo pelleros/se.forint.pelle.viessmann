@@ -32,6 +32,7 @@ const { fireValueTriggers } = require('./flowHandlers');
 const { recordFeatures } = require('./featureCards');
 const { boostsOf } = require('./boost');
 const { capabilityCommand, sendFeatureCommand } = require('./commands');
+const { userError } = require('./userErrors');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -218,7 +219,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   checkOperatingMode(path, value) {
     if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
       && !this._operatingModes.some((mode) => mode.id === value)) {
-      throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
+      throw userError(this, 'mode_not_supported', { mode: value });
     }
   }
 

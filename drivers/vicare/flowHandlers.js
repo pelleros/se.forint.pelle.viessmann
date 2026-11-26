@@ -23,45 +23,118 @@
 'use strict';
 
 // How the Flow cards with a `kind` in flowCards.js run (cards without one read or write their
-// capability directly, in driver.js):
+// capability directly, in driver.js). One table per card group, keyed by kind, so a new card
+// type is one entry here and its mapping in flowCards.js:
 //
-//   conditions  isOn: the boolean capability is true; compare: the number capability is above
-//               or below the card's value. Both fail while the value is unknown (null), instead
-//               of answering "no".
-//   triggers    turnedOn, turnedOff, changed: fired from device.setCapabilityValueIfPossible,
-//               only for a change from a known value. The first value after pairing, after a
-//               start without a value or after a gap (value cleared) is no change.
-//   actions     the heating curve (heatingCurve.js), temporary changes (boost.js) and the
-//               generic feature cards (featureCards.js).
+//   CONDITIONS  answer from the card's arguments; capability conditions use knownValue, which
+//               fails while the value is unknown (null) instead of answering "no".
+//   TRIGGERS    for a capability change from a known value to a known value: the card's tokens,
+//               or null to not fire. Fired from device.setCapabilityValueIfPossible; the first
+//               value after pairing, after a start or after a gap (value cleared) is no change.
+//   ACTIONS     run with the card's arguments (the device in args.device); what they return
+//               becomes the card's tokens.
+//   AUTOCOMPLETE  the choices of an autocomplete argument.
 
-const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('./flowCards');
 const heatingCurve = require('./heatingCurve');
 const { boostsOf } = require('./boost');
 const featureCards = require('./featureCards');
-const { flowError } = require('./flowMessages');
+const { userError } = require('./userErrors');
 
 /** @typedef {import('./flowCards').FlowCardMapping} FlowCardMapping */
+/** @typedef {Record<string, any> & { device: any }} CardArgs */
+
+/**
+ * The card's capability value; throws a translated error while it is unknown.
+ * @param {any} device
+ * @param {FlowCardMapping} mapping
+ * @returns {any}
+ */
+function knownValue(device, mapping) {
+  const value = device.getCapabilityValue(/** @type {string} */ (mapping.capability));
+  if (value === null || value === undefined) throw userError(device, 'value_unknown');
+  return value;
+}
+
+/** @type {Record<string, (args: CardArgs, mapping: FlowCardMapping) => boolean>} */
+const CONDITIONS = {
+  isOn: (args, mapping) => knownValue(args.device, mapping) === true,
+  compare(args, mapping) {
+    const value = knownValue(args.device, mapping);
+    const limit = Number(args.temperature);
+    return args.comparison === 'below' ? value < limit : value > limit;
+  },
+};
+
+/** @type {Record<string, (value: any, previous: any) => Record<string, any> | null>} */
+const TRIGGERS = {
+  turnedOn: (value) => (value === true ? {} : null),
+  turnedOff: (value) => (value === false ? {} : null),
+  changed: (value) => ({ temperature: value }),
+};
+
+/** @type {Record<string, (args: CardArgs) => Promise<any>>} */
+const ACTIONS = {
+  setCurveShift: async (args) => {
+    await heatingCurve.writeCurve(args.device, { shift: Number(args.shift) });
+  },
+  adjustCurveShift: async (args) => {
+    await heatingCurve.adjustShift(args.device, Number(args.change));
+  },
+  setCurveSlope: async (args) => {
+    await heatingCurve.writeCurve(args.device, { slope: Number(args.slope) });
+  },
+  boostHotWater: (args) => boostsOf(args.device).boostHotWater(Number(args.temperature), Number(args.minutes)),
+  boostCurveShift: (args) => boostsOf(args.device).boostCurveShift(Number(args.change), Number(args.minutes)),
+  boostHotWaterCharge: (args) => boostsOf(args.device).boostHotWaterCharge(Number(args.minutes)),
+  endBoosts: (args) => boostsOf(args.device).endAll(),
+  readNumber: (args) => featureCards.readNumber(args.device, args.feature),
+  readText: (args) => featureCards.readText(args.device, args.feature),
+  runCommand: (args) => featureCards.runCommand(args.device, args.command, args.parameters),
+};
+
+/** @type {Record<string, { arg: string, choices: (device: any, query: string) => Promise<any[]> | any[] }>} */
+const AUTOCOMPLETE = {
+  readNumber: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
+  readText: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query) },
+  runCommand: { arg: 'command', choices: (device, query) => featureCards.commandChoices(device, query) },
+};
+
+/**
+ * The handler of a kind from one of the tables; throws for a kind it does not have.
+ * @template T
+ * @param {Record<string, T>} table
+ * @param {FlowCardMapping} mapping
+ * @returns {T}
+ */
+function handlerFor(table, mapping) {
+  const handler = table[/** @type {string} */ (mapping.kind)];
+  if (!handler) throw new Error(`Unknown Flow card kind: ${mapping.kind} (${mapping.id})`);
+  return handler;
+}
 
 /**
  * The answer of a condition card with a kind.
- * @param {any} device
+ * @param {CardArgs} args
  * @param {FlowCardMapping} mapping
- * @param {Record<string, any>} args
  * @returns {boolean}
  */
-function checkCondition(device, mapping, args) {
-  const value = device.getCapabilityValue(/** @type {string} */ (mapping.capability));
-  if (value === null || value === undefined) throw flowError(device, 'value_unknown');
-  if (mapping.kind === 'compare') {
-    const limit = Number(args.temperature);
-    return args.comparison === 'below' ? value < limit : value > limit;
-  }
-  return value === true;
+function checkCondition(args, mapping) {
+  return handlerFor(CONDITIONS, mapping)(args, mapping);
+}
+
+/**
+ * Runs an action card with a kind; returns the card's tokens, if it has any.
+ * @param {CardArgs} args
+ * @param {FlowCardMapping} mapping
+ * @returns {Promise<any>}
+ */
+async function runAction(args, mapping) {
+  return handlerFor(ACTIONS, mapping)(args);
 }
 
 /**
  * Fires the trigger cards with a kind for a capability whose value changed from `previous` to
- * `value` (both as the capability shows them).
+ * `value` (both as the capability shows them). A failing card is logged; the others still run.
  * @param {any} device
  * @param {string} capabilityName
  * @param {any} value
@@ -72,11 +145,9 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
   /** @type {{ card: { trigger: Function }, mapping: FlowCardMapping }[]} */
   const triggers = device.driver?.getValueTriggers?.(capabilityName) || [];
   for (const { card, mapping } of triggers) {
-    if (mapping.kind === 'turnedOn' && value !== true) continue;
-    if (mapping.kind === 'turnedOff' && value !== false) continue;
-    const tokens = mapping.kind === 'changed' ? { temperature: value } : {};
     try {
-      await card.trigger(device, tokens, {});
+      const tokens = handlerFor(TRIGGERS, mapping)(value, previous);
+      if (tokens) await card.trigger(device, tokens, {});
     } catch (error) {
       device.error(`Could not run the trigger ${mapping.id}:`, error);
     }
@@ -84,71 +155,28 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
 }
 
 /**
- * Runs an action card with a kind. Returns the tokens of the cards that have them.
- * @param {FlowCardMapping} mapping
- * @param {Record<string, any>} args
- * @returns {Promise<any>}
- */
-async function runAction(mapping, args) {
-  const { device } = args;
-  switch (mapping.kind) {
-    case 'setCurveShift':
-      return heatingCurve.writeCurve(device, { shift: Number(args.shift) }).then(() => undefined);
-    case 'adjustCurveShift':
-      return heatingCurve.adjustShift(device, Number(args.change)).then(() => undefined);
-    case 'setCurveSlope':
-      return heatingCurve.writeCurve(device, { slope: Number(args.slope) }).then(() => undefined);
-    case 'boostHotWater':
-      return boostsOf(device).boostHotWater(Number(args.temperature), Number(args.minutes));
-    case 'boostCurveShift':
-      return boostsOf(device).boostCurveShift(Number(args.change), Number(args.minutes));
-    case 'boostHotWaterCharge':
-      return boostsOf(device).boostHotWaterCharge(Number(args.minutes));
-    case 'endBoosts':
-      return boostsOf(device).endAll();
-    case 'readNumber':
-      return featureCards.readNumber(device, args.feature);
-    case 'readText':
-      return featureCards.readText(device, args.feature);
-    case 'runCommand':
-      return featureCards.runCommand(device, args.command, args.parameters);
-    default:
-      throw new Error(`Unknown Flow card kind: ${mapping.kind}`);
-  }
-}
-
-// Autocomplete listeners of the generic cards, per kind: argument name → choices
-/** @type {Record<string, { arg: string, choices: (device: any, query: string) => Promise<any[]> | any[] }>} */
-const AUTOCOMPLETE = {
-  readNumber: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
-  readText: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query) },
-  runCommand: { arg: 'command', choices: (device, query) => featureCards.commandChoices(device, query) },
-};
-
-/**
  * Registers the run (and autocomplete) listeners of the condition and action cards with a kind.
  * A card that cannot be registered is logged; the others still work.
- * @param {{ homey: any, log: (...args: any[]) => void, error: (...args: any[]) => void }} driver
+ * @param {{ homey: any, error: (...args: any[]) => void }} driver
+ * @param {{ conditions: FlowCardMapping[], actions: FlowCardMapping[] }} cards
  */
-function registerFlowCardsWithKind(driver) {
-  for (const condition of Object.values(FLOW_CONDITIONS)) {
-    if (!condition.kind) continue;
+function registerFlowCardsWithKind(driver, { conditions, actions }) {
+  for (const condition of conditions.filter((mapping) => mapping.kind)) {
     try {
       driver.homey.flow.getConditionCard(condition.id)
-        .registerRunListener(async (/** @type {any} */ args) => checkCondition(args.device, condition, args));
+        .registerRunListener(async (/** @type {CardArgs} */ args) => checkCondition(args, condition));
     } catch (error) {
       driver.error(`Failed to register condition ${condition.id}:`, error);
     }
   }
-  for (const action of Object.values(FLOW_ACTIONS)) {
-    if (!action.kind) continue;
+  for (const action of actions.filter((mapping) => mapping.kind)) {
     try {
       const card = driver.homey.flow.getActionCard(action.id);
-      card.registerRunListener(async (/** @type {any} */ args) => runAction(action, args));
-      const autocomplete = AUTOCOMPLETE[action.kind];
+      card.registerRunListener(async (/** @type {CardArgs} */ args) => runAction(args, action));
+      const autocomplete = AUTOCOMPLETE[/** @type {string} */ (action.kind)];
       if (autocomplete) {
         card.registerArgumentAutocompleteListener(autocomplete.arg,
-          async (/** @type {string} */ query, /** @type {any} */ args) => autocomplete.choices(args.device, query));
+          async (/** @type {string} */ query, /** @type {CardArgs} */ args) => autocomplete.choices(args.device, query));
       }
     } catch (error) {
       driver.error(`Failed to register action ${action.id}:`, error);
@@ -157,5 +185,5 @@ function registerFlowCardsWithKind(driver) {
 }
 
 module.exports = {
-  checkCondition, fireValueTriggers, runAction, registerFlowCardsWithKind,
+  CONDITIONS, TRIGGERS, ACTIONS, AUTOCOMPLETE, knownValue, checkCondition, runAction, fireValueTriggers, registerFlowCardsWithKind,
 };

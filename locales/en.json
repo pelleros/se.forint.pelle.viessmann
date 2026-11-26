@@ -85,6 +85,7 @@
       "invalid_parameters": "The parameters must be a JSON object, for example {\"temperature\": 50}, or {} for none.",
       "unknown_parameter": "The command has no parameter __parameter__.",
       "no_command_metadata": "The commands of the device are not known yet. Try again after the next update.",
-      "choose_from_list": "Choose an entry from the list."
+      "choose_from_list": "Choose an entry from the list.",
+      "mode_not_supported": "Operating mode \"__mode__\" is not supported by this heating circuit."
     }
 }

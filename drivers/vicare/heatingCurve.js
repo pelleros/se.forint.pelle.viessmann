@@ -26,18 +26,19 @@
 // shift and the slope together, so a card that changes one of them sends the current value of
 // the other (from the read-back capabilities in config/circuits.js). The command's limits come
 // from the device's command metadata; a value outside them is refused before anything is sent.
-// Writes are limited per device (flowMessages.js), and a write that changes nothing is skipped.
+// Writes are limited per device (writeLimits.js), and a write that changes nothing is skipped.
 
 const { PATHS } = require('./config');
 const { checkFeatureCommand, sendFeatureCommand } = require('./commands');
-const { flowError, takeWrite } = require('./flowMessages');
+const { userError } = require('./userErrors');
+const { takeWrite } = require('./writeLimits');
 
 const CURVE_PATH = PATHS.HEATING_CIRCUIT_0_CURVE;
 const SHIFT = 'measure_curve_number.circuit0Shift';
 const SLOPE = 'measure_curve_number.circuit0Slope';
 
 /**
- * @typedef {import('./commands').CommandDevice & import('./flowMessages').MessageDevice & {
+ * @typedef {import('./commands').CommandDevice & import('./userErrors').MessageDevice & {
  *   getCapabilityValue: (name: string) => any,
  *   setCapabilityValueIfPossible: (name: string, value: any, options?: { trigger?: boolean }) => Promise<void>,
  * }} CurveDevice
@@ -76,7 +77,7 @@ function curveConstraints(device, name) {
 function currentCurve(device) {
   const shift = device.getCapabilityValue(SHIFT);
   const slope = device.getCapabilityValue(SLOPE);
-  if (typeof shift !== 'number' || typeof slope !== 'number') throw flowError(device, 'value_unknown');
+  if (typeof shift !== 'number' || typeof slope !== 'number') throw userError(device, 'value_unknown');
   return { shift, slope };
 }
 

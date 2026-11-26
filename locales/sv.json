@@ -85,6 +85,7 @@
     "invalid_parameters": "Parametrarna måste vara ett JSON-objekt, till exempel {\"temperature\": 50}, eller {} för inga.",
     "unknown_parameter": "Kommandot har ingen parameter __parameter__.",
     "no_command_metadata": "Enhetens kommandon är inte kända än. Försök igen efter nästa uppdatering.",
-    "choose_from_list": "Välj en post i listan."
+    "choose_from_list": "Välj en post i listan.",
+    "mode_not_supported": "Driftläget \"__mode__\" stöds inte av den här värmekretsen."
   }
 }

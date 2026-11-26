@@ -14,7 +14,9 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
-const { checkCondition, fireValueTriggers, runAction } = require('../flowHandlers');
+const {
+  CONDITIONS, TRIGGERS, ACTIONS, AUTOCOMPLETE, checkCondition, fireValueTriggers, runAction,
+} = require('../flowHandlers');
 
 const FIXTURES_DIR = path.join(__dirname, '../../../test/fixtures');
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -68,6 +70,14 @@ async function pairedHeatPump(driver) {
   await device.initializeCapabilities();
   return device;
 }
+
+test('every card kind in flowCards.js has its handler, and every handler a card', () => {
+  const kinds = (mappings) => Object.values(mappings).map((mapping) => mapping.kind).filter(Boolean);
+  expect([...new Set(kinds(FLOW_CONDITIONS))].sort()).toEqual(Object.keys(CONDITIONS).sort());
+  expect([...new Set(kinds(FLOW_TRIGGERS))].sort()).toEqual(Object.keys(TRIGGERS).sort());
+  expect([...new Set(kinds(FLOW_ACTIONS))].sort()).toEqual(Object.keys(ACTIONS).sort());
+  for (const kind of Object.keys(AUTOCOMPLETE)) expect(ACTIONS[kind]).toBeDefined();
+});
 
 describe('registration', () => {
   test('every card gets one run listener; the generic cards get their autocomplete', async () => {
@@ -226,24 +236,25 @@ describe('conditions', () => {
   const COMPARE = FLOW_CONDITIONS.OUTSIDE_TEMPERATURE_IS;
 
   test('isOn answers whether the state is on', () => {
-    expect(checkCondition(device(true), IS_ON, {})).toBe(true);
-    expect(checkCondition(device(false), IS_ON, {})).toBe(false);
+    expect(checkCondition({ device: device(true) }, IS_ON)).toBe(true);
+    expect(checkCondition({ device: device(false) }, IS_ON)).toBe(false);
   });
 
   test('compare answers above and below', () => {
-    expect(checkCondition(device(5), COMPARE, { comparison: 'above', temperature: 4.5 })).toBe(true);
-    expect(checkCondition(device(5), COMPARE, { comparison: 'above', temperature: 5 })).toBe(false);
-    expect(checkCondition(device(5), COMPARE, { comparison: 'below', temperature: 5.5 })).toBe(true);
-    expect(checkCondition(device(-2), COMPARE, { comparison: 'below', temperature: -2 })).toBe(false);
+    expect(checkCondition({ device: device(5), comparison: 'above', temperature: 4.5 }, COMPARE)).toBe(true);
+    expect(checkCondition({ device: device(5), comparison: 'above', temperature: 5 }, COMPARE)).toBe(false);
+    expect(checkCondition({ device: device(5), comparison: 'below', temperature: 5.5 }, COMPARE)).toBe(true);
+    expect(checkCondition({ device: device(-2), comparison: 'below', temperature: -2 }, COMPARE)).toBe(false);
   });
 
   test('an unknown value fails the card, in the user\'s language', () => {
-    expect(() => checkCondition(device(null), IS_ON, {})).toThrow('No current value from Viessmann yet');
+    expect(() => checkCondition({ device: device(null) }, IS_ON)).toThrow('No current value from Viessmann yet');
     const translated = { getCapabilityValue: () => null, homey: { __: (key) => `[${key}]` } };
-    expect(() => checkCondition(translated, COMPARE, { comparison: 'above', temperature: 1 })).toThrow('[flow.value_unknown]');
+    expect(() => checkCondition({ device: translated, comparison: 'above', temperature: 1 }, COMPARE)).toThrow('[flow.value_unknown]');
   });
 });
 
-test('runAction refuses a kind it does not know', async () => {
-  await expect(runAction({ id: 'x', kind: 'nope' }, { device: {} })).rejects.toThrow('Unknown Flow card kind: nope');
+test('a kind without a handler is refused', async () => {
+  await expect(runAction({ device: {} }, { id: 'x', kind: 'nope' })).rejects.toThrow('Unknown Flow card kind: nope (x)');
+  expect(() => checkCondition({ device: {} }, { id: 'y', kind: 'nope' })).toThrow('Unknown Flow card kind: nope (y)');
 });

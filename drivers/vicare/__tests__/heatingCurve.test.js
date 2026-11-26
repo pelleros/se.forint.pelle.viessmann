@@ -10,7 +10,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 
 const { polledFixtureDevice } = require('../../../test/helpers/polledFixtureDevice');
 const heatingCurve = require('../heatingCurve');
-const { WRITE_LIMITS } = require('../flowMessages');
+const { WRITE_LIMITS } = require('../writeLimits');
 
 const { SHIFT, SLOPE } = heatingCurve;
 
@@ -81,7 +81,7 @@ test('a value outside the device\'s limits is refused before anything is sent or
 
 test('at most 6 changes per hour; the next one says when it is possible again', async () => {
   const { device } = await polledFixtureDevice();
-  const { limit } = WRITE_LIMITS.heatingCurve;
+  const limit = WRITE_LIMITS.heatingCurve;
   expect(limit).toBe(6);
   for (let i = 1; i <= limit; i++) {
     await heatingCurve.writeCurve(device, { shift: -8 + i });

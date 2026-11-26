@@ -85,6 +85,7 @@
     "invalid_parameters": "Les paramètres doivent être un objet JSON, par exemple {\"temperature\": 50}, ou {} pour aucun.",
     "unknown_parameter": "La commande n'a pas de paramètre __parameter__.",
     "no_command_metadata": "Les commandes de l'appareil ne sont pas encore connues. Réessayez après la prochaine mise à jour.",
-    "choose_from_list": "Choisissez une entrée dans la liste."
+    "choose_from_list": "Choisissez une entrée dans la liste.",
+    "mode_not_supported": "Le mode de fonctionnement \"__mode__\" n'est pas pris en charge par ce circuit de chauffage."
   }
 }

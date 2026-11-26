@@ -85,6 +85,7 @@
     "invalid_parameters": "De parameters moeten een JSON-object zijn, bijvoorbeeld {\"temperature\": 50}, of {} voor geen.",
     "unknown_parameter": "De opdracht heeft geen parameter __parameter__.",
     "no_command_metadata": "De opdrachten van het apparaat zijn nog niet bekend. Probeer het opnieuw na de volgende update.",
-    "choose_from_list": "Kies een item uit de lijst."
+    "choose_from_list": "Kies een item uit de lijst.",
+    "mode_not_supported": "Bedrijfsmodus \"__mode__\" wordt niet ondersteund door dit verwarmingscircuit."
   }
 }

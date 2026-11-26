@@ -153,7 +153,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       }
     });
 
-    registerFlowCardsWithKind(this);
+    registerFlowCardsWithKind(this, { conditions: Object.values(FLOW_CONDITIONS), actions: Object.values(FLOW_ACTIONS) });
 
     this.log('Finished registering flow cards');
   }

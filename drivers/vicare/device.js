@@ -21,7 +21,6 @@
 'use strict';
 
 const { OAuth2Device } = require('homey-oauth2app');
-const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { inferRoles, hasRoleTags, effectiveRoles } = require('./roles');
 const { FEATURES, PATHS, getCapability } = require('./config');
@@ -32,6 +31,7 @@ const { isGroupSetting, enabledGroups } = require('./optionalGroups');
 const { fireValueTriggers } = require('./flowHandlers');
 const { recordFeatures } = require('./featureCards');
 const { boostsOf } = require('./boost');
+const { capabilityCommand, sendFeatureCommand } = require('./commands');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -208,43 +208,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async executeCommand(path, capability, value) {
-    try {
-      const { command } = capability;
-      if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
-        && !this._operatingModes.some((mode) => mode.id === value)) {
-        throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
-      }
-
-      const commandName = command.useValueAsCommand
-        ? (capability.valueMapping?.[value] || value) : command.name;
-      const parameters = {};
-      if (!command.useValueAsCommand) {
-        for (const apiParam of Object.values(command.parameterMapping)) parameters[apiParam] = value;
-      }
-      validateCommand(this._commands, path, commandName, parameters);
-      const result = await this.oAuth2Client.executeCommand({
-        installationId: this._installationId,
-        gatewaySerial: this._gatewaySerial,
-        deviceId: this._deviceId,
-        feature: resolveCircuitPath(path, this._heatingCircuitId),
-        command: commandName,
-        body: parameters,
-      });
-      if (result?.data?.success === false) {
-        throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
-      }
-    } catch (error) {
-      this.error('Error executing command:', error);
-      // Keep the API's reason (status, Viessmann error type/message) visible to the user
-      const reason = error instanceof Error ? error.message : String(error);
-      const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
-      wrapped.status = error?.status;
-      wrapped.retryAfterMs = error?.retryAfterMs;
-      throw wrapped;
-    }
-    // Update capability value
+    const { command, parameters } = capabilityCommand(capability, value);
+    await sendFeatureCommand(this, path, command, parameters, { check: () => this.checkOperatingMode(path, value) });
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
     return true;
+  }
+
+  // set-operating-mode offers modes a circuit may not have: refuse those before sending
+  checkOperatingMode(path, value) {
+    if (path === PATHS.HEATING_CIRCUIT_0_MODE && this._operatingModes?.length
+      && !this._operatingModes.some((mode) => mode.id === value)) {
+      throw new Error(`Operating mode "${value}" is not supported by this heating circuit`);
+    }
   }
 
   // Store migrations, see migrations.js

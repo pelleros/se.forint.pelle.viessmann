@@ -37,7 +37,7 @@
 // minutes for a day.
 
 const { featureMapper } = require('./featureMapper');
-const { checkFeatureCommand } = require('./commands');
+const { capabilityCommand, checkFeatureCommand } = require('./commands');
 const { flowError, takeWrite } = require('./flowMessages');
 const heatingCurve = require('./heatingCurve');
 
@@ -68,24 +68,53 @@ const HOT_WATER_CHARGE = 'thermostat_mode.hotWaterOneTimeCharge';
  */
 
 /**
- * The feature path, command and parameters a capability write would send.
+ * The feature path, capability, command and parameters of writing `value` to a capability.
  * @param {string} capabilityName
  * @param {any} value
  */
-function capabilityCommand(capabilityName, value) {
+function capabilityWrite(capabilityName, value) {
   const target = featureMapper.commandTarget(capabilityName);
-  const command = target?.capability.command;
-  if (!target || !command) throw new Error(`${capabilityName} cannot be written`);
-  /** @type {Record<string, any>} */
-  const parameters = {};
-  if (!command.useValueAsCommand) {
-    for (const parameter of Object.values(command.parameterMapping || {})) parameters[parameter] = value;
-  }
-  const name = command.useValueAsCommand ? (target.capability.valueMapping?.[value] || value) : command.name;
-  return {
-    path: target.path, capability: target.capability, command: /** @type {string} */ (name), parameters,
-  };
+  if (!target) throw new Error(`${capabilityName} cannot be written`);
+  return { path: target.path, capability: target.capability, ...capabilityCommand(target.capability, value) };
 }
+
+/**
+ * Writes a capability through the device (which checks, sends and then shows the value).
+ * @param {BoostDevice} device
+ * @param {string} capabilityName
+ * @param {any} value
+ */
+async function writeCapability(device, capabilityName, value) {
+  const write = capabilityWrite(capabilityName, value);
+  await device.executeCommand(write.path, write.capability, value);
+}
+
+// How each kind of boost is undone, if it is still in effect
+/** @type {Record<string, (device: BoostDevice, restore: Restore) => Promise<void>>} */
+const UNDO = {
+  async hotWater(device, restore) {
+    const current = device.getCapabilityValue(HOT_WATER_TARGET);
+    if (current == null) throw flowError(device, 'value_unknown');
+    if (current !== restore.boosted) {
+      device.log('Hot water target was changed in the meantime, leaving it as it is');
+    } else if (restore.previous !== restore.boosted) {
+      await writeCapability(device, HOT_WATER_TARGET, restore.previous);
+    }
+  },
+  async curveShift(device, restore) {
+    const { shift } = heatingCurve.currentCurve(device);
+    if (shift !== restore.boosted || typeof restore.previous !== 'number') {
+      device.log('Heating curve shift was changed in the meantime, leaving it as it is');
+    } else {
+      await heatingCurve.writeCurve(device, { shift: restore.previous }, { limited: false });
+    }
+  },
+  async hotWaterCharge(device) {
+    const charge = device.getCapabilityValue(HOT_WATER_CHARGE);
+    if (charge == null) throw flowError(device, 'value_unknown');
+    if (charge === 'activate') await writeCapability(device, HOT_WATER_CHARGE, 'deactivate');
+  },
+};
 
 class BoostController {
 
@@ -137,14 +166,14 @@ class BoostController {
       const running = this.restores().hotWater;
       const previous = running ? running.previous : current;
       if (typeof previous !== 'number' || typeof current !== 'number') throw flowError(this.device, 'value_unknown');
-      const write = capabilityCommand(HOT_WATER_TARGET, temperature);
+      const write = capabilityWrite(HOT_WATER_TARGET, temperature);
       const changes = current !== temperature;
       if (changes) {
         checkFeatureCommand(this.device, write.path, write.command, write.parameters);
         takeWrite(this.device, 'hotWaterBoost', this.now);
       }
       await this.start('hotWater', { previous, boosted: temperature, until: this.endTime(running, minutes) }, async () => {
-        if (changes) await this.device.executeCommand(write.path, write.capability, temperature);
+        if (changes) await writeCapability(this.device, HOT_WATER_TARGET, temperature);
       });
     });
   }
@@ -175,13 +204,13 @@ class BoostController {
     return this.exclusive(async () => {
       const running = this.restores().hotWaterCharge;
       const active = this.device.getCapabilityValue(HOT_WATER_CHARGE) === 'activate';
-      const write = capabilityCommand(HOT_WATER_CHARGE, 'activate');
+      const write = capabilityWrite(HOT_WATER_CHARGE, 'activate');
       if (!active) {
         checkFeatureCommand(this.device, write.path, write.command, write.parameters);
         takeWrite(this.device, 'hotWaterCharge', this.now);
       }
       await this.start('hotWaterCharge', { until: this.endTime(running, minutes) }, async () => {
-        if (!active) await this.device.executeCommand(write.path, write.capability, 'activate');
+        if (!active) await writeCapability(this.device, HOT_WATER_CHARGE, 'activate');
       });
     });
   }
@@ -299,32 +328,7 @@ class BoostController {
   async restore(kind) {
     const restore = this.restores()[kind];
     if (!restore) return;
-    if (kind === 'hotWater') {
-      const current = this.device.getCapabilityValue(HOT_WATER_TARGET);
-      if (current == null) throw flowError(this.device, 'value_unknown');
-      if (current === restore.boosted) {
-        if (restore.previous !== restore.boosted) {
-          const write = capabilityCommand(HOT_WATER_TARGET, restore.previous);
-          await this.device.executeCommand(write.path, write.capability, restore.previous);
-        }
-      } else {
-        this.device.log('Hot water target was changed in the meantime, leaving it as it is');
-      }
-    } else if (kind === 'curveShift') {
-      const { shift } = heatingCurve.currentCurve(this.device);
-      if (shift === restore.boosted && typeof restore.previous === 'number') {
-        await heatingCurve.writeCurve(this.device, { shift: restore.previous }, { limited: false });
-      } else {
-        this.device.log('Heating curve shift was changed in the meantime, leaving it as it is');
-      }
-    } else if (kind === 'hotWaterCharge') {
-      const charge = this.device.getCapabilityValue(HOT_WATER_CHARGE);
-      if (charge == null) throw flowError(this.device, 'value_unknown');
-      if (charge === 'activate') {
-        const write = capabilityCommand(HOT_WATER_CHARGE, 'deactivate');
-        await this.device.executeCommand(write.path, write.capability, 'deactivate');
-      }
-    }
+    await UNDO[kind]?.(this.device, restore);
     await this.drop(kind);
   }
 

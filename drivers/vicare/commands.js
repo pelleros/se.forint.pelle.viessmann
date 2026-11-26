@@ -22,10 +22,11 @@
 
 'use strict';
 
-// Commands that are not the write of one capability: the heating curve (both of its values at
-// once) and the generic command card. Like device.executeCommand, a command is checked against
-// the device's command metadata before it is sent, goes to the device's heating circuit, and
-// a response with `success: false` is an error.
+// Sending a command to the device: every write goes through sendFeatureCommand, whether it is a
+// capability write (device.executeCommand, with capabilityCommand), the heating curve (both of
+// its values at once) or the generic command card. A command is checked against the device's
+// command metadata before it is sent, goes to the device's heating circuit, and a response with
+// `success: false` is an error. Errors keep the API's reason, status and Retry-After.
 
 const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath } = require('./heatingCircuit');
@@ -43,6 +44,23 @@ const { resolveCircuitPath } = require('./heatingCircuit');
  */
 
 /**
+ * The command and parameters that write `value` to a configured capability: a named command
+ * whose parameters all get the value, or the (mapped) value itself as the command name.
+ * @param {import('./config/types').CapabilityConfig} capability
+ * @param {any} value
+ * @returns {{ command: string, parameters: Record<string, any> }}
+ */
+function capabilityCommand(capability, value) {
+  const config = capability.command;
+  if (!config) throw new Error(`${capability.capabilityName} cannot be written`);
+  if (config.useValueAsCommand) return { command: capability.valueMapping?.[value] || value, parameters: {} };
+  /** @type {Record<string, any>} */
+  const parameters = {};
+  for (const parameter of Object.values(config.parameterMapping || {})) parameters[parameter] = value;
+  return { command: /** @type {string} */ (config.name), parameters };
+}
+
+/**
  * Checks a command against the device's command metadata (throws when it is not allowed).
  * @param {CommandDevice} device
  * @param {string} path circuit-normalized feature path
@@ -54,15 +72,18 @@ function checkFeatureCommand(device, path, command, parameters) {
 }
 
 /**
- * Checks and sends a command. Errors carry the API's reason, like device.executeCommand.
+ * Checks and sends a command. `check` can refuse it first (e.g. an operating mode the circuit
+ * does not have); its error is reported like any other.
  * @param {CommandDevice} device
  * @param {string} path circuit-normalized feature path
  * @param {string} command
  * @param {Record<string, any>} parameters
+ * @param {{ check?: () => void }} [options]
  * @returns {Promise<void>}
  */
-async function sendFeatureCommand(device, path, command, parameters) {
+async function sendFeatureCommand(device, path, command, parameters, { check } = {}) {
   try {
+    check?.();
     checkFeatureCommand(device, path, command, parameters);
     const result = await device.oAuth2Client.executeCommand({
       installationId: device._installationId,
@@ -77,6 +98,7 @@ async function sendFeatureCommand(device, path, command, parameters) {
     }
   } catch (error) {
     device.error('Error executing command:', error);
+    // Keep the API's reason (status, Viessmann error type/message) visible to the user
     const reason = error instanceof Error ? error.message : String(error);
     /** @type {Error & { status?: number, retryAfterMs?: number }} */
     const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
@@ -86,4 +108,4 @@ async function sendFeatureCommand(device, path, command, parameters) {
   }
 }
 
-module.exports = { checkFeatureCommand, sendFeatureCommand };
+module.exports = { capabilityCommand, checkFeatureCommand, sendFeatureCommand };

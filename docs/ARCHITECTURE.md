@@ -34,7 +34,7 @@ The design choice that shapes everything: **there is one device type for every V
 │   ├── heatingCurve.js          # Writes the heating curve (shift and slope together)
 │   ├── boost.js                 # Temporary changes from Flows, restored later (also after a restart)
 │   ├── featureCards.js          # Generic cards: read any feature value, run any command
-│   ├── commands.js              # Commands that are not one capability write
+│   ├── commands.js              # Sends every command: checks, circuit path, errors
 │   ├── optionalGroups.js        # Optional groups of values behind device settings (diagnostic)
 │   ├── heatingCircuit.js        # Heating circuit detection and circuit-0 path mapping
 │   ├── roles.js                 # Heat pump / boiler roles inferred from features when a device reports none
@@ -145,7 +145,7 @@ The config, capability IDs and Flow cards only know `heating.circuits.0.*`. Each
 
 ## Commands
 
-`executeCommand` checks the command against `commandMetadata` (`lib/commandValidation.js`: exists, `isExecutable`, required parameters, type, enum, min/max/stepping) and, for the operating mode, against the circuit's modes (`set-operating-mode` offers `forcedNormal` and `forcedReduced` too; a mode the circuit does not have is refused with an error), before calling the API. A response with `data.success: false` is an error, and the capability value is only updated after a successful command. Polls keep the metadata current; until a device has any (no refresh and no poll yet), the check is skipped.
+Every write goes through `commands.js` → `sendFeatureCommand`: capability writes (`device.executeCommand`, with `capabilityCommand` building the command and parameters from the capability's `command` config), the heating curve and the generic command card. It checks the command against `commandMetadata` (`lib/commandValidation.js`: exists, `isExecutable`, required parameters, type, enum, min/max/stepping) and, for the operating mode, against the circuit's modes (`set-operating-mode` offers `forcedNormal` and `forcedReduced` too; a mode the circuit does not have is refused with an error), before calling the API. A response with `data.success: false` is an error, and the capability value is only updated after a successful command. Polls keep the metadata current; until a device has any (no refresh and no poll yet), the check is skipped.
 
 ## Flow cards
 
@@ -207,7 +207,7 @@ Users share these dumps, so `api.js` anonymizes everything it returns with `lib/
 - `test/locales.test.js`: every text in `locales/` exists in en, de, nl, fr and sv with the same placeholders. `lib/__tests__/http.test.js` and `ViessmannOAuth2Client.http.test.js`: requests against a local server (timeouts, keep-alive, PKCE per login, sessions from before 2.0.0, masked debug output). `test/fixtureTwin.test.js` and `test/devTwin.test.js`: the dev twin and its fixture mode.
 - `npm run test:coverage` (CI) fails below the coverage threshold in `jest.config.js`; `npm run typecheck` checks the files with `// @ts-check`.
 - `config.test.js` is a golden copy of `FEATURES`; update it when the config changes. It also checks that the texts of the running states (`measure_*_active`) are translated into every app language and match their definitions in `.homeycompose/capabilities/`, and that the statistics counters log Insights.
-- `flowHandlers.test.js` (registration, value triggers from polls, conditions), `heatingCurve.test.js`, `boost.test.js` (restores after time and after a restart, retries, values changed meanwhile), `featureCards.test.js` (reads from the poll or the API, autocomplete, command checks), `optionalGroups.test.js`, `flowMessages.test.js` and `lib/__tests__/rateLimiter.test.js`. `test/helpers/polledFixtureDevice.js` gives a device that has polled a fixture, with recorded commands and timers.
+- `flowHandlers.test.js` (registration, value triggers from polls, conditions), `commands.test.js`, `heatingCurve.test.js`, `boost.test.js` (restores after time and after a restart, retries, values changed meanwhile), `featureCards.test.js` (reads from the poll or the API, autocomplete, command checks), `optionalGroups.test.js`, `flowMessages.test.js` and `lib/__tests__/rateLimiter.test.js`. `test/helpers/polledFixtureDevice.js` gives a device that has polled a fixture, with recorded commands and timers.
 - `drivers/vicare/__tests__/capabilityOptions.upgrade.test.js`: a device paired on 1.0.14, with the options 1.0.14 set on its running and statistics capabilities, gets the current options from the config on its first start.
 
 ## Versions and migrations

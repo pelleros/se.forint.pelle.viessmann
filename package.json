@@ -10,7 +10,8 @@
     "homey:validate": "homey app validate --level publish",
     "homey:publish": "homey app publish",
     "homey:twin": "node scripts/devTwin.js",
-    "fixtures": "node scripts/generateFixtures.js"
+    "fixtures": "node scripts/generateFixtures.js",
+    "matrix": "node scripts/updateCapabilityMatrix.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",

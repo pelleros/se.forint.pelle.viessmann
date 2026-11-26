@@ -9,6 +9,14 @@
 
 class OAuth2Error extends Error {}
 
+class OAuth2Token {
+
+  constructor(body) {
+    Object.assign(this, body);
+  }
+
+}
+
 class FakeOAuth2Device {
 
   constructor() {
@@ -115,4 +123,5 @@ module.exports = {
   OAuth2Device: FakeOAuth2Device,
   OAuth2Driver: FakeOAuth2Driver,
   OAuth2Error,
+  OAuth2Token,
 };

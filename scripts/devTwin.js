@@ -8,7 +8,7 @@
  * Homey, with its own app settings (Client ID) and its own devices. See docs/TESTING.md.
  *
  *   node scripts/devTwin.js <build|install|run> [--ref <git-ref>] [--poll-minutes <n>] [--keep]
- *                           [--allow-default-poll] [-- <extra Homey CLI arguments>]
+ *                           [--allow-default-poll] [--fixture <name>] [-- <extra Homey CLI arguments>]
  *
  * Steps:
  *  1. Export the committed tree of --ref (default HEAD) with `git archive` into a new temporary
@@ -23,6 +23,12 @@
  *     `build` also runs `homey app validate --level publish`.
  *  5. install/run only: show the exact Homey CLI command, ask for confirmation, then run it.
  *
+ * With --fixture <name>, the twin is the "fixture twin" (se.forint.pelle.viessmann.fixture,
+ * "ViCare (fixture)"): after step 2 its OAuth client is replaced by one that answers from a
+ * fixture in test/fixtures/ (taken from this checkout) instead of the Viessmann API, and pairing
+ * asks for any user name and password instead of the Viessmann login. See
+ * scripts/fixtureTwin/FixtureOAuth2Client.js.
+ *
  * Nothing here talks to a Homey except step 5, and only after a "y" on stdin.
  */
 
@@ -36,6 +42,12 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const APP_ID = 'se.forint.pelle.viessmann';
 const TWIN_ID = `${APP_ID}.dev`;
 const TWIN_NAME = 'ViCare (dev)';
+const FIXTURE_TWIN_ID = `${APP_ID}.fixture`;
+const FIXTURE_TWIN_NAME = 'ViCare (fixture)';
+// The fixture twin's own files, and the marker scripts/checkPackage.js refuses in a store build
+const FIXTURE_DIR = 'fixtureMode';
+const FIXTURE_MARKER = 'vicare-dev-twin-fixture-mode';
+const FIXTURE_CLIENT_SOURCE = path.join(__dirname, 'fixtureTwin', 'FixtureOAuth2Client.js');
 const DEFAULT_POLL_MINUTES = 10;
 const COMMANDS = ['build', 'install', 'run'];
 const IS_WINDOWS = process.platform === 'win32';
@@ -76,6 +88,11 @@ Options:
   --poll-minutes <n>     Twin poll interval per device in minutes (default: ${DEFAULT_POLL_MINUTES}).
   --allow-default-poll   Continue when the ref's poll interval is not recognised (polls at the
                          real app's rate; mind the API quota).
+  --fixture <name>       Build the fixture twin (${FIXTURE_TWIN_ID}, "${FIXTURE_TWIN_NAME}"), which answers
+                         from a fixture in test/fixtures/ instead of the Viessmann API: no
+                         account, no quota. Log in with any user name and password. Names such
+                         as vitodens_200_e3 or pyvicare/Vitocal250A_TwoCircuits; an unknown name
+                         lists them all.
   --keep                 Keep the temporary directory (it is printed). Otherwise it is removed.
   -h, --help             Show this help.
 
@@ -95,6 +112,7 @@ function parseArgs(argv) {
     pollMinutes: DEFAULT_POLL_MINUTES,
     keep: false,
     allowDefaultPoll: false,
+    fixture: null,
     help: false,
     homeyArgs: [],
   };
@@ -137,6 +155,9 @@ function parseArgs(argv) {
         break;
       case '--allow-default-poll':
         options.allowDefaultPoll = true;
+        break;
+      case '--fixture':
+        options.fixture = takeValue(flag, inline);
         break;
       default:
         if (flag.startsWith('-')) throw new UsageError(`Unknown option ${flag}`);
@@ -232,28 +253,95 @@ function patchPollIntervals(appDir, minutes, { allowDefaultPoll = false } = {}) 
   return changes;
 }
 
+// The id and name of the twin, or of the fixture twin
+const twinIdentity = (fixture) => (fixture ? { id: FIXTURE_TWIN_ID, name: FIXTURE_TWIN_NAME } : { id: TWIN_ID, name: TWIN_NAME });
+
 /*
  * Returns a copy of an app manifest (.homeycompose/app.json or app.json) with the twin's id and
  * name in every language the manifest has. Refuses manifests of other apps.
  */
-function patchManifest(manifest) {
-  if (manifest.id !== APP_ID && manifest.id !== TWIN_ID) {
+function patchManifest(manifest, { id = TWIN_ID, name: twinName = TWIN_NAME } = {}) {
+  if (![APP_ID, TWIN_ID, FIXTURE_TWIN_ID].includes(manifest.id)) {
     throw new Error(`Unexpected app id "${manifest.id}" (expected ${APP_ID})`);
   }
   let name;
   if (manifest.name && typeof manifest.name === 'object') {
-    name = Object.fromEntries(Object.keys(manifest.name).map((language) => [language, TWIN_NAME]));
+    name = Object.fromEntries(Object.keys(manifest.name).map((language) => [language, twinName]));
   } else {
-    name = { en: TWIN_NAME };
+    name = { en: twinName };
   }
-  return { ...manifest, id: TWIN_ID, name };
+  return { ...manifest, id, name };
 }
 
-function isTwinManifest(manifest) {
-  return manifest.id === TWIN_ID
+function isTwinManifest(manifest, { id = TWIN_ID, name = TWIN_NAME } = {}) {
+  return manifest.id === id
     && Boolean(manifest.name)
     && Object.values(manifest.name).length > 0
-    && Object.values(manifest.name).every((value) => value === TWIN_NAME);
+    && Object.values(manifest.name).every((value) => value === name);
+}
+
+// The fixture twin's app.js: the ref's app (moved to app.store.js) with the fixture client
+const FIXTURE_APP_JS = `'use strict';
+
+// ${FIXTURE_MARKER}: written by scripts/devTwin.js --fixture. The app of app.store.js, with an
+// OAuth client that answers from ${FIXTURE_DIR}/fixture.json instead of the Viessmann API.
+
+const App = require('./app.store');
+const ViessmannOAuth2Client = require('./lib/ViessmannOAuth2Client');
+const { createFixtureClient } = require('./${FIXTURE_DIR}/FixtureOAuth2Client');
+const fixture = require('./${FIXTURE_DIR}/fixture.json');
+
+class FixtureApp extends App {
+
+  static OAUTH2_CLIENT = createFixtureClient(ViessmannOAuth2Client, fixture);
+
+  async onInit() {
+    // Pairing refuses to start without a Client ID; the fixture needs none
+    if (!this.homey.settings.get('clientId')) this.homey.settings.set('clientId', 'fixture-mode');
+    await super.onInit();
+  }
+
+}
+
+module.exports = FixtureApp;
+`;
+
+// Pairing and Repair ask for any user name and password instead of the Viessmann login
+function patchLoginViews(driverCompose) {
+  const credentials = (view) => (view.template === 'login_oauth2' ? { id: 'login_credentials', template: 'login_credentials' } : view);
+  return {
+    ...driverCompose,
+    pair: (driverCompose.pair || []).map(credentials),
+    repair: (driverCompose.repair || []).map(credentials),
+  };
+}
+
+/*
+ * Turns the exported app in appDir into the fixture twin's: copies the fixture client and the
+ * fixture (installation and features, from test/fixtures/ of this checkout) into fixtureMode/,
+ * moves app.js to app.store.js and writes an app.js that uses the fixture client, and switches
+ * pairing and Repair to the user name/password view. Returns what it did.
+ */
+function installFixtureMode(appDir, fixture) {
+  for (const required of ['app.js', 'lib/ViessmannOAuth2Client.js', 'drivers/vicare/driver.compose.json']) {
+    if (!fs.existsSync(path.join(appDir, required))) throw new Error(`Fixture mode needs ${required}, which this ref does not have`);
+  }
+  const appJs = fs.readFileSync(path.join(appDir, 'app.js'), 'utf8');
+  if (!/OAUTH2_CLIENT\s*=\s*ViessmannOAuth2Client/.test(appJs)) {
+    throw new Error('Fixture mode needs an app.js with `static OAUTH2_CLIENT = ViessmannOAuth2Client`');
+  }
+  const fixtureDir = path.join(appDir, FIXTURE_DIR);
+  fs.mkdirSync(fixtureDir, { recursive: true });
+  fs.copyFileSync(FIXTURE_CLIENT_SOURCE, path.join(fixtureDir, 'FixtureOAuth2Client.js'));
+  fs.writeFileSync(path.join(fixtureDir, 'fixture.json'), JSON.stringify({
+    name: fixture.name, installations: fixture.installations, features: fixture.features,
+  }));
+  fs.renameSync(path.join(appDir, 'app.js'), path.join(appDir, 'app.store.js'));
+  fs.writeFileSync(path.join(appDir, 'app.js'), FIXTURE_APP_JS);
+  const driverComposeFile = path.join(appDir, 'drivers', 'vicare', 'driver.compose.json');
+  const driverCompose = JSON.parse(fs.readFileSync(driverComposeFile, 'utf8'));
+  fs.writeFileSync(driverComposeFile, `${JSON.stringify(patchLoginViews(driverCompose), null, 2)}\n`);
+  return { fixture: fixture.name, features: fixture.features.data.length };
 }
 
 function isInside(parent, child) {
@@ -317,10 +405,10 @@ function exportRef(sha, destination) {
   if (untar.status !== 0) throw new Error(`tar failed: ${untar.stderr.toString().trim()}`);
 }
 
-function patchManifestFile(file) {
+function patchManifestFile(file, identity) {
   if (!fs.existsSync(file)) return false;
   const text = fs.readFileSync(file, 'utf8');
-  const patched = patchManifest(JSON.parse(text));
+  const patched = patchManifest(JSON.parse(text), identity);
   fs.writeFileSync(file, `${JSON.stringify(patched, null, 2)}${text.endsWith('\n') ? '\n' : ''}`);
   return true;
 }
@@ -341,11 +429,15 @@ function assertSafeBuildScripts(appDir) {
   }
 }
 
-function verifyBuild(appDir, pollChanges) {
+function verifyBuild(appDir, pollChanges, { fixture = null } = {}) {
   const buildDir = path.join(appDir, '.homeybuild');
   const manifest = readJson(path.join(buildDir, 'app.json'));
-  if (!isTwinManifest(manifest)) {
+  if (!isTwinManifest(manifest, twinIdentity(fixture))) {
     throw new Error(`Built app.json has id "${manifest.id}" and name ${JSON.stringify(manifest.name)}, not the twin's`);
+  }
+  if (fixture && (!fs.existsSync(path.join(buildDir, FIXTURE_DIR, 'fixture.json'))
+    || !fs.readFileSync(path.join(buildDir, 'app.js'), 'utf8').includes(FIXTURE_MARKER))) {
+    throw new Error('The built fixture twin does not contain the fixture client');
   }
   for (const change of pollChanges) {
     const built = fs.readFileSync(path.join(buildDir, change.file), 'utf8');
@@ -398,6 +490,10 @@ async function main(argv) {
   const npm = IS_WINDOWS ? 'npm.cmd' : 'npm';
   const homey = IS_WINDOWS ? 'homey.cmd' : 'homey';
   const { sha, shortSha } = resolveRef(options.ref);
+  // From this checkout's test/fixtures/ (like this script), whatever the ref
+  // eslint-disable-next-line global-require
+  const fixture = options.fixture ? require('../test/helpers/fixtureDevices').findFixtureDevice(options.fixture) : null;
+  const identity = twinIdentity(fixture);
 
   if (options.ref === 'HEAD' && git(['status', '--porcelain', '--untracked-files=no']) !== '') {
     console.log('Note: the working tree has uncommitted changes; the twin is built from the last commit only.');
@@ -411,12 +507,18 @@ async function main(argv) {
     step(`Exporting ${options.ref} (${shortSha}) to ${appDir}`);
     exportRef(sha, appDir);
 
-    step(`Patching app id → ${TWIN_ID}, name → "${TWIN_NAME}"`);
+    step(`Patching app id → ${identity.id}, name → "${identity.name}"`);
     const composeManifest = path.join(appDir, '.homeycompose', 'app.json');
-    const patchedCompose = patchManifestFile(composeManifest);
-    const patchedRoot = patchManifestFile(path.join(appDir, 'app.json'));
+    const patchedCompose = patchManifestFile(composeManifest, identity);
+    const patchedRoot = patchManifestFile(path.join(appDir, 'app.json'), identity);
     if (!patchedCompose && !patchedRoot) throw new Error('This ref has neither .homeycompose/app.json nor app.json');
     console.log(`  ${[patchedCompose && '.homeycompose/app.json', patchedRoot && 'app.json'].filter(Boolean).join(', ')}`);
+
+    if (fixture) {
+      step(`Fixture mode: answering from fixture "${fixture.name}" instead of the Viessmann API`);
+      const installed = installFixtureMode(appDir, fixture);
+      console.log(`  ${FIXTURE_DIR}/ with ${installed.features} features; app.js → app.store.js; pairing with any user name and password`);
+    }
 
     step(`Patching the poll interval → ${options.pollMinutes} minutes per device`);
     const pollChanges = patchPollIntervals(appDir, options.pollMinutes, { allowDefaultPoll: options.allowDefaultPoll });
@@ -439,9 +541,10 @@ async function main(argv) {
     }
     step('Building (homey app build, local only)');
     runSync(homey, ['app', 'build'], appDir);
-    const { buildDir, manifest } = verifyBuild(appDir, pollChanges);
+    const { buildDir, manifest } = verifyBuild(appDir, pollChanges, { fixture });
 
-    console.log(`\n✔ ${manifest.name.en || TWIN_NAME} ${manifest.version} (${manifest.id}) built from ${options.ref} (${shortSha})`);
+    console.log(`\n✔ ${manifest.name.en || identity.name} ${manifest.version} (${manifest.id}) built from ${options.ref} (${shortSha})`);
+    if (fixture) console.log(`  Fixture: ${fixture.name} (no Viessmann account or API calls)`);
     console.log(`  Poll interval: ${pollChanges.length > 0 ? `${options.pollMinutes} minutes per device` : 'unchanged (not recognised)'}`);
     if (options.keep || options.command !== 'build') {
       console.log(`  Source: ${appDir}\n  Build:  ${buildDir}`);
@@ -449,12 +552,12 @@ async function main(argv) {
 
     if (options.command !== 'build') {
       // Last line of defence: the CLI installs whatever .homeycompose/app.json says.
-      if (patchedCompose && !isTwinManifest(readJson(composeManifest))) throw new Error('The copy is not the twin; refusing to install');
+      if (patchedCompose && !isTwinManifest(readJson(composeManifest), identity)) throw new Error('The copy is not the twin; refusing to install');
       const homeyArgs = ['app', options.command, ...options.homeyArgs];
       const active = readActiveHomey();
       console.log(`\nAbout to run:\n\n    ${[homey, ...homeyArgs].join(' ')}\n\n  in ${appDir}`);
       console.log(`  Target: ${active ? `"${active.name}" (the Homey selected in the Homey CLI)` : 'no Homey selected yet; the Homey CLI will ask'}`);
-      console.log(`  This installs "${TWIN_NAME}" (${TWIN_ID}). The App Store app ${APP_ID} and its devices are not touched.`);
+      console.log(`  This installs "${identity.name}" (${identity.id}). The App Store app ${APP_ID} and its devices are not touched.`);
       if (options.command === 'run') {
         console.log('  Note: `homey app run` uninstalls the twin, and every device paired to it, when you stop it with Ctrl+C.');
         console.log('        Use `install` for anything that must survive (the upgrade test).');
@@ -493,6 +596,13 @@ module.exports = {
   APP_ID,
   TWIN_ID,
   TWIN_NAME,
+  FIXTURE_TWIN_ID,
+  FIXTURE_TWIN_NAME,
+  FIXTURE_DIR,
+  FIXTURE_MARKER,
+  FIXTURE_APP_JS,
+  installFixtureMode,
+  patchLoginViews,
   DEFAULT_POLL_MINUTES,
   POLL_PATTERNS,
   UsageError,

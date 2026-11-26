@@ -5,7 +5,7 @@
 /**
  * Checks the app package that `homey app build` writes to .homeybuild/: only runtime files may
  * end up in it. Fails when development files (tests, fixtures, docs, scripts, Markdown, local
- * dumps) are packaged, and prints the package size.
+ * dumps) or the dev twin's fixture mode are packaged, and prints the package size.
  *
  *   npx homey app build && node scripts/checkPackage.js [buildDir]
  */
@@ -27,7 +27,15 @@ const FORBIDDEN = [
   { pattern: /^jest\.config\.js$/, reason: 'test configuration' },
   { pattern: /^package-lock\.json$/, reason: 'lockfile (not used at runtime)' },
   { pattern: /\.test\.js$/, reason: 'test file' },
+  { pattern: /^fixtureMode(\/|$)/, reason: 'dev twin fixture mode' },
+  { pattern: /(^|\/)fixtures?(\/|$)/, reason: 'test fixtures' },
+  { pattern: /_(features|installations)\.json$/, reason: 'API dump' },
+  { pattern: /^app\.store\.js$/, reason: 'dev twin fixture mode' },
 ];
+
+// Text in a packaged file that only the dev twin's fixture mode has (scripts/devTwin.js)
+const FIXTURE_MARKER = 'vicare-dev-twin-fixture-mode';
+const TEXT_FILE = /\.(js|json|html|txt)$/i;
 
 function listFiles(dir, base = dir) {
   const files = [];
@@ -56,6 +64,9 @@ function checkPackage(buildDir) {
   for (const { rel } of files) {
     const hit = FORBIDDEN.find(({ pattern }) => pattern.test(rel));
     if (hit) problems.push(`${rel} (${hit.reason})`);
+    else if (TEXT_FILE.test(rel) && fs.readFileSync(path.join(buildDir, rel), 'utf8').includes(FIXTURE_MARKER)) {
+      problems.push(`${rel} (dev twin fixture mode code)`);
+    }
   }
   const appBytes = files.reduce((sum, { size }) => sum + size, 0);
   const depBytes = dirSize(path.join(buildDir, 'node_modules'));
@@ -64,7 +75,7 @@ function checkPackage(buildDir) {
   };
 }
 
-module.exports = { checkPackage, FORBIDDEN };
+module.exports = { checkPackage, FORBIDDEN, FIXTURE_MARKER };
 
 if (require.main === module) {
   const buildDir = path.resolve(process.argv[2] || path.join(__dirname, '..', '.homeybuild'));

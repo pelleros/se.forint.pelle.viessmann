@@ -91,7 +91,7 @@ function syntheticInstallations(identity, modelId) {
  * @typedef {object} FixtureDevice
  * @property {string} name e.g. 'vitocal_222' or 'pyvicare/Vitocal200'
  * @property {{ data: object[] }} features the device's features response
- * @property {object} installations the installations response it is paired from
+ * @property {{ data: object[] }} installations the installations response it is paired from
  * @property {{ installationId: number, gatewaySerial: string, deviceId: string, roles: string[] }} identity
  */
 
@@ -107,7 +107,9 @@ function loadFixtureDevices() {
       const features = readJson(path.join(FIXTURES_DIR, file));
       const installationsFile = installationsFileFor(file);
       if (!installationsFile) throw new Error(`No installations dump for ${file}`);
-      const installations = readJson(path.join(FIXTURES_DIR, installationsFile));
+      // Some dumps hold only the response's data array
+      const dump = readJson(path.join(FIXTURES_DIR, installationsFile));
+      const installations = Array.isArray(dump) ? { data: dump } : dump;
       return {
         name: file.replace(/_features\.json$/, ''), features, installations, identity: deviceIdentity(features, installations),
       };

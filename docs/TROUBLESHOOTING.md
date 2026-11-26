@@ -45,7 +45,11 @@ optional devices. You don't need them unless one of these fits:
 - **Heating circuit (thermostat):** add it for each heating circuit you want as a thermostat of its
   own, for example in another zone, in Homey's Climate view, or to control with Google Home or by
   voice. It has the circuit's set point, heat/off (cool and auto only where the circuit can cool)
-  and the room temperature where the circuit has a room sensor.
+  and the room temperature where the circuit has a room sensor. It also has the circuit's own
+  operating mode (every mode the circuit offers, such as forced normal and forced reduced) and its
+  program (normal, reduced, comfort, eco, as far as the circuit has them), with Flow cards to set
+  them, check them and react when they change. With two or more circuits, add one for each to set
+  them separately.
 - **Hot water (thermostat):** add it if you want to control hot water with Google Home or by voice:
   it appears as a thermostat with the hot water set point and temperature, and heat/off where your
   system can switch hot water off. Give it a zone of its own and a clear name, so that a command for

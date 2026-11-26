@@ -92,7 +92,7 @@ The place to change when adding or removing a Viessmann datapoint. `require('./c
 | `status.js` | Running states, compressor load, burner modulation, fuel cell phase |
 | `energy.js` | Coefficients of performance and the statistics counters |
 | `program.js` | Heating programs: the program picker, the reduced and comfort set points, the holiday program; hot water mode and hysteresis |
-| `state.js` | What the device is doing now: heating now, the operating state, the status text, hot water charging |
+| `state.js` | What the device is doing now: heating now, the operating state, the status text |
 | `templates.js` | Shared option templates and the factories below |
 | `order.js` | The order of `PATHS` and the capability order of new devices |
 | `types.js` | JSDoc types of the configuration |

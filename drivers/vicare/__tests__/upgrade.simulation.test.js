@@ -410,7 +410,6 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
   ];
   // What 2.0.0 adds from features the 1.0.14 pairing already stored
   const ADDED_IN_2_0_0 = [
-    'measure_dhw_active.charging',
     'measure_heating_active',
     'measure_holiday_active',
     'measure_operating_state',

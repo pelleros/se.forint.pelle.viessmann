@@ -54,7 +54,6 @@
     "measure_holiday_active",
     "thermostat_mode.hotWater",
     "target_hysteresis.hotWater",
-    "measure_dhw_active.charging",
     "measure_heating_active",
     "measure_operating_state",
     "measure_status_text"

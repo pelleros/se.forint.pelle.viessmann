@@ -32,9 +32,10 @@ const { RUNNING_STATE_TEXTS } = require('./templates');
 const { PATHS: TEMPERATURE_PATHS } = require('./temperatures');
 
 /** @type {import('./types').ConfigModule['PATHS']} */
-const PATHS = {
-  HOT_WATER_CHARGING: 'heating.dhw.charging',
-};
+const PATHS = {};
+
+// Hot water charging is mapped in the hot water module; read here only to tell hot water apart
+const HOT_WATER_CHARGING = 'heating.dhw.charging';
 
 const { COMPRESSOR, BURNER, FUEL_CELL_PHASE } = STATUS_PATHS;
 
@@ -141,7 +142,7 @@ function operatingState(read) {
   if (heating === undefined) return undefined;
   if (DEFROST_PHASES.includes(String(phase))) return 'defrost';
   if (phase === 'cooling' && compressor) return 'cooling';
-  if (heating) return read(PATHS.HOT_WATER_CHARGING, 'active.value') === true ? 'hotWater' : 'heating';
+  if (heating) return read(HOT_WATER_CHARGING, 'active.value') === true ? 'hotWater' : 'heating';
   return 'standby';
 }
 
@@ -178,36 +179,7 @@ function statusText(read, context) {
 }
 
 /** @type {import('./types').ConfigModule['FEATURES']} */
-const FEATURES = {
-  [PATHS.HOT_WATER_CHARGING]: {
-    capabilities: [{
-      capabilityName: 'measure_dhw_active.charging',
-      propertyPath: 'active.value',
-      capabilityOptions: {
-        title: {
-          en: 'Hot water charging', de: 'Warmwasserbereitung', nl: 'Warm water laden', fr: 'Charge eau chaude', sv: 'Varmvattenladdning',
-        },
-        ...YES_NO,
-        insightsTitleTrue: {
-          en: 'Hot water charging started',
-          de: 'Warmwasserbereitung gestartet',
-          nl: 'Warm water laden gestart',
-          fr: 'Charge eau chaude démarrée',
-          sv: 'Varmvattenladdningen startade',
-        },
-        insightsTitleFalse: {
-          en: 'Hot water charging stopped',
-          de: 'Warmwasserbereitung gestoppt',
-          nl: 'Warm water laden gestopt',
-          fr: 'Charge eau chaude arrêtée',
-          sv: 'Varmvattenladdningen stannade',
-        },
-        preventInsights: false,
-        preventTag: false,
-      },
-    }],
-  },
-};
+const FEATURES = {};
 
 /** @type {import('./types').DerivedCapabilityConfig[]} */
 const DERIVED = [
@@ -255,5 +227,5 @@ const DERIVED = [
 ];
 
 module.exports = {
-  PATHS, FEATURES, DERIVED, STATES, heatingNow, operatingState, statusText, formatNumber,
+  PATHS, FEATURES, DERIVED, STATES, HOT_WATER_CHARGING, heatingNow, operatingState, statusText, formatNumber,
 };

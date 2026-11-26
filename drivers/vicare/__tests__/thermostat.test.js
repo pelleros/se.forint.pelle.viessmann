@@ -15,7 +15,7 @@ const config = require('../config');
 const { STANDARD_MODES, standardModeOf, standardModesFor } = require('../config/thermostat');
 const { programsFor, PROGRAMS, ECO_PROGRAM } = require('../config/program');
 const {
-  heatingNow, operatingState, statusText, formatNumber,
+  heatingNow, operatingState, statusText, formatNumber, HOT_WATER_CHARGING,
 } = require('../config/state');
 const { FeatureMapper, featureMapper, capabilityRank } = require('../featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS } = require('../flowCards');
@@ -380,7 +380,7 @@ describe('heating now, operating state and status text', () => {
   });
 
   test('the operating state tells hot water, defrost, cooling and standby apart', () => {
-    const charging = (active) => ({ [PATHS.HOT_WATER_CHARGING]: { active: { value: active } } });
+    const charging = (active) => ({ [HOT_WATER_CHARGING]: { active: { value: active } } });
     expect(operatingState(reader({ ...compressor(true, 'heating'), ...charging(true) }))).toBe('hotWater');
     expect(operatingState(reader({ ...compressor(true, 'heating'), ...charging(false) }))).toBe('heating');
     expect(operatingState(reader(compressor(true, 'heating')))).toBe('heating');
@@ -398,7 +398,7 @@ describe('heating now, operating state and status text', () => {
       .toBe('Heating · compressor 55 % · hot water 47.5 °C');
     expect(statusText(reader(running), { language: 'de', ...readings({ measure_holiday_active: true }) }))
       .toBe('Heizen · Warmwasser 47,5 °C · Urlaub');
-    expect(statusText(reader({ ...running, [PATHS.HOT_WATER_CHARGING]: { active: { value: true } } }), { language: 'fr' }))
+    expect(statusText(reader({ ...running, [HOT_WATER_CHARGING]: { active: { value: true } } }), { language: 'fr' }))
       .toBe('Eau chaude · 47,5 °C');
     expect(statusText(reader({ [PATHS.BURNER]: { active: { value: true } } }), { language: 'nl', ...readings({ 'measure_burner_number.burnerModulation': 30 }) }))
       .toBe('Verwarmen · brander 30 %');
@@ -411,7 +411,6 @@ describe('heating now, operating state and status text', () => {
     expect(device.getCapabilityValue('measure_heating_active')).toBe(true);
     expect(device.getCapabilityValue('measure_operating_state')).toBe('heating');
     expect(device.getCapabilityValue('measure_status_text')).toBe('Värmer · kompressor 42 % · varmvatten 49,4 °C');
-    expect(device.getCapabilityValue('measure_dhw_active.charging')).toBe(false);
     expect(await listeners['heating-is-active']({ device })).toBe(true);
     expect(await listeners['operating-state-is']({ device, state: 'heating' })).toBe(true);
     expect(await listeners['heating-program-is']({ device, program: 'comfort' })).toBe(false);

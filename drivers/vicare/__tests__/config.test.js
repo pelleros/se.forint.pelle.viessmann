@@ -689,39 +689,6 @@ describe('Config funktioner', () => {
           },
         }],
       },
-      'heating.dhw.charging': {
-        capabilities: [{
-          capabilityName: 'measure_dhw_active.charging',
-          propertyPath: 'active.value',
-          capabilityOptions: {
-            title: {
-              en: 'Hot water charging', de: 'Warmwasserbereitung', nl: 'Warm water laden', fr: 'Charge eau chaude', sv: 'Varmvattenladdning',
-            },
-            titleTrue: {
-              en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',
-            },
-            titleFalse: {
-              en: 'No', de: 'Nein', nl: 'Nee', fr: 'Non', sv: 'Nej',
-            },
-            insightsTitleTrue: {
-              en: 'Hot water charging started',
-              de: 'Warmwasserbereitung gestartet',
-              nl: 'Warm water laden gestart',
-              fr: 'Charge eau chaude démarrée',
-              sv: 'Varmvattenladdningen startade',
-            },
-            insightsTitleFalse: {
-              en: 'Hot water charging stopped',
-              de: 'Warmwasserbereitung gestoppt',
-              nl: 'Warm water laden gestopt',
-              fr: 'Charge eau chaude arrêtée',
-              sv: 'Varmvattenladdningen stannade',
-            },
-            preventInsights: false,
-            preventTag: false,
-          },
-        }],
-      },
     };
     // A fallback path with the capabilities of its main path
     for (const expected of Object.values(expectedFeatures)) {
@@ -814,7 +781,7 @@ describe('Running state texts', () => {
   test('the app languages and the running capabilities are found', () => {
     expect(LANGUAGES.sort()).toEqual(['de', 'en', 'fr', 'nl', 'sv']);
     expect(runningBases.sort()).toEqual([
-      'measure_burner_active', 'measure_compressor_active', 'measure_dhw_active', 'measure_fuelcell_active', 'measure_heating_active',
+      'measure_burner_active', 'measure_compressor_active', 'measure_fuelcell_active', 'measure_heating_active',
       'measure_holiday_active',
     ]);
   });
@@ -841,9 +808,9 @@ describe('Running state texts', () => {
   const mappedRunningCapabilities = [...Object.values(config.FEATURES).flatMap((feature) => feature.capabilities), ...config.DERIVED]
     .filter((capability) => runningBases.includes(capability.capabilityName.split('.')[0]));
 
-  test('the compressor, the burner, heating now, hot water charging and the holiday program are mapped', () => {
+  test('the compressor, the burner, heating now and the holiday program are mapped', () => {
     expect(mappedRunningCapabilities.map((capability) => capability.capabilityName).sort())
-      .toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_dhw_active.charging', 'measure_heating_active',
+      .toEqual(['measure_burner_active', 'measure_compressor_active', 'measure_heating_active',
         'measure_holiday_active']);
   });
 

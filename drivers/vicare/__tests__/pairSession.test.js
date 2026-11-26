@@ -15,7 +15,10 @@ const Driver = require('../driver');
 const { apiError } = require('../../../lib/apiError');
 const { BEGIN } = require('../../../lib/report');
 
-const { modelName, deviceName, checkInstallations } = require('../pairSession');
+const {
+  modelName, deviceName, checkInstallations, summarizeInstallations, heatingDevices, reportedOffline, featureReadError, pairedDevice, pairingError,
+} = require('../pairSession');
+const { translate } = require('../../../lib/errorMessages');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -175,5 +178,71 @@ describe('check after the login', () => {
   test('the report needs the login first', async () => {
     const { socket } = await startPairing();
     await expect(socket.call('prepare_report')).rejects.toThrow('Log in to Viessmann first');
+  });
+});
+
+describe('the device list', () => {
+  const GATEWAY = { installationId: 1234567, serial: '7637415022052208', aggregatedStatus: 'WorksProperly' };
+
+  test('offers the heating devices of every gateway, in the order of the installations', () => {
+    const boiler = { id: '1', deviceType: 'heating' };
+    const room = { id: 'RoomControl-1', deviceType: 'roomControl' };
+    const response = {
+      data: [{ gateways: [{ ...GATEWAY, devices: [HEATING, room] }] }, { gateways: [{ ...GATEWAY, serial: '2', devices: [boiler] }] }],
+    };
+    expect([...heatingDevices(response)].map(({ gateway, device }) => `${gateway.serial}/${device.id}`))
+      .toEqual(['7637415022052208/0', '2/1']);
+  });
+
+  test('the log says what the account has, without ids', () => {
+    expect(summarizeInstallations(installations([HEATING, { id: 'gateway', deviceType: 'tcu' }])))
+      .toBe('1 installation(s), 1 gateway(s): unknown type, 2 device(s): heating E3_Vitocal_25x, tcu');
+    expect(summarizeInstallations(undefined)).toBe('0 installation(s), 0 gateway(s), 0 device(s)');
+  });
+
+  test('an entry has the frozen data id and the store keys of every pairing', () => {
+    const metadata = {
+      features: ['a'], constraints: { a: {} }, operatingModes: [{ id: 'dhw' }], heatingCircuitId: '0', commandMetadata: { a: {} },
+    };
+    const entry = pairedDevice(GATEWAY, HEATING, metadata, { name: 'Viessmann Vitocal 25x', version: '2.0.0' });
+    expect(entry).toEqual({
+      name: 'Viessmann Vitocal 25x',
+      data: { id: '1234567-7637415022052208-0' },
+      store: {
+        installationId: 1234567,
+        gatewaySerial: '7637415022052208',
+        deviceId: '0',
+        roles: ['type:heatpump'],
+        ...metadata,
+        version: '2.0.0',
+      },
+    });
+    expect(Object.keys(entry.store)).toEqual([
+      'installationId', 'gatewaySerial', 'deviceId', 'roles', 'features', 'constraints', 'operatingModes', 'heatingCircuitId', 'commandMetadata', 'version',
+    ]);
+  });
+
+  test('a device whose features cannot be read on a gateway the list reports offline is a gateway offline error', () => {
+    const offline = { ...GATEWAY, aggregatedStatus: 'Offline' };
+    expect(reportedOffline(offline, HEATING)).toBe(true);
+    expect(reportedOffline(GATEWAY, { ...HEATING, status: 'offline' })).toBe(true);
+    expect(reportedOffline(GATEWAY, HEATING)).toBe(false);
+
+    const timeout = new Error('timeout');
+    expect(featureReadError(timeout, offline, HEATING)).toMatchObject({ message: 'Gateway offline: timeout', apiReason: 'GATEWAY_OFFLINE', cause: timeout });
+    expect(featureReadError(timeout, GATEWAY, HEATING)).toBe(timeout);
+    // An error that already says what is wrong stays as it is
+    const refused = apiError({ status: 402 });
+    expect(featureReadError(refused, offline, HEATING)).toBe(refused);
+  });
+
+  test('a known error state is shown translated while adding a device; other errors stay as they are', () => {
+    const homey = {};
+    const refused = apiError({ status: 402 });
+    expect(pairingError(homey, refused)).toMatchObject({ message: translate(homey, 'pair.package_not_paid'), cause: refused });
+    const limited = Object.assign(apiError({ status: 429 }), { retryAfterMs: 60000 });
+    expect(pairingError(homey, limited, 0).message).toBe(translate(homey, 'pair.api_limit', { time: '00:01 UTC' }));
+    const other = new Error('other');
+    expect(pairingError(homey, other)).toBe(other);
   });
 });

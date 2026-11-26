@@ -20,47 +20,32 @@
 
 'use strict';
 
+// The one driver: it pairs devices, registers the Flow cards and polls every device. This class
+// holds the pollers and the trigger cards and wires them to the Homey SDK; the logic is in
+//   pollPlan.js           how often a device is polled and what a poll asks for
+//   lib/DevicePoller.js   the polling loop: no overlap, backoff, Retry-After
+//   lib/apiError.js       how long a poll waits after an error (retryDelay)
+//   lib/errorMessages.js  what a device says when its polls fail (pollErrorMessage)
+//   pairSession.js        the pairing views and the entries of the device list
+//   deviceMetadata.js     what a device stores from its features
+//   flowHandlers.js       how the condition and action cards run
+
 const { OAuth2Driver } = require('homey-oauth2app');
 const DevicePoller = require('../../lib/DevicePoller');
 const { FEATURES, PATHS } = require('./config');
-const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
-const { featureMapper } = require('./featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
-const { registerFlowCardsWithKind } = require('./flowHandlers');
-
+const { registerFlowCards } = require('./flowHandlers');
+const { readDeviceMetadata } = require('./deviceMetadata');
+const { pollErrorMessage, translate } = require('../../lib/errorMessages');
+const { retryDelay } = require('../../lib/apiError');
 const {
-  isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
-} = require('../../lib/apiError');
-const { apiStateMessage, translate } = require('../../lib/errorMessages');
-const { PairSession, deviceName, checkInstallations } = require('./pairSession');
-const { pollInterval, plannedCallsPerDay } = require('./pollPlan');
+  PairSession, deviceName, checkInstallations, summarizeInstallations, heatingDevices, featureReadError, pairedDevice, pairingError,
+} = require('./pairSession');
+const {
+  pollInterval, plannedCallsPerDay, isExtendedPoll, pollingKey,
+} = require('./pollPlan');
 const { matchesEventCode } = require('./eventLog');
 const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
-
-// Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
-// is often a temporary fault on its side that is fixed within hours; a gateway is often back
-// within minutes, and a successful poll clears the state.
-const STATE_RETRY_DELAYS = {
-  [API_STATES.PACKAGE_NOT_PAID]: 60 * 60 * 1000,
-  [API_STATES.GATEWAY_OFFLINE]: 5 * 60 * 1000,
-};
-
-// The installation list reports the gateway or the device as offline
-const reportedOffline = (gateway, device) => [gateway?.aggregatedStatus, device?.status]
-  .some((status) => typeof status === 'string' && status.toLowerCase() === 'offline');
-
-// What pairing found, for the log: counts, device types and models, no ids or personal data.
-// (The installations response contains serials, installation ids and the address.)
-function summarizeInstallations(response) {
-  const installations = Array.isArray(response?.data) ? response.data : [];
-  const gateways = installations.flatMap((installation) => installation.gateways || []);
-  const devices = gateways.flatMap((gateway) => gateway.devices || []);
-  const describe = (items, describeItem) => (items.length > 0 ? `: ${items.map(describeItem).join(', ')}` : '');
-  const gatewayType = (gateway) => gateway.gatewayType || 'unknown type';
-  const deviceType = (device) => [device.deviceType, device.modelId].filter(Boolean).join(' ') || 'unknown type';
-  return `${installations.length} installation(s), ${gateways.length} gateway(s)${describe(gateways, gatewayType)}, `
-    + `${devices.length} device(s)${describe(devices, deviceType)}`;
-}
 
 module.exports = class ViessmannDriver extends OAuth2Driver {
 
@@ -93,6 +78,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       throw error;
     }
   }
+
+  /* Flow cards */
 
   async _registerTriggerCards() {
     // Register all triggers from FLOW_TRIGGERS
@@ -133,45 +120,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     return triggerCard;
   }
 
+  // The run listeners of the condition and action cards (flowHandlers.js)
   _registerFlowCards() {
     this.log('Starting to register flow cards');
-
-    // Register conditions
-    Object.values(FLOW_CONDITIONS).forEach((condition) => {
-      if (condition.kind) return; // registerFlowCardsWithKind
-      this.log(`Registering condition: ${condition.id}`);
-      try {
-        const flowCard = this.homey.flow.getConditionCard(condition.id);
-        flowCard.registerRunListener(async (args, state) => {
-          const { device } = args;
-          return device.getCapabilityValue(condition.capability);
-        });
-      } catch (error) {
-        this.error(`Failed to register condition ${condition.id}:`, error);
-      }
-    });
-
-    // Register actions
-    Object.values(FLOW_ACTIONS).forEach((action) => {
-      if (action.kind) return; // registerFlowCardsWithKind
-      this.log(`Registering action: ${action.id}`);
-      try {
-        const flowCard = this.homey.flow.getActionCard(action.id);
-        flowCard.registerRunListener(async (args, state) => {
-          const { device, ...actionArgs } = args;
-          const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
-          // Through the feature path the device has (or the commands of a derived capability)
-          return device.writeCapability(action.capability, value);
-        });
-      } catch (error) {
-        this.error(`Failed to register action ${action.id}:`, error);
-      }
-    });
-
-    registerFlowCardsWithKind(this, { conditions: Object.values(FLOW_CONDITIONS), actions: Object.values(FLOW_ACTIONS) });
-
+    registerFlowCards(this, { conditions: Object.values(FLOW_CONDITIONS), actions: Object.values(FLOW_ACTIONS) });
     this.log('Finished registering flow cards');
   }
+
+  /* Polling */
 
   // A device's poll interval: its setting, or automatic (see pollPlan.js)
   _calculatePollInterval(device) {
@@ -198,9 +154,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
 
     await Promise.all(devices.map(async (device) => {
-      const { installationId, gatewaySerial, deviceId } = device.getStore();
-      const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-      await this._startPolling(device, deviceKey);
+      await this._startPolling(device, pollingKey(device.getStore()));
     }));
   }
 
@@ -214,8 +168,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       homey: this.homey,
       getInterval: () => this._calculatePollInterval(device),
       poll: async (isStopped) => {
-        // get features with extended response every 30th poll (statistically)
-        const extendedRequest = Math.random() < 0.03;
+        const extendedRequest = isExtendedPoll();
         const features = await device.getFeatures({ useFilter: !extendedRequest });
         // The device was deleted or its polling restarted while the request was running
         if (isStopped()) return;
@@ -224,25 +177,12 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         }
         await device.onFeaturesUpdated(features, extendedRequest);
       },
-      retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
+      retryDelay,
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
         device.recordPollError?.(error);
-        // Say right away what the user should know: Viessmann refuses access, the quota
-        // is used up (when its reset is known), the gateway is offline, or only a new login
-        // helps. Everything else is retried with backoff.
-        const stateMessage = apiStateMessage(this.homey, error, {
-          retryAt: Number.isFinite(error?.retryAfterMs) ? nextPollAt : undefined,
-        });
-        if (stateMessage) {
-          await this._setDeviceAvailability(device, deviceKey, false, stateMessage);
-        } else if (isAuthenticationFailure(error)) {
-          await this._setDeviceAvailability(device, deviceKey, false, REPAIR_MESSAGE);
-        } else if (consecutiveErrors >= 3) {
-          // API errors carry a safe, redacted message; network errors can contain request URLs
-          const message = error?.status && error.message ? error.message : 'Multiple communication errors';
-          await this._setDeviceAvailability(device, deviceKey, false, message);
-        }
+        const message = pollErrorMessage(this.homey, error, consecutiveErrors, { nextPollAt });
+        if (message) await this._setDeviceAvailability(device, deviceKey, false, message);
       },
     });
     // Registered before the first poll, so that _stopPolling (e.g. when the device is
@@ -286,6 +226,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
   }
 
+  /* Pairing */
+
   async onPairListDevices({ oAuth2Client }) {
     // The pairing check and the report use the client of this pairing (see pairSession.js)
     this._pairSession?.captureClient(oAuth2Client);
@@ -306,65 +248,28 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       const devices = [];
       const { version } = this.homey.manifest;
 
-      for (const installation of result.data) {
-        for (const gateway of installation.gateways) {
-          for (const device of gateway.devices) {
-            if (device.deviceType === 'heating') {
-              if (process.env.DEBUG) {
-                this.log('[ViessmannDriver::onPairListDevices] installationId:', maskId(gateway.installationId));
-                this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', maskId(gateway.serial));
-                this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
-              }
-
-              let metadata;
-              try {
-                metadata = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
-              } catch (error) {
-                // Without a clearer cause, the installation list may already say why
-                if (!apiErrorState(error) && reportedOffline(gateway, device)) {
-                  throw Object.assign(new Error(`Gateway offline: ${error?.message}`, { cause: error }), { apiReason: 'GATEWAY_OFFLINE' });
-                }
-                throw error;
-              }
-              const {
-                features, constraints, operatingModes, heatingCircuitId, commandMetadata,
-              } = metadata;
-
-              devices.push({
-                name: deviceName(device, devices.map((paired) => paired.name), (key) => translate(this.homey, key)),
-                data: {
-                  id: `${gateway.installationId}-${gateway.serial}-${device.id}`,
-                },
-                store: {
-                  installationId: gateway.installationId,
-                  gatewaySerial: gateway.serial,
-                  deviceId: device.id,
-                  roles: device.roles,
-                  features,
-                  constraints,
-                  operatingModes,
-                  heatingCircuitId,
-                  commandMetadata,
-                  version,
-                },
-              });
-            }
-          }
+      for (const { gateway, device } of heatingDevices(result)) {
+        if (process.env.DEBUG) {
+          this.log('[ViessmannDriver::onPairListDevices] installationId:', maskId(gateway.installationId));
+          this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', maskId(gateway.serial));
+          this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
         }
+
+        let metadata;
+        try {
+          metadata = await this._getEnabledFeaturesAndOpModes(oAuth2Client, gateway.installationId, gateway.serial, device.id);
+        } catch (error) {
+          throw featureReadError(error, gateway, device);
+        }
+        const name = deviceName(device, devices.map((paired) => paired.name), (key) => translate(this.homey, key));
+        devices.push(pairedDevice(gateway, device, metadata, { name, version }));
       }
 
       return devices;
     } catch (error) {
       this.error('Error in onPairListDevices:', error);
-      throw this._pairingError(error);
+      throw pairingError(this.homey, error);
     }
-  }
-
-  // The error to show while adding a device: a translated message for a known API state
-  _pairingError(error) {
-    const retryAt = Number.isFinite(error?.retryAfterMs) ? Date.now() + error.retryAfterMs : undefined;
-    const message = apiStateMessage(this.homey, error, { retryAt, pairing: true });
-    return message ? new Error(message, { cause: error }) : error;
   }
 
   async _getEnabledFeaturesAndOpModes(oAuth2Client, installationId, gatewaySerial, deviceId, selectedCircuit = 'auto') {
@@ -378,17 +283,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
   // What a device stores from an unfiltered features response, for the selected circuit
   _readDeviceMetadata(rawResponse, selectedCircuit = 'auto') {
-    const heatingCircuitId = detectHeatingCircuit(rawResponse.data, selectedCircuit);
-    const {
-      features, constraints, operatingModes, commandMetadata,
-    } = featureMapper.deviceMetadata(normalizeCircuitFeatures(rawResponse, heatingCircuitId));
-    return {
-      features,
-      constraints,
-      operatingModes,
-      heatingCircuitId,
-      commandMetadata,
-    };
+    return readDeviceMetadata(rawResponse, selectedCircuit);
   }
 
   // The SDK's pairing with the views around it (Client ID, check, report): see pairSession.js
@@ -400,9 +295,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       // When a new device is added, start polling for it
       this.once('device_add', (device) => {
         this.log('New device added, starting polling');
-        const { installationId, gatewaySerial, deviceId } = device.getStore();
-        const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-        this._startPolling(device, deviceKey).catch((error) => this.error('Could not start polling:', error));
+        this._startPolling(device, pollingKey(device.getStore())).catch((error) => this.error('Could not start polling:', error));
       });
 
       return result;

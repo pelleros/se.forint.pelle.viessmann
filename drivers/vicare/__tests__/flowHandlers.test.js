@@ -117,6 +117,29 @@ describe('registration', () => {
     expect(cards['action/end-boosts'].run).toBeDefined();
   });
 
+  test('a card without a kind reads or writes its capability on the device', async () => {
+    const { driver, cards } = driverWithFlow();
+    driver._registerFlowCards();
+    const device = { getCapabilityValue: jest.fn(() => true), writeCapability: jest.fn(async () => true) };
+
+    await expect(cards['condition/compressor-is-running'].run({ device })).resolves.toBe(true);
+    expect(device.getCapabilityValue).toHaveBeenCalledWith(FLOW_CONDITIONS.COMPRESSOR_RUNNING.capability);
+    await expect(cards['action/set-hot-water-thermostat'].run({ device, temperature: 50 })).resolves.toBe(true);
+    expect(device.writeCapability).toHaveBeenCalledWith(FLOW_ACTIONS.SET_DHW_TEMPERATURE.capability, 50);
+  });
+
+  test('a card without a kind that cannot be registered is logged and the others still work', () => {
+    const { driver, cards } = driverWithFlow();
+    const { getConditionCard } = driver.homey.flow;
+    driver.homey.flow.getConditionCard = jest.fn((id) => {
+      if (id === 'compressor-is-running') throw new Error('no such card');
+      return getConditionCard(id);
+    });
+    driver._registerFlowCards();
+    expect(driver.error).toHaveBeenCalledWith('Failed to register condition compressor-is-running:', expect.any(Error));
+    expect(cards['condition/burner-is-running'].run).toBeDefined();
+  });
+
   test('the condition and action listeners run the card', async () => {
     const { driver, cards } = driverWithFlow();
     await driver.onOAuth2Init();

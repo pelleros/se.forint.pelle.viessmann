@@ -71,9 +71,17 @@
   "errors": {
     "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; appen försöker igen varje timme. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",
     "gateway_offline": "Viessmann-gatewayen är offline. Kontrollera att den har ström och internetanslutning.",
-    "api_limit": "Viessmanns API-gräns är nådd, uppdateringarna fortsätter kl. __time__."
+    "api_limit": "Viessmanns API-gräns är nådd, uppdateringarna fortsätter kl. __time__.",
+    "command_refused": "Viessmann avvisade ändringen (__detail__). Det är ibland ett tillfälligt fel hos Viessmann; försök igen senare."
   },
   "device_settings": {
     "heating_circuit_not_available": "Krets __circuit__ finns inte i den här anläggningen. Tillgängliga kretsar: __available__."
+  },
+  "status": {
+    "fault": "Värmesystemet rapporterar felet __codes__. Värmesystemets manual förklarar koden.",
+    "fault_notification": "__device__: värmesystemet rapporterar felet __code__.",
+    "frozen": "Viessmann har inte skickat några nya värden sedan __time__. Det brukar hjälpa att starta om värmesystemets internetmodul: dra ur Vitoconnect en minut, eller stäng av och slå på värmesystemet om modulen är inbyggd.",
+    "write_not_applied": "Värmesystemet tog inte emot ändringen: __capability__ är __actual__ i stället för __wanted__.",
+    "refresh_too_soon": "Viessmann-funktionerna lästes in nyss. Försök igen om __minutes__ minuter."
   }
 }

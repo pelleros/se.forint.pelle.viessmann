@@ -44,7 +44,24 @@
     "target_temperature.hotWater2",
     "thermostat_mode.fuelCell",
     "thermostat_mode.heating",
-    "thermostat_mode.hotWaterOneTimeCharge"
+    "thermostat_mode.hotWaterOneTimeCharge",
+    "measure_compressor_number.compressorStartsToday",
+    "measure_compressor_number.compressorStartsYesterday",
+    "measure_compressor_number.compressorStartsLastHour",
+    "measure_compressor_number.compressorRuntimePerStartYesterday",
+    "measure_burner_number.burnerStartsToday",
+    "measure_burner_number.burnerStartsYesterday",
+    "measure_burner_number.burnerStartsLastHour",
+    "measure_burner_number.burnerRuntimePerStartYesterday",
+    "measure_power",
+    "measure_electricity_yesterday.total",
+    "measure_electricity_yesterday.heating",
+    "measure_electricity_yesterday.hotWater",
+    "measure_gas_yesterday.total",
+    "measure_gas_yesterday.heating",
+    "measure_gas_yesterday.hotWater",
+    "alarm_problem",
+    "button.refreshFeatures"
   ],
   "retiredCapabilities": {
     "measure_something_active.compressor": "Renamed to measure_compressor_active in commit d9a0906 (v1.0.11). Users lost their compressor Insights history at the time.",
@@ -112,6 +129,22 @@
         "args": {},
         "tokens": {
           "mode": "string"
+        }
+      },
+      "fault-reported": {
+        "args": {},
+        "tokens": {
+          "code": "string",
+          "priority": "string"
+        }
+      },
+      "logbook-entry-added": {
+        "args": {},
+        "tokens": {
+          "event": "string",
+          "actor": "string",
+          "status": "number",
+          "circuit": "string"
         }
       }
     }

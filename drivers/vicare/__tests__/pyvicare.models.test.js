@@ -93,7 +93,10 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
       const { valueMapping } = ALL_CAPABILITIES.find((capability) => capability.capabilityName === capabilityName);
       expected[capabilityName] = valueMapping && value in valueMapping ? valueMapping[value] : value;
     }
-    const set = Object.fromEntries(device.setCapabilityValue.mock.calls);
+    // Computed values (by the device, see computedValues.test.js) are left out
+    const computed = new Set(ALL_CAPABILITIES.filter((capability) => capability.computed).map((capability) => capability.capabilityName));
+    for (const capabilityName of Object.keys(expected)) if (computed.has(capabilityName)) delete expected[capabilityName];
+    const set = Object.fromEntries(device.setCapabilityValue.mock.calls.filter(([capabilityName]) => !computed.has(capabilityName)));
     expect(set).toEqual(expected);
   });
 

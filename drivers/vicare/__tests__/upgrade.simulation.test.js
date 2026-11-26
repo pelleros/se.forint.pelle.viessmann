@@ -101,14 +101,16 @@ const PATHS_1014 = [
 // The capabilities of every stored feature that passes the role check: what
 // initializeCapabilities gives the device, with the given feature paths mapped. The current
 // code checks the roles from roles.js (aliases, and roles inferred from the features when the
-// device reports no role tag); 1.0.14 checked the stored roles as they are.
+// device reports no role tag); 1.0.14 checked the stored roles as they are. `storedRolesOnly` is
+// 1.0.14: it had no computed capabilities and none that every device gets (alwaysAdd).
 function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false } = {}) {
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
-    const capabilityConfigs = getAllCapabilities(featurePath);
-    const { requireRole } = ViessmannDevice.FEATURES[featurePath];
-    if (features.includes(featurePath) && (!requireRole || allowed.includes(requireRole))) {
+    const capabilityConfigs = getAllCapabilities(featurePath).filter((capability) => !(storedRolesOnly && capability.computed));
+    const { requireRole, alwaysAdd } = ViessmannDevice.FEATURES[featurePath];
+    const available = features.includes(featurePath) || (alwaysAdd && !storedRolesOnly);
+    if (available && (!requireRole || allowed.includes(requireRole))) {
       capabilityConfigs.forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
@@ -395,6 +397,16 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     'measure_cop_number.heating',
     'measure_cop_number.total',
   ];
+  // What 2.0.0 adds from the features the device already stored: the daily compressor figures,
+  // and the problem alarm and maintenance action that every device gets
+  const ADDED_FROM_STORED = [
+    'alarm_problem',
+    'button.refreshFeatures',
+    'measure_compressor_number.compressorRuntimePerStartYesterday',
+    'measure_compressor_number.compressorStartsLastHour',
+    'measure_compressor_number.compressorStartsToday',
+    'measure_compressor_number.compressorStartsYesterday',
+  ];
 
   test('the 1.0.14 device has the buffer capability from the main sensor and no COP', async () => {
     const { store, capabilitiesBefore } = await upgrade(scenario);
@@ -408,7 +420,7 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     const { device, capabilitiesBefore } = await upgrade(scenario);
 
     expect(device.removeCapability).not.toHaveBeenCalled();
-    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED].sort());
+    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED, ...ADDED_FROM_STORED].sort());
     expect(device.getStoreValue('features')).toEqual(expect.arrayContaining([
       PATHS.BUFFER_TEMP, PATHS.BUFFER_TEMP_TOP, PATHS.COMPRESSOR_POWER, PATHS.COP_TOTAL, PATHS.COP_HEATING, PATHS.COP_DHW,
     ]));
@@ -416,11 +428,11 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     expect(ADDED.map((id) => device.getCapabilityValue(id))).toEqual([42, 3, 3.4, 3.3]);
   });
 
-  test('when the refresh fails the buffer still reads the top sensor and nothing is added or removed', async () => {
+  test('when the refresh fails the buffer still reads the top sensor and nothing is removed or added from new features', async () => {
     const { device, capabilitiesBefore } = await upgrade(scenario, { refreshFails: true });
 
     expect(device.removeCapability).not.toHaveBeenCalled();
-    expect(device.getCapabilities().sort()).toEqual(capabilitiesBefore);
+    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED_FROM_STORED].sort());
     expect(device.getCapabilityValue('measure_temperature.buffer')).toBe(34.5);
   });
 });

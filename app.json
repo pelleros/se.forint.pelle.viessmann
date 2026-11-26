@@ -84,6 +84,142 @@
             }
           }
         ]
+      },
+      {
+        "id": "fault-reported",
+        "title": {
+          "en": "The heating system reported a fault",
+          "de": "Die Heizung hat eine Störung gemeldet",
+          "nl": "De verwarming heeft een storing gemeld",
+          "fr": "Le chauffage a signalé un défaut",
+          "sv": "Värmesystemet rapporterade ett fel"
+        },
+        "hint": {
+          "en": "Fires once for each new fault code the heating system reports, for example F.160. The manual of your heating system explains the code.",
+          "de": "Wird einmal für jeden neuen Störungscode ausgelöst, den die Heizung meldet, zum Beispiel F.160. Die Anleitung deiner Heizung erklärt den Code.",
+          "nl": "Wordt één keer geactiveerd voor elke nieuwe storingscode die de verwarming meldt, bijvoorbeeld F.160. De handleiding van je verwarming legt de code uit.",
+          "fr": "Se déclenche une fois pour chaque nouveau code de défaut signalé par le chauffage, par exemple F.160. La notice de votre chauffage explique le code.",
+          "sv": "Körs en gång för varje ny felkod som värmesystemet rapporterar, till exempel F.160. Värmesystemets manual förklarar koden."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "code",
+            "type": "string",
+            "title": {
+              "en": "Fault code",
+              "de": "Störungscode",
+              "nl": "Storingscode",
+              "fr": "Code de défaut",
+              "sv": "Felkod"
+            },
+            "example": {
+              "en": "F.160"
+            }
+          },
+          {
+            "name": "priority",
+            "type": "string",
+            "title": {
+              "en": "Priority",
+              "de": "Priorität",
+              "nl": "Prioriteit",
+              "fr": "Priorité",
+              "sv": "Prioritet"
+            },
+            "example": {
+              "en": "error"
+            }
+          }
+        ]
+      },
+      {
+        "id": "logbook-entry-added",
+        "title": {
+          "en": "A logbook entry was added",
+          "de": "Ein Logbucheintrag wurde hinzugefügt",
+          "nl": "Er is een logboekregel toegevoegd",
+          "fr": "Une entrée a été ajoutée au journal",
+          "sv": "En loggbokspost lades till"
+        },
+        "hint": {
+          "en": "Fires for each new entry in the logbook of the heating system, on systems that keep one.",
+          "de": "Wird für jeden neuen Eintrag im Logbuch der Heizung ausgelöst, bei Anlagen, die eines führen.",
+          "nl": "Wordt geactiveerd voor elke nieuwe regel in het logboek van de verwarming, bij installaties die er een bijhouden.",
+          "fr": "Se déclenche pour chaque nouvelle entrée du journal du chauffage, sur les installations qui en tiennent un.",
+          "sv": "Körs för varje ny post i värmesystemets loggbok, på anläggningar som för en."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "event",
+            "type": "string",
+            "title": {
+              "en": "Event",
+              "de": "Ereignis",
+              "nl": "Gebeurtenis",
+              "fr": "Événement",
+              "sv": "Händelse"
+            },
+            "example": {
+              "en": "Inverter_Autotune_fault"
+            }
+          },
+          {
+            "name": "actor",
+            "type": "string",
+            "title": {
+              "en": "Component",
+              "de": "Komponente",
+              "nl": "Onderdeel",
+              "fr": "Composant",
+              "sv": "Komponent"
+            },
+            "example": {
+              "en": "KAELTEKR_UMKEHR"
+            }
+          },
+          {
+            "name": "status",
+            "type": "number",
+            "title": {
+              "en": "Status",
+              "de": "Status",
+              "nl": "Status",
+              "fr": "Statut",
+              "sv": "Status"
+            },
+            "example": {
+              "en": "1"
+            }
+          },
+          {
+            "name": "circuit",
+            "type": "string",
+            "title": {
+              "en": "Circuit",
+              "de": "Kreis",
+              "nl": "Circuit",
+              "fr": "Circuit",
+              "sv": "Krets"
+            },
+            "example": {
+              "en": "Heizkreis"
+            }
+          }
+        ]
       }
     ],
     "conditions": [
@@ -595,6 +731,25 @@
       "decimals": 1,
       "icon": "/assets/cop.svg"
     },
+    "measure_electricity_yesterday": {
+      "type": "number",
+      "title": {
+        "en": "Electricity yesterday",
+        "de": "Strom gestern",
+        "nl": "Stroom gisteren",
+        "fr": "Électricité hier",
+        "sv": "El i går"
+      },
+      "units": {
+        "en": "kWh"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/electricity.svg"
+    },
     "measure_fuelcell_active": {
       "type": "boolean",
       "title": {
@@ -659,6 +814,25 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/fuelcell.svg"
+    },
+    "measure_gas_yesterday": {
+      "type": "number",
+      "title": {
+        "en": "Gas yesterday",
+        "de": "Gas gestern",
+        "nl": "Gas gisteren",
+        "fr": "Gaz hier",
+        "sv": "Gas i går"
+      },
+      "units": {
+        "en": "m³"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/gas.svg"
     },
     "measure_something_active": {
       "type": "boolean",

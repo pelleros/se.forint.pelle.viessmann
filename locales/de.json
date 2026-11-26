@@ -71,9 +71,17 @@
   "errors": {
     "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; die App versucht es jede Stunde erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",
     "gateway_offline": "Das Viessmann-Gateway ist offline. Prüfe, ob es Strom und eine Internetverbindung hat.",
-    "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert."
+    "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert.",
+    "command_refused": "Viessmann hat die Änderung abgelehnt (__detail__). Das ist manchmal ein vorübergehender Fehler bei Viessmann; versuche es später erneut."
   },
   "device_settings": {
     "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."
+  },
+  "status": {
+    "fault": "Die Heizung meldet die Störung __codes__. Die Anleitung deiner Heizung erklärt den Code.",
+    "fault_notification": "__device__: Die Heizung meldet die Störung __code__.",
+    "frozen": "Viessmann hat seit __time__ keine neuen Werte gesendet. Meist hilft ein Neustart des Internetmoduls der Heizung: Zieh den Stecker der Vitoconnect für eine Minute, oder schalte die Heizung aus und wieder ein, wenn das Modul eingebaut ist.",
+    "write_not_applied": "Die Heizung hat die Änderung nicht übernommen: __capability__ ist __actual__ statt __wanted__.",
+    "refresh_too_soon": "Die Viessmann-Funktionen wurden gerade erst eingelesen. Versuche es in __minutes__ Minuten erneut."
   }
 }

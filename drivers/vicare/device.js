@@ -28,6 +28,8 @@ const { FEATURES, PATHS, getCapability } = require('./config');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
 const { runMigrations, versionBefore } = require('./migrations');
+const { DeviceMonitor } = require('./deviceMonitor');
+const { translate } = require('../../lib/errorMessages');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -74,6 +76,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     await this.updateCapabilityOptions();
     await this.initializeOperatingModes();
     await this.registerCapabilityListeners();
+    this.getMonitor().registerListeners();
 
     this.onFeaturesUpdated = this.onFeaturesUpdated.bind(this);
 
@@ -226,15 +229,19 @@ module.exports = class ViessmannDevice extends OAuth2Device {
       }
     } catch (error) {
       this.error('Error executing command:', error);
-      // Keep the API's reason (status, Viessmann error type/message) visible to the user
+      // Keep the API's reason (status, Viessmann error type/message) visible to the user. A
+      // refused write (403) can be a temporary fault at Viessmann: nothing is removed for it
       const reason = error instanceof Error ? error.message : String(error);
-      const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
+      const wrapped = new Error(error?.status === 403
+        ? translate(this.homey, 'errors.command_refused', { detail: reason })
+        : `Error executing command: ${reason}`, { cause: error });
       wrapped.status = error?.status;
       wrapped.retryAfterMs = error?.retryAfterMs;
       throw wrapped;
     }
     // Update capability value
     await this.setCapabilityValueIfPossible(capability.capabilityName, value);
+    this.getMonitor().rememberWrite(capability.capabilityName, capability, value);
     return true;
   }
 
@@ -314,6 +321,9 @@ module.exports = class ViessmannDevice extends OAuth2Device {
           await this.setCapabilityValueIfPossible(capabilityName, null, { trigger: false });
         }
       }
+
+      // Computed values, faults, frozen values and write checks (never throws)
+      await this.getMonitor().onResponse(response, { triggers });
 
       if (process.env.DEBUG) {
         this.log('Feature update processing completed');
@@ -602,6 +612,36 @@ module.exports = class ViessmannDevice extends OAuth2Device {
 
   storeVersionBefore(targetVersion) {
     return versionBefore(this.getStoreValue('version'), targetVersion);
+  }
+
+  // What the device does with a poll beyond copying values: see deviceMonitor.js
+  getMonitor() {
+    if (!this._monitor) this._monitor = new DeviceMonitor(this);
+    return this._monitor;
+  }
+
+  // A failed poll, for the health on the settings page
+  recordPollError(error) {
+    this.getMonitor().onPollError(error);
+  }
+
+  /*
+    The maintenance action "Refresh Viessmann features": reads all features once (one API call),
+    merges them into the stored metadata (the feature list only grows, nothing is removed), adds
+    the capabilities of new features and shows the values from the same read. Polling pauses
+    meanwhile and keeps its backoff.
+  */
+  async refreshFeatures() {
+    const response = await this.getFeatures();
+    const metadata = this.mergeRefreshedMetadata(this.driver._readDeviceMetadata(response, this.getSetting?.('heatingCircuit') || 'auto'));
+    await this.driver._pausePolling(this.getPollingKey());
+    try {
+      await this.applyCircuitMetadata(metadata);
+      await this.onFeaturesUpdated(response, false);
+    } finally {
+      this.resumePolling();
+    }
+    this.log('Features refreshed:', metadata.features.length);
   }
 
 };

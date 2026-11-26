@@ -21,7 +21,7 @@ const CUSTOM_CAPABILITIES_DIR = path.join(__dirname, '../../../.homeycompose/cap
 
 // Homey system capabilities this app builds sub-capabilities on
 // (https://apps-sdk-v3.developer.homey.app/tutorial-device-capabilities.html).
-const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode'];
+const HOMEY_SYSTEM_CAPABILITIES = ['measure_temperature', 'target_temperature', 'thermostat_mode', 'measure_power', 'alarm_problem', 'button'];
 
 // Runtime mapping in flowCards.js per card group of the compose file
 const RUNTIME_FLOW_CARDS = {

@@ -125,6 +125,17 @@ class FeatureMapper {
   }
 
   /**
+   * True when a device with these stored features gets the capabilities of the path: it stores
+   * the feature, or the feature is `alwaysAdd`.
+   * @param {string} path
+   * @param {string[]} storedFeatures
+   * @returns {boolean}
+   */
+  isAvailable(path, storedFeatures) {
+    return storedFeatures.includes(path) || Boolean(this.FEATURES[path]?.alwaysAdd);
+  }
+
+  /**
    * The capabilities a device with these stored features and roles gets, in PATHS order. A
    * capability fed by several paths is listed once per path.
    * @param {string[]} storedFeatures
@@ -134,7 +145,7 @@ class FeatureMapper {
   capabilitiesFor(storedFeatures, roles) {
     const result = [];
     for (const path of Object.values(this.PATHS)) {
-      if (!this.hasRequiredRole(path, roles) || !storedFeatures.includes(path)) continue;
+      if (!this.hasRequiredRole(path, roles) || !this.isAvailable(path, storedFeatures)) continue;
       for (const capability of this.FEATURES[path]?.capabilities || []) result.push({ path, capability });
     }
     return result;
@@ -148,7 +159,7 @@ class FeatureMapper {
    * @returns {boolean}
    */
   isProduced(capabilityName, storedFeatures, allowPath) {
-    return Object.values(this.PATHS).some((path) => storedFeatures.includes(path)
+    return Object.values(this.PATHS).some((path) => this.isAvailable(path, storedFeatures)
       && (this.FEATURES[path]?.capabilities || []).some((capability) => capability.capabilityName === capabilityName)
       && allowPath(path));
   }
@@ -228,7 +239,7 @@ class FeatureMapper {
    * can be fed by more than one feature path: paths with `fallbackFor` are read only when the
    * other paths give no value. A response without any mapped feature clears nothing (no
    * capability is `gone`). Capabilities whose feature needs a role that `roles` lacks are left
-   * out.
+   * out, and so are `computed` capabilities, which the device computes itself.
    * @param {FeaturesResponse} response
    * @param {string[]} roles
    * @returns {Map<string, Reading>}
@@ -245,7 +256,8 @@ class FeatureMapper {
     for (const [path, featureConfig] of entries) {
       const feature = reported.get(path);
       const connected = isConnected(feature);
-      for (const { capabilityName, propertyPath } of featureConfig.capabilities) {
+      for (const { capabilityName, propertyPath, computed } of featureConfig.capabilities) {
+        if (computed) continue;
         const reading = readings.get(capabilityName) || { value: undefined, gone: true };
         readings.set(capabilityName, reading);
         if (reading.value !== undefined) continue;
@@ -262,7 +274,9 @@ class FeatureMapper {
 
   /**
    * The command metadata after a response: what the response reports per feature replaces the
-   * old entry, and a disabled feature has no commands.
+   * old entry, and a disabled feature has no commands. An enabled feature that suddenly reports
+   * no commands at all keeps the ones it had: Viessmann has sent empty commands for a while
+   * before, so this may be temporary, and a write is then refused by the API itself.
    * @param {FeaturesResponse} response
    * @param {Record<string, any> | undefined} previous
    * @returns {Record<string, any>}
@@ -271,7 +285,11 @@ class FeatureMapper {
     const commands = { ...previous };
     for (const feature of response.data) {
       if (!feature.isEnabled) commands[feature.feature] = {};
-      else if (feature.commands && typeof feature.commands === 'object') commands[feature.feature] = feature.commands;
+      else if (feature.commands && typeof feature.commands === 'object') {
+        const known = commands[feature.feature];
+        const emptied = Object.keys(feature.commands).length === 0 && known && Object.keys(known).length > 0;
+        if (!emptied) commands[feature.feature] = feature.commands;
+      }
     }
     return commands;
   }

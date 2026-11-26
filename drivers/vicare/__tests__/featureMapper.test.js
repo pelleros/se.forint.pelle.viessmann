@@ -116,8 +116,26 @@ describe('FeatureMapper', () => {
     const stored = [PATHS.COMPRESSOR, PATHS.HOT_WATER_TEMP, PATHS.BURNER, 'some.unmapped.feature'];
     const names = (roles) => featureMapper.capabilitiesFor(stored, roles).map(({ capability }) => capability.capabilityName);
 
-    expect(names(['type:heatpump'])).toEqual(['measure_temperature.hotWater', 'measure_compressor_active', 'measure_burner_active']);
-    expect(names([])).toEqual(['measure_temperature.hotWater', 'measure_burner_active']);
+    // alarm_problem and the maintenance action are on every device (alwaysAdd)
+    const everyDevice = ['alarm_problem', 'button.refreshFeatures'];
+    expect(names(['type:heatpump'])).toEqual(['measure_temperature.hotWater', 'measure_compressor_active', 'measure_burner_active', ...everyDevice]);
+    expect(names([])).toEqual(['measure_temperature.hotWater', 'measure_burner_active', ...everyDevice]);
+  });
+
+  test('alwaysAdd capabilities are produced without their feature, computed ones are not read', () => {
+    expect(featureMapper.isProduced('alarm_problem', [], () => true)).toBe(true);
+    expect(featureMapper.isAvailable(PATHS.DEVICE_ERRORS, [])).toBe(true);
+    expect(featureMapper.isAvailable(PATHS.POWER_CONSUMPTION, [])).toBe(false);
+    const readings = featureMapper.readValues({
+      data: [{
+        feature: PATHS.POWER_CONSUMPTION, isEnabled: true, properties: { status: { value: 'connected' }, value: { value: 0.9, unit: 'kilowatt' } },
+      }, {
+        feature: PATHS.HOT_WATER_TEMP, isEnabled: true, properties: { value: { value: 45 } },
+      }],
+    }, ['type:heatpump']);
+    expect(readings.get('measure_temperature.hotWater')).toEqual({ value: 45, gone: false });
+    expect(readings.has('measure_power')).toBe(false);
+    expect(readings.has('alarm_problem')).toBe(false);
   });
 
   test('isProduced keeps a capability while one allowed, stored path still produces it', () => {
@@ -191,6 +209,14 @@ describe('FeatureMapper', () => {
 
     expect(commands).toEqual({ a: { setX: {} }, b: {}, c: { z: {} } });
     expect(previous.a).toEqual({ x: {} });
+  });
+
+  test('updatedCommands keeps known commands when a feature suddenly reports none', () => {
+    const previous = { a: { setX: {} }, b: {} };
+    const commands = featureMapper.updatedCommands({
+      data: [feature('a', {}, { commands: {} }), feature('b', {}, { commands: {} }), feature('c', {}, { commands: {} })],
+    }, previous);
+    expect(commands).toEqual({ a: { setX: {} }, b: {}, c: {} });
   });
 
   test('newFeatures lists enabled, connected features that are not known yet', () => {

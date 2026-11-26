@@ -218,6 +218,96 @@ describe('Config funktioner', () => {
               preventTag: true,
             },
           },
+          {
+            capabilityName: 'measure_compressor_number.compressorStartsToday',
+            propertyPath: 'starts.value',
+            computed: 'startsToday',
+            capabilityOptions: {
+              title: {
+                en: 'Compressor starts today',
+                de: 'Verdichterstarts heute',
+                nl: 'Compressorstarts vandaag',
+                fr: 'Démarrages du compresseur aujourd\'hui',
+                sv: 'Kompressorstarter i dag',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_compressor_number.compressorStartsYesterday',
+            propertyPath: 'starts.value',
+            computed: 'startsYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Compressor starts yesterday',
+                de: 'Verdichterstarts gestern',
+                nl: 'Compressorstarts gisteren',
+                fr: 'Démarrages du compresseur hier',
+                sv: 'Kompressorstarter i går',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_compressor_number.compressorStartsLastHour',
+            propertyPath: 'starts.value',
+            computed: 'startsLastHour',
+            capabilityOptions: {
+              title: {
+                en: 'Compressor starts in the last hour',
+                de: 'Verdichterstarts in der letzten Stunde',
+                nl: 'Compressorstarts in het afgelopen uur',
+                fr: 'Démarrages du compresseur dans la dernière heure',
+                sv: 'Kompressorstarter senaste timmen',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_compressor_number.compressorRuntimePerStartYesterday',
+            propertyPath: 'hours.value',
+            computed: 'runtimePerStartYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Compressor run time per start yesterday',
+                de: 'Verdichterlaufzeit pro Start gestern',
+                nl: 'Compressorlooptijd per start gisteren',
+                fr: 'Durée de marche du compresseur par démarrage hier',
+                sv: 'Kompressorns gångtid per start i går',
+              },
+              units: 'min',
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
         ],
       },
       'heating.burners.0': {
@@ -266,6 +356,96 @@ describe('Config funktioner', () => {
               decimals: 0,
               preventInsights: false,
               preventTag: true,
+            },
+          },
+          {
+            capabilityName: 'measure_burner_number.burnerStartsToday',
+            propertyPath: 'starts.value',
+            computed: 'startsToday',
+            capabilityOptions: {
+              title: {
+                en: 'Burner starts today',
+                de: 'Brennerstarts heute',
+                nl: 'Branderstarts vandaag',
+                fr: 'Démarrages du brûleur aujourd\'hui',
+                sv: 'Brännarstarter i dag',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_burner_number.burnerStartsYesterday',
+            propertyPath: 'starts.value',
+            computed: 'startsYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Burner starts yesterday',
+                de: 'Brennerstarts gestern',
+                nl: 'Branderstarts gisteren',
+                fr: 'Démarrages du brûleur hier',
+                sv: 'Brännarstarter i går',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_burner_number.burnerStartsLastHour',
+            propertyPath: 'starts.value',
+            computed: 'startsLastHour',
+            capabilityOptions: {
+              title: {
+                en: 'Burner starts in the last hour',
+                de: 'Brennerstarts in der letzten Stunde',
+                nl: 'Branderstarts in het afgelopen uur',
+                fr: 'Démarrages du brûleur dans la dernière heure',
+                sv: 'Brännarstarter senaste timmen',
+              },
+              units: {
+                en: 'starts',
+                de: 'Starts',
+                nl: 'starts',
+                fr: 'démarrages',
+                sv: 'starter',
+              },
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'measure_burner_number.burnerRuntimePerStartYesterday',
+            propertyPath: 'hours.value',
+            computed: 'runtimePerStartYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Burner run time per start yesterday',
+                de: 'Brennerlaufzeit pro Start gestern',
+                nl: 'Branderlooptijd per start gisteren',
+                fr: 'Durée de marche du brûleur par démarrage hier',
+                sv: 'Brännarens gångtid per start i går',
+              },
+              units: 'min',
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
             },
           },
         ],
@@ -501,6 +681,232 @@ describe('Config funktioner', () => {
           },
         }],
       },
+      'device.messages.errors.raw': {
+        alwaysAdd: true,
+        capabilities: [
+          {
+            capabilityName: 'alarm_problem',
+            propertyPath: 'entries.value',
+            computed: 'problem',
+            capabilityOptions: {
+              title: {
+                en: 'Problem',
+                de: 'Problem',
+                nl: 'Probleem',
+                fr: 'Problème',
+                sv: 'Problem',
+              },
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+          {
+            capabilityName: 'button.refreshFeatures',
+            propertyPath: 'entries.value',
+            computed: 'action',
+            capabilityOptions: {
+              maintenanceAction: true,
+              title: {
+                en: 'Refresh Viessmann features',
+                de: 'Viessmann-Funktionen neu einlesen',
+                nl: 'Viessmann-functies opnieuw inlezen',
+                fr: 'Relire les fonctions Viessmann',
+                sv: 'Läs in Viessmann-funktioner igen',
+              },
+              desc: {
+                en: 'Reads the datapoints of your heating system from Viessmann again and adds values it reports now. Nothing is removed. Uses a few API calls.',
+                de: 'Liest die Datenpunkte deiner Heizung erneut von Viessmann und ergänzt Werte, die sie jetzt meldet. Es wird nichts entfernt. Verbraucht einige API-Aufrufe.',
+                nl: 'Leest de datapunten van je verwarming opnieuw bij Viessmann in en voegt waarden toe die ze nu meldt. Er wordt niets verwijderd. Gebruikt enkele API-aanroepen.',
+                fr: 'Relit les points de données de votre chauffage chez Viessmann et ajoute les valeurs qu\'il signale maintenant. Rien n\'est supprimé. Utilise quelques appels API.',
+                sv: 'Läser in värmesystemets datapunkter från Viessmann igen och lägger till värden som det rapporterar nu. Inget tas bort. Använder några API-anrop.',
+              },
+            },
+          },
+        ],
+      },
+      'fuelCell.errors.raw': {
+        capabilities: [],
+      },
+      'device.messages.logbook': {
+        capabilities: [],
+      },
+      'heating.power.consumption.current': {
+        capabilities: [
+          {
+            capabilityName: 'measure_power',
+            propertyPath: 'value.value',
+            computed: 'power',
+            capabilityOptions: {
+              title: {
+                en: 'Power consumption',
+                de: 'Leistungsaufnahme',
+                nl: 'Opgenomen vermogen',
+                fr: 'Puissance consommée',
+                sv: 'Effektförbrukning',
+              },
+              units: 'W',
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.inverters.0.sensors.power.output': {
+        fallbackFor: 'heating.power.consumption.current',
+        capabilities: [
+          {
+            capabilityName: 'measure_power',
+            propertyPath: 'value.value',
+            computed: 'power',
+            capabilityOptions: {
+              title: {
+                en: 'Power consumption',
+                de: 'Leistungsaufnahme',
+                nl: 'Opgenomen vermogen',
+                fr: 'Puissance consommée',
+                sv: 'Effektförbrukning',
+              },
+              units: 'W',
+              decimals: 0,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.power.consumption.total': {
+        capabilities: [
+          {
+            capabilityName: 'measure_electricity_yesterday.total',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Electricity yesterday (Viessmann)',
+                de: 'Strom gestern (Viessmann)',
+                nl: 'Stroom gisteren (Viessmann)',
+                fr: 'Électricité hier (Viessmann)',
+                sv: 'El i går (Viessmann)',
+              },
+              units: 'kWh',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.power.consumption.heating': {
+        capabilities: [
+          {
+            capabilityName: 'measure_electricity_yesterday.heating',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Electricity yesterday, heating (Viessmann)',
+                de: 'Strom gestern, Heizen (Viessmann)',
+                nl: 'Stroom gisteren, verwarming (Viessmann)',
+                fr: 'Électricité hier, chauffage (Viessmann)',
+                sv: 'El i går, värme (Viessmann)',
+              },
+              units: 'kWh',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.power.consumption.dhw': {
+        capabilities: [
+          {
+            capabilityName: 'measure_electricity_yesterday.hotWater',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Electricity yesterday, hot water (Viessmann)',
+                de: 'Strom gestern, Warmwasser (Viessmann)',
+                nl: 'Stroom gisteren, warm water (Viessmann)',
+                fr: 'Électricité hier, eau chaude (Viessmann)',
+                sv: 'El i går, varmvatten (Viessmann)',
+              },
+              units: 'kWh',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.gas.consumption.total': {
+        capabilities: [
+          {
+            capabilityName: 'measure_gas_yesterday.total',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Gas yesterday (Viessmann)',
+                de: 'Gas gestern (Viessmann)',
+                nl: 'Gas gisteren (Viessmann)',
+                fr: 'Gaz hier (Viessmann)',
+                sv: 'Gas i går (Viessmann)',
+              },
+              units: 'm³',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.gas.consumption.heating': {
+        capabilities: [
+          {
+            capabilityName: 'measure_gas_yesterday.heating',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Gas yesterday, heating (Viessmann)',
+                de: 'Gas gestern, Heizen (Viessmann)',
+                nl: 'Gas gisteren, verwarming (Viessmann)',
+                fr: 'Gaz hier, chauffage (Viessmann)',
+                sv: 'Gas i går, värme (Viessmann)',
+              },
+              units: 'm³',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
+      'heating.gas.consumption.dhw': {
+        capabilities: [
+          {
+            capabilityName: 'measure_gas_yesterday.hotWater',
+            propertyPath: 'day.value',
+            computed: 'consumptionYesterday',
+            capabilityOptions: {
+              title: {
+                en: 'Gas yesterday, hot water (Viessmann)',
+                de: 'Gas gestern, Warmwasser (Viessmann)',
+                nl: 'Gas gisteren, warm water (Viessmann)',
+                fr: 'Gaz hier, eau chaude (Viessmann)',
+                sv: 'Gas i går, varmvatten (Viessmann)',
+              },
+              units: 'm³',
+              decimals: 1,
+              preventInsights: false,
+              preventTag: false,
+            },
+          },
+        ],
+      },
     };
 
     Object.entries(expectedFeatures).forEach(([featurePath, expectedFeature]) => {
@@ -514,6 +920,7 @@ describe('Config funktioner', () => {
             expect(actualFeature.requireRole).toBe(expectedFeature.requireRole);
           }
           expect(actualFeature.fallbackFor).toBe(expectedFeature.fallbackFor);
+          expect(actualFeature.alwaysAdd).toBe(expectedFeature.alwaysAdd);
 
           // Testa capabilities
           expect(actualFeature.capabilities).toHaveLength(expectedFeature.capabilities.length);
@@ -526,6 +933,7 @@ describe('Config funktioner', () => {
 
             // Testa propertyPath
             expect(actualCapability.propertyPath).toBe(expectedCapability.propertyPath);
+            expect(actualCapability.computed).toBe(expectedCapability.computed);
 
             // Testa command om det finns
             if (expectedCapability.command) {
@@ -627,7 +1035,9 @@ describe('Running state texts', () => {
 describe('Statistics counters', () => {
   const counters = Object.entries(config.FEATURES)
     .filter(([featurePath]) => /(^|\.)statistics$/.test(featurePath))
-    .flatMap(([, feature]) => feature.capabilities);
+    .flatMap(([, feature]) => feature.capabilities)
+    // The daily figures computed from the counters (computed) are tested in computedValues.test.js
+    .filter((capability) => !capability.computed);
 
   test('are the starts and hours of the compressor, the burner and the fuel cell', () => {
     expect(counters.map((capability) => capability.capabilityName).sort()).toEqual([

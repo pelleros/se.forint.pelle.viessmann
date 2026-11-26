@@ -71,9 +71,17 @@
   "errors": {
     "package_not_paid": "Viessmann weigert de toegang tot de gegevens van dit account. Dit is vaak een tijdelijk probleem bij Viessmann; de app probeert het elk uur opnieuw. Houdt het aan, neem dan contact op met de ontwikkelaarssupport van Viessmann.",
     "gateway_offline": "De Viessmann-gateway is offline. Controleer of hij stroom en een internetverbinding heeft.",
-    "api_limit": "Limiet van de Viessmann-API bereikt, updates worden om __time__ hervat."
+    "api_limit": "Limiet van de Viessmann-API bereikt, updates worden om __time__ hervat.",
+    "command_refused": "Viessmann heeft de wijziging geweigerd (__detail__). Dit is soms een tijdelijke storing bij Viessmann; probeer het later opnieuw."
   },
   "device_settings": {
     "heating_circuit_not_available": "Circuit __circuit__ bestaat niet in deze installatie. Beschikbare circuits: __available__."
+  },
+  "status": {
+    "fault": "De verwarming meldt storing __codes__. De handleiding van je verwarming legt de code uit.",
+    "fault_notification": "__device__: de verwarming meldt storing __code__.",
+    "frozen": "Viessmann heeft sinds __time__ geen nieuwe waarden gestuurd. Meestal helpt het om de internetmodule van de verwarming opnieuw te starten: haal de stekker van de Vitoconnect een minuut uit het stopcontact, of zet de verwarming uit en weer aan als de module ingebouwd is.",
+    "write_not_applied": "De verwarming heeft de wijziging niet overgenomen: __capability__ is __actual__ in plaats van __wanted__.",
+    "refresh_too_soon": "De Viessmann-functies zijn net ingelezen. Probeer het over __minutes__ minuten opnieuw."
   }
 }

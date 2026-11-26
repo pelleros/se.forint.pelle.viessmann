@@ -74,6 +74,14 @@
     "errors": {
       "package_not_paid": "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; the app tries again every hour. If it lasts, contact Viessmann's developer support.",
       "gateway_offline": "The Viessmann gateway is offline. Check that it has power and an internet connection.",
-      "api_limit": "Viessmann API limit reached, updates resume at __time__."
+      "api_limit": "Viessmann API limit reached, updates resume at __time__.",
+      "command_refused": "Viessmann refused the change (__detail__). This is sometimes a temporary fault at Viessmann; try again later."
+    },
+    "status": {
+      "fault": "The heating system reports fault __codes__. The manual of your heating system explains the code.",
+      "fault_notification": "__device__: the heating system reports fault __code__.",
+      "frozen": "Viessmann has sent no new values since __time__. Restarting the internet module of the heating system usually helps: unplug the Vitoconnect for a minute, or switch the heating system off and on again if the module is built in.",
+      "write_not_applied": "The heating system did not take the change: __capability__ is __actual__ instead of __wanted__.",
+      "refresh_too_soon": "The Viessmann features were read a moment ago. Try again in __minutes__ minutes."
     }
 }

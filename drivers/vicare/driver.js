@@ -66,6 +66,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   MIN_POLL_INTERVAL = 2 * 60 * 1000;
   _devicePollers = new Map();
   _triggerCards = new Map();
+  // Triggers the app fires for events (flowCards.js `event: true`), by card id
+  _eventTriggerCards = new Map();
 
   async onOAuth2Init() {
     try {
@@ -90,8 +92,19 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Register all triggers from FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
+      if (trigger.event) {
+        this._eventTriggerCards.set(trigger.id, triggerCard);
+        continue;
+      }
       this._triggerCards.set(trigger.capability, triggerCard);
     }
+  }
+
+  // Fires an event trigger (see flowCards.js) for a device
+  async triggerEvent(id, device, tokens = {}, state = {}) {
+    const card = this._eventTriggerCards.get(id);
+    if (!card) throw new Error(`No event trigger card: ${id}`);
+    await card.trigger(device, tokens, state);
   }
 
   // Helper to get the trigger card for a capability
@@ -185,6 +198,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
+        device.recordPollError?.(error);
         // Say right away what the user should know: Viessmann refuses access, the quota
         // is used up (when its reset is known), the gateway is offline, or only a new login
         // helps. Everything else is retried with backoff.

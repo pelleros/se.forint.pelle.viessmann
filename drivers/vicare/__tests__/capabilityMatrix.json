@@ -6,21 +6,38 @@
     "offers on it. Every fixture is paired as a heating device, also those the app would not list."
   ],
   "configuredOptions": {
+    "alarm_problem": {"title":{"en":"Problem","de":"Problem","nl":"Probleem","fr":"Problème","sv":"Problem"},"preventInsights":false,"preventTag":false},
+    "button.refreshFeatures": {"maintenanceAction":true,"title":{"en":"Refresh Viessmann features","de":"Viessmann-Funktionen neu einlesen","nl":"Viessmann-functies opnieuw inlezen","fr":"Relire les fonctions Viessmann","sv":"Läs in Viessmann-funktioner igen"},"desc":{"en":"Reads the datapoints of your heating system from Viessmann again and adds values it reports now. Nothing is removed. Uses a few API calls.","de":"Liest die Datenpunkte deiner Heizung erneut von Viessmann und ergänzt Werte, die sie jetzt meldet. Es wird nichts entfernt. Verbraucht einige API-Aufrufe.","nl":"Leest de datapunten van je verwarming opnieuw bij Viessmann in en voegt waarden toe die ze nu meldt. Er wordt niets verwijderd. Gebruikt enkele API-aanroepen.","fr":"Relit les points de données de votre chauffage chez Viessmann et ajoute les valeurs qu'il signale maintenant. Rien n'est supprimé. Utilise quelques appels API.","sv":"Läser in värmesystemets datapunkter från Viessmann igen och lägger till värden som det rapporterar nu. Inget tas bort. Använder några API-anrop."}},
     "measure_burner_active": {"title":{"en":"Burner running"},"preventInsights":false,"preventTag":false,"titleTrue":{"en":"Yes","de":"Ja","nl":"Ja","fr":"Oui","sv":"Ja"},"titleFalse":{"en":"No","de":"Nein","nl":"Nee","fr":"Non","sv":"Nej"},"insightsTitleTrue":{"en":"Burner started","de":"Brenner gestartet","nl":"Brander gestart","fr":"Brûleur démarré","sv":"Brännaren startade"},"insightsTitleFalse":{"en":"Burner stopped","de":"Brenner gestoppt","nl":"Brander gestopt","fr":"Brûleur arrêté","sv":"Brännaren stannade"}},
     "measure_burner_number.burnerHours": {"title":{"en":"Burner runtime"},"units":"h","preventInsights":false,"preventTag":true},
     "measure_burner_number.burnerModulation": {"title":{"en":"Burner modulation"},"units":"%","preventInsights":false,"preventTag":true},
+    "measure_burner_number.burnerRuntimePerStartYesterday": {"title":{"en":"Burner run time per start yesterday","de":"Brennerlaufzeit pro Start gestern","nl":"Branderlooptijd per start gisteren","fr":"Durée de marche du brûleur par démarrage hier","sv":"Brännarens gångtid per start i går"},"units":"min","decimals":0,"preventInsights":false,"preventTag":false},
     "measure_burner_number.burnerStarts": {"title":{"en":"Burner starts"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":true},
+    "measure_burner_number.burnerStartsLastHour": {"title":{"en":"Burner starts in the last hour","de":"Brennerstarts in der letzten Stunde","nl":"Branderstarts in het afgelopen uur","fr":"Démarrages du brûleur dans la dernière heure","sv":"Brännarstarter senaste timmen"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
+    "measure_burner_number.burnerStartsToday": {"title":{"en":"Burner starts today","de":"Brennerstarts heute","nl":"Branderstarts vandaag","fr":"Démarrages du brûleur aujourd'hui","sv":"Brännarstarter i dag"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
+    "measure_burner_number.burnerStartsYesterday": {"title":{"en":"Burner starts yesterday","de":"Brennerstarts gestern","nl":"Branderstarts gisteren","fr":"Démarrages du brûleur hier","sv":"Brännarstarter i går"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
     "measure_compressor_active": {"title":{"en":"Compressor running"},"preventInsights":false,"preventTag":false,"titleTrue":{"en":"Yes","de":"Ja","nl":"Ja","fr":"Oui","sv":"Ja"},"titleFalse":{"en":"No","de":"Nein","nl":"Nee","fr":"Non","sv":"Nej"},"insightsTitleTrue":{"en":"Compressor started","de":"Verdichter gestartet","nl":"Compressor gestart","fr":"Compresseur démarré","sv":"Kompressorn startade"},"insightsTitleFalse":{"en":"Compressor stopped","de":"Verdichter gestoppt","nl":"Compressor gestopt","fr":"Compresseur arrêté","sv":"Kompressorn stannade"}},
     "measure_compressor_number.compressorHours": {"title":{"en":"Compressor runtime"},"units":"h","preventInsights":false,"preventTag":true},
     "measure_compressor_number.compressorModulation": {"title":{"en":"Compressor load"},"units":"%","preventInsights":false,"preventTag":true},
+    "measure_compressor_number.compressorRuntimePerStartYesterday": {"title":{"en":"Compressor run time per start yesterday","de":"Verdichterlaufzeit pro Start gestern","nl":"Compressorlooptijd per start gisteren","fr":"Durée de marche du compresseur par démarrage hier","sv":"Kompressorns gångtid per start i går"},"units":"min","decimals":0,"preventInsights":false,"preventTag":false},
     "measure_compressor_number.compressorStarts": {"title":{"en":"Compressor starts"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":true},
+    "measure_compressor_number.compressorStartsLastHour": {"title":{"en":"Compressor starts in the last hour","de":"Verdichterstarts in der letzten Stunde","nl":"Compressorstarts in het afgelopen uur","fr":"Démarrages du compresseur dans la dernière heure","sv":"Kompressorstarter senaste timmen"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
+    "measure_compressor_number.compressorStartsToday": {"title":{"en":"Compressor starts today","de":"Verdichterstarts heute","nl":"Compressorstarts vandaag","fr":"Démarrages du compresseur aujourd'hui","sv":"Kompressorstarter i dag"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
+    "measure_compressor_number.compressorStartsYesterday": {"title":{"en":"Compressor starts yesterday","de":"Verdichterstarts gestern","nl":"Compressorstarts gisteren","fr":"Démarrages du compresseur hier","sv":"Kompressorstarter i går"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":false},
     "measure_cop_number.dhw": {"title":{"en":"COP hot water"},"decimals":1,"preventInsights":false,"preventTag":false},
     "measure_cop_number.heating": {"title":{"en":"COP heating"},"decimals":1,"preventInsights":false,"preventTag":false},
     "measure_cop_number.total": {"title":{"en":"COP total"},"decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_electricity_yesterday.heating": {"title":{"en":"Electricity yesterday, heating (Viessmann)","de":"Strom gestern, Heizen (Viessmann)","nl":"Stroom gisteren, verwarming (Viessmann)","fr":"Électricité hier, chauffage (Viessmann)","sv":"El i går, värme (Viessmann)"},"units":"kWh","decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_electricity_yesterday.hotWater": {"title":{"en":"Electricity yesterday, hot water (Viessmann)","de":"Strom gestern, Warmwasser (Viessmann)","nl":"Stroom gisteren, warm water (Viessmann)","fr":"Électricité hier, eau chaude (Viessmann)","sv":"El i går, varmvatten (Viessmann)"},"units":"kWh","decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_electricity_yesterday.total": {"title":{"en":"Electricity yesterday (Viessmann)","de":"Strom gestern (Viessmann)","nl":"Stroom gisteren (Viessmann)","fr":"Électricité hier (Viessmann)","sv":"El i går (Viessmann)"},"units":"kWh","decimals":1,"preventInsights":false,"preventTag":false},
     "measure_fuelcell_number.operationHours": {"title":{"en":"Fuel cell operation hours"},"units":"h","preventInsights":false,"preventTag":true},
     "measure_fuelcell_number.productionHours": {"title":{"en":"Fuel cell production hours"},"units":"h","preventInsights":false,"preventTag":true},
     "measure_fuelcell_number.productionStarts": {"title":{"en":"Fuel cell starts"},"units":{"en":"starts","de":"Starts","nl":"starts","fr":"démarrages","sv":"starter"},"decimals":0,"preventInsights":false,"preventTag":true},
     "measure_fuelcell_phase": {"title":{"en":"Fuel cell phase"}},
+    "measure_gas_yesterday.heating": {"title":{"en":"Gas yesterday, heating (Viessmann)","de":"Gas gestern, Heizen (Viessmann)","nl":"Gas gisteren, verwarming (Viessmann)","fr":"Gaz hier, chauffage (Viessmann)","sv":"Gas i går, värme (Viessmann)"},"units":"m³","decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_gas_yesterday.hotWater": {"title":{"en":"Gas yesterday, hot water (Viessmann)","de":"Gas gestern, Warmwasser (Viessmann)","nl":"Gas gisteren, warm water (Viessmann)","fr":"Gaz hier, eau chaude (Viessmann)","sv":"Gas i går, varmvatten (Viessmann)"},"units":"m³","decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_gas_yesterday.total": {"title":{"en":"Gas yesterday (Viessmann)","de":"Gas gestern (Viessmann)","nl":"Gas gisteren (Viessmann)","fr":"Gaz hier (Viessmann)","sv":"Gas i går (Viessmann)"},"units":"m³","decimals":1,"preventInsights":false,"preventTag":false},
+    "measure_power": {"title":{"en":"Power consumption","de":"Leistungsaufnahme","nl":"Opgenomen vermogen","fr":"Puissance consommée","sv":"Effektförbrukning"},"units":"W","decimals":0,"preventInsights":false,"preventTag":false},
     "measure_temperature.boilerCommonSupply": {"title":{"en":"Boiler Exit Temperature"},"units":"°C","decimals":1,"preventInsights":false,"preventTag":true},
     "measure_temperature.boiler_main": {"title":{"en":"Boiler Main Temperature"},"units":"°C","decimals":1,"preventInsights":false,"preventTag":false},
     "measure_temperature.buffer": {"title":{"en":"Buffer cylinder temperature"},"units":"°C","decimals":1,"preventInsights":false,"preventTag":false},
@@ -60,7 +77,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -72,7 +95,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "vitocal_222": {
@@ -93,10 +118,16 @@
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
         "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
         "measure_compressor_number.compressorModulation",
         "measure_cop_number.total",
         "measure_cop_number.heating",
-        "measure_cop_number.dhw"
+        "measure_cop_number.dhw",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -108,7 +139,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "vitodens_200_2016": {
@@ -126,11 +159,24 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
-        "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}},{"id":"forcedNormal","title":{"en":"Forced Normal"}},{"id":"forcedReduced","title":{"en":"Forced Reduced"}}]}
+        "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}},{"id":"forcedNormal","title":{"en":"Forced Normal"}},{"id":"forcedReduced","title":{"en":"Forced Reduced"}}]},
+        "measure_gas_yesterday.total": {"units":"kWh"},
+        "measure_gas_yesterday.heating": {"units":"kWh"},
+        "measure_gas_yesterday.hotWater": {"units":"kWh"}
       },
       "flowCards": [
         "condition/burner-is-running",
@@ -138,7 +184,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "vitodens_200_dh": {
@@ -155,7 +203,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -167,7 +227,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "vitodens_200_e3": {
@@ -185,7 +247,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -197,7 +271,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "vitovalor_pt2": {
@@ -216,13 +292,25 @@
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
         "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
         "measure_temperature.fuelCellReturn",
         "measure_temperature.fuelCellSupply",
         "measure_fuelcell_number.operationHours",
         "measure_fuelcell_number.productionHours",
         "measure_fuelcell_number.productionStarts",
         "measure_fuelcell_phase",
-        "thermostat_mode.fuelCell"
+        "thermostat_mode.fuelCell",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -235,7 +323,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-fuelcell-mode",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Ecotronic": {
@@ -250,7 +340,13 @@
         "measure_temperature.boiler_main",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"max":37},
@@ -260,20 +356,34 @@
         "condition/burner-is-running",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/RoomControl": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/RoomControlOne": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/Solar": {
       "circuit": "0",
@@ -289,7 +399,17 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -301,20 +421,34 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/TCU300_ethernet": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitoairFs300E": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/Vitocal111S": {
       "circuit": "0",
@@ -334,7 +468,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"standby","title":{"en":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"DHW And Heating Cooling"}}]}
@@ -346,7 +486,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal151A": {
@@ -362,7 +504,16 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}},{"id":"cooling","title":{"en":"Cooling"}},{"id":"heatingCooling","title":{"en":"Heating Cooling"}}]}
@@ -372,7 +523,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200": {
@@ -392,7 +545,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"standby","title":{"en":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"DHW And Heating Cooling"}}]}
@@ -404,7 +563,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200A_OutdoorUnit": {
@@ -414,11 +575,20 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power"
       ],
       "options": {},
       "flowCards": [
-        "condition/compressor-is-running"
+        "condition/compressor-is-running",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200A_SystemController": {
@@ -429,7 +599,13 @@
         "thermostat_mode.hotWaterOneTimeCharge",
         "thermostat_mode.heating",
         "measure_temperature.circuit0",
-        "measure_temperature.circuit0_supply"
+        "measure_temperature.circuit0_supply",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -438,7 +614,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200S-with-Vitovent300W": {
@@ -459,7 +637,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -471,7 +655,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200S": {
@@ -490,7 +676,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -502,7 +694,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200S_AWB-M-E-AC-201.D10": {
@@ -519,10 +713,16 @@
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
         "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
         "measure_compressor_number.compressorModulation",
         "measure_cop_number.total",
         "measure_cop_number.heating",
-        "measure_cop_number.dhw"
+        "measure_cop_number.dhw",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -531,7 +731,9 @@
         "condition/compressor-is-running",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal200S_E8NEV": {
@@ -547,7 +749,16 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -557,7 +768,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal222S-with-Vitovent": {
@@ -577,7 +790,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"standby","title":{"en":"Standby"}},{"id":"dhwAndHeatingCooling","title":{"en":"DHW And Heating Cooling"}}]}
@@ -589,7 +808,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal222S": {
@@ -607,7 +828,16 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -617,7 +847,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal250A": {
@@ -636,7 +868,17 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -646,7 +888,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal250A_NoiseReduction": {
@@ -665,7 +909,17 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -675,7 +929,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal250A_TwoCircuits": {
@@ -694,7 +950,17 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -704,7 +970,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal252": {
@@ -722,7 +990,16 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -732,7 +1009,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal252A": {
@@ -750,7 +1029,17 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"heating","title":{"en":"Heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -760,7 +1049,9 @@
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal262A_T2H-R290": {
@@ -772,13 +1063,24 @@
         "measure_temperature.supply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_power",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.hotWater"
       ],
       "options": {},
       "flowCards": [
         "condition/compressor-is-running",
         "action/set-hot-water-thermostat",
-        "action/do-one-time-hot-water-charge"
+        "action/do-one-time-hot-water-charge",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal300G_CU401B": {
@@ -801,10 +1103,16 @@
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
         "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
         "measure_compressor_number.compressorModulation",
         "measure_cop_number.total",
         "measure_cop_number.heating",
-        "measure_cop_number.dhw"
+        "measure_cop_number.dhw",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -816,7 +1124,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal333G-with-Vitovent300F": {
@@ -839,9 +1149,15 @@
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
         "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
         "measure_cop_number.total",
         "measure_cop_number.heating",
-        "measure_cop_number.dhw"
+        "measure_cop_number.dhw",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -853,7 +1169,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocal333G": {
@@ -874,7 +1192,13 @@
         "measure_temperature.secondarySupply",
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
-        "measure_compressor_number.compressorStarts"
+        "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -886,7 +1210,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocaldens222F": {
@@ -905,10 +1231,20 @@
         "measure_compressor_active",
         "measure_compressor_number.compressorHours",
         "measure_compressor_number.compressorStarts",
+        "measure_compressor_number.compressorStartsToday",
+        "measure_compressor_number.compressorStartsYesterday",
+        "measure_compressor_number.compressorStartsLastHour",
+        "measure_compressor_number.compressorRuntimePerStartYesterday",
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}}]}
@@ -921,38 +1257,70 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/set-hot-water-thermostat2",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitocharge03": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/Vitocharge05": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitochargeEvolution08": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitoconnectOpto1": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitoconnectOpto2": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/Vitodens050W": {
       "circuit": "0",
@@ -967,7 +1335,13 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.hotWater": {"min":30},
@@ -979,7 +1353,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens100NA": {
@@ -993,13 +1369,27 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {},
       "flowCards": [
         "condition/burner-is-running",
         "action/set-hot-water-thermostat",
-        "action/do-one-time-hot-water-charge"
+        "action/do-one-time-hot-water-charge",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens100W": {
@@ -1015,7 +1405,13 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"min":2,"max":80},
@@ -1026,7 +1422,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens100W_B1HC-26": {
@@ -1040,7 +1438,13 @@
         "measure_temperature.boilerCommonSupply",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.hotWater": {"min":30,"max":67},
@@ -1052,7 +1456,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens111W": {
@@ -1066,7 +1472,13 @@
         "measure_temperature.boilerCommonSupply",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.hotWater": {"min":30},
@@ -1078,7 +1490,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens200W": {
@@ -1094,7 +1508,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37}
@@ -1105,7 +1531,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens200W_2": {
@@ -1121,11 +1549,24 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
-        "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced Reduced"}},{"id":"forcedNormal","title":{"en":"Forced Normal"}}]}
+        "thermostat_mode.heating": {"values":[{"id":"dhw","title":{"en":"Hot water"}},{"id":"dhwAndHeating","title":{"en":"Hot water and heating"}},{"id":"standby","title":{"en":"Standby"}},{"id":"forcedReduced","title":{"en":"Forced Reduced"}},{"id":"forcedNormal","title":{"en":"Forced Normal"}}]},
+        "measure_gas_yesterday.total": {"units":"kWh"},
+        "measure_gas_yesterday.heating": {"units":"kWh"},
+        "measure_gas_yesterday.hotWater": {"units":"kWh"}
       },
       "flowCards": [
         "condition/burner-is-running",
@@ -1133,7 +1574,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens200W_B2HA": {
@@ -1148,7 +1591,13 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1159,7 +1608,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens200W_B2HF": {
@@ -1177,7 +1628,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1189,7 +1652,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens222W": {
@@ -1205,7 +1670,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37}
@@ -1216,7 +1693,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens300W": {
@@ -1232,7 +1711,17 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1244,7 +1733,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens300W_B3HF-19": {
@@ -1262,7 +1753,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1274,7 +1777,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens333F": {
@@ -1291,7 +1796,15 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.hotWater": {"max":90},
@@ -1304,7 +1817,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens343F_B3UF": {
@@ -1320,7 +1835,19 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1332,7 +1859,9 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitodens_100_BHC_0421": {
@@ -1348,7 +1877,13 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"min":20,"max":82},
@@ -1359,7 +1894,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/VitolaUniferral": {
@@ -1374,7 +1911,13 @@
         "measure_temperature.boiler_main",
         "measure_burner_active",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1385,7 +1928,9 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitoladens300-C_J3RA": {
@@ -1401,7 +1946,13 @@
         "measure_burner_active",
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
-        "measure_burner_number.burnerStarts"
+        "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
+        "alarm_problem",
+        "button.refreshFeatures"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1412,20 +1963,34 @@
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/Vitopure350": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitosetAqua": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/VitovalorPT2": {
       "circuit": "1",
@@ -1444,12 +2009,24 @@
         "measure_burner_number.burnerModulation",
         "measure_burner_number.burnerHours",
         "measure_burner_number.burnerStarts",
+        "measure_burner_number.burnerStartsToday",
+        "measure_burner_number.burnerStartsYesterday",
+        "measure_burner_number.burnerStartsLastHour",
+        "measure_burner_number.burnerRuntimePerStartYesterday",
         "measure_temperature.fuelCellReturn",
         "measure_temperature.fuelCellSupply",
         "measure_fuelcell_number.operationHours",
         "measure_fuelcell_number.productionHours",
         "measure_fuelcell_number.productionStarts",
-        "measure_fuelcell_phase"
+        "measure_fuelcell_phase",
+        "alarm_problem",
+        "button.refreshFeatures",
+        "measure_electricity_yesterday.total",
+        "measure_electricity_yesterday.heating",
+        "measure_electricity_yesterday.hotWater",
+        "measure_gas_yesterday.total",
+        "measure_gas_yesterday.heating",
+        "measure_gas_yesterday.hotWater"
       ],
       "options": {
         "target_temperature.heating": {"min":3,"max":37},
@@ -1461,38 +2038,70 @@
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
-        "trigger/heating-mode-changed"
+        "trigger/heating-mode-changed",
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
       ]
     },
     "pyvicare/zigbee_zk03838_fht_channel": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/zigbee_zk03838_fht_main": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/zigbee_zk03839_cs": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/zigbee_zk03840_trv": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     },
     "pyvicare/zigbee_zk05390_repeater": {
       "circuit": "0",
-      "capabilities": [],
+      "capabilities": [
+        "alarm_problem",
+        "button.refreshFeatures"
+      ],
       "options": {},
-      "flowCards": []
+      "flowCards": [
+        "trigger/fault-reported",
+        "trigger/logbook-entry-added"
+      ]
     }
   }
 }

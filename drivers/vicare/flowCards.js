@@ -33,6 +33,8 @@ const { PATHS, getCapability } = require('./config');
  * @typedef {object} FlowCardMapping
  * @property {string} id the card id in driver.flow.compose.json
  * @property {string} capability the capability the card reads, writes or fires for
+ * @property {boolean} [event] a trigger the app fires for an event (with its own tokens),
+ *   not for a change of the capability's value; the capability is the card's $filter
  */
 
 /** @type {(path: string) => string} */
@@ -85,6 +87,17 @@ const FLOW_TRIGGERS = {
   HEATING_MODE_CHANGED: {
     id: 'heating-mode-changed',
     capability: capabilityOf(PATHS.HEATING_CIRCUIT_0_MODE),
+  },
+  // Events, fired by deviceMonitor.js (offered on every device: alarm_problem is on every device)
+  FAULT_REPORTED: {
+    id: 'fault-reported',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
+  LOGBOOK_ENTRY_ADDED: {
+    id: 'logbook-entry-added',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
   },
 };
 

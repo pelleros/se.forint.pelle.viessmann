@@ -71,9 +71,17 @@
   "errors": {
     "package_not_paid": "Viessmann refuse l'accès aux données de ce compte. C'est souvent un problème temporaire chez Viessmann ; l'app réessaie toutes les heures. Si cela persiste, contactez le support développeurs de Viessmann.",
     "gateway_offline": "La passerelle Viessmann est hors ligne. Vérifiez qu'elle est alimentée et connectée à Internet.",
-    "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__."
+    "api_limit": "Limite de l'API Viessmann atteinte, les mises à jour reprennent à __time__.",
+    "command_refused": "Viessmann a refusé la modification (__detail__). Il s'agit parfois d'une panne temporaire chez Viessmann ; réessayez plus tard."
   },
   "device_settings": {
     "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."
+  },
+  "status": {
+    "fault": "Le chauffage signale le défaut __codes__. La notice de votre chauffage explique le code.",
+    "fault_notification": "__device__ : le chauffage signale le défaut __code__.",
+    "frozen": "Viessmann n'a envoyé aucune nouvelle valeur depuis __time__. Redémarrer le module internet du chauffage aide généralement : débranchez la Vitoconnect pendant une minute, ou éteignez et rallumez le chauffage si le module est intégré.",
+    "write_not_applied": "Le chauffage n'a pas pris en compte la modification : __capability__ vaut __actual__ au lieu de __wanted__.",
+    "refresh_too_soon": "Les fonctions Viessmann viennent d'être lues. Réessayez dans __minutes__ minutes."
   }
 }

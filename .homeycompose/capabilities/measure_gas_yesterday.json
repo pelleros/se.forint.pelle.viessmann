@@ -1,0 +1,17 @@
+{
+    "type": "number",
+    "title": {
+        "en": "Gas yesterday",
+        "de": "Gas gestern",
+        "nl": "Gas gisteren",
+        "fr": "Gaz hier",
+        "sv": "Gas i går"
+    },
+    "units": { "en": "m³" },
+    "getable": true,
+    "setable": false,
+    "insights": true,
+    "uiComponent": "sensor",
+    "decimals": 1,
+    "icon": "/assets/gas.svg"
+}

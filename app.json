@@ -42,20 +42,13 @@
   "homeyCommunityTopicId": 118749,
   "source": "https://github.com/pelleros/se.forint.pelle.viessmann",
   "api": {
-    "getInstallations": {
+    "getHealth": {
       "method": "GET",
-      "path": "/installations",
-      "oauth2": true
+      "path": "/health"
     },
-    "getFeatures": {
+    "getReport": {
       "method": "POST",
-      "path": "/features",
-      "oauth2": true
-    },
-    "getDevices": {
-      "method": "GET",
-      "path": "/devices",
-      "oauth2": true
+      "path": "/report"
     }
   },
   "flow": {
@@ -346,6 +339,313 @@
             },
             "example": {
               "en": "48"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fault-reported",
+        "title": {
+          "en": "The heating system reported a fault",
+          "de": "Die Heizung hat eine Störung gemeldet",
+          "nl": "De verwarming heeft een storing gemeld",
+          "fr": "Le chauffage a signalé un défaut",
+          "sv": "Värmesystemet rapporterade ett fel"
+        },
+        "hint": {
+          "en": "Fires once for each new fault code the heating system reports, for example F.160. The manual of your heating system explains the code.",
+          "de": "Wird einmal für jeden neuen Störungscode ausgelöst, den die Heizung meldet, zum Beispiel F.160. Die Anleitung deiner Heizung erklärt den Code.",
+          "nl": "Wordt één keer geactiveerd voor elke nieuwe storingscode die de verwarming meldt, bijvoorbeeld F.160. De handleiding van je verwarming legt de code uit.",
+          "fr": "Se déclenche une fois pour chaque nouveau code de défaut signalé par le chauffage, par exemple F.160. La notice de votre chauffage explique le code.",
+          "sv": "Körs en gång för varje ny felkod som värmesystemet rapporterar, till exempel F.160. Värmesystemets manual förklarar koden."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "code",
+            "type": "string",
+            "title": {
+              "en": "Fault code",
+              "de": "Störungscode",
+              "nl": "Storingscode",
+              "fr": "Code de défaut",
+              "sv": "Felkod"
+            },
+            "example": {
+              "en": "F.160"
+            }
+          },
+          {
+            "name": "priority",
+            "type": "string",
+            "title": {
+              "en": "Priority",
+              "de": "Priorität",
+              "nl": "Prioriteit",
+              "fr": "Priorité",
+              "sv": "Prioritet"
+            },
+            "example": {
+              "en": "error"
+            }
+          }
+        ]
+      },
+      {
+        "id": "logbook-entry-added",
+        "title": {
+          "en": "A logbook entry was added",
+          "de": "Ein Logbucheintrag wurde hinzugefügt",
+          "nl": "Er is een logboekregel toegevoegd",
+          "fr": "Une entrée a été ajoutée au journal",
+          "sv": "En loggbokspost lades till"
+        },
+        "hint": {
+          "en": "Fires for each new entry in the logbook of the heating system, on systems that keep one.",
+          "de": "Wird für jeden neuen Eintrag im Logbuch der Heizung ausgelöst, bei Anlagen, die eines führen.",
+          "nl": "Wordt geactiveerd voor elke nieuwe regel in het logboek van de verwarming, bij installaties die er een bijhouden.",
+          "fr": "Se déclenche pour chaque nouvelle entrée du journal du chauffage, sur les installations qui en tiennent un.",
+          "sv": "Körs för varje ny post i värmesystemets loggbok, på anläggningar som för en."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "event",
+            "type": "string",
+            "title": {
+              "en": "Event",
+              "de": "Ereignis",
+              "nl": "Gebeurtenis",
+              "fr": "Événement",
+              "sv": "Händelse"
+            },
+            "example": {
+              "en": "Inverter_Autotune_fault"
+            }
+          },
+          {
+            "name": "actor",
+            "type": "string",
+            "title": {
+              "en": "Component",
+              "de": "Komponente",
+              "nl": "Onderdeel",
+              "fr": "Composant",
+              "sv": "Komponent"
+            },
+            "example": {
+              "en": "KAELTEKR_UMKEHR"
+            }
+          },
+          {
+            "name": "status",
+            "type": "number",
+            "title": {
+              "en": "Status",
+              "de": "Status",
+              "nl": "Status",
+              "fr": "Statut",
+              "sv": "Status"
+            },
+            "example": {
+              "en": "1"
+            }
+          },
+          {
+            "name": "circuit",
+            "type": "string",
+            "title": {
+              "en": "Circuit",
+              "de": "Kreis",
+              "nl": "Circuit",
+              "fr": "Circuit",
+              "sv": "Krets"
+            },
+            "example": {
+              "en": "Heizkreis"
+            }
+          }
+        ]
+      },
+      {
+        "id": "event-logged",
+        "title": {
+          "en": "An event was logged",
+          "de": "Ein Ereignis wurde protokolliert",
+          "nl": "Er is een gebeurtenis gelogd",
+          "fr": "Un événement a été enregistré",
+          "sv": "En händelse loggades"
+        },
+        "hint": {
+          "en": "Needs the event log, which is off by default: turn it on in the device's settings under Updates and API calls.",
+          "de": "Braucht das Ereignisprotokoll, das standardmäßig aus ist: Schalte es in den Geräteeinstellungen unter Aktualisierung und API-Aufrufe ein.",
+          "nl": "Heeft het gebeurtenissenlogboek nodig, dat standaard uit staat: zet het aan in de apparaatinstellingen onder Updates en API-aanroepen.",
+          "fr": "Nécessite le journal des événements, désactivé par défaut : activez-le dans les réglages de l'appareil, sous Mises à jour et appels API.",
+          "sv": "Kräver händelseloggen, som är av som standard: slå på den i enhetens inställningar under Uppdateringar och API-anrop."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "code",
+            "type": "string",
+            "title": {
+              "en": "Code",
+              "de": "Code",
+              "nl": "Code",
+              "fr": "Code",
+              "sv": "Kod"
+            },
+            "example": {
+              "en": "F.160"
+            }
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "title": {
+              "en": "Description",
+              "de": "Beschreibung",
+              "nl": "Omschrijving",
+              "fr": "Description",
+              "sv": "Beskrivning"
+            },
+            "example": {
+              "en": "Burner fault"
+            }
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "title": {
+              "en": "Type",
+              "de": "Typ",
+              "nl": "Type",
+              "fr": "Type",
+              "sv": "Typ"
+            },
+            "example": {
+              "en": "device-error"
+            }
+          },
+          {
+            "name": "active",
+            "type": "boolean",
+            "title": {
+              "en": "Active",
+              "de": "Aktiv",
+              "nl": "Actief",
+              "fr": "Actif",
+              "sv": "Aktiv"
+            },
+            "example": {
+              "en": "true"
+            }
+          }
+        ]
+      },
+      {
+        "id": "event-code-logged",
+        "title": {
+          "en": "An event with a code was logged",
+          "de": "Ein Ereignis mit einem Code wurde protokolliert",
+          "nl": "Er is een gebeurtenis met een code gelogd",
+          "fr": "Un événement avec un code a été enregistré",
+          "sv": "En händelse med en kod loggades"
+        },
+        "titleFormatted": {
+          "en": "Event [[code]] was logged",
+          "de": "Ereignis [[code]] wurde protokolliert",
+          "nl": "Gebeurtenis [[code]] is gelogd",
+          "fr": "L'événement [[code]] a été enregistré",
+          "sv": "Händelsen [[code]] loggades"
+        },
+        "hint": {
+          "en": "Needs the event log, which is off by default: turn it on in the device's settings under Updates and API calls.",
+          "de": "Braucht das Ereignisprotokoll, das standardmäßig aus ist: Schalte es in den Geräteeinstellungen unter Aktualisierung und API-Aufrufe ein.",
+          "nl": "Heeft het gebeurtenissenlogboek nodig, dat standaard uit staat: zet het aan in de apparaatinstellingen onder Updates en API-aanroepen.",
+          "fr": "Nécessite le journal des événements, désactivé par défaut : activez-le dans les réglages de l'appareil, sous Mises à jour et appels API.",
+          "sv": "Kräver händelseloggen, som är av som standard: slå på den i enhetens inställningar under Uppdateringar och API-anrop."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=alarm_problem"
+          },
+          {
+            "name": "code",
+            "type": "text",
+            "title": {
+              "en": "Code",
+              "de": "Code",
+              "nl": "Code",
+              "fr": "Code",
+              "sv": "Kod"
+            },
+            "placeholder": {
+              "en": "F.160"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "description",
+            "type": "string",
+            "title": {
+              "en": "Description",
+              "de": "Beschreibung",
+              "nl": "Omschrijving",
+              "fr": "Description",
+              "sv": "Beskrivning"
+            },
+            "example": {
+              "en": "Burner fault"
+            }
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "title": {
+              "en": "Type",
+              "de": "Typ",
+              "nl": "Type",
+              "fr": "Type",
+              "sv": "Typ"
+            },
+            "example": {
+              "en": "device-error"
+            }
+          },
+          {
+            "name": "active",
+            "type": "boolean",
+            "title": {
+              "en": "Active",
+              "de": "Aktiv",
+              "nl": "Actief",
+              "fr": "Actif",
+              "sv": "Aktiv"
+            },
+            "example": {
+              "en": "true"
             }
           }
         ]
@@ -1552,8 +1852,23 @@
       },
       "pair": [
         {
+          "id": "client_id",
+          "navigation": {
+            "next": "login_oauth2"
+          }
+        },
+        {
           "id": "login_oauth2",
-          "template": "login_oauth2"
+          "template": "login_oauth2",
+          "navigation": {
+            "next": "pair_check"
+          }
+        },
+        {
+          "id": "pair_check",
+          "navigation": {
+            "next": "list_devices"
+          }
         },
         {
           "id": "list_devices",
@@ -1642,6 +1957,180 @@
                 "fr": "Circuit 3",
                 "sv": "Krets 3"
               }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Updates and API calls",
+            "de": "Aktualisierung und API-Aufrufe",
+            "nl": "Updates en API-aanroepen",
+            "fr": "Mises à jour et appels API",
+            "sv": "Uppdateringar och API-anrop"
+          },
+          "children": [
+            {
+              "id": "pollInterval",
+              "type": "dropdown",
+              "value": "auto",
+              "label": {
+                "en": "Update interval",
+                "de": "Aktualisierungsintervall",
+                "nl": "Update-interval",
+                "fr": "Intervalle de mise à jour",
+                "sv": "Uppdateringsintervall"
+              },
+              "hint": {
+                "en": "How often the app reads this device from Viessmann. Each update is one API call. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same Viessmann account (for example Home Assistant). A choice that would need more for this account is refused. The settings page of the app shows the calls used today.",
+                "de": "Wie oft die App dieses Gerät bei Viessmann abfragt. Jede Abfrage ist ein API-Aufruf. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Viessmann-Konto nutzen (zum Beispiel Home Assistant). Eine Wahl, die für dieses Konto mehr bräuchte, wird abgelehnt. Die Einstellungsseite der App zeigt die heute verbrauchten Aufrufe.",
+                "nl": "Hoe vaak de app dit apparaat bij Viessmann uitleest. Elke update is één API-aanroep. Viessmann staat ongeveer 1.450 aanroepen per dag per account toe, gedeeld met andere apps die hetzelfde Viessmann-account gebruiken (bijvoorbeeld Home Assistant). Een keuze die voor dit account meer nodig heeft, wordt geweigerd. De instellingenpagina van de app toont de aanroepen van vandaag.",
+                "fr": "À quelle fréquence l'application lit cet appareil chez Viessmann. Chaque mise à jour est un appel API. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte Viessmann (par exemple Home Assistant). Un choix qui en demanderait davantage pour ce compte est refusé. La page de réglages de l'application affiche les appels utilisés aujourd'hui.",
+                "sv": "Hur ofta appen läser av enheten hos Viessmann. Varje uppdatering är ett API-anrop. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma Viessmann-konto (till exempel Home Assistant). Ett val som skulle behöva fler för kontot nekas. Appens inställningssida visar dagens förbrukade anrop."
+              },
+              "values": [
+                {
+                  "id": "auto",
+                  "label": {
+                    "en": "Automatic: every 2 minutes per device (720 calls a day for all devices)",
+                    "de": "Automatisch: alle 2 Minuten pro Gerät (720 Aufrufe pro Tag für alle Geräte)",
+                    "nl": "Automatisch: elke 2 minuten per apparaat (720 aanroepen per dag voor alle apparaten)",
+                    "fr": "Automatique : toutes les 2 minutes par appareil (720 appels par jour pour tous les appareils)",
+                    "sv": "Automatiskt: varannan minut per enhet (720 anrop per dag för alla enheter)"
+                  }
+                },
+                {
+                  "id": "2",
+                  "label": {
+                    "en": "Every 2 minutes (720 calls a day)",
+                    "de": "Alle 2 Minuten (720 Aufrufe pro Tag)",
+                    "nl": "Elke 2 minuten (720 aanroepen per dag)",
+                    "fr": "Toutes les 2 minutes (720 appels par jour)",
+                    "sv": "Varannan minut (720 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "3",
+                  "label": {
+                    "en": "Every 3 minutes (480 calls a day)",
+                    "de": "Alle 3 Minuten (480 Aufrufe pro Tag)",
+                    "nl": "Elke 3 minuten (480 aanroepen per dag)",
+                    "fr": "Toutes les 3 minutes (480 appels par jour)",
+                    "sv": "Var 3:e minut (480 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "5",
+                  "label": {
+                    "en": "Every 5 minutes (288 calls a day)",
+                    "de": "Alle 5 Minuten (288 Aufrufe pro Tag)",
+                    "nl": "Elke 5 minuten (288 aanroepen per dag)",
+                    "fr": "Toutes les 5 minutes (288 appels par jour)",
+                    "sv": "Var 5:e minut (288 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "10",
+                  "label": {
+                    "en": "Every 10 minutes (144 calls a day)",
+                    "de": "Alle 10 Minuten (144 Aufrufe pro Tag)",
+                    "nl": "Elke 10 minuten (144 aanroepen per dag)",
+                    "fr": "Toutes les 10 minutes (144 appels par jour)",
+                    "sv": "Var 10:e minut (144 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "15",
+                  "label": {
+                    "en": "Every 15 minutes (96 calls a day)",
+                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                    "fr": "Toutes les 15 minutes (96 appels par jour)",
+                    "sv": "Var 15:e minut (96 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "30",
+                  "label": {
+                    "en": "Every 30 minutes (48 calls a day)",
+                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                    "fr": "Toutes les 30 minutes (48 appels par jour)",
+                    "sv": "Var 30:e minut (48 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "60",
+                  "label": {
+                    "en": "Every hour (24 calls a day)",
+                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                    "nl": "Elk uur (24 aanroepen per dag)",
+                    "fr": "Toutes les heures (24 appels par jour)",
+                    "sv": "Varje timme (24 anrop per dag)"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "eventLog",
+              "type": "dropdown",
+              "value": "off",
+              "label": {
+                "en": "Event log",
+                "de": "Ereignisprotokoll",
+                "nl": "Gebeurtenissenlogboek",
+                "fr": "Journal des événements",
+                "sv": "Händelselogg"
+              },
+              "hint": {
+                "en": "Reads the event log of the heating system (faults, status messages) for the Flow triggers about events. Each read is one API call.",
+                "de": "Liest das Ereignisprotokoll der Heizung (Störungen, Statusmeldungen) für die Flow-Auslöser zu Ereignissen. Jedes Lesen ist ein API-Aufruf.",
+                "nl": "Leest het gebeurtenissenlogboek van de verwarming (storingen, statusmeldingen) voor de Flow-triggers over gebeurtenissen. Elke keer uitlezen is één API-aanroep.",
+                "fr": "Lit le journal des événements du chauffage (défauts, messages d'état) pour les déclencheurs Flow sur les événements. Chaque lecture est un appel API.",
+                "sv": "Läser värmesystemets händelselogg (fel, statusmeddelanden) för Flow-utlösarna om händelser. Varje läsning är ett API-anrop."
+              },
+              "values": [
+                {
+                  "id": "off",
+                  "label": {
+                    "en": "Off",
+                    "de": "Aus",
+                    "nl": "Uit",
+                    "fr": "Désactivé",
+                    "sv": "Av"
+                  }
+                },
+                {
+                  "id": "15",
+                  "label": {
+                    "en": "Every 15 minutes (96 calls a day)",
+                    "de": "Alle 15 Minuten (96 Aufrufe pro Tag)",
+                    "nl": "Elke 15 minuten (96 aanroepen per dag)",
+                    "fr": "Toutes les 15 minutes (96 appels par jour)",
+                    "sv": "Var 15:e minut (96 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "30",
+                  "label": {
+                    "en": "Every 30 minutes (48 calls a day)",
+                    "de": "Alle 30 Minuten (48 Aufrufe pro Tag)",
+                    "nl": "Elke 30 minuten (48 aanroepen per dag)",
+                    "fr": "Toutes les 30 minutes (48 appels par jour)",
+                    "sv": "Var 30:e minut (48 anrop per dag)"
+                  }
+                },
+                {
+                  "id": "60",
+                  "label": {
+                    "en": "Every hour (24 calls a day)",
+                    "de": "Jede Stunde (24 Aufrufe pro Tag)",
+                    "nl": "Elk uur (24 aanroepen per dag)",
+                    "fr": "Toutes les heures (24 appels par jour)",
+                    "sv": "Varje timme (24 anrop per dag)"
+                  }
+                }
+              ]
             }
           ]
         },
@@ -1863,6 +2352,25 @@
       "uiState": false,
       "icon": "/assets/hotwater.svg"
     },
+    "measure_electricity_yesterday": {
+      "type": "number",
+      "title": {
+        "en": "Electricity yesterday",
+        "de": "Strom gestern",
+        "nl": "Stroom gisteren",
+        "fr": "Électricité hier",
+        "sv": "El i går"
+      },
+      "units": {
+        "en": "kWh"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/electricity.svg"
+    },
     "measure_frost_active": {
       "type": "boolean",
       "title": {
@@ -1972,6 +2480,25 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/fuelcell.svg"
+    },
+    "measure_gas_yesterday": {
+      "type": "number",
+      "title": {
+        "en": "Gas yesterday",
+        "de": "Gas gestern",
+        "nl": "Gas gisteren",
+        "fr": "Gaz hier",
+        "sv": "Gas i går"
+      },
+      "units": {
+        "en": "m³"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/gas.svg"
     },
     "measure_pump_active": {
       "type": "boolean",

@@ -99,7 +99,8 @@ async function writeCurve(device, { shift, slope }, { limited = true } = {}) {
   // Refused values do not use up a write
   checkFeatureCommand(device, CURVE_PATH, 'setCurve', next);
   if (limited) takeWrite(device, 'heatingCurve');
-  await sendFeatureCommand(device, CURVE_PATH, 'setCurve', next);
+  // Restoring a temporary change is never refused for the account's allowance (writeQuota.js)
+  await sendFeatureCommand(device, CURVE_PATH, 'setCurve', next, { restoring: !limited, confirm: { [SHIFT]: next.shift, [SLOPE]: next.slope } });
   // Shown right away; the next poll shows what the controller really has
   await device.setCapabilityValueIfPossible(SHIFT, next.shift);
   await device.setCapabilityValueIfPossible(SLOPE, next.slope);

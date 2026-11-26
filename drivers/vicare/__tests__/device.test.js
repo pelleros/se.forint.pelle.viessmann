@@ -218,8 +218,9 @@ describe.each(exampleDumps)('ViessmannDevice capability handling with %s', (name
 
       await device.onFeaturesUpdated({ data: [exampleFeature] });
 
-      // Check each capability individually
+      // Check each capability individually (computed values, see computedValues.test.js)
       for (const capability of featureConfig.capabilities) {
+        if (capability.computed) continue;
         const expectedValue = getValueFromPath(exampleFeature.properties, capability.propertyPath);
 
         if (expectedValue !== undefined) {

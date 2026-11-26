@@ -27,11 +27,14 @@
 // its values at once) or the generic command card. A command is checked against the device's
 // command metadata before it is sent, goes to the device's heating circuit, and a response with
 // `success: false` is an error. Errors keep the API's reason, status and Retry-After. Anything
-// that must happen around every write (e.g. confirming it on a later poll) belongs in
-// sendFeatureCommand, so that capability listeners and Flow cards get it alike.
+// that must happen around every write belongs in sendFeatureCommand, so that capability
+// listeners and Flow cards get it alike: the account's allowance (writeQuota.js) and confirming
+// the written values on a later poll (deviceMonitor.js).
 
 const validateCommand = require('../../lib/commandValidation');
 const { resolveCircuitPath } = require('./heatingCircuit');
+const { translate } = require('../../lib/errorMessages');
+const { takeAccountWrite } = require('./writeQuota');
 
 /**
  * The parts of a device a command needs.
@@ -43,6 +46,10 @@ const { resolveCircuitPath } = require('./heatingCircuit');
  * @property {string | undefined} _heatingCircuitId
  * @property {{ executeCommand: (request: Record<string, any>) => Promise<any> }} oAuth2Client
  * @property {(...args: any[]) => void} error
+ * @property {any} [homey] for the translated texts
+ * @property {(key: string) => any} [getStoreValue] the account (OAuth2SessionId) for writeQuota.js
+ * @property {{ plannedCallsPerDay?: (sessionId: string | undefined) => number }} [driver]
+ * @property {() => { rememberWrite: (capabilityName: string, value: any) => void }} [getMonitor]
  */
 
 /**
@@ -74,19 +81,54 @@ function checkFeatureCommand(device, path, command, parameters) {
 }
 
 /**
+ * The error the user sees for a command that failed, keeping the API's reason (status,
+ * Viessmann error type/message), status and Retry-After. A refused write (403) can be a temporary
+ * fault at Viessmann: nothing is removed for it.
+ * @param {CommandDevice} device
+ * @param {unknown} error
+ * @returns {Error & { status?: number, retryAfterMs?: number }}
+ */
+function commandError(device, error) {
+  device.error('Error executing command:', error);
+  const reason = error instanceof Error ? error.message : String(error);
+  const status = /** @type {any} */ (error)?.status;
+  /** @type {Error & { status?: number, retryAfterMs?: number }} */
+  const wrapped = new Error(status === 403
+    ? translate(device.homey, 'errors.command_refused', { detail: reason })
+    : `Error executing command: ${reason}`, { cause: error });
+  wrapped.status = status;
+  wrapped.retryAfterMs = /** @type {any} */ (error)?.retryAfterMs;
+  return wrapped;
+}
+
+/**
  * Checks and sends a command. `check` can refuse it first (e.g. an operating mode the circuit
- * does not have); its error is reported like any other.
+ * does not have); its error is reported like any other. Then the account must be able to spare
+ * the call (writeQuota.js, whose text the user sees as it is); `restoring` (undoing a temporary
+ * change) is never refused. After a successful write, a later poll checks that the device shows
+ * the values in `confirm` (capability name → value written; deviceMonitor.js).
  * @param {CommandDevice} device
  * @param {string} path circuit-normalized feature path
  * @param {string} command
  * @param {Record<string, any>} parameters
- * @param {{ check?: () => void }} [options]
+ * @param {{ check?: () => void, restoring?: boolean, confirm?: Record<string, any> }} [options]
  * @returns {Promise<void>}
  */
-async function sendFeatureCommand(device, path, command, parameters, { check } = {}) {
+async function sendFeatureCommand(device, path, command, parameters, { check, restoring = false, confirm = {} } = {}) {
   try {
     check?.();
     checkFeatureCommand(device, path, command, parameters);
+  } catch (error) {
+    throw commandError(device, error);
+  }
+  // After the checks, so that a refused value takes nothing from the account
+  try {
+    takeAccountWrite(device, { restoring });
+  } catch (error) {
+    device.error('Write refused:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+  try {
     const result = await device.oAuth2Client.executeCommand({
       installationId: device._installationId,
       gatewaySerial: device._gatewaySerial,
@@ -99,15 +141,29 @@ async function sendFeatureCommand(device, path, command, parameters, { check } =
       throw new Error(`Viessmann rejected command: ${result.data.reason || result.data.message || 'Unknown reason'}`);
     }
   } catch (error) {
-    device.error('Error executing command:', error);
-    // Keep the API's reason (status, Viessmann error type/message) visible to the user
-    const reason = error instanceof Error ? error.message : String(error);
-    /** @type {Error & { status?: number, retryAfterMs?: number }} */
-    const wrapped = new Error(`Error executing command: ${reason}`, { cause: error });
-    wrapped.status = /** @type {any} */ (error)?.status;
-    wrapped.retryAfterMs = /** @type {any} */ (error)?.retryAfterMs;
-    throw wrapped;
+    throw commandError(device, error);
   }
+  const monitor = device.getMonitor?.();
+  for (const [capabilityName, value] of Object.entries(confirm)) monitor?.rememberWrite(capabilityName, value);
 }
 
-module.exports = { capabilityCommand, checkFeatureCommand, sendFeatureCommand };
+/**
+ * Writes `value` to a configured capability (see capabilityCommand), to be confirmed on a later
+ * poll; except a command that is the value itself (such as starting a one-time charge, which
+ * ends by itself), which the device does not keep showing.
+ * @param {CommandDevice} device
+ * @param {string} path circuit-normalized feature path
+ * @param {import('./config/types').CapabilityConfig} capability
+ * @param {any} value
+ * @param {{ check?: () => void, restoring?: boolean }} [options]
+ * @returns {Promise<void>}
+ */
+async function sendCapabilityValue(device, path, capability, value, { check, restoring } = {}) {
+  const { command, parameters } = capabilityCommand(capability, value);
+  const confirm = capability.command?.useValueAsCommand ? {} : { [capability.capabilityName]: value };
+  await sendFeatureCommand(device, path, command, parameters, { check, restoring, confirm });
+}
+
+module.exports = {
+  capabilityCommand, checkFeatureCommand, sendFeatureCommand, sendCapabilityValue,
+};

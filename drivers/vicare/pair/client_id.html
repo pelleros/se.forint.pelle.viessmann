@@ -1,0 +1,117 @@
+<!--
+
+ Copyright (C) 2024 Per Rosengren
+ This file is part of se.forint.pelle.viessmann project.
+
+ se.forint.pelle.viessmann project is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ se.forint.pelle.viessmann project is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with se.forint.pelle.viessmann project.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- Asks for the Viessmann Client ID when none is saved, then continues to the Viessmann login.
+     With a saved Client ID it continues right away. -->
+<style>
+  .client-id-steps { margin: 0 0 16px; padding-left: 20px; }
+  .client-id-steps li { margin-bottom: 10px; line-height: 1.4; }
+  .client-id-link { display: inline-block; margin-top: 4px; word-break: break-all; }
+  .client-id-copy { display: flex; gap: 10px; margin-top: 6px; }
+  .client-id-copy input { flex-grow: 1; min-width: 0; font-family: monospace; }
+</style>
+
+<div id="clientIdForm" style="display: none;">
+  <p class="homey-form-hint" id="intro"></p>
+  <ol class="client-id-steps">
+    <li>
+      <span id="stepPortal"></span><br />
+      <a id="portalLink" class="client-id-link" href="https://app.developer.viessmann-climatesolutions.com/" target="_blank" rel="noopener">app.developer.viessmann-climatesolutions.com</a>
+    </li>
+    <li id="stepClient"></li>
+    <li><strong id="stepRecaptcha"></strong></li>
+    <li>
+      <span id="stepRedirect"></span>
+      <div class="client-id-copy">
+        <input class="homey-form-input" id="redirectUri" type="text" readonly />
+        <button id="copyRedirectUri" class="homey-button-secondary"></button>
+      </div>
+    </li>
+    <li id="stepClientId"></li>
+  </ol>
+  <div class="homey-form-group">
+    <label class="homey-form-label" for="clientId" id="clientIdLabel"></label>
+    <input class="homey-form-input" id="clientId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" />
+  </div>
+  <button id="save" class="homey-button-primary-full"></button>
+</div>
+
+<script type="text/javascript">
+  (function () {
+    function text(id, key) {
+      document.getElementById(id).textContent = Homey.__(key);
+    }
+
+    function showForm(redirectUri) {
+      Homey.setTitle(Homey.__("pair.client_id.title"));
+      text("intro", "pair.client_id.intro");
+      text("stepPortal", "settings.steps.portal");
+      text("stepClient", "settings.steps.client");
+      text("stepRecaptcha", "settings.steps.recaptcha");
+      text("stepRedirect", "settings.steps.redirect");
+      text("copyRedirectUri", "settings.steps.copy");
+      text("stepClientId", "pair.client_id.step");
+      text("clientIdLabel", "settings.client_id_label");
+      text("save", "pair.client_id.continue");
+      document.getElementById("redirectUri").value = redirectUri;
+      document.getElementById("clientIdForm").style.display = "block";
+    }
+
+    // Copy the redirect URI; without the Clipboard API, select it so it can be copied by hand
+    document.getElementById("copyRedirectUri").addEventListener("click", function () {
+      var input = document.getElementById("redirectUri");
+      var button = document.getElementById("copyRedirectUri");
+      function copied() {
+        button.textContent = Homey.__("settings.steps.copied");
+        setTimeout(function () { button.textContent = Homey.__("settings.steps.copy"); }, 2000);
+      }
+      function bySelection() {
+        input.focus();
+        input.select();
+        try {
+          if (document.execCommand("copy")) copied();
+        } catch (err) {
+          // stays selected
+        }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(input.value).then(copied, bySelection);
+      else bySelection();
+    });
+
+    document.getElementById("save").addEventListener("click", function () {
+      var button = document.getElementById("save");
+      button.disabled = true;
+      Homey.emit("save_client_id", document.getElementById("clientId").value)
+        .then(function () { Homey.nextView(); })
+        .catch(function (err) {
+          button.disabled = false;
+          Homey.alert(err && err.message ? err.message : String(err));
+        });
+    });
+
+    Homey.emit("get_client_id")
+      .then(function (result) {
+        if (result.saved) return Homey.nextView();
+        showForm(result.redirectUri);
+      })
+      .catch(function (err) {
+        Homey.alert(err && err.message ? err.message : String(err));
+      });
+  })();
+</script>

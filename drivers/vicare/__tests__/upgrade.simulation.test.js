@@ -101,15 +101,17 @@ const PATHS_1014 = [
 // The capabilities of every stored feature that passes the role check: what
 // initializeCapabilities gives the device, with the given feature paths mapped. The current
 // code checks the roles from roles.js (aliases, and roles inferred from the features when the
-// device reports no role tag); 1.0.14 checked the stored roles as they are.
+// device reports no role tag); 1.0.14 checked the stored roles as they are. `storedRolesOnly` is
+// 1.0.14: it had no computed capabilities and none that every device gets (alwaysAdd).
 function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS), { storedRolesOnly = false } = {}) {
   const allowed = storedRolesOnly ? roles : effectiveRoles(roles, inferRoles(features));
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
-    const capabilityConfigs = getAllCapabilities(featurePath);
-    const { requireRole, group } = ViessmannDevice.FEATURES[featurePath];
+    const capabilityConfigs = getAllCapabilities(featurePath).filter((capability) => !(storedRolesOnly && capability.computed));
+    const { requireRole, alwaysAdd, group } = ViessmannDevice.FEATURES[featurePath];
+    const available = features.includes(featurePath) || (alwaysAdd && !storedRolesOnly);
     // Optional groups (diagnostic values) are off until the user turns them on
-    if (features.includes(featurePath) && !group && (!requireRole || allowed.includes(requireRole))) {
+    if (available && !group && (!requireRole || allowed.includes(requireRole))) {
       capabilityConfigs.forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
@@ -396,8 +398,15 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     'measure_cop_number.heating',
     'measure_cop_number.total',
   ];
-  // Values 2.0.0 reads from features the device already stored at pairing
+  // Values 2.0.0 reads from features the device already stored at pairing: among them the daily
+  // compressor figures, and the problem alarm and maintenance action that every device gets
   const NEW_FROM_STORED_FEATURES = [
+    'alarm_problem',
+    'button.refreshFeatures',
+    'measure_compressor_number.compressorRuntimePerStartYesterday',
+    'measure_compressor_number.compressorStartsLastHour',
+    'measure_compressor_number.compressorStartsToday',
+    'measure_compressor_number.compressorStartsYesterday',
     'measure_curve_number.circuit0Shift',
     'measure_curve_number.circuit0Slope',
     'measure_dhw_active.charging',

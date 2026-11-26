@@ -31,7 +31,10 @@ const { registerFlowCardsWithKind } = require('./flowHandlers');
 const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
 } = require('../../lib/apiError');
-const { apiStateMessage } = require('../../lib/errorMessages');
+const { apiStateMessage, translate } = require('../../lib/errorMessages');
+const { PairSession, deviceName, checkInstallations } = require('./pairSession');
+const { pollInterval, plannedCallsPerDay } = require('./pollPlan');
+const { matchesEventCode } = require('./eventLog');
 const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
 
 // Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
@@ -67,6 +70,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   MIN_POLL_INTERVAL = 2 * 60 * 1000;
   _devicePollers = new Map();
   _triggerCards = new Map();
+  // Triggers the app fires for events (flowCards.js `event: true`), by card id
+  _eventTriggerCards = new Map();
   // Trigger cards with a kind (flowHandlers.js), per capability
   _valueTriggers = new Map();
 
@@ -93,12 +98,25 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Register all triggers from FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
-      if (trigger.kind) {
+      if (trigger.event) {
+        this._eventTriggerCards.set(trigger.id, triggerCard);
+        // A card with a code argument fires only for that code
+        if (trigger.id === 'event-code-logged' && typeof triggerCard.registerRunListener === 'function') {
+          triggerCard.registerRunListener(async (args, state) => matchesEventCode(args, state));
+        }
+      } else if (trigger.kind) {
         this._valueTriggers.set(trigger.capability, [...this.getValueTriggers(trigger.capability), { card: triggerCard, mapping: trigger }]);
       } else {
         this._triggerCards.set(trigger.capability, triggerCard);
       }
     }
+  }
+
+  // Fires an event trigger (see flowCards.js) for a device
+  async triggerEvent(id, device, tokens = {}, state = {}) {
+    const card = this._eventTriggerCards.get(id);
+    if (!card) throw new Error(`No event trigger card: ${id}`);
+    await card.trigger(device, tokens, state);
   }
 
   // The trigger cards with a kind for a capability, as { card, mapping }
@@ -158,9 +176,20 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     this.log('Finished registering flow cards');
   }
 
-  _calculatePollInterval() {
-    const deviceCount = this.getDevices().length;
-    return this.MIN_POLL_INTERVAL * Math.max(1, deviceCount);
+  // A device's poll interval: its setting, or automatic (see pollPlan.js)
+  _calculatePollInterval(device) {
+    return pollInterval(device?.getPollSetting?.('pollInterval'), this.getDevices().length);
+  }
+
+  // The API calls a day the devices of a Viessmann login plan; `changed` holds the settings of a
+  // device whose change is being saved
+  plannedCallsPerDay(sessionId, changed = {}) {
+    const settings = this.getDevices()
+      .filter((device) => device.getStoreValue?.('OAuth2SessionId') === sessionId)
+      .map((device) => (device === changed.device ? changed.settings : {
+        pollInterval: device.getPollSetting?.('pollInterval'), eventLog: device.getPollSetting?.('eventLog'),
+      }));
+    return plannedCallsPerDay(settings, this.getDevices().length);
   }
 
   async _updateAllPollingIntervals() {
@@ -186,7 +215,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
     const poller = new DevicePoller({
       homey: this.homey,
-      getInterval: () => this._calculatePollInterval(),
+      getInterval: () => this._calculatePollInterval(device),
       poll: async (isStopped) => {
         // get features with extended response every 30th poll (statistically)
         const extendedRequest = Math.random() < 0.03;
@@ -201,6 +230,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
+        device.recordPollError?.(error);
         // Say right away what the user should know: Viessmann refuses access, the quota
         // is used up (when its reset is known), the gateway is offline, or only a new login
         // helps. Everything else is retried with backoff.
@@ -260,6 +290,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   }
 
   async onPairListDevices({ oAuth2Client }) {
+    // The pairing check and the report use the client of this pairing (see pairSession.js)
+    this._pairSession?.captureClient(oAuth2Client);
     try {
       if (process.env.DEBUG) {
         this.log('Starting onPairListDevices');
@@ -272,6 +304,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       const result = await oAuth2Client.getInstallations();
 
       this.log('[ViessmannDriver::onPairListDevices] Found', summarizeInstallations(result));
+      checkInstallations(result, (key, tags) => translate(this.homey, key, tags));
 
       const devices = [];
       const { version } = this.homey.manifest;
@@ -301,7 +334,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
               } = metadata;
 
               devices.push({
-                name: `Viessmann (${gateway.installationId})`,
+                name: deviceName(device, devices.map((paired) => paired.name), (key) => translate(this.homey, key)),
                 data: {
                   id: `${gateway.installationId}-${gateway.serial}-${device.id}`,
                 },
@@ -361,16 +394,10 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     };
   }
 
+  // The SDK's pairing with the views around it (Client ID, check, report): see pairSession.js
   async onPair(socket) {
     try {
-      // Check if clientId is set
-      const clientId = await this.homey.settings.get('clientId');
-      if (!clientId || clientId.trim() === '') {
-        throw new Error(this.homey.__('pair.no_client_id'));
-      }
-
-      // Call the parent onPair with the socket
-      const result = await super.onPair(socket);
+      const result = await new PairSession(this, socket).attach(() => super.onPair(socket));
       this.log('Pairing process completed');
 
       // When a new device is added, start polling for it

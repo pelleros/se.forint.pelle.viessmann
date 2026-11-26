@@ -15,6 +15,7 @@ const {
 } = require('../boost');
 const { SHIFT } = require('../heatingCurve');
 const { WRITE_LIMITS } = require('../writeLimits');
+const { ApiQuota, DAILY_LIMIT } = require('../../../lib/apiQuota');
 
 const MINUTE = 60 * 1000;
 const TARGET = 'target_temperature.hotWater';
@@ -116,6 +117,17 @@ describe('hot water', () => {
     const { device } = await heatPump();
     for (let i = 0; i < WRITE_LIMITS.hotWaterBoost; i++) await boostsOf(device).boostHotWater(i % 2 ? 51 : 50, 30);
     await expect(boostsOf(device).boostHotWater(52, 30)).rejects.toThrow('at most 12 per hour');
+  });
+
+  test('when the account has no calls left a new boost is refused, but a running one is still undone', async () => {
+    const { device, timers } = await heatPump();
+    await boostsOf(device).boostHotWater(55, 30);
+    // The device has no stored session: its calls count for 'unknown'
+    for (let i = 0; i < DAILY_LIMIT; i++) ApiQuota.for(device.homey).count(undefined, clock.now);
+
+    await expect(boostsOf(device).boostHotWater(56, 30)).rejects.toThrow('API calls left today');
+    await later(timers, 30 * MINUTE);
+    expect(sent(device)).toEqual([['setTargetTemperature', { temperature: 55 }], ['setTargetTemperature', { temperature: 45 }]]);
   });
 });
 
@@ -232,14 +244,15 @@ describe('a restore that fails', () => {
 });
 
 describe('heating curve shift', () => {
-  test('changes the shift for a while and restores it, even when the hourly limit is used up', async () => {
+  test('changes the shift for a while and restores it, even when the hourly limit and the account\'s calls are used up', async () => {
     const { device, timers } = await heatPump();
     await boostsOf(device).boostCurveShift(3, 60);
     expect(sent(device)).toEqual([['setCurve', { slope: 0.9, shift: -5 }]]);
     expect(device.getStoreValue(STORE_KEY).curveShift).toEqual({ previous: -8, boosted: -5, until: clock.now + 60 * MINUTE });
 
-    // Use up the hourly heating curve changes
+    // Use up the hourly heating curve changes and the account's calls
     device._writeLimiters.heatingCurve.times.push(...Array(WRITE_LIMITS.heatingCurve - 1).fill(clock.now));
+    for (let i = 0; i < DAILY_LIMIT; i++) ApiQuota.for(device.homey).count(undefined, clock.now);
     await later(timers, 60 * MINUTE);
     expect(sent(device).at(-1)).toEqual(['setCurve', { slope: 0.9, shift: -8 }]);
     expect(device.getCapabilityValue(SHIFT)).toBe(-8);

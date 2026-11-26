@@ -1,0 +1,17 @@
+{
+    "type": "number",
+    "title": {
+        "en": "Electricity yesterday",
+        "de": "Strom gestern",
+        "nl": "Stroom gisteren",
+        "fr": "Électricité hier",
+        "sv": "El i går"
+    },
+    "units": { "en": "kWh" },
+    "getable": true,
+    "setable": false,
+    "insights": true,
+    "uiComponent": "sensor",
+    "decimals": 1,
+    "icon": "/assets/electricity.svg"
+}

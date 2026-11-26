@@ -28,6 +28,13 @@ class ViessmannApp extends OAuth2App {
   static OAUTH2_CLIENT = ViessmannOAuth2Client; // Default: OAuth2Client
   // static OAUTH2_DEBUG = true; // Default: false
 
+  // Every client knows its session (Viessmann login), so that API calls are counted per account
+  createOAuth2Client(args) {
+    const client = super.createOAuth2Client(args);
+    if (typeof client.setSessionId === 'function') client.setSessionId(args?.sessionId);
+    return client;
+  }
+
   async onOAuth2Init() {
     try {
       if (process.env.DEBUG) {

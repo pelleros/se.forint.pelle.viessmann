@@ -37,6 +37,8 @@ const { PATHS, getCapability } = require('./config');
  * @property {string[]} [anyCapability] the card works on devices with any of these capabilities
  * @property {string} [kind] how a card that does more than read or write its capability runs
  *   (see flowHandlers.js); cards without a kind read or write the capability directly
+ * @property {boolean} [event] a trigger the app fires for an event (with its own tokens),
+ *   not for a change of the capability's value; the capability is the card's $filter
  */
 
 /** @type {(path: string) => string} */
@@ -211,6 +213,28 @@ const FLOW_TRIGGERS = {
     id: 'hot-water-temperature-changed',
     capability: capabilityOf(PATHS.HOT_WATER_TEMP),
     kind: 'changed',
+  },
+  // Events, fired by deviceMonitor.js (offered on every device: alarm_problem is on every device)
+  FAULT_REPORTED: {
+    id: 'fault-reported',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
+  LOGBOOK_ENTRY_ADDED: {
+    id: 'logbook-entry-added',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
+  EVENT_LOGGED: {
+    id: 'event-logged',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
+  // Fires for the event code in its `code` argument (see driver.js)
+  EVENT_CODE_LOGGED: {
+    id: 'event-code-logged',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
   },
 };
 

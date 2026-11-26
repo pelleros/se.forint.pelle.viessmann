@@ -21,15 +21,17 @@
 'use strict';
 
 /*
- * Web API for the troubleshooting tools on the settings page. Users share what these handlers
- * return in forum posts and e-mails, so every response is anonymized (lib/anonymize.js,
- * TROUBLESHOOTING_STYLE): serials, installation, gateway and device ids become placeholders such
- * as `anonymized-installation-1`, and addresses, descriptions and contact fields are removed.
- * One Anonymizer per app instance keeps the placeholders consistent between the installations,
- * devices and features responses. Pairing and polling read the API directly and are not affected.
+ * Web API for the settings page: the status and the report for the developer. Users share the
+ * report in diagnostic reports, forum posts and e-mails, so it is anonymized (lib/report.js with
+ * lib/anonymize.js, TROUBLESHOOTING_STYLE): serials, installation, gateway and device ids become
+ * placeholders such as `anonymized-installation-1`, and addresses, descriptions and contact
+ * fields are removed. One Anonymizer per app instance keeps the placeholders the same in later
+ * reports. Pairing and polling read the API directly and are not affected.
  */
 
-const { Anonymizer, anonymizeDumps, TROUBLESHOOTING_STYLE } = require('./lib/anonymize');
+const { Anonymizer, TROUBLESHOOTING_STYLE } = require('./lib/anonymize');
+const { ApiQuota, DAILY_LIMIT, nextReset } = require('./lib/apiQuota');
+const { collectReport, summarizeReport } = require('./lib/report');
 
 const anonymizers = new WeakMap();
 
@@ -38,63 +40,56 @@ function anonymizerFor(homey) {
   return anonymizers.get(homey);
 }
 
-// The anonymized counterpart of a device's data.id; the settings page sends it back to /features.
-function anonymizedDeviceId(anonymizer, device) {
-  const { installationId, gatewaySerial, deviceId } = device.getStore();
-  return [
-    anonymizer.installationId(installationId),
-    anonymizer.serial(gatewaySerial),
-    anonymizer.deviceId(deviceId),
-  ].join('-');
-}
-
 module.exports = {
-  async getInstallations({ homey }) {
+  /*
+    Health for the settings page: per Viessmann login the API calls the app used today and plans
+    per day, per device its update interval, last successful update and last error. Nothing here
+    calls the API.
+  */
+  async getHealth({ homey }) {
+    const driver = homey.drivers.getDriver('vicare');
+    const devices = driver.getDevices();
+    const quota = ApiQuota.for(homey);
+    const sessions = Object.keys(homey.app.getSavedOAuth2Sessions?.() || {});
+    for (const device of devices) {
+      const sessionId = device.getStoreValue('OAuth2SessionId');
+      if (sessionId && !sessions.includes(sessionId)) sessions.push(sessionId);
+    }
+    const accountOf = (device) => sessions.indexOf(device.getStoreValue('OAuth2SessionId')) + 1;
+    return {
+      limit: DAILY_LIMIT,
+      resetsAt: new Date(nextReset(Date.now())).toISOString(),
+      accounts: sessions.map((sessionId, index) => ({
+        account: index + 1,
+        usedToday: quota.usedToday(sessionId),
+        plannedPerDay: driver.plannedCallsPerDay(sessionId),
+        devices: devices.filter((device) => device.getStoreValue('OAuth2SessionId') === sessionId).length,
+      })),
+      devices: devices.map((device) => ({
+        name: device.getName(),
+        account: accountOf(device),
+        available: device.getAvailable(),
+        intervalMinutes: Math.round(driver._calculatePollInterval(device) / 60000),
+        eventLogMinutes: Number(device.getPollSetting?.('eventLog')) || 0,
+        ...device.getMonitor().health,
+      })),
+    };
+  },
+
+  /*
+    One-step report for the developer: the installations and every device's features of the
+    first login, anonymized. The compact summary goes to the app's log, so that a diagnostic
+    report the user sends from the Homey app carries it; the full report is returned for copying.
+  */
+  async getReport({ homey }) {
     try {
       const oAuth2Client = homey.app.getFirstSavedOAuth2Client();
-      if (!oAuth2Client) throw new Error('No OAuth2Client found');
-      const installations = await oAuth2Client.getInstallations();
-      return anonymizeDumps([installations], anonymizerFor(homey))[0];
+      const report = await collectReport(oAuth2Client, { appVersion: homey.manifest?.version, anonymizer: anonymizerFor(homey) });
+      const summary = summarizeReport(report);
+      for (const line of summary) homey.app.log(line);
+      return { report, summaryLines: summary.length };
     } catch (error) {
-      homey.error('Error in getInstallations API:', error);
-      throw error;
-    }
-  },
-
-  async getFeatures({ homey, body }) {
-    try {
-      const { deviceId } = body || {};
-      if (!deviceId) throw new Error('Device ID is required');
-
-      const anonymizer = anonymizerFor(homey);
-      const driver = homey.drivers.getDriver('vicare');
-      const devices = driver.getDevices();
-      const device = devices.find((d) => anonymizedDeviceId(anonymizer, d) === deviceId || d.getData().id === deviceId);
-
-      if (!device) throw new Error(`No device found with ID: ${anonymizer.text(String(deviceId))}`);
-      const features = await device.getFeatures({ useFilter: false });
-      return anonymizeDumps([features], anonymizer)[0];
-    } catch (error) {
-      homey.error('Error in getFeatures API:', error);
-      throw error;
-    }
-  },
-
-  async getDevices({ homey }) {
-    try {
-      const driver = homey.drivers.getDriver('vicare');
-      const devices = driver.getDevices();
-      if (!devices || devices.length === 0) throw new Error('No device found');
-
-      const anonymizer = anonymizerFor(homey);
-      // Register every device's ids first, so that names that contain them are anonymized too
-      const deviceIds = devices.map((device) => anonymizedDeviceId(anonymizer, device));
-      return devices.map((device, i) => ({
-        deviceId: deviceIds[i],
-        name: anonymizer.text(device.getName()),
-      }));
-    } catch (error) {
-      homey.error('Error in getDevices API:', error);
+      homey.error('Error in getReport API:', error);
       throw error;
     }
   },

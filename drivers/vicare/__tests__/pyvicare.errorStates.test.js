@@ -61,7 +61,12 @@ async function nextPoll(driver, pollingKey) {
   while (poller.running) await poller.running;
 }
 
-const valuesOf = (device) => Object.fromEntries(device.getCapabilities().map((id) => [id, device.getCapabilityValue(id)]));
+// The values a poll copies from the response. Computed values follow the clock (e.g. starts in the
+// last hour), so they are left out here and tested in computedValues.test.js.
+const DERIVED = new Set(Object.values(FEATURES).flatMap((feature) => feature.capabilities)
+  .filter((capability) => capability.computed).map((capability) => capability.capabilityName));
+const valuesOf = (device) => Object.fromEntries(device.getCapabilities().filter((id) => !DERIVED.has(id))
+  .map((id) => [id, device.getCapabilityValue(id)]));
 
 /*
   The response with every other mapped value replaced by something that is no value (object,
@@ -139,7 +144,7 @@ describe.each(fixtures.map(({ name, dump }) => [name, dump]))('PyViCare %s', (na
     expect(device.setUnavailable).not.toHaveBeenCalled();
     expect(device.error).not.toHaveBeenCalledWith(expect.stringContaining('Error processing features update'), expect.anything());
     expect(lastDelay(driver)).toBe(POLL_INTERVAL);
-    for (const id of device.getCapabilities()) {
+    for (const id of Object.keys(values)) {
       // An odd value is no value: the capability keeps what it had (here: nothing)
       const expected = touched.has(id) ? null : values[id];
       expect([id, device.getCapabilityValue(id)]).toEqual([id, expected]);

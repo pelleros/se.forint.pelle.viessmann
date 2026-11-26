@@ -17,8 +17,7 @@
     "save": "Speichern",
     "saved": "Client ID gespeichert! Du kannst jetzt dein Viessmann-Gerät in Homey hinzufügen.",
     "error": {
-      "invalid_client_id": "Bitte gib eine gültige Client ID ein",
-      "no_device_selected": "Bitte wähle zuerst ein Gerät aus"
+      "invalid_client_id": "Bitte gib eine gültige Client ID ein"
     },
     "problems": {
       "title": "Häufige Probleme",
@@ -31,8 +30,8 @@
         "fix": "Prüfe, ob deine Heizung in der ViCare-App erscheint und online ist. Achte darauf, dass die Client ID oben gespeichert war, bevor du mit dem Hinzufügen des Geräts begonnen hast. Wenn du sie gerade erst gespeichert oder geändert hast, schließe das Fenster zum Hinzufügen von Geräten und beginne noch einmal."
       },
       "no_oauth2_client": {
-        "title": "„No OAuth2 Client Found“ bei den Werkzeugen zur Fehlerbehebung",
-        "fix": "Die Werkzeuge unten nutzen die Anmeldung eines hinzugefügten Geräts. Füge zuerst ein Viessmann-ViCare-Gerät hinzu und versuche es dann erneut."
+        "title": "„No OAuth2 Client Found“ beim Erstellen des Berichts",
+        "fix": "Der Bericht auf dieser Seite nutzt die Anmeldung eines hinzugefügten Geräts. Füge zuerst ein Viessmann-ViCare-Gerät hinzu und versuche es dann erneut. Beim Hinzufügen eines Geräts lässt sich der Bericht auch direkt nach der Viessmann-Anmeldung erstellen, ohne ein Gerät hinzuzufügen."
       },
       "reauth": {
         "title": "Gerät nach Wochen oder Monaten nicht verfügbar („Authentication failed“ oder Verbindung verloren)",
@@ -42,39 +41,73 @@
     },
     "troubleshooting": {
       "title": "Fehlerbehebung",
-      "description": "Diese Werkzeuge zeigen die Daten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Seriennummern, IDs, deine Adresse und ähnliche Angaben werden automatisch anonymisiert und erscheinen als Platzhalter wie „anonymized-serial-1“. Schicke die Daten trotzdem am besten privat an den Entwickler, statt sie öffentlich zu posten.",
-      "installations": {
-        "title": "Installationsdaten",
-        "description": "Zeigt Details zu deiner Viessmann-Installation und den verbundenen Geräten",
-        "get": "Installationsdaten abrufen",
-        "copy": "In die Zwischenablage kopieren"
-      },
-      "features": {
-        "title": "Gerätefunktionen",
-        "description": "Zeigt die verfügbaren Funktionen und aktuellen Werte deines Geräts",
-        "get": "Funktionsdaten abrufen",
-        "copy": "In die Zwischenablage kopieren"
-      },
-      "device": {
-        "title": "Geräteauswahl",
-        "description": "Wähle das Gerät, dessen Funktionen abgerufen werden sollen",
-        "select": "Gerät auswählen...",
-        "refresh": "Geräte aktualisieren"
-      }
+      "description": "Der Bericht unten zeigt die Daten, die die App von Viessmann erhält. Das hilft dem Entwickler, wenn etwas nicht funktioniert. Dafür muss mindestens ein Gerät hinzugefügt sein. Seriennummern, IDs, deine Adresse und ähnliche Angaben werden automatisch anonymisiert und erscheinen als Platzhalter wie „anonymized-serial-1“. Schicke ihn trotzdem am besten privat an den Entwickler, statt ihn öffentlich zu posten."
+    },
+    "health": {
+      "title": "Status",
+      "description": "Die API-Aufrufe, die die App heute pro Viessmann-Konto verbraucht hat, und die letzte Aktualisierung jedes Geräts. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Konto nutzen, und zählt um Mitternacht UTC neu.",
+      "refresh": "Aktualisieren",
+      "account": "Viessmann-Konto __account__: heute __used__ von etwa __limit__ API-Aufrufen (neue Zählung ab __time__), etwa __planned__ pro Tag für Aktualisierungen geplant.",
+      "device": "__name__ (Konto __account__): Aktualisierung alle __minutes__ Minuten.",
+      "last_update": "Letzte Aktualisierung: __time__",
+      "no_update": "Seit dem Start der App keine erfolgreiche Aktualisierung.",
+      "last_error": "Letzter Fehler (__time__): __message__",
+      "no_devices": "Noch keine Geräte hinzugefügt."
+    },
+    "report": {
+      "title": "Bericht für den Entwickler",
+      "description": "Dein Gerät fehlt oder es fehlen Werte? Das sammelt in einem Schritt und anonymisiert, was Viessmann für deine Anlage und ihre Geräte meldet. Es verbraucht einige API-Aufrufe. Es wird nichts gesendet, bis du es selbst sendest.",
+      "prepare": "Bericht erstellen",
+      "copy": "In die Zwischenablage kopieren",
+      "how_to_send": "Der Bericht ist fertig. Zum Senden öffne entweder die Viessmann-ViCare-App in der Homey-App (Mehr > Apps), wähle Diagnosebericht senden und schreib in die Nachricht, dass es um fehlende Werte geht (die __lines__ Zeilen der Zusammenfassung sind darin), oder kopiere ihn und sende ihn dem Entwickler privat, zum Beispiel als private Nachricht im Homey-Community-Forum."
     }
   },
   "pair": {
     "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu.",
     "api_limit": "Das Limit der Viessmann-API ist erreicht. Versuche es nach __time__ Uhr erneut.",
-    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; versuche es später erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann."
+    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; versuche es später erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",
+    "no_installations": "Für dieses Viessmann-Konto wurde keine Heizung gefunden. Prüfe in der ViCare-App, dass deine Heizung für das Konto eingerichtet ist, mit dem du dich angemeldet hast.",
+    "no_heating_device": "Dieses Viessmann-Konto hat kein Heizgerät, das die App hinzufügen kann (gefunden: __types__). Ein Bericht für den Entwickler hilft, Unterstützung dafür hinzuzufügen.",
+    "device_name": {
+      "heat_pump": "Viessmann Wärmepumpe",
+      "boiler": "Viessmann Heizkessel",
+      "fuel_cell": "Viessmann Brennstoffzelle",
+      "other": "Viessmann Heizung"
+    },
+    "client_id": {
+      "title": "Viessmann Client ID",
+      "intro": "Viessmanns kostenloser API-Plan braucht eine eigene Client ID. Das dauert etwa fünf Minuten und ist nur einmal nötig:",
+      "step": "Speichere den Client im Portal, kopiere seine Client ID und füge sie unten ein.",
+      "continue": "Speichern und bei Viessmann anmelden",
+      "invalid": "Das sieht nicht wie eine Client ID aus. Kopiere sie aus dem Client im Viessmann-Entwicklerportal; sie enthält keine Leerzeichen."
+    },
+    "check": {
+      "title": "Dein Viessmann-Konto",
+      "loading": "Deine Heizung wird gesucht…",
+      "found": "Gefunden:",
+      "continue": "Weiter",
+      "retry": "Erneut versuchen",
+      "report_link": "Gerät nicht gefunden oder fehlen Werte? Daten für den Entwickler vorbereiten",
+      "close": "Schließen, ohne ein Gerät hinzuzufügen",
+      "no_login": "Melde dich zuerst bei Viessmann an und versuche es dann erneut."
+    }
   },
   "errors": {
     "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; die App versucht es jede Stunde erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",
     "gateway_offline": "Das Viessmann-Gateway ist offline. Prüfe, ob es Strom und eine Internetverbindung hat.",
-    "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert."
+    "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert.",
+    "command_refused": "Viessmann hat die Änderung abgelehnt (__detail__). Das ist manchmal ein vorübergehender Fehler bei Viessmann; versuche es später erneut."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."
+    "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__.",
+    "too_many_calls": "Mit dieser Einstellung bräuchte dieses Viessmann-Konto etwa __calls__ API-Aufrufe pro Tag für Aktualisierungen. Viessmann erlaubt etwa 1.450 pro Tag, und die App hält einige für andere Anfragen frei, also sind höchstens __limit__ möglich. Wähle hier oder bei einem anderen Gerät ein längeres Intervall, oder schalte das Ereignisprotokoll aus."
+  },
+  "status": {
+    "fault": "Die Heizung meldet die Störung __codes__. Die Anleitung deiner Heizung erklärt den Code.",
+    "fault_notification": "__device__: Die Heizung meldet die Störung __code__.",
+    "frozen": "Viessmann hat seit __time__ keine neuen Werte gesendet. Meist hilft ein Neustart des Internetmoduls der Heizung: Zieh den Stecker der Vitoconnect für eine Minute, oder schalte die Heizung aus und wieder ein, wenn das Modul eingebaut ist.",
+    "write_not_applied": "Die Heizung hat die Änderung nicht übernommen: __capability__ ist __actual__ statt __wanted__.",
+    "refresh_too_soon": "Die Viessmann-Funktionen wurden gerade erst eingelesen. Versuche es in __minutes__ Minuten erneut."
   },
   "flow": {
     "value_unknown": "Noch kein aktueller Wert von Viessmann. Versuchen Sie es nach der nächsten Aktualisierung erneut.",
@@ -86,6 +119,8 @@
     "unknown_parameter": "Der Befehl hat keinen Parameter __parameter__.",
     "no_command_metadata": "Die Befehle des Geräts sind noch nicht bekannt. Versuchen Sie es nach der nächsten Aktualisierung erneut.",
     "choose_from_list": "Wählen Sie einen Eintrag aus der Liste.",
-    "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt."
+    "mode_not_supported": "Die Betriebsart \"__mode__\" wird von diesem Heizkreis nicht unterstützt.",
+    "write_quota_reserved": "Das Viessmann-Konto hat heute nur noch __left__ API-Aufrufe, und die regelmäßigen Aktualisierungen seiner Geräte brauchen sie bis zum Zurücksetzen des Tageszählers (__time__). Versuchen Sie es danach erneut oder wählen Sie in den Geräteeinstellungen ein längeres Aktualisierungsintervall.",
+    "write_burst": "Zu viele Änderungen an diesem Viessmann-Konto in kurzer Zeit (höchstens __limit__ pro 10 Minuten für alle seine Geräte). Versuchen Sie es in __minutes__ Minuten erneut."
   }
 }

@@ -36,6 +36,9 @@ function fakeDevice({ store = {}, data = {}, refreshFails = false } = {}) {
 }
 
 const step = (version) => MIGRATIONS.find((migration) => migration.version === version);
+// The steps up to 1.0.16, which replaced the ad-hoc checks of checkUpgradeSpecifics
+const MIGRATIONS_1016 = MIGRATIONS.filter((migration) => versionBefore(migration.version, '1.0.17'));
+const STORE_2_0_0 = { dailyCounters: {}, knownMessages: { faults: [], logbook: null, events: null } };
 
 // checkUpgradeSpecifics as it was in 1.0.16, before the registry
 async function checkUpgradeSpecifics1016(device) {
@@ -171,9 +174,28 @@ describe('1.0.15: heating circuit and command metadata are read once', () => {
 
   test('a store that has both does not read anything', async () => {
     const device = fakeDevice(STARTS['paired on 1.0.15']);
-    await expect(runMigrations(device)).resolves.toEqual([]);
+    await expect(runMigrations(device, MIGRATIONS_1016)).resolves.toEqual([]);
     expect(device.refreshStoredMetadata).not.toHaveBeenCalled();
     expect(device.setStoreValue).not.toHaveBeenCalled();
+  });
+});
+
+describe('2.0.0: daily counters and known messages start empty', () => {
+  test('a 1.0.15 store gets both keys, reads nothing and keeps everything else', async () => {
+    const device = fakeDevice(STARTS['paired on 1.0.15']);
+    expect(step('2.0.0').isNeeded(device)).toBe(true);
+    await expect(runMigrations(device)).resolves.toEqual(['2.0.0']);
+    expect(device.refreshStoredMetadata).not.toHaveBeenCalled();
+    expect(device.store).toEqual({ ...STARTS['paired on 1.0.15'].store, ...STORE_2_0_0 });
+    expect(step('2.0.0').isNeeded(device)).toBe(false);
+  });
+
+  test('stored baselines and messages are kept', async () => {
+    const dailyCounters = { 'heating.compressors.0.statistics': { date: '2026-11-26', starts: 5 } };
+    const device = fakeDevice({ store: { ...STARTS['paired on 1.0.15'].store, dailyCounters } });
+    await runMigrations(device);
+    expect(device.store.dailyCounters).toEqual(dailyCounters);
+    expect(device.store.knownMessages).toEqual(STORE_2_0_0.knownMessages);
   });
 });
 
@@ -183,7 +205,7 @@ describe.each(Object.entries(STARTS))('%s', (name, start) => {
     const after = fakeDevice({ ...start, refreshFails });
 
     await checkUpgradeSpecifics1016(before);
-    await runMigrations(after);
+    await runMigrations(after, MIGRATIONS_1016);
 
     expect(after.store).toEqual(before.store);
     expect(after.refreshStoredMetadata.mock.calls.length).toBe(before.refreshStoredMetadata.mock.calls.length);

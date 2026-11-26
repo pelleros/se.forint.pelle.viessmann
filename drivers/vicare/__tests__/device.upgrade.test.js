@@ -185,7 +185,11 @@ describe('a failing upgrade refresh', () => {
     await expect(device.onOAuth2Init()).resolves.toBeUndefined();
 
     expect(device.error).toHaveBeenCalledWith(expect.stringContaining('retrying on the next start'), expect.any(Error));
-    expect(device.getStore()).toEqual(STORE_1_0_14);
+    // Unchanged, apart from the keys 2.0.0 adds without reading the API
+    const { dailyCounters, knownMessages, ...store } = device.getStore();
+    expect(store).toEqual(STORE_1_0_14);
+    expect(dailyCounters).toEqual(expect.any(Object));
+    expect(knownMessages).toEqual(expect.any(Object));
     expect(device.getCapabilities()).toEqual(expect.arrayContaining(CAPABILITIES_1_0_14));
     expect(device.removeCapability).not.toHaveBeenCalled();
     expect(driver._devicePollers.has(POLLING_KEY)).toBe(true);

@@ -201,7 +201,11 @@ describe('commands', () => {
   test('at most 30 commands per hour', async () => {
     const { device } = await heatPump();
     const [activate] = featureCards.commandChoices(device, 'oneTimeCharge activate');
-    for (let i = 0; i < 30; i++) await featureCards.runCommand(device, activate, '{}');
+    // A minute apart: the account's limit of 20 writes per 10 minutes (writeQuota.js) never applies
+    for (let i = 0; i < 30; i++) {
+      await featureCards.runCommand(device, activate, '{}');
+      clock.now += MINUTE;
+    }
     await expect(featureCards.runCommand(device, activate, '{}')).rejects.toThrow('at most 30 per hour');
   });
 });

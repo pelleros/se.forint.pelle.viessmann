@@ -43,5 +43,12 @@
   },
   "1.0.14": {
     "en": "Viessmann ViCare API endpoint update"
+  },
+  "1.0.15": {
+    "en": "More reliable updates and login, clearer error messages and setup instructions, heating circuit selection, COP and compressor load for heat pumps, and start counters in Insights. Thanks to LTaglioretti and Bushtuckerman71.",
+    "de": "Zuverlässigere Aktualisierung und Anmeldung, klarere Fehlermeldungen und Einrichtungshinweise, Auswahl des Heizkreises, COP und Verdichterauslastung für Wärmepumpen sowie Startzähler in Insights. Danke an LTaglioretti und Bushtuckerman71.",
+    "nl": "Betrouwbaardere updates en aanmelding, duidelijkere foutmeldingen en installatie-instructies, keuze van het verwarmingscircuit, COP en compressorbelasting voor warmtepompen, en starttellers in Insights. Met dank aan LTaglioretti en Bushtuckerman71.",
+    "fr": "Mises à jour et connexion plus fiables, messages d'erreur et instructions d'installation plus clairs, choix du circuit de chauffage, COP et charge du compresseur pour les pompes à chaleur, et compteurs de démarrages dans Insights. Merci à LTaglioretti et Bushtuckerman71.",
+    "sv": "Stabilare uppdateringar och inloggning, tydligare felmeddelanden och installationsinstruktioner, val av värmekrets, COP och kompressorlast för värmepumpar samt startantal i Insights. Tack till LTaglioretti och Bushtuckerman71."
   }
 }

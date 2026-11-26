@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Pump running",
+    "de": "Pumpe läuft",
+    "nl": "Pomp draait",
+    "fr": "Pompe en marche",
+    "sv": "Pump igång"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Pump started",
+    "de": "Pumpe gestartet",
+    "nl": "Pomp gestart",
+    "fr": "Pompe démarrée",
+    "sv": "Pumpen startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Pump stopped",
+    "de": "Pumpe gestoppt",
+    "nl": "Pomp gestopt",
+    "fr": "Pompe arrêtée",
+    "sv": "Pumpen stannade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/pump.svg"
+}

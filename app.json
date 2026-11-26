@@ -84,6 +84,271 @@
             }
           }
         ]
+      },
+      {
+        "id": "circulation-pump-started",
+        "title": {
+          "en": "Heating circulation pump started",
+          "de": "Heizkreispumpe gestartet",
+          "nl": "Circulatiepomp verwarming gestart",
+          "fr": "Le circulateur chauffage a démarré",
+          "sv": "Cirkulationspump värme startade"
+        },
+        "titleFormatted": {
+          "en": "Heating circulation pump started",
+          "de": "Heizkreispumpe gestartet",
+          "nl": "Circulatiepomp verwarming gestart",
+          "fr": "Le circulateur chauffage a démarré",
+          "sv": "Cirkulationspump värme startade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.circuit0"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        }
+      },
+      {
+        "id": "circulation-pump-stopped",
+        "title": {
+          "en": "Heating circulation pump stopped",
+          "de": "Heizkreispumpe gestoppt",
+          "nl": "Circulatiepomp verwarming gestopt",
+          "fr": "Le circulateur chauffage s'est arrêté",
+          "sv": "Cirkulationspump värme stannade"
+        },
+        "titleFormatted": {
+          "en": "Heating circulation pump stopped",
+          "de": "Heizkreispumpe gestoppt",
+          "nl": "Circulatiepomp verwarming gestopt",
+          "fr": "Le circulateur chauffage s'est arrêté",
+          "sv": "Cirkulationspump värme stannade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.circuit0"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        }
+      },
+      {
+        "id": "hot-water-circulation-pump-started",
+        "title": {
+          "en": "Hot water circulation pump started",
+          "de": "Zirkulationspumpe Warmwasser gestartet",
+          "nl": "Circulatiepomp warm water gestart",
+          "fr": "La pompe de bouclage eau chaude a démarré",
+          "sv": "Cirkulationspump varmvatten startade"
+        },
+        "titleFormatted": {
+          "en": "Hot water circulation pump started",
+          "de": "Zirkulationspumpe Warmwasser gestartet",
+          "nl": "Circulatiepomp warm water gestart",
+          "fr": "La pompe de bouclage eau chaude a démarré",
+          "sv": "Cirkulationspump varmvatten startade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.dhwCirculation"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        }
+      },
+      {
+        "id": "hot-water-circulation-pump-stopped",
+        "title": {
+          "en": "Hot water circulation pump stopped",
+          "de": "Zirkulationspumpe Warmwasser gestoppt",
+          "nl": "Circulatiepomp warm water gestopt",
+          "fr": "La pompe de bouclage eau chaude s'est arrêtée",
+          "sv": "Cirkulationspump varmvatten stannade"
+        },
+        "titleFormatted": {
+          "en": "Hot water circulation pump stopped",
+          "de": "Zirkulationspumpe Warmwasser gestoppt",
+          "nl": "Circulatiepomp warm water gestopt",
+          "fr": "La pompe de bouclage eau chaude s'est arrêtée",
+          "sv": "Cirkulationspump varmvatten stannade"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.dhwCirculation"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        }
+      },
+      {
+        "id": "outside-temperature-changed",
+        "title": {
+          "en": "Outside temperature changed",
+          "de": "Außentemperatur hat sich geändert",
+          "nl": "Buitentemperatuur is veranderd",
+          "fr": "La température extérieure a changé",
+          "sv": "Utetemperaturen ändrades"
+        },
+        "titleFormatted": {
+          "en": "Outside temperature changed",
+          "de": "Außentemperatur hat sich geändert",
+          "nl": "Buitentemperatuur is veranderd",
+          "fr": "La température extérieure a changé",
+          "sv": "Utetemperaturen ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.outside"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            },
+            "example": {
+              "en": "5.5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "supply-temperature-changed",
+        "title": {
+          "en": "Heating supply temperature changed",
+          "de": "Vorlauftemperatur Heizkreis hat sich geändert",
+          "nl": "Aanvoertemperatuur verwarming is veranderd",
+          "fr": "La température de départ chauffage a changé",
+          "sv": "Framledningstemperaturen värme ändrades"
+        },
+        "titleFormatted": {
+          "en": "Heating supply temperature changed",
+          "de": "Vorlauftemperatur Heizkreis hat sich geändert",
+          "nl": "Aanvoertemperatuur verwarming is veranderd",
+          "fr": "La température de départ chauffage a changé",
+          "sv": "Framledningstemperaturen värme ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.circuit0_supply"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            },
+            "example": {
+              "en": "35"
+            }
+          }
+        ]
+      },
+      {
+        "id": "hot-water-temperature-changed",
+        "title": {
+          "en": "Hot water temperature changed",
+          "de": "Warmwassertemperatur hat sich geändert",
+          "nl": "Warmwatertemperatuur is veranderd",
+          "fr": "La température de l'eau chaude a changé",
+          "sv": "Varmvattentemperaturen ändrades"
+        },
+        "titleFormatted": {
+          "en": "Hot water temperature changed",
+          "de": "Warmwassertemperatur hat sich geändert",
+          "nl": "Warmwatertemperatuur is veranderd",
+          "fr": "La température de l'eau chaude a changé",
+          "sv": "Varmvattentemperaturen ändrades"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.hotWater"
+          }
+        ],
+        "hint": {
+          "en": "Runs when an update from Viessmann shows the change, so up to a few minutes after it happened.",
+          "de": "Wird ausgelöst, wenn eine Aktualisierung von Viessmann die Änderung zeigt, also bis zu einige Minuten später.",
+          "nl": "Wordt geactiveerd zodra een update van Viessmann de wijziging toont, dus tot enkele minuten later.",
+          "fr": "Se déclenche quand une mise à jour de Viessmann montre le changement, donc jusqu'à quelques minutes plus tard.",
+          "sv": "Körs när en uppdatering från Viessmann visar ändringen, alltså upp till några minuter efteråt."
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            },
+            "example": {
+              "en": "48"
+            }
+          }
+        ]
       }
     ],
     "conditions": [
@@ -123,6 +388,302 @@
         ],
         "hint": {
           "en": "Checking last known state, i.e. could return incorrect value if not recently synced."
+        }
+      },
+      {
+        "id": "circulation-pump-is-running",
+        "title": {
+          "en": "Heating circulation pump !{{is|is not}} running",
+          "de": "Heizkreispumpe !{{läuft|läuft nicht}}",
+          "nl": "Circulatiepomp verwarming !{{draait|draait niet}}",
+          "fr": "Le circulateur chauffage !{{est|n'est pas}} en marche",
+          "sv": "Cirkulationspump värme !{{är|är inte}} igång"
+        },
+        "titleFormatted": {
+          "en": "Heating circulation pump !{{is|is not}} running",
+          "de": "Heizkreispumpe !{{läuft|läuft nicht}}",
+          "nl": "Circulatiepomp verwarming !{{draait|draait niet}}",
+          "fr": "Le circulateur chauffage !{{est|n'est pas}} en marche",
+          "sv": "Cirkulationspump värme !{{är|är inte}} igång"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.circuit0"
+          }
+        ],
+        "hint": {
+          "en": "Uses the last value Viessmann reported (updated every few minutes). The card fails while no value is known.",
+          "de": "Verwendet den zuletzt von Viessmann gemeldeten Wert (alle paar Minuten aktualisiert). Solange kein Wert bekannt ist, schlägt die Karte fehl.",
+          "nl": "Gebruikt de laatste waarde die Viessmann meldde (elke paar minuten bijgewerkt). Zolang er geen waarde bekend is, mislukt de kaart.",
+          "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
+          "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
+        }
+      },
+      {
+        "id": "hot-water-circulation-pump-is-running",
+        "title": {
+          "en": "Hot water circulation pump !{{is|is not}} running",
+          "de": "Zirkulationspumpe Warmwasser !{{läuft|läuft nicht}}",
+          "nl": "Circulatiepomp warm water !{{draait|draait niet}}",
+          "fr": "La pompe de bouclage eau chaude !{{est|n'est pas}} en marche",
+          "sv": "Cirkulationspump varmvatten !{{är|är inte}} igång"
+        },
+        "titleFormatted": {
+          "en": "Hot water circulation pump !{{is|is not}} running",
+          "de": "Zirkulationspumpe Warmwasser !{{läuft|läuft nicht}}",
+          "nl": "Circulatiepomp warm water !{{draait|draait niet}}",
+          "fr": "La pompe de bouclage eau chaude !{{est|n'est pas}} en marche",
+          "sv": "Cirkulationspump varmvatten !{{är|är inte}} igång"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_pump_active.dhwCirculation"
+          }
+        ],
+        "hint": {
+          "en": "Uses the last value Viessmann reported (updated every few minutes). The card fails while no value is known.",
+          "de": "Verwendet den zuletzt von Viessmann gemeldeten Wert (alle paar Minuten aktualisiert). Solange kein Wert bekannt ist, schlägt die Karte fehl.",
+          "nl": "Gebruikt de laatste waarde die Viessmann meldde (elke paar minuten bijgewerkt). Zolang er geen waarde bekend is, mislukt de kaart.",
+          "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
+          "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
+        }
+      },
+      {
+        "id": "outside-temperature-is",
+        "title": {
+          "en": "Outside temperature !{{is|is not}} above/below",
+          "de": "Außentemperatur !{{ist|ist nicht}} über/unter",
+          "nl": "Buitentemperatuur !{{is|is niet}} boven/onder",
+          "fr": "La température extérieure !{{est|n'est pas}} au-dessus/en dessous",
+          "sv": "Utetemperaturen !{{är|är inte}} över/under"
+        },
+        "titleFormatted": {
+          "en": "Outside temperature !{{is|is not}} [[comparison]] [[temperature]] °C",
+          "de": "Außentemperatur !{{ist|ist nicht}} [[comparison]] [[temperature]] °C",
+          "nl": "Buitentemperatuur !{{is|is niet}} [[comparison]] [[temperature]] °C",
+          "fr": "La température extérieure !{{est|n'est pas}} [[comparison]] [[temperature]] °C",
+          "sv": "Utetemperaturen !{{är|är inte}} [[comparison]] [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.outside"
+          },
+          {
+            "name": "comparison",
+            "type": "dropdown",
+            "title": {
+              "en": "Comparison",
+              "de": "Vergleich",
+              "nl": "Vergelijking",
+              "fr": "Comparaison",
+              "sv": "Jämförelse"
+            },
+            "values": [
+              {
+                "id": "above",
+                "title": {
+                  "en": "above",
+                  "de": "über",
+                  "nl": "boven",
+                  "fr": "au-dessus de",
+                  "sv": "över"
+                }
+              },
+              {
+                "id": "below",
+                "title": {
+                  "en": "below",
+                  "de": "unter",
+                  "nl": "onder",
+                  "fr": "en dessous de",
+                  "sv": "under"
+                }
+              }
+            ]
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": -50,
+            "max": 50,
+            "step": 0.5,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Uses the last value Viessmann reported (updated every few minutes). The card fails while no value is known.",
+          "de": "Verwendet den zuletzt von Viessmann gemeldeten Wert (alle paar Minuten aktualisiert). Solange kein Wert bekannt ist, schlägt die Karte fehl.",
+          "nl": "Gebruikt de laatste waarde die Viessmann meldde (elke paar minuten bijgewerkt). Zolang er geen waarde bekend is, mislukt de kaart.",
+          "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
+          "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
+        }
+      },
+      {
+        "id": "supply-temperature-is",
+        "title": {
+          "en": "Heating supply temperature !{{is|is not}} above/below",
+          "de": "Vorlauftemperatur Heizkreis !{{ist|ist nicht}} über/unter",
+          "nl": "Aanvoertemperatuur verwarming !{{is|is niet}} boven/onder",
+          "fr": "La température de départ chauffage !{{est|n'est pas}} au-dessus/en dessous",
+          "sv": "Framledningstemperaturen värme !{{är|är inte}} över/under"
+        },
+        "titleFormatted": {
+          "en": "Heating supply temperature !{{is|is not}} [[comparison]] [[temperature]] °C",
+          "de": "Vorlauftemperatur Heizkreis !{{ist|ist nicht}} [[comparison]] [[temperature]] °C",
+          "nl": "Aanvoertemperatuur verwarming !{{is|is niet}} [[comparison]] [[temperature]] °C",
+          "fr": "La température de départ chauffage !{{est|n'est pas}} [[comparison]] [[temperature]] °C",
+          "sv": "Framledningstemperaturen värme !{{är|är inte}} [[comparison]] [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.circuit0_supply"
+          },
+          {
+            "name": "comparison",
+            "type": "dropdown",
+            "title": {
+              "en": "Comparison",
+              "de": "Vergleich",
+              "nl": "Vergelijking",
+              "fr": "Comparaison",
+              "sv": "Jämförelse"
+            },
+            "values": [
+              {
+                "id": "above",
+                "title": {
+                  "en": "above",
+                  "de": "über",
+                  "nl": "boven",
+                  "fr": "au-dessus de",
+                  "sv": "över"
+                }
+              },
+              {
+                "id": "below",
+                "title": {
+                  "en": "below",
+                  "de": "unter",
+                  "nl": "onder",
+                  "fr": "en dessous de",
+                  "sv": "under"
+                }
+              }
+            ]
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 0.5,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Uses the last value Viessmann reported (updated every few minutes). The card fails while no value is known.",
+          "de": "Verwendet den zuletzt von Viessmann gemeldeten Wert (alle paar Minuten aktualisiert). Solange kein Wert bekannt ist, schlägt die Karte fehl.",
+          "nl": "Gebruikt de laatste waarde die Viessmann meldde (elke paar minuten bijgewerkt). Zolang er geen waarde bekend is, mislukt de kaart.",
+          "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
+          "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
+        }
+      },
+      {
+        "id": "hot-water-temperature-is",
+        "title": {
+          "en": "Hot water temperature !{{is|is not}} above/below",
+          "de": "Warmwassertemperatur !{{ist|ist nicht}} über/unter",
+          "nl": "Warmwatertemperatuur !{{is|is niet}} boven/onder",
+          "fr": "La température de l'eau chaude !{{est|n'est pas}} au-dessus/en dessous",
+          "sv": "Varmvattentemperaturen !{{är|är inte}} över/under"
+        },
+        "titleFormatted": {
+          "en": "Hot water temperature !{{is|is not}} [[comparison]] [[temperature]] °C",
+          "de": "Warmwassertemperatur !{{ist|ist nicht}} [[comparison]] [[temperature]] °C",
+          "nl": "Warmwatertemperatuur !{{is|is niet}} [[comparison]] [[temperature]] °C",
+          "fr": "La température de l'eau chaude !{{est|n'est pas}} [[comparison]] [[temperature]] °C",
+          "sv": "Varmvattentemperaturen !{{är|är inte}} [[comparison]] [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_temperature.hotWater"
+          },
+          {
+            "name": "comparison",
+            "type": "dropdown",
+            "title": {
+              "en": "Comparison",
+              "de": "Vergleich",
+              "nl": "Vergelijking",
+              "fr": "Comparaison",
+              "sv": "Jämförelse"
+            },
+            "values": [
+              {
+                "id": "above",
+                "title": {
+                  "en": "above",
+                  "de": "über",
+                  "nl": "boven",
+                  "fr": "au-dessus de",
+                  "sv": "över"
+                }
+              },
+              {
+                "id": "below",
+                "title": {
+                  "en": "below",
+                  "de": "unter",
+                  "nl": "onder",
+                  "fr": "en dessous de",
+                  "sv": "under"
+                }
+              }
+            ]
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 0.5,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Uses the last value Viessmann reported (updated every few minutes). The card fails while no value is known.",
+          "de": "Verwendet den zuletzt von Viessmann gemeldeten Wert (alle paar Minuten aktualisiert). Solange kein Wert bekannt ist, schlägt die Karte fehl.",
+          "nl": "Gebruikt de laatste waarde die Viessmann meldde (elke paar minuten bijgewerkt). Zolang er geen waarde bekend is, mislukt de kaart.",
+          "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
+          "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
         }
       }
     ],
@@ -351,6 +912,528 @@
             ]
           }
         ]
+      },
+      {
+        "id": "set-heating-curve-shift",
+        "title": {
+          "en": "Set heating curve shift",
+          "de": "Niveau der Heizkennlinie einstellen",
+          "nl": "Verschuiving van de stooklijn instellen",
+          "fr": "Régler le décalage de la courbe de chauffe",
+          "sv": "Ställ in värmekurvans förskjutning"
+        },
+        "titleFormatted": {
+          "en": "Set heating curve shift to [[shift]]",
+          "de": "Niveau der Heizkennlinie auf [[shift]] einstellen",
+          "nl": "Verschuiving van de stooklijn instellen op [[shift]]",
+          "fr": "Régler le décalage de la courbe de chauffe sur [[shift]]",
+          "sv": "Ställ in värmekurvans förskjutning till [[shift]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_curve_number.circuit0Shift"
+          },
+          {
+            "name": "shift",
+            "type": "number",
+            "min": -15,
+            "max": 40,
+            "step": 1,
+            "title": {
+              "en": "Shift",
+              "de": "Niveau",
+              "nl": "Verschuiving",
+              "fr": "Décalage",
+              "sv": "Förskjutning"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+          "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+          "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+          "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+          "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        }
+      },
+      {
+        "id": "adjust-heating-curve-shift",
+        "title": {
+          "en": "Change heating curve shift",
+          "de": "Niveau der Heizkennlinie ändern",
+          "nl": "Verschuiving van de stooklijn aanpassen",
+          "fr": "Modifier le décalage de la courbe de chauffe",
+          "sv": "Ändra värmekurvans förskjutning"
+        },
+        "titleFormatted": {
+          "en": "Change heating curve shift by [[change]]",
+          "de": "Niveau der Heizkennlinie um [[change]] ändern",
+          "nl": "Verschuiving van de stooklijn aanpassen met [[change]]",
+          "fr": "Modifier le décalage de la courbe de chauffe de [[change]]",
+          "sv": "Ändra värmekurvans förskjutning med [[change]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_curve_number.circuit0Shift"
+          },
+          {
+            "name": "change",
+            "type": "number",
+            "min": -10,
+            "max": 10,
+            "step": 1,
+            "title": {
+              "en": "Change (+/−)",
+              "de": "Änderung (+/−)",
+              "nl": "Wijziging (+/−)",
+              "fr": "Variation (+/−)",
+              "sv": "Ändring (+/−)"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+          "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+          "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+          "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+          "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        }
+      },
+      {
+        "id": "set-heating-curve-slope",
+        "title": {
+          "en": "Set heating curve slope",
+          "de": "Neigung der Heizkennlinie einstellen",
+          "nl": "Helling van de stooklijn instellen",
+          "fr": "Régler la pente de la courbe de chauffe",
+          "sv": "Ställ in värmekurvans lutning"
+        },
+        "titleFormatted": {
+          "en": "Set heating curve slope to [[slope]]",
+          "de": "Neigung der Heizkennlinie auf [[slope]] einstellen",
+          "nl": "Helling van de stooklijn instellen op [[slope]]",
+          "fr": "Régler la pente de la courbe de chauffe sur [[slope]]",
+          "sv": "Ställ in värmekurvans lutning till [[slope]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_curve_number.circuit0Slope"
+          },
+          {
+            "name": "slope",
+            "type": "number",
+            "min": 0,
+            "max": 3.5,
+            "step": 0.1,
+            "title": {
+              "en": "Slope",
+              "de": "Neigung",
+              "nl": "Helling",
+              "fr": "Pente",
+              "sv": "Lutning"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+          "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+          "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+          "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+          "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        }
+      },
+      {
+        "id": "boost-hot-water",
+        "title": {
+          "en": "Raise hot water temperature for a while",
+          "de": "Warmwasser vorübergehend anheben",
+          "nl": "Warm water tijdelijk verhogen",
+          "fr": "Augmenter temporairement l'eau chaude",
+          "sv": "Höj varmvattnet tillfälligt"
+        },
+        "titleFormatted": {
+          "en": "Set the hot water target to [[temperature]] °C for [[minutes]] minutes, then restore it",
+          "de": "Warmwasser-Sollwert für [[minutes]] Minuten auf [[temperature]] °C setzen, danach zurücksetzen",
+          "nl": "Warmwaterdoelwaarde [[minutes]] minuten op [[temperature]] °C zetten en daarna terugzetten",
+          "fr": "Régler la consigne d'eau chaude sur [[temperature]] °C pendant [[minutes]] minutes, puis la rétablir",
+          "sv": "Sätt varmvattnets börvärde till [[temperature]] °C i [[minutes]] minuter och återställ det sedan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=target_temperature.hotWater"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "min": 10,
+            "max": 70,
+            "step": 1,
+            "title": {
+              "en": "Temperature",
+              "de": "Temperatur",
+              "nl": "Temperatuur",
+              "fr": "Température",
+              "sv": "Temperatur"
+            }
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "min": 1,
+            "max": 1440,
+            "step": 1,
+            "title": {
+              "en": "Minutes",
+              "de": "Minuten",
+              "nl": "Minuten",
+              "fr": "Minutes",
+              "sv": "Minuter"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Restores the previous target afterwards, also after a restart of Homey. If the target was changed in the meantime, it is left as it is. A new boost extends the running one. At most 6 boosts per hour.",
+          "de": "Stellt danach den vorherigen Sollwert wieder her, auch nach einem Neustart von Homey. Wurde der Sollwert inzwischen geändert, bleibt er unverändert. Ein neuer Boost verlängert den laufenden. Höchstens 6 Boosts pro Stunde.",
+          "nl": "Zet daarna de vorige doelwaarde terug, ook na een herstart van Homey. Is de doelwaarde intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Hoogstens 6 boosts per uur.",
+          "fr": "Rétablit ensuite la consigne précédente, même après un redémarrage de Homey. Si la consigne a été modifiée entre-temps, elle est conservée. Un nouveau boost prolonge celui en cours. Au plus 6 boosts par heure.",
+          "sv": "Återställer sedan det tidigare börvärdet, även efter en omstart av Homey. Har börvärdet ändrats under tiden lämnas det som det är. En ny boost förlänger den pågående. Högst 6 boostar per timme."
+        }
+      },
+      {
+        "id": "boost-heating-curve-shift",
+        "title": {
+          "en": "Change heating curve shift for a while",
+          "de": "Niveau der Heizkennlinie vorübergehend ändern",
+          "nl": "Verschuiving van de stooklijn tijdelijk aanpassen",
+          "fr": "Modifier temporairement le décalage de la courbe de chauffe",
+          "sv": "Ändra värmekurvans förskjutning tillfälligt"
+        },
+        "titleFormatted": {
+          "en": "Change heating curve shift by [[change]] for [[minutes]] minutes, then restore it",
+          "de": "Niveau der Heizkennlinie für [[minutes]] Minuten um [[change]] ändern, danach zurücksetzen",
+          "nl": "Verschuiving van de stooklijn [[minutes]] minuten aanpassen met [[change]] en daarna terugzetten",
+          "fr": "Modifier le décalage de la courbe de chauffe de [[change]] pendant [[minutes]] minutes, puis le rétablir",
+          "sv": "Ändra värmekurvans förskjutning med [[change]] i [[minutes]] minuter och återställ den sedan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=measure_curve_number.circuit0Shift"
+          },
+          {
+            "name": "change",
+            "type": "number",
+            "min": -10,
+            "max": 10,
+            "step": 1,
+            "title": {
+              "en": "Change (+/−)",
+              "de": "Änderung (+/−)",
+              "nl": "Wijziging (+/−)",
+              "fr": "Variation (+/−)",
+              "sv": "Ändring (+/−)"
+            }
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "min": 1,
+            "max": 1440,
+            "step": 1,
+            "title": {
+              "en": "Minutes",
+              "de": "Minuten",
+              "nl": "Minuten",
+              "fr": "Minutes",
+              "sv": "Minuter"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Restores the previous shift afterwards, also after a restart of Homey. If the shift was changed in the meantime, it is left as it is. A new boost extends the running one. Counts towards the 6 heating curve changes per hour.",
+          "de": "Stellt danach das vorherige Niveau wieder her, auch nach einem Neustart von Homey. Wurde das Niveau inzwischen geändert, bleibt es unverändert. Ein neuer Boost verlängert den laufenden. Zählt zu den 6 Änderungen der Heizkennlinie pro Stunde.",
+          "nl": "Zet daarna de vorige verschuiving terug, ook na een herstart van Homey. Is de verschuiving intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Telt mee voor de 6 wijzigingen van de stooklijn per uur.",
+          "fr": "Rétablit ensuite le décalage précédent, même après un redémarrage de Homey. Si le décalage a été modifié entre-temps, il est conservé. Un nouveau boost prolonge celui en cours. Compte dans les 6 modifications de la courbe de chauffe par heure.",
+          "sv": "Återställer sedan den tidigare förskjutningen, även efter en omstart av Homey. Har förskjutningen ändrats under tiden lämnas den som den är. En ny boost förlänger den pågående. Räknas in i de 6 ändringarna av värmekurvan per timme."
+        }
+      },
+      {
+        "id": "boost-hot-water-charge",
+        "title": {
+          "en": "Heat hot water now for a while",
+          "de": "Warmwasser jetzt vorübergehend aufheizen",
+          "nl": "Warm water nu tijdelijk opwarmen",
+          "fr": "Chauffer l'eau chaude maintenant pour un temps",
+          "sv": "Värm varmvatten nu en stund"
+        },
+        "titleFormatted": {
+          "en": "Start a one-time hot water charge and stop it after at most [[minutes]] minutes",
+          "de": "Einmalige Warmwasserbereitung starten und nach spätestens [[minutes]] Minuten beenden",
+          "nl": "Eenmalig warm water opwarmen en na uiterlijk [[minutes]] minuten stoppen",
+          "fr": "Lancer une charge unique d'eau chaude et l'arrêter après [[minutes]] minutes au plus tard",
+          "sv": "Starta en engångsladdning av varmvatten och stoppa den efter högst [[minutes]] minuter"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=thermostat_mode.hotWaterOneTimeCharge"
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "min": 1,
+            "max": 1440,
+            "step": 1,
+            "title": {
+              "en": "Minutes",
+              "de": "Minuten",
+              "nl": "Minuten",
+              "fr": "Minutes",
+              "sv": "Minuter"
+            }
+          }
+        ],
+        "hint": {
+          "en": "The charge ends by itself when the cylinder is hot; this card stops it earlier if it is still running after the given time, also after a restart of Homey. At most 6 per hour.",
+          "de": "Die Ladung endet von selbst, wenn der Speicher warm ist; diese Karte beendet sie früher, falls sie nach der angegebenen Zeit noch läuft, auch nach einem Neustart von Homey. Höchstens 6 pro Stunde.",
+          "nl": "Het opwarmen stopt vanzelf als de boiler warm is; deze kaart stopt het eerder als het na de opgegeven tijd nog loopt, ook na een herstart van Homey. Hoogstens 6 per uur.",
+          "fr": "La charge s'arrête d'elle-même quand le ballon est chaud ; cette carte l'arrête plus tôt si elle est encore en cours après la durée indiquée, même après un redémarrage de Homey. Au plus 6 par heure.",
+          "sv": "Laddningen slutar av sig själv när beredaren är varm; kortet stoppar den tidigare om den fortfarande pågår efter den angivna tiden, även efter en omstart av Homey. Högst 6 per timme."
+        }
+      },
+      {
+        "id": "end-boosts",
+        "title": {
+          "en": "End temporary changes and restore the previous settings",
+          "de": "Vorübergehende Änderungen beenden und vorherige Einstellungen wiederherstellen",
+          "nl": "Tijdelijke wijzigingen beëindigen en vorige instellingen terugzetten",
+          "fr": "Terminer les modifications temporaires et rétablir les réglages précédents",
+          "sv": "Avsluta tillfälliga ändringar och återställ tidigare inställningar"
+        },
+        "titleFormatted": {
+          "en": "End temporary changes and restore the previous settings",
+          "de": "Vorübergehende Änderungen beenden und vorherige Einstellungen wiederherstellen",
+          "nl": "Tijdelijke wijzigingen beëindigen en vorige instellingen terugzetten",
+          "fr": "Terminer les modifications temporaires et rétablir les réglages précédents",
+          "sv": "Avsluta tillfälliga ändringar och återställ tidigare inställningar"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare&capabilities=target_temperature.hotWater|measure_curve_number.circuit0Shift|thermostat_mode.hotWaterOneTimeCharge"
+          }
+        ],
+        "hint": {
+          "en": "Restores right away what the temporary cards changed. Settings that were changed in the meantime are left as they are.",
+          "de": "Stellt sofort wieder her, was die vorübergehenden Karten geändert haben. Inzwischen geänderte Einstellungen bleiben unverändert.",
+          "nl": "Zet meteen terug wat de tijdelijke kaarten hebben gewijzigd. Instellingen die intussen zijn gewijzigd, blijven staan.",
+          "fr": "Rétablit immédiatement ce que les cartes temporaires ont modifié. Les réglages modifiés entre-temps sont conservés.",
+          "sv": "Återställer direkt det som de tillfälliga korten ändrade. Inställningar som ändrats under tiden lämnas som de är."
+        }
+      },
+      {
+        "id": "read-feature-number",
+        "title": {
+          "en": "Read a Viessmann value as a number",
+          "de": "Viessmann-Wert als Zahl lesen",
+          "nl": "Viessmann-waarde als getal lezen",
+          "fr": "Lire une valeur Viessmann comme nombre",
+          "sv": "Läs ett Viessmann-värde som tal"
+        },
+        "titleFormatted": {
+          "en": "Read [[feature]] as a number",
+          "de": "[[feature]] als Zahl lesen",
+          "nl": "[[feature]] als getal lezen",
+          "fr": "Lire [[feature]] comme nombre",
+          "sv": "Läs [[feature]] som tal"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "feature",
+            "type": "autocomplete",
+            "title": {
+              "en": "Value",
+              "de": "Wert",
+              "nl": "Waarde",
+              "fr": "Valeur",
+              "sv": "Värde"
+            },
+            "placeholder": {
+              "en": "e.g. outside",
+              "de": "z. B. outside",
+              "nl": "bijv. outside",
+              "fr": "p. ex. outside",
+              "sv": "t.ex. outside"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "number",
+            "type": "number",
+            "title": {
+              "en": "Number",
+              "de": "Zahl",
+              "nl": "Getal",
+              "fr": "Nombre",
+              "sv": "Tal"
+            },
+            "example": {
+              "en": "47.3"
+            }
+          }
+        ],
+        "hint": {
+          "en": "For advanced use: any value your device reports, by its Viessmann name. Values that are updated regularly come from the last update; others are read from Viessmann (one API call, at most once per update interval). Works in Advanced Flow. The card fails when the value is not a number.",
+          "de": "Für Fortgeschrittene: jeder Wert, den das Gerät meldet, unter seinem Viessmann-Namen. Regelmäßig aktualisierte Werte stammen aus der letzten Aktualisierung; andere werden bei Viessmann abgefragt (ein API-Aufruf, höchstens einmal pro Aktualisierungsintervall). Funktioniert in Advanced Flow. Die Karte schlägt fehl, wenn der Wert keine Zahl ist.",
+          "nl": "Voor gevorderden: elke waarde die het apparaat meldt, onder de Viessmann-naam. Waarden die regelmatig worden bijgewerkt, komen uit de laatste update; andere worden bij Viessmann opgevraagd (één API-aanroep, hoogstens één keer per update-interval). Werkt in Advanced Flow. De kaart mislukt als de waarde geen getal is.",
+          "fr": "Pour usage avancé : toute valeur que l'appareil transmet, sous son nom Viessmann. Les valeurs mises à jour régulièrement proviennent de la dernière mise à jour ; les autres sont lues chez Viessmann (un appel API, au plus une fois par intervalle de mise à jour). Fonctionne dans Advanced Flow. La carte échoue si la valeur n'est pas un nombre.",
+          "sv": "För avancerad användning: valfritt värde som enheten rapporterar, under sitt Viessmann-namn. Värden som uppdateras regelbundet kommer från den senaste uppdateringen; andra hämtas från Viessmann (ett API-anrop, högst en gång per uppdateringsintervall). Fungerar i Advanced Flow. Kortet misslyckas om värdet inte är ett tal."
+        }
+      },
+      {
+        "id": "read-feature-text",
+        "title": {
+          "en": "Read a Viessmann value as text",
+          "de": "Viessmann-Wert als Text lesen",
+          "nl": "Viessmann-waarde als tekst lezen",
+          "fr": "Lire une valeur Viessmann comme texte",
+          "sv": "Läs ett Viessmann-värde som text"
+        },
+        "titleFormatted": {
+          "en": "Read [[feature]] as text",
+          "de": "[[feature]] als Text lesen",
+          "nl": "[[feature]] als tekst lezen",
+          "fr": "Lire [[feature]] comme texte",
+          "sv": "Läs [[feature]] som text"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "feature",
+            "type": "autocomplete",
+            "title": {
+              "en": "Value",
+              "de": "Wert",
+              "nl": "Waarde",
+              "fr": "Valeur",
+              "sv": "Värde"
+            },
+            "placeholder": {
+              "en": "e.g. outside",
+              "de": "z. B. outside",
+              "nl": "bijv. outside",
+              "fr": "p. ex. outside",
+              "sv": "t.ex. outside"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "text",
+            "type": "string",
+            "title": {
+              "en": "Text",
+              "de": "Text",
+              "nl": "Tekst",
+              "fr": "Texte",
+              "sv": "Text"
+            },
+            "example": {
+              "en": "on"
+            }
+          }
+        ],
+        "hint": {
+          "en": "For advanced use: any value your device reports, by its Viessmann name. Values that are updated regularly come from the last update; others are read from Viessmann (one API call, at most once per update interval). Works in Advanced Flow. Numbers and yes/no values become text.",
+          "de": "Für Fortgeschrittene: jeder Wert, den das Gerät meldet, unter seinem Viessmann-Namen. Regelmäßig aktualisierte Werte stammen aus der letzten Aktualisierung; andere werden bei Viessmann abgefragt (ein API-Aufruf, höchstens einmal pro Aktualisierungsintervall). Funktioniert in Advanced Flow. Zahlen und Ja/Nein-Werte werden zu Text.",
+          "nl": "Voor gevorderden: elke waarde die het apparaat meldt, onder de Viessmann-naam. Waarden die regelmatig worden bijgewerkt, komen uit de laatste update; andere worden bij Viessmann opgevraagd (één API-aanroep, hoogstens één keer per update-interval). Werkt in Advanced Flow. Getallen en ja/nee-waarden worden tekst.",
+          "fr": "Pour usage avancé : toute valeur que l'appareil transmet, sous son nom Viessmann. Les valeurs mises à jour régulièrement proviennent de la dernière mise à jour ; les autres sont lues chez Viessmann (un appel API, au plus une fois par intervalle de mise à jour). Fonctionne dans Advanced Flow. Les nombres et les valeurs oui/non deviennent du texte.",
+          "sv": "För avancerad användning: valfritt värde som enheten rapporterar, under sitt Viessmann-namn. Värden som uppdateras regelbundet kommer från den senaste uppdateringen; andra hämtas från Viessmann (ett API-anrop, högst en gång per uppdateringsintervall). Fungerar i Advanced Flow. Tal och ja/nej-värden blir text."
+        }
+      },
+      {
+        "id": "run-feature-command",
+        "title": {
+          "en": "Run a Viessmann command",
+          "de": "Viessmann-Befehl ausführen",
+          "nl": "Viessmann-opdracht uitvoeren",
+          "fr": "Exécuter une commande Viessmann",
+          "sv": "Kör ett Viessmann-kommando"
+        },
+        "titleFormatted": {
+          "en": "Run [[command]] with [[parameters]]",
+          "de": "[[command]] mit [[parameters]] ausführen",
+          "nl": "[[command]] uitvoeren met [[parameters]]",
+          "fr": "Exécuter [[command]] avec [[parameters]]",
+          "sv": "Kör [[command]] med [[parameters]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=vicare"
+          },
+          {
+            "name": "command",
+            "type": "autocomplete",
+            "title": {
+              "en": "Command",
+              "de": "Befehl",
+              "nl": "Opdracht",
+              "fr": "Commande",
+              "sv": "Kommando"
+            },
+            "placeholder": {
+              "en": "e.g. setCurve",
+              "de": "z. B. setCurve",
+              "nl": "bijv. setCurve",
+              "fr": "p. ex. setCurve",
+              "sv": "t.ex. setCurve"
+            }
+          },
+          {
+            "name": "parameters",
+            "type": "text",
+            "title": {
+              "en": "Parameters (JSON)",
+              "de": "Parameter (JSON)",
+              "nl": "Parameters (JSON)",
+              "fr": "Paramètres (JSON)",
+              "sv": "Parametrar (JSON)"
+            },
+            "placeholder": {
+              "en": "{\"temperature\": 50}"
+            }
+          }
+        ],
+        "hint": {
+          "en": "For advanced use: any command your device offers, by its Viessmann name. Parameters as JSON, for example {\"temperature\": 50}, or {} for none; they are checked against the device's limits before sending. Writes to the heating controller, at most 20 commands per hour.",
+          "de": "Für Fortgeschrittene: jeder Befehl, den das Gerät anbietet, unter seinem Viessmann-Namen. Parameter als JSON, zum Beispiel {\"temperature\": 50}, oder {} für keine; sie werden vor dem Senden gegen die Grenzen des Geräts geprüft. Schreibt in die Heizungsregelung, höchstens 20 Befehle pro Stunde.",
+          "nl": "Voor gevorderden: elke opdracht die het apparaat aanbiedt, onder de Viessmann-naam. Parameters als JSON, bijvoorbeeld {\"temperature\": 50}, of {} voor geen; ze worden vóór het verzenden gecontroleerd tegen de grenzen van het apparaat. Schrijft naar de verwarmingsregeling, hoogstens 20 opdrachten per uur.",
+          "fr": "Pour usage avancé : toute commande que l'appareil propose, sous son nom Viessmann. Paramètres en JSON, par exemple {\"temperature\": 50}, ou {} pour aucun ; ils sont vérifiés par rapport aux limites de l'appareil avant l'envoi. Écrit dans la régulation du chauffage, au plus 20 commandes par heure.",
+          "sv": "För avancerad användning: valfritt kommando som enheten erbjuder, under sitt Viessmann-namn. Parametrar som JSON, till exempel {\"temperature\": 50}, eller {} för inga; de kontrolleras mot enhetens gränser innan de skickas. Skriver till värmeregleringen, högst 20 kommandon per timme."
+        }
       }
     ]
   },
@@ -465,6 +1548,37 @@
                 "nl": "Circuit 3",
                 "fr": "Circuit 3",
                 "sv": "Krets 3"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Optional values",
+            "de": "Zusätzliche Werte",
+            "nl": "Extra waarden",
+            "fr": "Valeurs supplémentaires",
+            "sv": "Extra värden"
+          },
+          "children": [
+            {
+              "id": "diagnosticValues",
+              "type": "checkbox",
+              "value": false,
+              "label": {
+                "en": "Diagnostic values",
+                "de": "Diagnosewerte",
+                "nl": "Diagnostische waarden",
+                "fr": "Valeurs de diagnostic",
+                "sv": "Diagnostikvärden"
+              },
+              "hint": {
+                "en": "Adds values that are mostly useful for troubleshooting, such as compressor temperatures and more pumps, where your installation reports them. Turning this off again removes these values from the device, including their history in Insights.",
+                "de": "Fügt Werte hinzu, die vor allem bei der Fehlersuche helfen, zum Beispiel Verdichtertemperaturen und weitere Pumpen, sofern Ihre Anlage sie meldet. Wird dies wieder ausgeschaltet, werden diese Werte vom Gerät entfernt, einschließlich ihres Verlaufs in Insights.",
+                "nl": "Voegt waarden toe die vooral nuttig zijn bij het oplossen van problemen, zoals compressortemperaturen en extra pompen, voor zover uw installatie ze meldt. Zet u dit weer uit, dan worden deze waarden van het apparaat verwijderd, inclusief hun geschiedenis in Insights.",
+                "fr": "Ajoute des valeurs surtout utiles au dépannage, comme les températures du compresseur et d'autres pompes, si votre installation les transmet. Si vous désactivez à nouveau cette option, ces valeurs sont retirées de l'appareil, y compris leur historique dans Insights.",
+                "sv": "Lägger till värden som främst är till nytta vid felsökning, till exempel kompressortemperaturer och fler pumpar, om anläggningen rapporterar dem. Stänger du av det igen tas värdena bort från enheten, inklusive deras historik i Insights."
               }
             }
           ]
@@ -595,6 +1709,112 @@
       "decimals": 1,
       "icon": "/assets/cop.svg"
     },
+    "measure_curve_number": {
+      "type": "number",
+      "title": {
+        "en": "Heating curve",
+        "de": "Heizkennlinie",
+        "nl": "Stooklijn",
+        "fr": "Courbe de chauffe",
+        "sv": "Värmekurva"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "icon": "/assets/curve.svg"
+    },
+    "measure_dhw_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Hot water heating",
+        "de": "Warmwasserbereitung",
+        "nl": "Warm water opwarmen",
+        "fr": "Chauffe de l'eau chaude",
+        "sv": "Varmvattenberedning"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Hot water heating started",
+        "de": "Warmwasserbereitung gestartet",
+        "nl": "Warm water opwarmen gestart",
+        "fr": "Chauffe de l'eau chaude démarrée",
+        "sv": "Varmvattenberedning startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Hot water heating stopped",
+        "de": "Warmwasserbereitung gestoppt",
+        "nl": "Warm water opwarmen gestopt",
+        "fr": "Chauffe de l'eau chaude arrêtée",
+        "sv": "Varmvattenberedning stannade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/hotwater.svg"
+    },
+    "measure_frost_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Frost protection",
+        "de": "Frostschutz",
+        "nl": "Vorstbeveiliging",
+        "fr": "Protection antigel",
+        "sv": "Frostskydd"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "On",
+        "de": "An",
+        "nl": "Aan",
+        "fr": "Activée",
+        "sv": "På"
+      },
+      "titleFalse": {
+        "en": "Off",
+        "de": "Aus",
+        "nl": "Uit",
+        "fr": "Désactivée",
+        "sv": "Av"
+      },
+      "insightsTitleTrue": {
+        "en": "Frost protection on",
+        "de": "Frostschutz an",
+        "nl": "Vorstbeveiliging aan",
+        "fr": "Protection antigel activée",
+        "sv": "Frostskydd på"
+      },
+      "insightsTitleFalse": {
+        "en": "Frost protection off",
+        "de": "Frostschutz aus",
+        "nl": "Vorstbeveiliging uit",
+        "fr": "Protection antigel désactivée",
+        "sv": "Frostskydd av"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/frost.svg"
+    },
     "measure_fuelcell_active": {
       "type": "boolean",
       "title": {
@@ -659,6 +1879,51 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/fuelcell.svg"
+    },
+    "measure_pump_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Pump running",
+        "de": "Pumpe läuft",
+        "nl": "Pomp draait",
+        "fr": "Pompe en marche",
+        "sv": "Pump igång"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Yes",
+        "de": "Ja",
+        "nl": "Ja",
+        "fr": "Oui",
+        "sv": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "de": "Nein",
+        "nl": "Nee",
+        "fr": "Non",
+        "sv": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Pump started",
+        "de": "Pumpe gestartet",
+        "nl": "Pomp gestart",
+        "fr": "Pompe démarrée",
+        "sv": "Pumpen startade"
+      },
+      "insightsTitleFalse": {
+        "en": "Pump stopped",
+        "de": "Pumpe gestoppt",
+        "nl": "Pomp gestopt",
+        "fr": "Pompe arrêtée",
+        "sv": "Pumpen stannade"
+      },
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "uiState": false,
+      "icon": "/assets/pump.svg"
     },
     "measure_something_active": {
       "type": "boolean",

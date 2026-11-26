@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Hot water heating",
+    "de": "Warmwasserbereitung",
+    "nl": "Warm water opwarmen",
+    "fr": "Chauffe de l'eau chaude",
+    "sv": "Varmvattenberedning"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "Yes", "de": "Ja", "nl": "Ja", "fr": "Oui", "sv": "Ja" },
+  "titleFalse": { "en": "No", "de": "Nein", "nl": "Nee", "fr": "Non", "sv": "Nej" },
+  "insightsTitleTrue": {
+    "en": "Hot water heating started",
+    "de": "Warmwasserbereitung gestartet",
+    "nl": "Warm water opwarmen gestart",
+    "fr": "Chauffe de l'eau chaude démarrée",
+    "sv": "Varmvattenberedning startade"
+  },
+  "insightsTitleFalse": {
+    "en": "Hot water heating stopped",
+    "de": "Warmwasserbereitung gestoppt",
+    "nl": "Warm water opwarmen gestopt",
+    "fr": "Chauffe de l'eau chaude arrêtée",
+    "sv": "Varmvattenberedning stannade"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/hotwater.svg"
+}

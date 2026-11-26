@@ -73,8 +73,25 @@ describe.each(cards)('%s', (name, group, card) => {
   test('$filter offers the card only on devices with the capability it works on', () => {
     const mapping = Object.values(RUNTIME[group]).find((runtime) => runtime.id === card.id);
     expect(mapping).toBeDefined();
-    expect(card.$filter).toBe(`capabilities=${mapping.capability}`);
-    expect(producedCapabilities.has(mapping.capability)).toBe(true);
+    const capabilities = mapping.anyCapability || (mapping.capability ? [mapping.capability] : []);
+    if (capabilities.length === 0) {
+      // The generic cards work on every device
+      expect(card.$filter).toBeUndefined();
+      expect(mapping.kind).toBeDefined();
+      return;
+    }
+    expect(card.$filter).toBe(`capabilities=${capabilities.join('|')}`);
+    for (const capability of capabilities) expect(producedCapabilities.has(capability)).toBe(true);
+  });
+
+  test('new cards have their texts in every app language', () => {
+    const mapping = Object.values(RUNTIME[group]).find((runtime) => runtime.id === card.id);
+    // The cards of 1.0.16 and before are translated later; every card with a kind is new
+    if (!mapping?.kind) return;
+    for (const [where, text] of texts(card)) {
+      if (where.endsWith('example') || where.endsWith('placeholder')) continue;
+      expect({ where, languages: Object.keys(text).sort() }).toEqual({ where, languages: [...LANGUAGES].sort() });
+    }
   });
 
   test('dropdown values have unique ids', () => {

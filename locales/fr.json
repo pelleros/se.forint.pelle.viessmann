@@ -75,5 +75,16 @@
   },
   "device_settings": {
     "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."
+  },
+  "flow": {
+    "value_unknown": "Pas encore de valeur actuelle de Viessmann. Réessayez après la prochaine mise à jour.",
+    "rate_limited": "Trop de modifications en peu de temps (au plus __limit__ par heure). Réessayez dans __minutes__ minutes.",
+    "feature_not_reported": "L'appareil ne transmet pas __feature__.",
+    "property_not_reported": "__feature__ n'a pas de valeur __property__.",
+    "not_a_number": "La valeur de __feature__ n'est pas un nombre.",
+    "invalid_parameters": "Les paramètres doivent être un objet JSON, par exemple {\"temperature\": 50}, ou {} pour aucun.",
+    "unknown_parameter": "La commande n'a pas de paramètre __parameter__.",
+    "no_command_metadata": "Les commandes de l'appareil ne sont pas encore connues. Réessayez après la prochaine mise à jour.",
+    "choose_from_list": "Choisissez une entrée dans la liste."
   }
 }

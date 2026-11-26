@@ -34,6 +34,8 @@
  * @typedef {object} FeatureConfig
  * @property {string} [requireRole] only for devices whose (effective) roles contain it
  * @property {string} [fallbackFor] another feature path this one stands in for when it has no value
+ * @property {string} [group] an optional group (see optionalGroups.js): its capabilities are added only
+ *   while the device setting of the group is on
  * @property {CapabilityConfig[]} capabilities
  */
 

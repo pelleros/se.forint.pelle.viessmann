@@ -31,6 +31,9 @@
 //   circuits.js      readings of the heating circuit
 //   status.js        running states, load and modulation, fuel cell phase
 //   energy.js        coefficients of performance and statistics counters
+//   pumps.js         circulation pumps (and the on/off factory)
+//   hotWater.js      hot water charging
+//   solar.js         solar thermal collectors
 //   templates.js     shared option templates and factories
 //   order.js         the order of PATHS (capability order of new devices)
 //
@@ -46,11 +49,14 @@ const temperatures = require('./temperatures');
 const circuits = require('./circuits');
 const status = require('./status');
 const energy = require('./energy');
+const pumps = require('./pumps');
+const hotWater = require('./hotWater');
+const solar = require('./solar');
 
 // A new theme module is added here, at the end
 /** @type {Record<string, ConfigModule>} */
 const MODULES = {
-  thermostat, temperatures, circuits, status, energy,
+  thermostat, temperatures, circuits, status, energy, pumps, hotWater, solar,
 };
 
 /**

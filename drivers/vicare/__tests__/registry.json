@@ -21,23 +21,39 @@
     "measure_cop_number.dhw",
     "measure_cop_number.heating",
     "measure_cop_number.total",
+    "measure_curve_number.circuit0Shift",
+    "measure_curve_number.circuit0Slope",
+    "measure_dhw_active.charging",
+    "measure_frost_active.circuit0",
     "measure_fuelcell_number.operationHours",
     "measure_fuelcell_number.productionHours",
     "measure_fuelcell_number.productionStarts",
     "measure_fuelcell_phase",
+    "measure_pump_active.circuit0",
+    "measure_pump_active.circuit0Secondary",
+    "measure_pump_active.dhwCirculation",
+    "measure_pump_active.dhwPrimary",
+    "measure_pump_active.solarCircuit",
     "measure_temperature.boilerCommonSupply",
     "measure_temperature.boiler_main",
     "measure_temperature.buffer",
     "measure_temperature.circuit0",
     "measure_temperature.circuit0_room",
     "measure_temperature.circuit0_supply",
+    "measure_temperature.compressorAmbient",
+    "measure_temperature.compressorInlet",
+    "measure_temperature.compressorOutlet",
     "measure_temperature.fuelCellReturn",
     "measure_temperature.fuelCellSupply",
     "measure_temperature.hotWater",
+    "measure_temperature.hotWaterBottom",
+    "measure_temperature.hotWaterTop",
     "measure_temperature.outside",
     "measure_temperature.primaryReturn",
     "measure_temperature.return",
     "measure_temperature.secondarySupply",
+    "measure_temperature.solarCollector",
+    "measure_temperature.solarHotWater",
     "measure_temperature.supply",
     "target_temperature.heating",
     "target_temperature.hotWater",
@@ -58,6 +74,45 @@
       },
       "burner-is-running": {
         "args": {}
+      },
+      "circulation-pump-is-running": {
+        "args": {}
+      },
+      "hot-water-circulation-pump-is-running": {
+        "args": {}
+      },
+      "outside-temperature-is": {
+        "args": {
+          "comparison": {
+            "type": "dropdown",
+            "values": ["above", "below"]
+          },
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "supply-temperature-is": {
+        "args": {
+          "comparison": {
+            "type": "dropdown",
+            "values": ["above", "below"]
+          },
+          "temperature": {
+            "type": "number"
+          }
+        }
+      },
+      "hot-water-temperature-is": {
+        "args": {
+          "comparison": {
+            "type": "dropdown",
+            "values": ["above", "below"]
+          },
+          "temperature": {
+            "type": "number"
+          }
+        }
       }
     },
     "actions": {
@@ -105,6 +160,87 @@
             "values": ["standby", "maintenance", "heatControlled", "economical", "ecological"]
           }
         }
+      },
+      "set-heating-curve-shift": {
+        "args": {
+          "shift": {
+            "type": "number"
+          }
+        }
+      },
+      "adjust-heating-curve-shift": {
+        "args": {
+          "change": {
+            "type": "number"
+          }
+        }
+      },
+      "set-heating-curve-slope": {
+        "args": {
+          "slope": {
+            "type": "number"
+          }
+        }
+      },
+      "boost-hot-water": {
+        "args": {
+          "temperature": {
+            "type": "number"
+          },
+          "minutes": {
+            "type": "number"
+          }
+        }
+      },
+      "boost-heating-curve-shift": {
+        "args": {
+          "change": {
+            "type": "number"
+          },
+          "minutes": {
+            "type": "number"
+          }
+        }
+      },
+      "boost-hot-water-charge": {
+        "args": {
+          "minutes": {
+            "type": "number"
+          }
+        }
+      },
+      "end-boosts": {
+        "args": {}
+      },
+      "read-feature-number": {
+        "args": {
+          "feature": {
+            "type": "autocomplete"
+          }
+        },
+        "tokens": {
+          "number": "number"
+        }
+      },
+      "read-feature-text": {
+        "args": {
+          "feature": {
+            "type": "autocomplete"
+          }
+        },
+        "tokens": {
+          "text": "string"
+        }
+      },
+      "run-feature-command": {
+        "args": {
+          "command": {
+            "type": "autocomplete"
+          },
+          "parameters": {
+            "type": "text"
+          }
+        }
       }
     },
     "triggers": {
@@ -113,6 +249,36 @@
         "tokens": {
           "mode": "string"
         }
+      },
+      "circulation-pump-started": {
+        "args": {}
+      },
+      "circulation-pump-stopped": {
+        "args": {}
+      },
+      "hot-water-circulation-pump-started": {
+        "args": {}
+      },
+      "hot-water-circulation-pump-stopped": {
+        "args": {}
+      },
+      "outside-temperature-changed": {
+        "args": {},
+        "tokens": {
+          "temperature": "number"
+        }
+      },
+      "supply-temperature-changed": {
+        "args": {},
+        "tokens": {
+          "temperature": "number"
+        }
+      },
+      "hot-water-temperature-changed": {
+        "args": {},
+        "tokens": {
+          "temperature": "number"
+        }
       }
     }
   },
@@ -120,6 +286,9 @@
     "heatingCircuit": {
       "type": "dropdown",
       "values": ["auto", "0", "1", "2", "3"]
+    },
+    "diagnosticValues": {
+      "type": "checkbox"
     }
   }
 }

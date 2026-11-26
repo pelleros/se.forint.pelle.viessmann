@@ -23,7 +23,8 @@
 'use strict';
 
 // Temperature sensors that do not belong to one heating circuit: hot water cylinder, outside,
-// buffer cylinder, return, primary/secondary circuit, boiler and fuel cell.
+// buffer cylinder, return, primary/secondary circuit, boiler and fuel cell, and in the
+// diagnostic group the cylinder's top sensor and the compressor's sensors.
 
 const { createTemperatureCapability } = require('./templates');
 
@@ -41,6 +42,11 @@ const PATHS = {
   BOILER_COMMON_SUPPLY_TEMP: 'heating.boiler.sensors.temperature.commonSupply',
   FUEL_CELL_RETURN_TEMP: 'fuelCell.sensors.temperature.return',
   FUEL_CELL_SUPPLY_TEMP: 'fuelCell.sensors.temperature.supply',
+  HOT_WATER_BOTTOM_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder.bottom',
+  HOT_WATER_TOP_TEMP: 'heating.dhw.sensors.temperature.dhwCylinder.top',
+  COMPRESSOR_INLET_TEMP: 'heating.compressors.0.sensors.temperature.inlet',
+  COMPRESSOR_OUTLET_TEMP: 'heating.compressors.0.sensors.temperature.outlet',
+  COMPRESSOR_AMBIENT_TEMP: 'heating.compressors.0.sensors.temperature.ambient',
 };
 
 /** @type {import('./types').ConfigModule['FEATURES']} */
@@ -94,6 +100,74 @@ const FEATURES = {
   },
   [PATHS.FUEL_CELL_SUPPLY_TEMP]: {
     capabilities: [createTemperatureCapability('fuelCellSupply', 'Fuel Cell Supply Temperature', {
+      preventTag: true,
+    })],
+  },
+  [PATHS.HOT_WATER_BOTTOM_TEMP]: {
+    capabilities: [createTemperatureCapability('hotWaterBottom', 'Hot water bottom temperature', {
+      title: {
+        en: 'Hot water bottom temperature',
+        de: 'Warmwassertemperatur unten',
+        nl: 'Warmwatertemperatuur onder',
+        fr: 'Température eau chaude en bas',
+        sv: 'Varmvattentemperatur nedre',
+      },
+      preventTag: true,
+    })],
+  },
+  // Usually the same value as the main cylinder sensor, so only with the diagnostic values
+  [PATHS.HOT_WATER_TOP_TEMP]: {
+    group: 'diagnostic',
+    capabilities: [createTemperatureCapability('hotWaterTop', 'Hot water top temperature', {
+      title: {
+        en: 'Hot water top temperature',
+        de: 'Warmwassertemperatur oben',
+        nl: 'Warmwatertemperatuur boven',
+        fr: 'Température eau chaude en haut',
+        sv: 'Varmvattentemperatur övre',
+      },
+      preventTag: true,
+    })],
+  },
+  [PATHS.COMPRESSOR_INLET_TEMP]: {
+    requireRole: 'type:heatpump',
+    group: 'diagnostic',
+    capabilities: [createTemperatureCapability('compressorInlet', 'Compressor inlet temperature', {
+      title: {
+        en: 'Compressor inlet temperature',
+        de: 'Verdichter Eintrittstemperatur',
+        nl: 'Compressor inlaattemperatuur',
+        fr: 'Température entrée compresseur',
+        sv: 'Kompressor inloppstemperatur',
+      },
+      preventTag: true,
+    })],
+  },
+  [PATHS.COMPRESSOR_OUTLET_TEMP]: {
+    requireRole: 'type:heatpump',
+    group: 'diagnostic',
+    capabilities: [createTemperatureCapability('compressorOutlet', 'Compressor outlet temperature', {
+      title: {
+        en: 'Compressor outlet temperature',
+        de: 'Verdichter Austrittstemperatur',
+        nl: 'Compressor uitlaattemperatuur',
+        fr: 'Température sortie compresseur',
+        sv: 'Kompressor utloppstemperatur',
+      },
+      preventTag: true,
+    })],
+  },
+  [PATHS.COMPRESSOR_AMBIENT_TEMP]: {
+    requireRole: 'type:heatpump',
+    group: 'diagnostic',
+    capabilities: [createTemperatureCapability('compressorAmbient', 'Compressor ambient temperature', {
+      title: {
+        en: 'Compressor ambient temperature',
+        de: 'Verdichter Umgebungstemperatur',
+        nl: 'Compressor omgevingstemperatuur',
+        fr: 'Température ambiante compresseur',
+        sv: 'Kompressor omgivningstemperatur',
+      },
       preventTag: true,
     })],
   },

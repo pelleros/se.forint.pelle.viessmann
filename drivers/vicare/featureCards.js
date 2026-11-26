@@ -29,8 +29,11 @@
 // features of each response (recordFeatures). A feature outside the poll is read from the API
 // on demand, one feature at a time, and reused until it is older than the poll interval (so a
 // Flow that reads it often costs at most one call per poll interval). The autocomplete lists
-// every feature of the device from its last complete (unfiltered) response, read again at most
-// every 10 minutes while someone edits a Flow.
+// every feature of the device from its last complete (unfiltered) response: the device's own
+// extended poll, or a read made for the autocomplete, reused for an hour. A read that is already
+// running is shared (a complete one also with reads of single features), so queries that overlap
+// while someone types cost one call, and a device never has two reads of the same features at a
+// time.
 //
 // Paths are circuit-normalized (`heating.circuits.0.*`) inside the app, like everywhere else;
 // the autocomplete shows them with the device's real circuit.
@@ -40,14 +43,15 @@ const { checkFeatureCommand, sendFeatureCommand } = require('./commands');
 const { userError } = require('./userErrors');
 const { takeWrite } = require('./writeLimits');
 
-const COMPLETE_READ_MAX_AGE_MS = 10 * 60 * 1000;
+const COMPLETE_READ_MAX_AGE_MS = 60 * 60 * 1000;
 const DEFAULT_MAX_AGE_MS = 3 * 60 * 1000;
 const MAX_RESULTS = 50;
 
 /**
  * @typedef {{ feature: string, isEnabled?: boolean, properties?: Record<string, any>,
  *   commands?: Record<string, any> }} Feature
- * @typedef {{ features: Map<string, { feature: Feature, at: number }>, completeAt: number }} FeatureCache
+ * @typedef {{ features: Map<string, { feature: Feature, at: number }>, completeAt: number,
+ *   reading: Map<string, Promise<void>> }} FeatureCache
  * @typedef {import('./commands').CommandDevice & import('./userErrors').MessageDevice & {
  *   _featureCache?: FeatureCache,
  *   oAuth2Client: { getFeatures: (request: Record<string, any>) => Promise<any>,
@@ -62,7 +66,7 @@ const MAX_RESULTS = 50;
  * @returns {FeatureCache}
  */
 function cacheOf(device) {
-  if (!device._featureCache) device._featureCache = { features: new Map(), completeAt: 0 };
+  if (!device._featureCache) device._featureCache = { features: new Map(), completeAt: 0, reading: new Map() };
   return device._featureCache;
 }
 
@@ -83,23 +87,38 @@ function recordFeatures(device, response, { complete = false, now = Date.now() }
 
 /**
  * Reads features from the API (all of them, or the given circuit-normalized paths) and
- * remembers them.
+ * remembers them. While a read of the same features is running, its result is shared instead
+ * of starting another one.
  * @param {FeatureDevice} device
  * @param {string[]} [paths]
+ * @returns {Promise<void>}
  */
-async function fetchFeatures(device, paths) {
-  const response = await device.oAuth2Client.getFeatures({
-    installationId: device._installationId,
-    gatewaySerial: device._gatewaySerial,
-    deviceId: device._deviceId,
-    filter: paths ? paths.map((path) => resolveCircuitPath(path, device._heatingCircuitId)).join(',') : undefined,
-  });
-  const normalized = normalizeCircuitFeatures(response, device._heatingCircuitId);
-  recordFeatures(device, normalized, { complete: !paths });
+function fetchFeatures(device, paths) {
+  const filter = paths ? paths.map((path) => resolveCircuitPath(path, device._heatingCircuitId)).join(',') : undefined;
+  const { reading } = cacheOf(device);
+  const key = filter ?? '*';
+  // A complete read that is running already brings these features too
+  const running = reading.get(key) || reading.get('*');
+  if (running) return running;
+  const read = (async () => {
+    try {
+      const response = await device.oAuth2Client.getFeatures({
+        installationId: device._installationId,
+        gatewaySerial: device._gatewaySerial,
+        deviceId: device._deviceId,
+        filter,
+      });
+      recordFeatures(device, normalizeCircuitFeatures(response, device._heatingCircuitId), { complete: !paths });
+    } finally {
+      reading.delete(key);
+    }
+  })();
+  reading.set(key, read);
+  return read;
 }
 
 /**
- * Every feature of the device, from a complete response at most 10 minutes old.
+ * Every feature of the device, from a complete response at most an hour old.
  * @param {FeatureDevice} device
  * @param {number} [now]
  * @returns {Promise<Feature[]>}

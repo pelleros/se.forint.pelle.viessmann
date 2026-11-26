@@ -21,15 +21,15 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 const heatPump = () => polledFixtureDevice({ clock });
-// The API calls the device made after its first poll
-const apiReads = (device) => device.oAuth2Client.getFeatures.mock.calls.map(([request]) => request.filter);
+// The API calls the device made after its first poll: the filter, or 'all' for a complete read
+const apiReads = (device) => device.oAuth2Client.getFeatures.mock.calls.map(([request]) => request.filter ?? 'all');
 const choice = (path, property = 'value') => ({ name: path, path, property });
 
 describe('reading a value', () => {
   test('a value every poll requests comes from the last poll, without an API call', async () => {
     const { device } = await heatPump();
     await expect(featureCards.readNumber(device, choice('heating.sensors.temperature.outside'))).resolves.toEqual({ number: -3.2 });
-    expect(apiReads(device)).toEqual([]);
+    expect(apiReads(device)).toStrictEqual([]);
   });
 
   test('another value is read from the API once and reused for 1.5 poll intervals', async () => {
@@ -80,7 +80,7 @@ describe('reading a value', () => {
 });
 
 describe('choosing a value', () => {
-  test('lists the device\'s values from one complete read, reused for 10 minutes', async () => {
+  test('lists the device\'s values from one complete read, reused for an hour', async () => {
     const { device } = await heatPump();
     const all = await featureCards.valueChoices(device, '');
     expect(all.length).toBe(50);
@@ -91,10 +91,44 @@ describe('choosing a value', () => {
       path: 'heating.sensors.temperature.outside',
       property: 'value',
     }), expect.objectContaining({ name: 'heating.sensors.temperature.outside · status' })]);
-    expect(apiReads(device)).toEqual([undefined]);
-    clock.now += 10 * MINUTE + 1;
+    expect(apiReads(device)).toEqual(['all']);
+    clock.now += 59 * MINUTE;
     await featureCards.valueChoices(device, 'outside');
-    expect(apiReads(device)).toEqual([undefined, undefined]);
+    expect(apiReads(device)).toEqual(['all']);
+    clock.now += MINUTE + 1;
+    await featureCards.valueChoices(device, 'outside');
+    expect(apiReads(device)).toEqual(['all', 'all']);
+  });
+
+  test('overlapping queries while someone types share one complete read', async () => {
+    const { device } = await heatPump();
+    const queries = ['o', 'ou', 'out', 'outs'].map((query) => featureCards.valueChoices(device, query));
+    const results = await Promise.all(queries);
+    expect(apiReads(device)).toEqual(['all']);
+    expect(results[3].length).toBeGreaterThan(0);
+    // A value read while a complete read runs waits for it instead of making its own call
+    clock.now += 61 * MINUTE;
+    const listing = featureCards.valueChoices(device, 'outside');
+    const rotation = featureCards.readNumber(device, choice('heating.primaryCircuit.sensors.rotation'));
+    await Promise.all([listing, rotation]);
+    expect(apiReads(device)).toEqual(['all', 'all']);
+  });
+
+  test('a failed complete read fails the waiting queries, and the next query reads again', async () => {
+    const { device } = await heatPump();
+    device.oAuth2Client.getFeatures.mockRejectedValueOnce(new Error('HTTP 503'));
+    const queries = [featureCards.valueChoices(device, 'a'), featureCards.valueChoices(device, 'b')];
+    await expect(Promise.all(queries)).rejects.toThrow('HTTP 503');
+    expect(apiReads(device)).toEqual(['all']);
+    await expect(featureCards.valueChoices(device, 'outside')).resolves.not.toEqual([]);
+    expect(apiReads(device)).toEqual(['all', 'all']);
+  });
+
+  test('overlapping reads of the same value share one call', async () => {
+    const { device } = await heatPump();
+    const rotation = choice('heating.primaryCircuit.sensors.rotation');
+    await Promise.all([featureCards.readNumber(device, rotation), featureCards.readNumber(device, rotation)]);
+    expect(apiReads(device)).toEqual(['heating.primaryCircuit.sensors.rotation']);
   });
 
   test('the number card lists numbers only; properties other than value are named', async () => {
@@ -109,7 +143,7 @@ describe('choosing a value', () => {
     const { device, dump } = await heatPump();
     await device.onFeaturesUpdated(JSON.parse(JSON.stringify(dump)), true);
     await featureCards.valueChoices(device, 'outside');
-    expect(apiReads(device)).toEqual([]);
+    expect(apiReads(device)).toStrictEqual([]);
   });
 
   test('shows the device\'s real heating circuit', async () => {

@@ -22,6 +22,13 @@
       "rules": {
         "max-classes-per-file": "off"
       }
+    },
+    {
+      "files": ["types/**/*.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "max-classes-per-file": "off"
+      }
     }
   ]
 }

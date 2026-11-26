@@ -4,7 +4,9 @@
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
+    "typecheck": "tsc -p tsconfig.check.json",
     "test": "jest --config jest.config.js",
+    "test:coverage": "jest --config jest.config.js --coverage --coverageReporters=text-summary",
     "homey:run": "homey app run",
     "homey:install": "homey app install",
     "homey:validate": "homey app validate --level publish",

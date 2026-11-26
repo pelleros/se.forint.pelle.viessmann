@@ -107,6 +107,7 @@ function createFixtureClient(BaseClient, fixture) {
 
     // The same features for every device of the installation, as the API sends them with
     // skipDisabled=true (and only the requested ones with a filter)
+    /** @param {{ filter?: string }} [request] */
     async getFeatures({ filter } = {}) {
       const requested = typeof filter === 'string' ? filter.split(',') : null;
       return answer(state.data.filter((feature) => feature.isEnabled !== false

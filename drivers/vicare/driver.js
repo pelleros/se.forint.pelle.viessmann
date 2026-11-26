@@ -358,11 +358,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.log('Pairing process completed');
 
       // When a new device is added, start polling for it
-      this.once('device_add', async (device) => {
+      this.once('device_add', (device) => {
         this.log('New device added, starting polling');
         const { installationId, gatewaySerial, deviceId } = device.getStore();
         const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-        await this._startPolling(device, deviceKey);
+        this._startPolling(device, deviceKey).catch((error) => this.error('Could not start polling:', error));
       });
 
       return result;

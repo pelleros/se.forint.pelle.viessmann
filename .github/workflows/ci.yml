@@ -9,13 +9,17 @@ on:
 permissions:
   contents: read
 
+# Actions are pinned to a commit (the release tag in the comment), so that a moved or
+# compromised tag cannot change what runs here.
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -27,14 +31,20 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # tsc --noEmit on the files with // @ts-check (tsconfig.check.json)
+      - name: Type check
+        run: npm run typecheck
+
       # Uses the anonymized fixtures in test/fixtures/; documentation/ is never in the repo.
+      # Fails below the coverage threshold in jest.config.js.
       - name: Test
-        run: npm test
+        run: npm run test:coverage
 
       - name: Validate Homey app
         run: npx --yes homey@4.4.0 app validate --level publish
 
-      # Only runtime files may end up in the app package (see .homeyignore).
+      # Only runtime files may end up in the app package (see .homeyignore), and never the dev
+      # twin's fixture mode.
       - name: Check app package contents
         run: |
           npx --yes homey@4.4.0 app build

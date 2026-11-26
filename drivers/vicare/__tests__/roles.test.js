@@ -24,8 +24,9 @@ const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 const stripTypeRoles = (roles) => roles.filter((role) => !role.startsWith('type:'));
+// Role-gated features outside the optional groups, which are off by default
 const roleGated = (role) => Object.entries(FEATURES)
-  .filter(([, feature]) => feature.requireRole === role)
+  .filter(([, feature]) => feature.requireRole === role && !feature.group)
   .flatMap(([featurePath, feature]) => feature.capabilities.map(({ capabilityName }) => [featurePath, capabilityName]));
 
 // The roles of the heating device in an installations fixture

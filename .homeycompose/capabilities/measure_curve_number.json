@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heating curve",
+    "de": "Heizkennlinie",
+    "nl": "Stooklijn",
+    "fr": "Courbe de chauffe",
+    "sv": "Värmekurva"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": null,
+  "decimals": 1,
+  "icon": "/assets/curve.svg"
+}

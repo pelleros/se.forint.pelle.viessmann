@@ -125,16 +125,31 @@ class FeatureMapper {
   }
 
   /**
+   * True when the feature path is in no optional group, or in one of `enabledGroups` (see
+   * optionalGroups.js).
+   * @param {string} path
+   * @param {string[]} enabledGroups
+   * @returns {boolean}
+   */
+  isInEnabledGroup(path, enabledGroups) {
+    const group = this.FEATURES[path]?.group;
+    return !group || enabledGroups.includes(group);
+  }
+
+  /**
    * The capabilities a device with these stored features and roles gets, in PATHS order. A
-   * capability fed by several paths is listed once per path.
+   * capability fed by several paths is listed once per path. Features of an optional group
+   * count only when the group is in `enabledGroups`.
    * @param {string[]} storedFeatures
    * @param {string[]} roles
+   * @param {string[]} [enabledGroups]
    * @returns {{ path: string, capability: CapabilityConfig }[]}
    */
-  capabilitiesFor(storedFeatures, roles) {
+  capabilitiesFor(storedFeatures, roles, enabledGroups = []) {
     const result = [];
     for (const path of Object.values(this.PATHS)) {
       if (!this.hasRequiredRole(path, roles) || !storedFeatures.includes(path)) continue;
+      if (!this.isInEnabledGroup(path, enabledGroups)) continue;
       for (const capability of this.FEATURES[path]?.capabilities || []) result.push({ path, capability });
     }
     return result;

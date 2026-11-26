@@ -107,8 +107,9 @@ function capabilitiesFor({ features, roles }, featurePaths = Object.values(PATHS
   const capabilities = new Set();
   for (const featurePath of featurePaths) {
     const capabilityConfigs = getAllCapabilities(featurePath);
-    const { requireRole } = ViessmannDevice.FEATURES[featurePath];
-    if (features.includes(featurePath) && (!requireRole || allowed.includes(requireRole))) {
+    const { requireRole, group } = ViessmannDevice.FEATURES[featurePath];
+    // Optional groups (diagnostic values) are off until the user turns them on
+    if (features.includes(featurePath) && !group && (!requireRole || allowed.includes(requireRole))) {
       capabilityConfigs.forEach((capability) => capabilities.add(capability.capabilityName));
     }
   }
@@ -395,6 +396,15 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     'measure_cop_number.heating',
     'measure_cop_number.total',
   ];
+  // Values 2.0.0 reads from features the device already stored at pairing
+  const NEW_FROM_STORED_FEATURES = [
+    'measure_curve_number.circuit0Shift',
+    'measure_curve_number.circuit0Slope',
+    'measure_dhw_active.charging',
+    'measure_frost_active.circuit0',
+    'measure_pump_active.circuit0',
+    'measure_pump_active.dhwCirculation',
+  ];
 
   test('the 1.0.14 device has the buffer capability from the main sensor and no COP', async () => {
     const { store, capabilitiesBefore } = await upgrade(scenario);
@@ -408,7 +418,7 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     const { device, capabilitiesBefore } = await upgrade(scenario);
 
     expect(device.removeCapability).not.toHaveBeenCalled();
-    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED].sort());
+    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...ADDED, ...NEW_FROM_STORED_FEATURES].sort());
     expect(device.getStoreValue('features')).toEqual(expect.arrayContaining([
       PATHS.BUFFER_TEMP, PATHS.BUFFER_TEMP_TOP, PATHS.COMPRESSOR_POWER, PATHS.COP_TOTAL, PATHS.COP_HEATING, PATHS.COP_DHW,
     ]));
@@ -416,11 +426,11 @@ describe('upgrade from 1.0.14: Vitocal 222 paired with only the main buffer sens
     expect(ADDED.map((id) => device.getCapabilityValue(id))).toEqual([42, 3, 3.4, 3.3]);
   });
 
-  test('when the refresh fails the buffer still reads the top sensor and nothing is added or removed', async () => {
+  test('when the refresh fails the buffer still reads the top sensor, nothing is removed and only the stored features add values', async () => {
     const { device, capabilitiesBefore } = await upgrade(scenario, { refreshFails: true });
 
     expect(device.removeCapability).not.toHaveBeenCalled();
-    expect(device.getCapabilities().sort()).toEqual(capabilitiesBefore);
+    expect(device.getCapabilities().sort()).toEqual([...capabilitiesBefore, ...NEW_FROM_STORED_FEATURES].sort());
     expect(device.getCapabilityValue('measure_temperature.buffer')).toBe(34.5);
   });
 });

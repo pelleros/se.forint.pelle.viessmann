@@ -26,6 +26,7 @@ const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
 const { featureMapper } = require('./featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
+const { registerFlowCardsWithKind } = require('./flowHandlers');
 
 const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
@@ -66,6 +67,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   MIN_POLL_INTERVAL = 2 * 60 * 1000;
   _devicePollers = new Map();
   _triggerCards = new Map();
+  // Trigger cards with a kind (flowHandlers.js), per capability
+  _valueTriggers = new Map();
 
   async onOAuth2Init() {
     try {
@@ -90,8 +93,17 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Register all triggers from FLOW_TRIGGERS
     for (const [, trigger] of Object.entries(FLOW_TRIGGERS)) {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
-      this._triggerCards.set(trigger.capability, triggerCard);
+      if (trigger.kind) {
+        this._valueTriggers.set(trigger.capability, [...this.getValueTriggers(trigger.capability), { card: triggerCard, mapping: trigger }]);
+      } else {
+        this._triggerCards.set(trigger.capability, triggerCard);
+      }
     }
+  }
+
+  // The trigger cards with a kind for a capability, as { card, mapping }
+  getValueTriggers(capabilityName) {
+    return this._valueTriggers.get(capabilityName) || [];
   }
 
   // Helper to get the trigger card for a capability
@@ -108,6 +120,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
     // Register conditions
     Object.values(FLOW_CONDITIONS).forEach((condition) => {
+      if (condition.kind) return; // registerFlowCardsWithKind
       this.log(`Registering condition: ${condition.id}`);
       try {
         const flowCard = this.homey.flow.getConditionCard(condition.id);
@@ -122,6 +135,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
 
     // Register actions
     Object.values(FLOW_ACTIONS).forEach((action) => {
+      if (action.kind) return; // registerFlowCardsWithKind
       this.log(`Registering action: ${action.id}`);
       try {
         const flowCard = this.homey.flow.getActionCard(action.id);
@@ -138,6 +152,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         this.error(`Failed to register action ${action.id}:`, error);
       }
     });
+
+    registerFlowCardsWithKind(this, { conditions: Object.values(FLOW_CONDITIONS), actions: Object.values(FLOW_ACTIONS) });
 
     this.log('Finished registering flow cards');
   }

@@ -1,0 +1,33 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Frost protection",
+    "de": "Frostschutz",
+    "nl": "Vorstbeveiliging",
+    "fr": "Protection antigel",
+    "sv": "Frostskydd"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "titleTrue": { "en": "On", "de": "An", "nl": "Aan", "fr": "Activée", "sv": "På" },
+  "titleFalse": { "en": "Off", "de": "Aus", "nl": "Uit", "fr": "Désactivée", "sv": "Av" },
+  "insightsTitleTrue": {
+    "en": "Frost protection on",
+    "de": "Frostschutz an",
+    "nl": "Vorstbeveiliging aan",
+    "fr": "Protection antigel activée",
+    "sv": "Frostskydd på"
+  },
+  "insightsTitleFalse": {
+    "en": "Frost protection off",
+    "de": "Frostschutz aus",
+    "nl": "Vorstbeveiliging uit",
+    "fr": "Protection antigel désactivée",
+    "sv": "Frostskydd av"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "uiState": false,
+  "icon": "/assets/frost.svg"
+}

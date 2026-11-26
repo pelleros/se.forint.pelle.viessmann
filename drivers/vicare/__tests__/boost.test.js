@@ -14,6 +14,7 @@ const {
   BoostController, boostsOf, STORE_KEY, RETRY_MS, GIVE_UP_MS, STARTUP_DELAY_MS,
 } = require('../boost');
 const { SHIFT } = require('../heatingCurve');
+const { WRITE_LIMITS } = require('../writeLimits');
 
 const MINUTE = 60 * 1000;
 const TARGET = 'target_temperature.hotWater';
@@ -111,10 +112,10 @@ describe('hot water', () => {
     expect(device.getStoreValue(STORE_KEY)).toEqual(running);
   });
 
-  test('at most 6 boosts that change the target per hour', async () => {
+  test('at most 12 boosts that change the target per hour', async () => {
     const { device } = await heatPump();
-    for (let i = 0; i < 6; i++) await boostsOf(device).boostHotWater(50 + i, 30);
-    await expect(boostsOf(device).boostHotWater(58, 30)).rejects.toThrow('at most 6 per hour');
+    for (let i = 0; i < WRITE_LIMITS.hotWaterBoost; i++) await boostsOf(device).boostHotWater(i % 2 ? 51 : 50, 30);
+    await expect(boostsOf(device).boostHotWater(52, 30)).rejects.toThrow('at most 12 per hour');
   });
 });
 
@@ -238,7 +239,7 @@ describe('heating curve shift', () => {
     expect(device.getStoreValue(STORE_KEY).curveShift).toEqual({ previous: -8, boosted: -5, until: clock.now + 60 * MINUTE });
 
     // Use up the hourly heating curve changes
-    device._writeLimiters.heatingCurve.times.push(...Array(5).fill(clock.now));
+    device._writeLimiters.heatingCurve.times.push(...Array(WRITE_LIMITS.heatingCurve - 1).fill(clock.now));
     await later(timers, 60 * MINUTE);
     expect(sent(device).at(-1)).toEqual(['setCurve', { slope: 0.9, shift: -8 }]);
     expect(device.getCapabilityValue(SHIFT)).toBe(-8);

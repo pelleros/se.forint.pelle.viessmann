@@ -539,11 +539,11 @@
         }
       ],
       "hint": {
-        "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
-        "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
-        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
-        "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
-        "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        "en": "Writes to the heating controller, at most 12 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+        "de": "Schreibt in die Heizungsregelung, höchstens 12 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 12 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+        "fr": "Écrit dans la régulation du chauffage, au plus 12 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+        "sv": "Skriver till värmeregleringen, högst 12 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
       }
     },
     {
@@ -580,11 +580,11 @@
         }
       ],
       "hint": {
-        "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
-        "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
-        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
-        "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
-        "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        "en": "Writes to the heating controller, at most 12 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+        "de": "Schreibt in die Heizungsregelung, höchstens 12 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 12 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+        "fr": "Écrit dans la régulation du chauffage, au plus 12 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+        "sv": "Skriver till värmeregleringen, högst 12 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
       }
     },
     {
@@ -621,11 +621,11 @@
         }
       ],
       "hint": {
-        "en": "Writes to the heating controller, at most 6 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
-        "de": "Schreibt in die Heizungsregelung, höchstens 6 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
-        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 6 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
-        "fr": "Écrit dans la régulation du chauffage, au plus 6 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
-        "sv": "Skriver till värmeregleringen, högst 6 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
+        "en": "Writes to the heating controller, at most 12 heating curve changes per hour. The controller's own limits apply; a value outside them is refused. A value that is already set is not sent again.",
+        "de": "Schreibt in die Heizungsregelung, höchstens 12 Änderungen der Heizkennlinie pro Stunde. Es gelten die Grenzen der Regelung; ein Wert außerhalb wird abgelehnt. Ein bereits eingestellter Wert wird nicht erneut gesendet.",
+        "nl": "Schrijft naar de verwarmingsregeling, hoogstens 12 wijzigingen van de stooklijn per uur. De grenzen van de regeling gelden; een waarde daarbuiten wordt geweigerd. Een waarde die al is ingesteld, wordt niet opnieuw verzonden.",
+        "fr": "Écrit dans la régulation du chauffage, au plus 12 modifications de la courbe de chauffe par heure. Les limites de la régulation s'appliquent ; une valeur hors limites est refusée. Une valeur déjà réglée n'est pas renvoyée.",
+        "sv": "Skriver till värmeregleringen, högst 12 ändringar av värmekurvan per timme. Regleringens egna gränser gäller; ett värde utanför dem nekas. Ett värde som redan är inställt skickas inte igen."
       }
     },
     {
@@ -676,11 +676,11 @@
         }
       ],
       "hint": {
-        "en": "Restores the previous target afterwards, also after a restart of Homey. If the target was changed in the meantime, it is left as it is. A new boost extends the running one. At most 6 boosts per hour.",
-        "de": "Stellt danach den vorherigen Sollwert wieder her, auch nach einem Neustart von Homey. Wurde der Sollwert inzwischen geändert, bleibt er unverändert. Ein neuer Boost verlängert den laufenden. Höchstens 6 Boosts pro Stunde.",
-        "nl": "Zet daarna de vorige doelwaarde terug, ook na een herstart van Homey. Is de doelwaarde intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Hoogstens 6 boosts per uur.",
-        "fr": "Rétablit ensuite la consigne précédente, même après un redémarrage de Homey. Si la consigne a été modifiée entre-temps, elle est conservée. Un nouveau boost prolonge celui en cours. Au plus 6 boosts par heure.",
-        "sv": "Återställer sedan det tidigare börvärdet, även efter en omstart av Homey. Har börvärdet ändrats under tiden lämnas det som det är. En ny boost förlänger den pågående. Högst 6 boostar per timme."
+        "en": "Restores the previous target afterwards, also after a restart of Homey. If the target was changed in the meantime, it is left as it is. A new boost extends the running one. At most 12 boosts per hour.",
+        "de": "Stellt danach den vorherigen Sollwert wieder her, auch nach einem Neustart von Homey. Wurde der Sollwert inzwischen geändert, bleibt er unverändert. Ein neuer Boost verlängert den laufenden. Höchstens 12 Boosts pro Stunde.",
+        "nl": "Zet daarna de vorige doelwaarde terug, ook na een herstart van Homey. Is de doelwaarde intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Hoogstens 12 boosts per uur.",
+        "fr": "Rétablit ensuite la consigne précédente, même après un redémarrage de Homey. Si la consigne a été modifiée entre-temps, elle est conservée. Un nouveau boost prolonge celui en cours. Au plus 12 boosts par heure.",
+        "sv": "Återställer sedan det tidigare börvärdet, även efter en omstart av Homey. Har börvärdet ändrats under tiden lämnas det som det är. En ny boost förlänger den pågående. Högst 12 boostar per timme."
       }
     },
     {
@@ -731,11 +731,11 @@
         }
       ],
       "hint": {
-        "en": "Restores the previous shift afterwards, also after a restart of Homey. If the shift was changed in the meantime, it is left as it is. A new boost extends the running one. Counts towards the 6 heating curve changes per hour.",
-        "de": "Stellt danach das vorherige Niveau wieder her, auch nach einem Neustart von Homey. Wurde das Niveau inzwischen geändert, bleibt es unverändert. Ein neuer Boost verlängert den laufenden. Zählt zu den 6 Änderungen der Heizkennlinie pro Stunde.",
-        "nl": "Zet daarna de vorige verschuiving terug, ook na een herstart van Homey. Is de verschuiving intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Telt mee voor de 6 wijzigingen van de stooklijn per uur.",
-        "fr": "Rétablit ensuite le décalage précédent, même après un redémarrage de Homey. Si le décalage a été modifié entre-temps, il est conservé. Un nouveau boost prolonge celui en cours. Compte dans les 6 modifications de la courbe de chauffe par heure.",
-        "sv": "Återställer sedan den tidigare förskjutningen, även efter en omstart av Homey. Har förskjutningen ändrats under tiden lämnas den som den är. En ny boost förlänger den pågående. Räknas in i de 6 ändringarna av värmekurvan per timme."
+        "en": "Restores the previous shift afterwards, also after a restart of Homey. If the shift was changed in the meantime, it is left as it is. A new boost extends the running one. Counts towards the 12 heating curve changes per hour.",
+        "de": "Stellt danach das vorherige Niveau wieder her, auch nach einem Neustart von Homey. Wurde das Niveau inzwischen geändert, bleibt es unverändert. Ein neuer Boost verlängert den laufenden. Zählt zu den 12 Änderungen der Heizkennlinie pro Stunde.",
+        "nl": "Zet daarna de vorige verschuiving terug, ook na een herstart van Homey. Is de verschuiving intussen gewijzigd, dan blijft die staan. Een nieuwe boost verlengt de lopende. Telt mee voor de 12 wijzigingen van de stooklijn per uur.",
+        "fr": "Rétablit ensuite le décalage précédent, même après un redémarrage de Homey. Si le décalage a été modifié entre-temps, il est conservé. Un nouveau boost prolonge celui en cours. Compte dans les 12 modifications de la courbe de chauffe par heure.",
+        "sv": "Återställer sedan den tidigare förskjutningen, även efter en omstart av Homey. Har förskjutningen ändrats under tiden lämnas den som den är. En ny boost förlänger den pågående. Räknas in i de 12 ändringarna av värmekurvan per timme."
       }
     },
     {
@@ -772,11 +772,11 @@
         }
       ],
       "hint": {
-        "en": "The charge ends by itself when the cylinder is hot; this card stops it earlier if it is still running after the given time, also after a restart of Homey. At most 6 per hour.",
-        "de": "Die Ladung endet von selbst, wenn der Speicher warm ist; diese Karte beendet sie früher, falls sie nach der angegebenen Zeit noch läuft, auch nach einem Neustart von Homey. Höchstens 6 pro Stunde.",
-        "nl": "Het opwarmen stopt vanzelf als de boiler warm is; deze kaart stopt het eerder als het na de opgegeven tijd nog loopt, ook na een herstart van Homey. Hoogstens 6 per uur.",
-        "fr": "La charge s'arrête d'elle-même quand le ballon est chaud ; cette carte l'arrête plus tôt si elle est encore en cours après la durée indiquée, même après un redémarrage de Homey. Au plus 6 par heure.",
-        "sv": "Laddningen slutar av sig själv när beredaren är varm; kortet stoppar den tidigare om den fortfarande pågår efter den angivna tiden, även efter en omstart av Homey. Högst 6 per timme."
+        "en": "The charge ends by itself when the cylinder is hot; this card stops it earlier if it is still running after the given time, also after a restart of Homey. At most 12 per hour.",
+        "de": "Die Ladung endet von selbst, wenn der Speicher warm ist; diese Karte beendet sie früher, falls sie nach der angegebenen Zeit noch läuft, auch nach einem Neustart von Homey. Höchstens 12 pro Stunde.",
+        "nl": "Het opwarmen stopt vanzelf als de boiler warm is; deze kaart stopt het eerder als het na de opgegeven tijd nog loopt, ook na een herstart van Homey. Hoogstens 12 per uur.",
+        "fr": "La charge s'arrête d'elle-même quand le ballon est chaud ; cette carte l'arrête plus tôt si elle est encore en cours après la durée indiquée, même après un redémarrage de Homey. Au plus 12 par heure.",
+        "sv": "Laddningen slutar av sig själv när beredaren är varm; kortet stoppar den tidigare om den fortfarande pågår efter den angivna tiden, även efter en omstart av Homey. Högst 12 per timme."
       }
     },
     {
@@ -976,11 +976,11 @@
         }
       ],
       "hint": {
-        "en": "For advanced use: any command your device offers, by its Viessmann name. Parameters as JSON, for example {\"temperature\": 50}, or {} for none; they are checked against the device's limits before sending. Writes to the heating controller, at most 20 commands per hour.",
-        "de": "Für Fortgeschrittene: jeder Befehl, den das Gerät anbietet, unter seinem Viessmann-Namen. Parameter als JSON, zum Beispiel {\"temperature\": 50}, oder {} für keine; sie werden vor dem Senden gegen die Grenzen des Geräts geprüft. Schreibt in die Heizungsregelung, höchstens 20 Befehle pro Stunde.",
-        "nl": "Voor gevorderden: elke opdracht die het apparaat aanbiedt, onder de Viessmann-naam. Parameters als JSON, bijvoorbeeld {\"temperature\": 50}, of {} voor geen; ze worden vóór het verzenden gecontroleerd tegen de grenzen van het apparaat. Schrijft naar de verwarmingsregeling, hoogstens 20 opdrachten per uur.",
-        "fr": "Pour usage avancé : toute commande que l'appareil propose, sous son nom Viessmann. Paramètres en JSON, par exemple {\"temperature\": 50}, ou {} pour aucun ; ils sont vérifiés par rapport aux limites de l'appareil avant l'envoi. Écrit dans la régulation du chauffage, au plus 20 commandes par heure.",
-        "sv": "För avancerad användning: valfritt kommando som enheten erbjuder, under sitt Viessmann-namn. Parametrar som JSON, till exempel {\"temperature\": 50}, eller {} för inga; de kontrolleras mot enhetens gränser innan de skickas. Skriver till värmeregleringen, högst 20 kommandon per timme."
+        "en": "For advanced use: any command your device offers, by its Viessmann name. Parameters as JSON, for example {\"temperature\": 50}, or {} for none; they are checked against the device's limits before sending. Writes to the heating controller, at most 30 commands per hour.",
+        "de": "Für Fortgeschrittene: jeder Befehl, den das Gerät anbietet, unter seinem Viessmann-Namen. Parameter als JSON, zum Beispiel {\"temperature\": 50}, oder {} für keine; sie werden vor dem Senden gegen die Grenzen des Geräts geprüft. Schreibt in die Heizungsregelung, höchstens 30 Befehle pro Stunde.",
+        "nl": "Voor gevorderden: elke opdracht die het apparaat aanbiedt, onder de Viessmann-naam. Parameters als JSON, bijvoorbeeld {\"temperature\": 50}, of {} voor geen; ze worden vóór het verzenden gecontroleerd tegen de grenzen van het apparaat. Schrijft naar de verwarmingsregeling, hoogstens 30 opdrachten per uur.",
+        "fr": "Pour usage avancé : toute commande que l'appareil propose, sous son nom Viessmann. Paramètres en JSON, par exemple {\"temperature\": 50}, ou {} pour aucun ; ils sont vérifiés par rapport aux limites de l'appareil avant l'envoi. Écrit dans la régulation du chauffage, au plus 30 commandes par heure.",
+        "sv": "För avancerad användning: valfritt kommando som enheten erbjuder, under sitt Viessmann-namn. Parametrar som JSON, till exempel {\"temperature\": 50}, eller {} för inga; de kontrolleras mot enhetens gränser innan de skickas. Skriver till värmeregleringen, högst 30 kommandon per timme."
       }
     }
   ],

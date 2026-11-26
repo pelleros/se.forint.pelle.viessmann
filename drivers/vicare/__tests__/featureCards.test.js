@@ -164,10 +164,10 @@ describe('commands', () => {
     expect(device._writeLimiters).toBeUndefined();
   });
 
-  test('at most 20 commands per hour', async () => {
+  test('at most 30 commands per hour', async () => {
     const { device } = await heatPump();
     const [activate] = featureCards.commandChoices(device, 'oneTimeCharge activate');
-    for (let i = 0; i < 20; i++) await featureCards.runCommand(device, activate, '{}');
-    await expect(featureCards.runCommand(device, activate, '{}')).rejects.toThrow('at most 20 per hour');
+    for (let i = 0; i < 30; i++) await featureCards.runCommand(device, activate, '{}');
+    await expect(featureCards.runCommand(device, activate, '{}')).rejects.toThrow('at most 30 per hour');
   });
 });

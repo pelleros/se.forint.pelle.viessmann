@@ -79,17 +79,17 @@ test('a value outside the device\'s limits is refused before anything is sent or
   expect(device._writeLimiters).toBeUndefined();
 });
 
-test('at most 6 changes per hour; the next one says when it is possible again', async () => {
+test('at most 12 changes per hour; the next one says when it is possible again', async () => {
   const { device } = await polledFixtureDevice();
   const limit = WRITE_LIMITS.heatingCurve;
-  expect(limit).toBe(6);
+  expect(limit).toBe(12);
   for (let i = 1; i <= limit; i++) {
     await heatingCurve.writeCurve(device, { shift: -8 + i });
     now += 60 * 1000;
   }
-  await expect(heatingCurve.writeCurve(device, { shift: 0 })).rejects.toThrow('at most 6 per hour). Try again in 54 minutes.');
+  await expect(heatingCurve.writeCurve(device, { shift: 10 })).rejects.toThrow('at most 12 per hour). Try again in 48 minutes.');
   expect(sent(device)).toHaveLength(limit);
-  now += 54 * 60 * 1000;
+  now += 48 * 60 * 1000;
   await expect(heatingCurve.writeCurve(device, { shift: 0 })).resolves.toBe(true);
 });
 

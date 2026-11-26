@@ -24,7 +24,8 @@
 
 // Pure mapping between Viessmann feature responses and Homey capabilities, without any Homey
 // dependency: which capabilities a device gets, with which options, and which values a
-// response gives them. device.js and driver.js use it; tests and tools can use it directly.
+// response gives them. The device and driver modules use it; tests and tools can use it
+// directly.
 
 const config = require('./config');
 const { sortByCapabilityOrder, derivedSource, addDerivedReadings } = require('./derivedCapabilities');

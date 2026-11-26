@@ -112,8 +112,8 @@ const FEATURES = {
       },
       capabilityOptions: {
         title: { en: 'Operating mode' },
-        // initializeOperatingModes (device.js) narrows these to the device's own modes and adds
-        // the device's other modes, with the titles of MODE_TITLES where known
+        // initializeOperatingModes (capabilitySetup.js) narrows these to the device's own modes
+        // and adds the device's other modes, with the titles of MODE_TITLES where known
         values: ['dhw', 'dhwAndHeating', 'heating', 'standby'].map((id) => ({ id, title: MODE_TITLES[id] })),
         preventInsights: true,
       },

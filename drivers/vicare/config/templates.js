@@ -59,7 +59,7 @@ const CAPABILITY_TEMPLATES = Object.freeze({
 // label the state changes on the device's timeline and in Insights; titleTrue/False show the
 // state on the device. The capability definitions in .homeycompose/capabilities/ carry the
 // same texts (config.test.js checks that they match); the options here also reach devices that
-// already have the capability, because device.js reapplies them on every start.
+// already have the capability, because capabilitySetup.js reapplies them on every start.
 const YES_NO = {
   titleTrue: {
     en: 'Yes', de: 'Ja', nl: 'Ja', fr: 'Oui', sv: 'Ja',

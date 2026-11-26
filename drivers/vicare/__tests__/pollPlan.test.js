@@ -2,10 +2,11 @@
 
 'use strict';
 
-// Update interval and planned API calls a day (pollPlan.js).
+// Update interval and planned API calls a day, what a poll asks for and a poller's key (pollPlan.js).
 
+const { PATHS } = require('../config');
 const {
-  pollInterval, plannedCallsPerDay, withinPlan, PLANNED_LIMIT,
+  pollInterval, plannedCallsPerDay, withinPlan, isExtendedPoll, pollFilter, pollingKey, PLANNED_LIMIT, EXTENDED_POLL_SHARE,
 } = require('../pollPlan');
 
 const MINUTE = 60 * 1000;
@@ -27,4 +28,26 @@ test('a plan within the limit leaves calls for everything else', () => {
   expect(withinPlan(720)).toBe(true);
   expect(withinPlan(PLANNED_LIMIT)).toBe(true);
   expect(withinPlan(1440)).toBe(false);
+});
+
+test('about one poll in 30 reads all features', () => {
+  expect(EXTENDED_POLL_SHARE).toBe(0.03);
+  expect(isExtendedPoll(0)).toBe(true);
+  expect(isExtendedPoll(0.029)).toBe(true);
+  expect(isExtendedPoll(0.03)).toBe(false);
+  expect(typeof isExtendedPoll()).toBe('boolean');
+});
+
+test('a regular poll asks for every configured path, on the device\'s heating circuit', () => {
+  const paths = Object.values(PATHS);
+  expect(pollFilter('0').split(',')).toEqual(paths);
+  expect(pollFilter(undefined)).toBe(pollFilter('0'));
+  const circuitOne = pollFilter('1').split(',');
+  expect(circuitOne).toHaveLength(paths.length);
+  expect(circuitOne).toContain('heating.circuits.1.operating.modes.active');
+  expect(circuitOne.some((path) => path.startsWith('heating.circuits.0.'))).toBe(false);
+});
+
+test('a device\'s poller is known by its installation, gateway and device id', () => {
+  expect(pollingKey({ installationId: 1234567, gatewaySerial: '7637415022052208', deviceId: '0' })).toBe('1234567-7637415022052208-0');
 });

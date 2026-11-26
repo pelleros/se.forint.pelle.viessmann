@@ -24,10 +24,14 @@
 
 // How often a device is updated and how many API calls a day that plans for a Viessmann login:
 // the device settings `pollInterval` ("auto", or minutes) and `eventLog` ("off", or minutes).
-// Pure; driver.js asks for a device's interval, and device.js refuses settings that plan too many
-// calls (see lib/apiQuota.js).
+// Also what a poll asks for (the polled paths on the device's heating circuit, and now and then
+// all features) and the key of a device's poller. Pure; driver.js asks for a device's interval,
+// and deviceSettings.js refuses settings that plan too many calls (see lib/apiQuota.js). The wait
+// after a failed poll is lib/apiError.js → retryDelay.
 
 const { callsPerDay, PLANNED_LIMIT } = require('../../lib/apiQuota');
+const { PATHS } = require('./config');
+const { resolveCircuitPath } = require('./heatingCircuit');
 const { eventLogMinutes } = require('./eventLog');
 
 // Automatic: every 2 minutes per device, about 720 calls a day for all devices together
@@ -64,6 +68,43 @@ function plannedCallsPerDay(settings, deviceCount) {
  */
 const withinPlan = (calls) => calls <= PLANNED_LIMIT;
 
+// About one poll in 30 reads all features instead of only PATHS, so that new features are found
+const EXTENDED_POLL_SHARE = 0.03;
+
+/**
+ * True when this poll reads all features (statistically every 30th poll).
+ * @param {number} [random] a number in [0, 1)
+ * @returns {boolean}
+ */
+const isExtendedPoll = (random = Math.random()) => random < EXTENDED_POLL_SHARE;
+
+/**
+ * The paths a regular poll requests: every path in PATHS, on the device's heating circuit. A
+ * feature without a PATHS constant is never polled.
+ * @param {string | undefined} heatingCircuitId
+ * @returns {string}
+ */
+function pollFilter(heatingCircuitId) {
+  return Object.values(PATHS).map((path) => resolveCircuitPath(path, heatingCircuitId)).join(',');
+}
+
+/**
+ * The key of a device's poller in the driver.
+ * @param {{ installationId: unknown, gatewaySerial: unknown, deviceId: unknown }} ids
+ * @returns {string}
+ */
+function pollingKey({ installationId, gatewaySerial, deviceId }) {
+  return `${installationId}-${gatewaySerial}-${deviceId}`;
+}
+
 module.exports = {
-  pollInterval, plannedCallsPerDay, withinPlan, AUTO_INTERVAL_PER_DEVICE, PLANNED_LIMIT,
+  pollInterval,
+  plannedCallsPerDay,
+  withinPlan,
+  isExtendedPoll,
+  pollFilter,
+  pollingKey,
+  AUTO_INTERVAL_PER_DEVICE,
+  PLANNED_LIMIT,
+  EXTENDED_POLL_SHARE,
 };

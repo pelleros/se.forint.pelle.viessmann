@@ -96,6 +96,33 @@ function addDerivedReadings(derivedCapabilities, read, isConnectedPath, readings
   return readings;
 }
 
+/**
+ * The features with written values in place, so that derived capabilities can be computed as the
+ * next poll will show them: a copy of each written feature with the value at its `propertyPath`
+ * (e.g. `value.value`), the other features as they are. A written feature that is not in the list
+ * stays out of it.
+ * @param {Record<string, any>[]} features circuit-normalized features
+ * @param {{ path: string, propertyPath: string, value: any }[]} writes
+ * @returns {Record<string, any>[]}
+ */
+function withWrittenValues(features, writes) {
+  return features.map((feature) => {
+    const own = writes.filter((write) => write.path === feature?.feature);
+    if (own.length === 0) return feature;
+    const copy = JSON.parse(JSON.stringify(feature));
+    for (const { propertyPath, value } of own) {
+      const keys = propertyPath.split('.');
+      let node = copy.properties || (copy.properties = {});
+      for (const key of keys.slice(0, -1)) {
+        if (!node[key] || typeof node[key] !== 'object') node[key] = {};
+        node = node[key];
+      }
+      node[keys[keys.length - 1]] = value;
+    }
+    return copy;
+  });
+}
+
 module.exports = {
-  capabilityRank, sortByCapabilityOrder, derivedSource, addDerivedReadings,
+  capabilityRank, sortByCapabilityOrder, derivedSource, addDerivedReadings, withWrittenValues,
 };

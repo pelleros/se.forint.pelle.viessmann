@@ -86,6 +86,15 @@ function recordFeatures(device, response, { complete = false, now = Date.now() }
 }
 
 /**
+ * The features the device last heard of (circuit-normalized), from its polls and reads.
+ * @param {{ _featureCache?: FeatureCache }} device
+ * @returns {Feature[]}
+ */
+function knownFeatures(device) {
+  return [...(device._featureCache?.features.values() || [])].map(({ feature }) => feature);
+}
+
+/**
  * Reads features from the API (all of them, or the given circuit-normalized paths) and
  * remembers them. While a read of the same features is running, its result is shared instead
  * of starting another one.
@@ -310,6 +319,7 @@ async function runCommand(device, choice, parametersText) {
 module.exports = {
   COMPLETE_READ_MAX_AGE_MS,
   recordFeatures,
+  knownFeatures,
   completeFeatures,
   valueChoices,
   commandChoices,

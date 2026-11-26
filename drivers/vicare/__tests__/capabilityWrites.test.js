@@ -9,7 +9,11 @@
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
 const { PATHS, getCapability, getAllCapabilities } = require('../config');
-const { capabilitiesShowing, writeCapability } = require('../capabilityWrites');
+const {
+  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability,
+} = require('../capabilityWrites');
+const { featureMapper } = require('../featureMapper');
+const { recordFeatures } = require('../featureCards');
 const en = require('../../../locales/en.json');
 
 const HEATING_TARGET = getCapability(PATHS.HEATING_CIRCUIT_0_TARGET);
@@ -39,8 +43,12 @@ function device({ features = [], operatingModes = [], current = {} } = {}) {
     setCapabilityValueIfPossible: jest.fn(async (name, value) => {
       shown[name] = value;
     }),
+    readCapabilityValues: (response) => featureMapper.readValues(response, ['type:heatpump'], { language: 'en', features }),
   };
 }
+
+// A feature as a poll reports it
+const reported = (path, properties) => ({ feature: path, isEnabled: true, properties });
 
 const sent = (target) => target.oAuth2Client.executeCommand.mock.calls.map(([request]) => [request.feature, request.command, request.body]);
 
@@ -95,4 +103,41 @@ test('a refused command stops the write: nothing after it is sent or shown', asy
   expect(sent(target)).toEqual([[PATHS.HEATING_CIRCUIT_0_COMFORT, 'deactivate', {}]]);
   expect(target.shown).toEqual({});
   expect(target.remembered).toEqual([]);
+});
+
+describe('showing written values at once', () => {
+  test('a written value is a property value only for a configured capability without mapping', () => {
+    expect(writtenProperty('thermostat_mode.heating', 'dhw', [])).toEqual({ path: PATHS.HEATING_CIRCUIT_0_MODE, propertyPath: 'value.value', value: 'dhw' });
+    expect(writtenProperty('target_temperature', 21, [PATHS.HEATING_CIRCUIT_0_TARGET_E3]))
+      .toEqual({ path: PATHS.HEATING_CIRCUIT_0_TARGET_E3, propertyPath: 'temperature.value', value: 21 });
+    expect(writtenProperty('thermostat_mode', 'off', [])).toBeNull();
+    expect(writtenProperty('thermostat_mode.hotWaterOneTimeCharge', 'activate', [])).toBeNull();
+    expect(writtenProperty('measure_power', 900, [])).toBeNull();
+  });
+
+  test('the derived capabilities follow the written value as the next poll will show them', async () => {
+    const target = device();
+    recordFeatures(target, { data: [reported(PATHS.HEATING_CIRCUIT_0_MODE, { value: { type: 'string', value: 'dhwAndHeating' } })] });
+    await showWrittenValues(target, { 'thermostat_mode.heating': 'dhw' });
+    expect(target.shown).toEqual({ 'thermostat_mode.heating': 'dhw', thermostat_mode: 'off' });
+    expect(target.oAuth2Client.executeCommand).not.toHaveBeenCalled();
+  });
+
+  test('a derived capability that was written keeps its written value', async () => {
+    const target = device();
+    recordFeatures(target, { data: [reported(PATHS.HEATING_CIRCUIT_0_MODE, { value: { type: 'string', value: 'dhwAndHeating' } })] });
+    await showWrittenValues(target, { 'thermostat_mode.heating': 'standby', thermostat_mode: 'off' });
+    expect(target.setCapabilityValueIfPossible.mock.calls).toEqual([['thermostat_mode.heating', 'standby'], ['thermostat_mode', 'off']]);
+  });
+
+  test('without known features, or without a property written, only the written values are shown', async () => {
+    const unknown = device();
+    await showWrittenValues(unknown, { 'thermostat_mode.heating': 'dhw' });
+    expect(unknown.shown).toEqual({ 'thermostat_mode.heating': 'dhw' });
+
+    const charge = device();
+    charge.readCapabilityValues = jest.fn();
+    await showWrittenValues(charge, { 'thermostat_mode.hotWaterOneTimeCharge': 'activate' });
+    expect(charge.readCapabilityValues).not.toHaveBeenCalled();
+  });
 });

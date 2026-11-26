@@ -26,11 +26,18 @@
 // capability writes through its command on the feature path the device has (newer devices name
 // some programs differently), with device.executeCommand. A derived capability (config/*.js →
 // DERIVED) plans its own commands, which commands.js sends in order, like every other write.
+//
+// After a write the device shows the new values at once (showWrittenValues): the capabilities
+// written, and the derived capabilities computed the way the next poll will compute them, from
+// the features the device last heard of with the written values in place. So the standard
+// thermostat mode follows a new operating mode right away, without an API call.
 
 const { FEATURES } = require('./config');
 const { featureMapper } = require('./featureMapper');
 const { sendCommands } = require('./commands');
 const { userErrorFrom } = require('./userErrors');
+const { knownFeatures } = require('./featureCards');
+const { withWrittenValues } = require('./derivedCapabilities');
 
 /** @typedef {import('./config/types').CapabilityConfig} CapabilityConfig */
 
@@ -42,6 +49,8 @@ const { userErrorFrom } = require('./userErrors');
  *   executeCommand: (path: string, capability: CapabilityConfig, value: any) => Promise<any>,
  *   checkOperatingMode: (path: string, mode: any) => void,
  *   setCapabilityValueIfPossible: (capabilityName: string, value: any) => Promise<void>,
+ *   readCapabilityValues: (response: { data: any[] }) => Map<string, { value: any, gone: boolean }>,
+ *   _featureCache?: any,
  * }} WriteDevice
  */
 
@@ -59,6 +68,47 @@ function capabilitiesShowing(path, capability) {
       && other.propertyPath === capability.propertyPath && !other.valueMapping)
     .map((other) => other.capabilityName);
   return [capability.capabilityName, ...others];
+}
+
+/**
+ * The feature property a capability value was written to, on the path the device has; null for
+ * a value that is not a property value as it is (a derived capability, a value mapping, a value
+ * that is the command itself, a value the device computes).
+ * @param {string} capabilityName
+ * @param {any} value
+ * @param {string[] | undefined} storedFeatures
+ * @returns {{ path: string, propertyPath: string, value: any } | null}
+ */
+function writtenProperty(capabilityName, value, storedFeatures) {
+  const target = featureMapper.commandTarget(capabilityName, storedFeatures);
+  if (!target) return null;
+  const { capability } = target;
+  if (capability.valueMapping || capability.computed || capability.command?.useValueAsCommand) return null;
+  return { path: target.path, propertyPath: capability.propertyPath, value };
+}
+
+/**
+ * Shows written values on the device at once: the capabilities written, then every derived
+ * capability as the next poll will derive it, from the features the device last heard of with
+ * the written values in place (no API call). Derived capabilities that were written themselves
+ * keep their written value.
+ * @param {WriteDevice} device
+ * @param {Record<string, any>} values capability name → value written
+ */
+async function showWrittenValues(device, values) {
+  for (const [name, value] of Object.entries(values)) await device.setCapabilityValueIfPossible(name, value);
+  /** @type {{ path: string, propertyPath: string, value: any }[]} */
+  const writes = [];
+  for (const [name, value] of Object.entries(values)) {
+    const write = writtenProperty(name, value, device._features);
+    if (write) writes.push(write);
+  }
+  if (writes.length === 0) return;
+  const readings = device.readCapabilityValues({ data: withWrittenValues(knownFeatures(device), writes) });
+  for (const { capabilityName } of featureMapper.DERIVED) {
+    const value = readings.get(capabilityName)?.value;
+    if (value !== undefined && !(capabilityName in values)) await device.setCapabilityValueIfPossible(capabilityName, value);
+  }
 }
 
 /**
@@ -86,8 +136,10 @@ async function writeCapability(device, capabilityName, value) {
     check: (command) => device.checkOperatingMode(command.path, command.parameters.mode),
     confirm: plan.values,
   });
-  for (const [name, shown] of Object.entries(plan.values)) await device.setCapabilityValueIfPossible(name, shown);
+  await showWrittenValues(device, plan.values);
   return true;
 }
 
-module.exports = { capabilitiesShowing, writeCapability };
+module.exports = {
+  capabilitiesShowing, writtenProperty, showWrittenValues, writeCapability,
+};

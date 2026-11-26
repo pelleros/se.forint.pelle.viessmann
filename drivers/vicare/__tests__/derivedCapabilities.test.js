@@ -8,7 +8,7 @@
 const config = require('../config');
 const { FeatureMapper, featureMapper } = require('../featureMapper');
 const {
-  capabilityRank, sortByCapabilityOrder, derivedSource, addDerivedReadings,
+  capabilityRank, sortByCapabilityOrder, derivedSource, addDerivedReadings, withWrittenValues,
 } = require('../derivedCapabilities');
 
 const { PATHS } = config;
@@ -49,6 +49,24 @@ test('a derived reading is gone only without a value, without connected sources,
   expect(addDerivedReadings([none], read, () => false, new Map(), { absenceCounts: true }).get('measure_x').gone).toBe(true);
   expect(addDerivedReadings([none], read, () => false, new Map(), { absenceCounts: false }).get('measure_x').gone).toBe(false);
   expect(addDerivedReadings([none], read, () => true, new Map(), { absenceCounts: true }).get('measure_x').gone).toBe(false);
+});
+
+test('written values replace the property in a copy of their feature; other features stay as they are', () => {
+  const mode = { feature: 'a.mode', isEnabled: true, properties: { value: { type: 'string', value: 'dhwAndHeating' } } };
+  const target = { feature: 'a.target', isEnabled: true, properties: { temperature: { value: 20, unit: 'celsius' } } };
+  const other = { feature: 'a.other', isEnabled: true, properties: {} };
+  const features = withWrittenValues([mode, target, other], [
+    { path: 'a.mode', propertyPath: 'value.value', value: 'dhw' },
+    { path: 'a.target', propertyPath: 'temperature.value', value: 21 },
+    { path: 'a.other', propertyPath: 'active.value', value: true },
+    { path: 'a.missing', propertyPath: 'value.value', value: 1 },
+  ]);
+  expect(features.map((feature) => feature.feature)).toEqual(['a.mode', 'a.target', 'a.other']);
+  expect(features[0].properties.value).toEqual({ type: 'string', value: 'dhw' });
+  expect(features[1].properties.temperature).toEqual({ value: 21, unit: 'celsius' });
+  expect(features[2].properties.active).toEqual({ value: true });
+  expect(mode.properties.value.value).toBe('dhwAndHeating');
+  expect(withWrittenValues([mode], [])[0]).toBe(mode);
 });
 
 describe('in the mapper and the config', () => {

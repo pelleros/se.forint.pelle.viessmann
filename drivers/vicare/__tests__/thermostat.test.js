@@ -127,6 +127,49 @@ describe('standard thermostat mode', () => {
     await expect(device.writeCapability('thermostat_mode', 'party')).rejects.toThrow('Unknown thermostat mode: party');
     expect(commandsSent(device)).toEqual([]);
   });
+
+  test('setting the operating mode shows the standard mode at once, without an API call', async () => {
+    const { device, listeners } = await pairedDevice('vitocal_222');
+    device.oAuth2Client.getFeatures.mockClear();
+
+    await listeners['set-operating-mode']({ device, mode: 'dhw' });
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhw');
+    expect(device.getCapabilityValue('thermostat_mode')).toBe('off');
+    expect(device.getCapabilityValue('measure_status_text')).toBe('Heating · compressor 42 % · hot water 49.4 °C');
+
+    await device.__listeners.get('thermostat_mode.heating')('dhwAndHeating');
+    expect(device.getCapabilityValue('thermostat_mode')).toBe('heat');
+    expect(device.oAuth2Client.getFeatures).not.toHaveBeenCalled();
+  });
+
+  test('setting the standard mode shows the operating mode at once, and keeps one that already fits', async () => {
+    const { device } = await pairedDevice('vitocal_222');
+    await device.writeCapability('thermostat_mode', 'off');
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('dhw');
+
+    device.__values.set('thermostat_mode.heating', 'standby');
+    await device.writeCapability('thermostat_mode', 'off');
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('standby');
+    expect(commandsSent(device)).toHaveLength(1);
+  });
+
+  test('a mode without a standard equivalent shows the standard mode the next poll will show', async () => {
+    const { device, listeners, dump } = await pairedDevice('vitocal_222', {
+      change: (features) => {
+        const mode = features.data.find((item) => item.feature === PATHS.HEATING_CIRCUIT_0_MODE);
+        mode.commands.setMode.params.mode.constraints.enum.push('quiet');
+      },
+    });
+    await listeners['set-operating-mode']({ device, mode: 'quiet' });
+    expect(device.getCapabilityValue('thermostat_mode.heating')).toBe('quiet');
+    const shownAtOnce = device.getCapabilityValue('thermostat_mode');
+
+    const polled = clone(dump);
+    polled.data.find((item) => item.feature === PATHS.HEATING_CIRCUIT_0_MODE).properties.value.value = 'quiet';
+    await device.onFeaturesUpdated(polled, false);
+    expect(device.getCapabilityValue('thermostat_mode')).toBe(shownAtOnce);
+    expect(shownAtOnce).toBeNull();
+  });
 });
 
 describe('standard thermostat set point and room temperature', () => {
@@ -272,6 +315,18 @@ describe('holiday program', () => {
     const { device: boiler, listeners: boilerListeners } = await pairedDevice('vitodens_200_e3');
     await boilerListeners['start-holiday']({ device: boiler, start: '2026-03-10', end: '2026-03-10' });
     expect(commandsSent(boiler)).toEqual([[PATHS.HOLIDAY, 'schedule', { start: '2026-03-10', end: '2026-03-10' }]]);
+  });
+
+  test('ending the holiday program takes it out of the status text at once', async () => {
+    const { device, listeners } = await pairedDevice('vitodens_200_e3', {
+      change: (features) => {
+        features.data.find((item) => item.feature === PATHS.HOLIDAY).properties.active.value = true;
+      },
+    });
+    expect(device.getCapabilityValue('measure_status_text')).toMatch(/ · holiday$/);
+    await listeners['end-holiday']({ device });
+    expect(device.getCapabilityValue('measure_holiday_active')).toBe(false);
+    expect(device.getCapabilityValue('measure_status_text')).not.toMatch(/holiday/);
   });
 
   test('the condition reads whether the holiday program is active', async () => {

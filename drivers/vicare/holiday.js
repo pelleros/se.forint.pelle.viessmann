@@ -84,14 +84,15 @@ async function startHoliday(device, start, end) {
 }
 
 /**
- * Ends the holiday program, or cancels a scheduled one.
+ * Ends the holiday program, or cancels a scheduled one; the device shows it as off at once (also
+ * in the status text).
  * @param {import('./commands').CommandDevice & {
- *   setCapabilityValueIfPossible: (capabilityName: string, value: any) => Promise<void> }} device
+ *   showWrittenValues: (values: Record<string, any>) => Promise<void> }} device
  * @returns {Promise<void>}
  */
 async function endHoliday(device) {
   await sendFeatureCommand(device, PATHS.HOLIDAY, 'unschedule', {}, { confirm: { [HOLIDAY_ACTIVE]: false } });
-  await device.setCapabilityValueIfPossible(HOLIDAY_ACTIVE, false);
+  await device.showWrittenValues({ [HOLIDAY_ACTIVE]: false });
 }
 
 module.exports = {

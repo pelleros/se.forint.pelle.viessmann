@@ -29,7 +29,7 @@ function device(commands) {
     oAuth2Client: { executeCommand: jest.fn(async () => ({ data: { success: true } })) },
     error: jest.fn(),
     getMonitor: () => ({ rememberWrite: (...args) => remembered.push(args) }),
-    setCapabilityValueIfPossible: jest.fn(async () => {}),
+    showWrittenValues: jest.fn(async () => {}),
   };
 }
 const sent = (target) => target.oAuth2Client.executeCommand.mock.calls.map(([request]) => [request.feature, request.command, request.body]);
@@ -60,7 +60,7 @@ test('starting the holiday program sends the dates; it shows as active once it h
   const target = device();
   await startHoliday(target, '24-12-2026', '02-01-2027');
   expect(sent(target)).toEqual([[HOLIDAY, 'schedule', { start: '2026-12-24', end: '2027-01-02' }]]);
-  expect(target.setCapabilityValueIfPossible).not.toHaveBeenCalled();
+  expect(target.showWrittenValues).not.toHaveBeenCalled();
   expect(target.remembered).toEqual([]);
 });
 
@@ -76,6 +76,6 @@ test('ending the holiday program shows it as off and has that confirmed', async 
   const target = device();
   await endHoliday(target);
   expect(sent(target)).toEqual([[HOLIDAY, 'unschedule', {}]]);
-  expect(target.setCapabilityValueIfPossible).toHaveBeenCalledWith('measure_holiday_active', false);
+  expect(target.showWrittenValues).toHaveBeenCalledWith({ measure_holiday_active: false });
   expect(target.remembered).toEqual([['measure_holiday_active', false]]);
 });

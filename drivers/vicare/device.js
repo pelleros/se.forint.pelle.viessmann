@@ -27,7 +27,7 @@ const { FEATURES, PATHS, getCapability } = require('./config');
 const { MODE_TITLES } = require('./config/modes');
 const { featureMapper, mergeOperatingModes } = require('./featureMapper');
 const { maskId } = require('../../lib/logPrivacy');
-const { writeCapability, capabilitiesShowing } = require('./capabilityWrites');
+const { writeCapability, capabilitiesShowing, showWrittenValues } = require('./capabilityWrites');
 const { runMigrations, versionBefore } = require('./migrations');
 const { DeviceMonitor } = require('./deviceMonitor');
 const { translate } = require('../../lib/errorMessages');
@@ -239,13 +239,18 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return writeCapability(this, capabilityName, value);
   }
 
-  // Writes a capability through commands.js, then shows the value on it and on the capabilities
-  // that show the same property. `restoring`: undoing a temporary change (boost.js), which the
-  // account's write allowance never refuses
+  // Writes a capability through commands.js, then shows the value on it, on the capabilities that
+  // show the same property and on the derived capabilities that follow from it. `restoring`:
+  // undoing a temporary change (boost.js), which the account's write allowance never refuses
   async executeCommand(path, capability, value, { restoring = false } = {}) {
     await sendCapabilityValue(this, path, capability, value, { check: () => this.checkOperatingMode(path, value), restoring });
-    for (const name of capabilitiesShowing(path, capability)) await this.setCapabilityValueIfPossible(name, value);
+    await this.showWrittenValues(Object.fromEntries(capabilitiesShowing(path, capability).map((name) => [name, value])));
     return true;
+  }
+
+  // Shows written values at once, with the derived capabilities that follow from them (capabilityWrites.js)
+  async showWrittenValues(values) {
+    await showWrittenValues(this, values);
   }
 
   // set-operating-mode offers modes a circuit may not have: refuse those before sending

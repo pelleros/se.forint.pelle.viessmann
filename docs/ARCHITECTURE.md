@@ -25,9 +25,17 @@ The design choice that shapes everything: **there is one device type for every V
 ├── drivers/vicare/
 │   ├── config/                  # ★ Single source of truth: PATHS + FEATURES, one module per theme (see below)
 │   ├── featureMapper.js         # Pure mapping features ⇄ capabilities (no Homey dependency)
-│   ├── computedValues.js        # Values a device computes: power in W, yesterday's consumption, daily starts
-│   ├── deviceStatus.js          # Faults, logbook, event log, frozen values, write checks (pure)
-│   ├── deviceMonitor.js         # Applies them to a device: alarm, warning, triggers, health, maintenance action
+│   ├── computedValues.js        # Values a device computes: power in W, yesterday's consumption (pure)
+│   ├── dailyCounters.js         # Starts today/yesterday/last hour, run time per start, from midnight baselines (pure)
+│   ├── faultLog.js              # Faults and logbook entries, each reported once (pure)
+│   ├── frozenValues.js          # Values that stopped updating (pure)
+│   ├── writeChecks.js           # Writes that did not take (pure)
+│   ├── eventLog.js              # The installation's event log: events of a device, new since the last read (pure)
+│   ├── messageEntries.js        # Reading message lists and how far they have been read (pure)
+│   ├── statusMessages.js        # The texts of the device's warning and notifications
+│   ├── pollPlan.js              # Update interval and planned API calls a day (pure)
+│   ├── pairSession.js           # Pairing views: Client ID, check after the login, report; device names
+│   ├── deviceMonitor.js         # Wires the modules above to a device: alarm, warning, triggers, health, maintenance action
 │   ├── migrations.js            # Store migrations, one step per release
 │   ├── device.js                # OAuth2Device: dynamic capabilities, commands, runs the migrations
 │   ├── driver.js                # OAuth2Driver: pairing, Flow card registration, polling
@@ -137,7 +145,7 @@ The mapping between feature responses and capabilities, as pure functions withou
 
 ## Computed values
 
-`computedValues.js` (pure, no Homey dependency) computes the capabilities marked `computed`, from the same poll response (no extra API calls). Each value has a sound basis or is `null`:
+`computedValues.js` (pure, no Homey dependency) computes the capabilities marked `computed`, from the same poll response (no extra API calls), with `dailyCounters.js` for the counter figures. Each value has a sound basis or is `null`:
 
 - `power` (`measure_power`, so the device appears in Homey Energy): the device's own consumption, or the inverter output as `fallbackFor`; kW and W are converted to W, any other unit gives no value.
 - `consumptionYesterday` (`measure_electricity_yesterday.*`, `measure_gas_yesterday.*`): `day[1]` of the feature's day values, but only when `dayValueReadAt` is today in Homey's time zone (then `day[0]` is today and `day[1]` the complete day before); older values are stale and give `null`. The unit comes from the response (electricity only in kWh; gas in m³ or kWh, set as the capability's `units` on the device).
@@ -146,26 +154,26 @@ The mapping between feature responses and capabilities, as pure functions withou
 
 ## Device status
 
-`deviceStatus.js` (pure) reads each response and `deviceMonitor.js` applies the result:
+Pure modules read each response and `deviceMonitor.js` applies the result (texts in `statusMessages.js`):
 
-- **Faults:** the entries of `device.messages.errors.raw` and `fuelCell.errors.raw`. A code that is new fires the trigger `fault-reported` and a timeline notification once; the codes already reported are kept in the store key `knownMessages`, so a restart does not report them again.
-- **Logbook:** entries of `device.messages.logbook` newer than the newest one seen fire `logbook-entry-added` (the first logbook seen is history).
-- **Frozen values:** when the newest feature `timestamp` of the responses has not moved for 6 hours of successful polls (only what the app has seen counts, not the age of the timestamps).
-- **Writes:** after a successful command, the first poll at least a minute later checks that the capability reports the value written (set points and modes; not the one-time charge). If not, the user gets a notification and a warning, which goes when the value shows up or after 6 hours.
+- **Faults** (`faultLog.js`): the entries of `device.messages.errors.raw` and `fuelCell.errors.raw`. A code that is new fires the trigger `fault-reported` and a timeline notification once; the codes already reported are kept in the store key `knownMessages`, so a restart does not report them again.
+- **Logbook** (`faultLog.js`): entries of `device.messages.logbook` newer than the newest one seen fire `logbook-entry-added` (the first logbook seen is history).
+- **Frozen values** (`frozenValues.js`): when the newest feature `timestamp` of the responses has not moved for 6 hours of successful polls (only what the app has seen counts, not the age of the timestamps).
+- **Writes** (`writeChecks.js`, called after `executeCommand`): after a successful command, the first poll at least a minute later checks that the capability reports the value written (set points and modes; not the one-time charge). If not, the user gets a notification and a warning, which goes when the value shows up or after 6 hours.
 
 `alarm_problem` is on while there is a fault or frozen values; the device's warning (`setWarning`) says what is wrong, including a write that did not take. An enabled feature that suddenly reports no commands keeps the ones it had (`updatedCommands`), and a refused command (HTTP 403) says it may be temporary; nothing is removed for either.
 
-**Event log** (device setting `eventLog`, off by default; every 15, 30 or 60 minutes): `getEventsHistory` reads the installation's event log for the gateway since the last read (position in `knownMessages.events`), keeps the events of this device and fires `event-logged` and `event-code-logged` (whose run listener compares the card's `code` argument). Events older than two intervals (e.g. from while the app was off) are not triggered.
+**Event log** (`eventLog.js`; device setting `eventLog`, off by default; every 15, 30 or 60 minutes): `getEventsHistory` reads the installation's event log for the gateway since the last read (position in `knownMessages.events`), keeps the events of this device and fires `event-logged` and `event-code-logged` (whose run listener compares the card's `code` argument). Logbook and event log keep how far they have been read in the same way (`messageEntries.js`: the newest time seen and the entries at that time). Events older than two intervals (e.g. from while the app was off) are not triggered.
 
 **Maintenance action** `button.refreshFeatures` (*Device settings > Maintenance*): reads all features once, merges them into the stored metadata (the list only grows), adds the capabilities of new features and shows the values; at most once per 10 minutes.
 
 ## API quota
 
-`lib/apiQuota.js` counts every API request (`_executeRequest` in the OAuth client) per OAuth session (Viessmann login; `app.js` gives each client its session id) and UTC day, in the app setting `apiCallsToday`, written at most once a minute. `driver.plannedCallsPerDay(sessionId)` adds up the polls and event log reads of a session's devices; a device setting that would plan more than 1,400 calls a day (Viessmann allows about 1,450, and some are kept for pairing, the maintenance action and troubleshooting) is refused with a translated message before anything changes. The dropdown labels show the calls a day of each choice.
+`lib/apiQuota.js` counts every API request (`_executeRequest` in the OAuth client) per OAuth session (Viessmann login; `app.js` gives each client its session id) and UTC day, in the app setting `apiCallsToday`, written at most once a minute. `pollPlan.js` gives a device's interval and adds up the polls and event log reads of a session's devices (`driver.plannedCallsPerDay(sessionId)` collects their settings); a device setting that would plan more than 1,400 calls a day (Viessmann allows about 1,450, and some are kept for pairing, the maintenance action and troubleshooting) is refused with a translated message before anything changes. The dropdown labels show the calls a day of each choice.
 
 ## Pairing
 
-`driver.compose.json` → `pair`: `client_id` (custom view: asks for the Client ID when none is saved, with the redirect URI and a copy button; `save_client_id` checks it for spaces and length), `login_oauth2`, `pair_check` (custom view), `list_devices`, `add_devices`. `onPair` wraps the SDK's `list_devices` handler: `pair_check` runs it once, and the device list reuses the result for 5 minutes (one API read). `onPairListDevices` throws a translated message when the account has no installation or no device of type `heating` (listing the types it has). New devices are named after the model id (`E3_Vitodens_200_0821` → "Viessmann Vitodens 200"), or after their role when the id is no product name, with a number for a second device of the same name. The OAuth client reads the Client ID again when a login starts, so a Client ID saved in `client_id` is used right away. In fixture mode the dev twin points the views at `login_credentials`.
+`pairSession.js`, wired in `driver.onPair`; `driver.compose.json` → `pair`: `client_id` (custom view: asks for the Client ID when none is saved, with the redirect URI and a copy button; `save_client_id` checks it for spaces and length), `login_oauth2`, `pair_check` (custom view), `list_devices`, `add_devices`. `onPair` wraps the SDK's `list_devices` handler: `pair_check` runs it once, and the device list reuses the result for 5 minutes (one API read). `onPairListDevices` throws a translated message when the account has no installation or no device of type `heating` (listing the types it has). New devices are named after the model id (`E3_Vitodens_200_0821` → "Viessmann Vitodens 200"), or after their role when the id is no product name, with a number for a second device of the same name. The OAuth client reads the Client ID again when a login starts, so a Client ID saved in `client_id` is used right away. In fixture mode the dev twin points the views at `login_credentials`.
 
 ## Report for the developer
 
@@ -218,7 +226,7 @@ Users share these dumps, so `api.js` anonymizes everything it returns with `lib/
 - `drivers/vicare/__tests__/roles.test.js`: role aliases (with an inline Vitocal 262-A, `type:dhwHeatpump`); every fixture with its type roles stripped gets the same capabilities and values as with them; PyViCare responses (no roles) get the role-gated capabilities their features imply. `driver.errorStates.test.js`: message and poll delay per error state, while polling and pairing. `device.robustness.test.js`: a fixture with null and garbage values and entries. `pyvicare.errorStates.test.js`: the error states and odd values for a few PyViCare devices after the update from 1.0.14.
 - Lifecycle, polling, heating circuit and OAuth client tests next to them, tests for `lib/` in `lib/__tests__/`; Web API (`api.test.js`: nothing identifying in the troubleshooting dumps, payload intact), anonymizer, fixture generation and fixture privacy tests in `test/`.
 - `drivers/vicare/__tests__/capabilityMatrix.test.js` + `capabilityMatrix.json` (generated, `npm run matrix`): for every fixture in `test/fixtures/` (ours and PyViCare's), what a newly paired device gets on the current code: the heating circuit, its capabilities in the order it gets them, their options where they differ from the configured ones, and the Flow cards Homey offers on it. Any change fails the test until the file is regenerated, so every pull request shows its effect per installation type as a diff.
-- `computedValues.test.js`, `deviceStatus.test.js`, `deviceMonitor.test.js`: computed values, status, alarm, warning, triggers, write checks, maintenance action. `pollSettings.test.js`: interval, planned calls per login, event log. `pairingFlow.test.js`: the pairing views and device names. `lib/__tests__/apiQuota.test.js` and `test/report.test.js`: the call count and the report.
+- Each new module has its test next to it (`computedValues`, `dailyCounters`, `faultLog`, `frozenValues`, `writeChecks`, `eventLog`, `messageEntries`, `statusMessages`, `pollPlan`, `pairSession`; `lib/__tests__/apiQuota.test.js`, `lib/__tests__/report.test.js`). `deviceMonitor.test.js` and `pollSettings.test.js` test the wiring on a device (alarm, warning, triggers, write checks, maintenance action, interval, event log); `test/apiStatus.test.js` the `/health` and `/report` endpoints.
 - `featureMapper.test.js`: the pure mapping, and the combination of the config modules (1.0.16's `PATHS` order, every path in exactly one module). `migrations.test.js`: an upgrade test per store migration, idempotence, and the same end result as 1.0.16's checks. `flowCompose.test.js`: see *Flow cards*.
 - `test/locales.test.js`: every text in `locales/` exists in en, de, nl, fr and sv with the same placeholders. `lib/__tests__/http.test.js` and `ViessmannOAuth2Client.http.test.js`: requests against a local server (timeouts, keep-alive, PKCE per login, sessions from before 2.0.0, masked debug output). `test/fixtureTwin.test.js` and `test/devTwin.test.js`: the dev twin and its fixture mode.
 - `npm run test:coverage` (CI) fails below the coverage threshold in `jest.config.js`; `npm run typecheck` checks the files with `// @ts-check`.

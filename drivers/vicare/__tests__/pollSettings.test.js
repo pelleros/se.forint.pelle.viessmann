@@ -141,7 +141,7 @@ describe('event log', () => {
     const { device, cards } = await deviceWithEventLog();
     device.getMonitor().scheduleEventLog();
     expect(device.homey.setTimeout).toHaveBeenCalledWith(expect.any(Function), 30 * MINUTE);
-    expect(device.getStoreValue('knownMessages').events).toEqual({ time: NOW, keys: [] });
+    expect(device.getStoreValue('knownMessages').events).toEqual({ at: NOW, keys: [] });
 
     jest.setSystemTime(NOW + 30 * MINUTE);
     device.oAuth2Client.getEventsHistory.mockResolvedValueOnce({

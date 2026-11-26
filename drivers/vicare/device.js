@@ -30,7 +30,7 @@ const { maskId } = require('../../lib/logPrivacy');
 const { runMigrations, versionBefore } = require('./migrations');
 const { DeviceMonitor } = require('./deviceMonitor');
 const { translate } = require('../../lib/errorMessages');
-const { PLANNED_LIMIT } = require('../../lib/apiQuota');
+const { withinPlan, PLANNED_LIMIT } = require('./pollPlan');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -522,13 +522,11 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     return this._pollSettings?.[key] ?? this.getSetting?.(key);
   }
 
-  // Refuses settings that would need more API calls a day than the account can spare (see apiQuota.js)
+  // Refuses settings that would plan more API calls a day than the account can spare (pollPlan.js)
   checkPollSettings(newSettings) {
     const settings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
-    const planned = this.driver.plannedCallsPerDay(this.getStoreValue('OAuth2SessionId'), { device: this, settings });
-    if (planned > PLANNED_LIMIT) {
-      throw new Error(translate(this.homey, 'device_settings.too_many_calls', { calls: planned, limit: PLANNED_LIMIT }));
-    }
+    const calls = this.driver.plannedCallsPerDay(this.getStoreValue('OAuth2SessionId'), { device: this, settings });
+    if (!withinPlan(calls)) throw new Error(translate(this.homey, 'device_settings.too_many_calls', { calls, limit: PLANNED_LIMIT }));
   }
 
   async applyPollSettings(newSettings) {
@@ -656,25 +654,6 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   // A failed poll, for the health on the settings page
   recordPollError(error) {
     this.getMonitor().onPollError(error);
-  }
-
-  /*
-    The maintenance action "Refresh Viessmann features": reads all features once (one API call),
-    merges them into the stored metadata (the feature list only grows, nothing is removed), adds
-    the capabilities of new features and shows the values from the same read. Polling pauses
-    meanwhile and keeps its backoff.
-  */
-  async refreshFeatures() {
-    const response = await this.getFeatures();
-    const metadata = this.mergeRefreshedMetadata(this.driver._readDeviceMetadata(response, this.getSetting?.('heatingCircuit') || 'auto'));
-    await this.driver._pausePolling(this.getPollingKey());
-    try {
-      await this.applyCircuitMetadata(metadata);
-      await this.onFeaturesUpdated(response, false);
-    } finally {
-      this.resumePolling();
-    }
-    this.log('Features refreshed:', metadata.features.length);
   }
 
 };

@@ -37,7 +37,7 @@ const PATHS = {
   BURNER: 'heating.burners.0',
   BURNER_MODULATION: 'heating.burners.0.modulation',
   FUEL_CELL_PHASE: 'fuelCell.operating.phase',
-  // Read by deviceStatus.js: faults (alarm_problem, warning, trigger) and logbook entries (trigger)
+  // Read by faultLog.js: faults (alarm_problem, warning, trigger) and logbook entries (trigger)
   DEVICE_ERRORS: 'device.messages.errors.raw',
   FUEL_CELL_ERRORS: 'fuelCell.errors.raw',
   LOGBOOK: 'device.messages.logbook',
@@ -76,7 +76,7 @@ const FEATURES = {
       },
     }],
   },
-  // Read by deviceStatus.js only (faults of a fuel cell, logbook entries for a Flow trigger)
+  // Read by faultLog.js only (faults of a fuel cell, logbook entries for a Flow trigger)
   [PATHS.FUEL_CELL_ERRORS]: {
     capabilities: [],
   },

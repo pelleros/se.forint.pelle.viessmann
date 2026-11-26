@@ -28,7 +28,7 @@
  * @property {Record<string, any>} [valueMapping] API value → capability value
  * @property {Record<string, any>} capabilityOptions passed to `setCapabilityOptions`
  * @property {string} [computed] the device computes the value itself from the feature (see
- *   computedValues.js and deviceStatus.js), e.g. a unit conversion or a counter difference;
+ *   computedValues.js and deviceMonitor.js), e.g. a unit conversion or a counter difference;
  *   `readValues` leaves such capabilities out
  */
 

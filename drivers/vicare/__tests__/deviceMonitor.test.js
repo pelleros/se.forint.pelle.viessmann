@@ -11,7 +11,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 
 const ViessmannDevice = require('../device');
 const { PATHS } = require('../config');
-const { FROZEN_AFTER } = require('../deviceStatus');
+const { FROZEN_AFTER } = require('../frozenValues');
 const { REFRESH_INTERVAL } = require('../deviceMonitor');
 
 const MINUTE = 60 * 1000;

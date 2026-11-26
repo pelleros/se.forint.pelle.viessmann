@@ -2,9 +2,10 @@
 
 'use strict';
 
-// The pairing views: the Client ID view (asks when none is saved), the check after the login
-// (what the account has, or why nothing can be added) with the report for the developer, and the
-// device list, which reuses the check's API reads. Also the names new devices get.
+// The pairing views (pairSession.js, wired in driver.js): the Client ID view (asks when none is
+// saved), the check after the login (what the account has, or why nothing can be added) with the
+// report for the developer, and the device list, which reuses the check's API reads. Also the
+// names new devices get.
 
 // eslint-disable-next-line global-require
 jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
@@ -14,7 +15,8 @@ const Driver = require('../driver');
 const { apiError } = require('../../../lib/apiError');
 const { BEGIN } = require('../../../lib/report');
 
-const { modelName } = Driver;
+const { modelName, deviceName, checkInstallations } = require('../pairSession');
+
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 const HEATING = {
@@ -90,12 +92,25 @@ describe('device names', () => {
   });
 
   test('a second device of the same model gets a number; unknown models are named after what they are', () => {
-    const driver = new Driver();
-    driver.homey = { __: (key) => key };
-    expect(driver._deviceName({ modelId: 'E3_Vitodens_200_0821' }, ['Viessmann Vitodens 200'])).toBe('Viessmann Vitodens 200 2');
-    expect(driver._deviceName({ modelId: 'CU401B_S_64', roles: ['type:heatpump'] })).toBe('Viessmann heat pump');
-    expect(driver._deviceName({ modelId: 'x', roles: ['type:fuelcell'] })).toBe('Viessmann fuel cell');
-    expect(driver._deviceName({ roles: [] })).toBe('Viessmann heating');
+    const t = (key) => ({
+      'pair.device_name.heat_pump': 'Viessmann heat pump',
+      'pair.device_name.fuel_cell': 'Viessmann fuel cell',
+      'pair.device_name.boiler': 'Viessmann boiler',
+      'pair.device_name.other': 'Viessmann heating',
+    }[key]);
+    expect(deviceName({ modelId: 'E3_Vitodens_200_0821' }, ['Viessmann Vitodens 200'], t)).toBe('Viessmann Vitodens 200 2');
+    expect(deviceName({ modelId: 'CU401B_S_64', roles: ['type:heatpump'] }, [], t)).toBe('Viessmann heat pump');
+    expect(deviceName({ modelId: 'x', roles: ['type:fuelcell'] }, [], t)).toBe('Viessmann fuel cell');
+    expect(deviceName({ roles: ['type:boiler'] }, [], t)).toBe('Viessmann boiler');
+    expect(deviceName({ roles: [] }, [], t)).toBe('Viessmann heating');
+  });
+
+  test('an account without anything to add gets a specific message', () => {
+    const t = (key, tags) => `${key} ${JSON.stringify(tags || {})}`;
+    expect(() => checkInstallations({ data: [] }, t)).toThrow('pair.no_installations');
+    expect(() => checkInstallations({ data: [{ gateways: [{ devices: [{ deviceType: 'tcu', modelId: 'E3_TCU19_x05' }] }] }] }, t))
+      .toThrow('pair.no_heating_device {"types":"tcu E3_TCU19_x05"}');
+    expect(() => checkInstallations({ data: [{ gateways: [{ devices: [{ deviceType: 'heating' }] }] }] }, t)).not.toThrow();
   });
 });
 

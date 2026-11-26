@@ -94,6 +94,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -159,6 +160,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -220,6 +222,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -277,6 +280,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -330,6 +334,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -393,6 +398,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -448,6 +454,7 @@
         "condition/circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-heating-curve-shift",
@@ -470,6 +477,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -480,6 +488,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -520,6 +529,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -551,6 +561,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -561,6 +572,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -602,6 +614,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -657,6 +670,7 @@
         "condition/circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -711,6 +725,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -750,6 +765,7 @@
       "options": {},
       "flowCards": [
         "condition/compressor-is-running",
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -781,6 +797,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -839,6 +856,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -900,6 +918,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -957,6 +976,7 @@
         "condition/compressor-is-running",
         "condition/circulation-pump-is-running",
         "condition/outside-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-heating-curve-shift",
@@ -1003,6 +1023,7 @@
         "condition/circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1057,6 +1078,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1114,6 +1136,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1171,6 +1194,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1228,6 +1252,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1285,6 +1310,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1341,6 +1367,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1392,6 +1419,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
@@ -1432,6 +1460,7 @@
       "flowCards": [
         "condition/compressor-is-running",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/boost-hot-water",
@@ -1487,6 +1516,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1554,6 +1584,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1617,6 +1648,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1682,6 +1714,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1714,6 +1747,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -1724,6 +1758,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -1734,6 +1769,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -1744,6 +1780,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -1754,6 +1791,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -1786,6 +1824,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1819,6 +1858,7 @@
         "condition/burner-is-running",
         "condition/outside-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "action/boost-hot-water",
@@ -1860,6 +1900,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1899,6 +1940,7 @@
       "flowCards": [
         "condition/burner-is-running",
         "condition/outside-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1931,6 +1973,7 @@
       },
       "flowCards": [
         "condition/burner-is-running",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -1971,6 +2014,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2028,6 +2072,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2084,6 +2129,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2139,6 +2185,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2190,6 +2237,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2247,6 +2295,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2306,6 +2355,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2366,6 +2416,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2423,6 +2474,7 @@
         "condition/circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2470,6 +2522,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2518,6 +2571,7 @@
         "condition/hot-water-circulation-pump-is-running",
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2574,6 +2628,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2604,6 +2659,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2614,6 +2670,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2658,6 +2715,7 @@
         "condition/outside-temperature-is",
         "condition/supply-temperature-is",
         "condition/hot-water-temperature-is",
+        "condition/feature-value-is",
         "action/set-operating-mode",
         "action/set-heating-thermostat",
         "action/set-hot-water-thermostat",
@@ -2688,6 +2746,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2698,6 +2757,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2708,6 +2768,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2718,6 +2779,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"
@@ -2728,6 +2790,7 @@
       "capabilities": [],
       "options": {},
       "flowCards": [
+        "condition/feature-value-is",
         "action/read-feature-number",
         "action/read-feature-text",
         "action/run-feature-command"

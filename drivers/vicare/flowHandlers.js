@@ -27,13 +27,14 @@
 // type is one entry here and its mapping in flowCards.js:
 //
 //   CONDITIONS  answer from the card's arguments; capability conditions use knownValue, which
-//               fails while the value is unknown (null) instead of answering "no".
+//               fails while the value is unknown (null) instead of answering "no". The generic
+//               condition reads any numeric feature like the read cards (featureCards.js).
 //   TRIGGERS    for a capability change from a known value to a known value: the card's tokens,
 //               or null to not fire. Fired from device.setCapabilityValueIfPossible; the first
 //               value after pairing, after a start or after a gap (value cleared) is no change.
 //   ACTIONS     run with the card's arguments (the device in args.device); what they return
 //               becomes the card's tokens.
-//   AUTOCOMPLETE  the choices of an autocomplete argument.
+//   AUTOCOMPLETE  the choices of an autocomplete argument, for conditions and actions.
 
 const heatingCurve = require('./heatingCurve');
 const { boostsOf } = require('./boost');
@@ -55,13 +56,25 @@ function knownValue(device, mapping) {
   return value;
 }
 
-/** @type {Record<string, (args: CardArgs, mapping: FlowCardMapping) => boolean>} */
+/**
+ * The answer of an above/below card.
+ * @param {number} value
+ * @param {string} comparison 'above' or 'below'
+ * @param {number} limit
+ * @returns {boolean}
+ */
+function compareNumber(value, comparison, limit) {
+  return comparison === 'below' ? value < limit : value > limit;
+}
+
+/** @type {Record<string, (args: CardArgs, mapping: FlowCardMapping) => boolean | Promise<boolean>>} */
 const CONDITIONS = {
   isOn: (args, mapping) => knownValue(args.device, mapping) === true,
-  compare(args, mapping) {
-    const value = knownValue(args.device, mapping);
-    const limit = Number(args.temperature);
-    return args.comparison === 'below' ? value < limit : value > limit;
+  compare: (args, mapping) => compareNumber(knownValue(args.device, mapping), args.comparison, Number(args.temperature)),
+  // Any numeric feature of the device (featureCards.js), for standard Flows
+  async compareFeature(args) {
+    const { number } = await featureCards.readNumber(args.device, args.feature);
+    return compareNumber(number, args.comparison, Number(args.value));
   },
 };
 
@@ -94,6 +107,7 @@ const ACTIONS = {
 
 /** @type {Record<string, { arg: string, choices: (device: any, query: string) => Promise<any[]> | any[] }>} */
 const AUTOCOMPLETE = {
+  compareFeature: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
   readNumber: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query, { numbers: true }) },
   readText: { arg: 'feature', choices: (device, query) => featureCards.valueChoices(device, query) },
   runCommand: { arg: 'command', choices: (device, query) => featureCards.commandChoices(device, query) },
@@ -116,7 +130,7 @@ function handlerFor(table, mapping) {
  * The answer of a condition card with a kind.
  * @param {CardArgs} args
  * @param {FlowCardMapping} mapping
- * @returns {boolean}
+ * @returns {boolean | Promise<boolean>}
  */
 function checkCondition(args, mapping) {
   return handlerFor(CONDITIONS, mapping)(args, mapping);
@@ -155,6 +169,18 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
 }
 
 /**
+ * Registers the autocomplete of a card whose kind has one.
+ * @param {{ registerArgumentAutocompleteListener: Function }} card
+ * @param {FlowCardMapping} mapping
+ */
+function registerAutocomplete(card, mapping) {
+  const autocomplete = AUTOCOMPLETE[/** @type {string} */ (mapping.kind)];
+  if (!autocomplete) return;
+  card.registerArgumentAutocompleteListener(autocomplete.arg,
+    async (/** @type {string} */ query, /** @type {CardArgs} */ args) => autocomplete.choices(args.device, query));
+}
+
+/**
  * Registers the run (and autocomplete) listeners of the condition and action cards with a kind.
  * A card that cannot be registered is logged; the others still work.
  * @param {{ homey: any, error: (...args: any[]) => void }} driver
@@ -163,8 +189,9 @@ async function fireValueTriggers(device, capabilityName, value, previous) {
 function registerFlowCardsWithKind(driver, { conditions, actions }) {
   for (const condition of conditions.filter((mapping) => mapping.kind)) {
     try {
-      driver.homey.flow.getConditionCard(condition.id)
-        .registerRunListener(async (/** @type {CardArgs} */ args) => checkCondition(args, condition));
+      const card = driver.homey.flow.getConditionCard(condition.id);
+      card.registerRunListener(async (/** @type {CardArgs} */ args) => checkCondition(args, condition));
+      registerAutocomplete(card, condition);
     } catch (error) {
       driver.error(`Failed to register condition ${condition.id}:`, error);
     }
@@ -173,11 +200,7 @@ function registerFlowCardsWithKind(driver, { conditions, actions }) {
     try {
       const card = driver.homey.flow.getActionCard(action.id);
       card.registerRunListener(async (/** @type {CardArgs} */ args) => runAction(args, action));
-      const autocomplete = AUTOCOMPLETE[/** @type {string} */ (action.kind)];
-      if (autocomplete) {
-        card.registerArgumentAutocompleteListener(autocomplete.arg,
-          async (/** @type {string} */ query, /** @type {CardArgs} */ args) => autocomplete.choices(args.device, query));
-      }
+      registerAutocomplete(card, action);
     } catch (error) {
       driver.error(`Failed to register action ${action.id}:`, error);
     }

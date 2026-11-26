@@ -113,6 +113,20 @@
             "type": "number"
           }
         }
+      },
+      "feature-value-is": {
+        "args": {
+          "feature": {
+            "type": "autocomplete"
+          },
+          "comparison": {
+            "type": "dropdown",
+            "values": ["above", "below"]
+          },
+          "value": {
+            "type": "number"
+          }
+        }
       }
     },
     "actions": {

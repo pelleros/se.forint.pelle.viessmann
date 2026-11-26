@@ -78,6 +78,11 @@ const FLOW_CONDITIONS = {
     capability: capabilityOf(PATHS.HOT_WATER_TEMP),
     kind: 'compare',
   },
+  // Any numeric Viessmann feature by name (featureCards.js); every device, also in standard Flows
+  FEATURE_VALUE_IS: {
+    id: 'feature-value-is',
+    kind: 'compareFeature',
+  },
 };
 
 // Actions write through the capability's command (see FeatureMapper.commandTarget)

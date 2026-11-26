@@ -301,6 +301,94 @@
         "fr": "Utilise la dernière valeur transmise par Viessmann (mise à jour toutes les quelques minutes). La carte échoue tant qu'aucune valeur n'est connue.",
         "sv": "Använder det senaste värdet från Viessmann (uppdateras med några minuters mellanrum). Kortet misslyckas så länge inget värde är känt."
       }
+    },
+    {
+      "id": "feature-value-is",
+      "title": {
+        "en": "Viessmann value !{{is|is not}} above/below",
+        "de": "Viessmann-Wert !{{ist|ist nicht}} über/unter",
+        "nl": "Viessmann-waarde !{{is|is niet}} boven/onder",
+        "fr": "La valeur Viessmann !{{est|n'est pas}} au-dessus/en dessous",
+        "sv": "Viessmann-värdet !{{är|är inte}} över/under"
+      },
+      "titleFormatted": {
+        "en": "Viessmann value [[feature]] !{{is|is not}} [[comparison]] [[value]]",
+        "de": "Viessmann-Wert [[feature]] !{{ist|ist nicht}} [[comparison]] [[value]]",
+        "nl": "Viessmann-waarde [[feature]] !{{is|is niet}} [[comparison]] [[value]]",
+        "fr": "La valeur Viessmann [[feature]] !{{est|n'est pas}} [[comparison]] [[value]]",
+        "sv": "Viessmann-värdet [[feature]] !{{är|är inte}} [[comparison]] [[value]]"
+      },
+      "args": [
+        {
+          "name": "feature",
+          "type": "autocomplete",
+          "title": {
+            "en": "Viessmann value",
+            "de": "Viessmann-Wert",
+            "nl": "Viessmann-waarde",
+            "fr": "Valeur Viessmann",
+            "sv": "Viessmann-värde"
+          },
+          "placeholder": {
+            "en": "e.g. outside",
+            "de": "z. B. outside",
+            "nl": "bijv. outside",
+            "fr": "p. ex. outside",
+            "sv": "t.ex. outside"
+          }
+        },
+        {
+          "name": "comparison",
+          "type": "dropdown",
+          "title": {
+            "en": "Comparison",
+            "de": "Vergleich",
+            "nl": "Vergelijking",
+            "fr": "Comparaison",
+            "sv": "Jämförelse"
+          },
+          "values": [
+            {
+              "id": "above",
+              "title": {
+                "en": "above",
+                "de": "über",
+                "nl": "boven",
+                "fr": "au-dessus de",
+                "sv": "över"
+              }
+            },
+            {
+              "id": "below",
+              "title": {
+                "en": "below",
+                "de": "unter",
+                "nl": "onder",
+                "fr": "en dessous de",
+                "sv": "under"
+              }
+            }
+          ]
+        },
+        {
+          "name": "value",
+          "type": "number",
+          "title": {
+            "en": "Number",
+            "de": "Zahl",
+            "nl": "Getal",
+            "fr": "Nombre",
+            "sv": "Tal"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Any number your device reports, by its Viessmann name. Values that are updated regularly come from the last update; others are read from Viessmann (one API call, at most once per update interval). The card fails while the value is unknown or when it is not a number.",
+        "de": "Jede Zahl, die das Gerät meldet, unter ihrem Viessmann-Namen. Regelmäßig aktualisierte Werte stammen aus der letzten Aktualisierung; andere werden bei Viessmann abgefragt (ein API-Aufruf, höchstens einmal pro Aktualisierungsintervall). Die Karte schlägt fehl, solange der Wert unbekannt ist oder wenn er keine Zahl ist.",
+        "nl": "Elk getal dat het apparaat meldt, onder de Viessmann-naam. Waarden die regelmatig worden bijgewerkt, komen uit de laatste update; andere worden bij Viessmann opgevraagd (één API-aanroep, hoogstens één keer per update-interval). De kaart mislukt zolang de waarde onbekend is of als die geen getal is.",
+        "fr": "Tout nombre que l'appareil transmet, sous son nom Viessmann. Les valeurs mises à jour régulièrement proviennent de la dernière mise à jour ; les autres sont lues chez Viessmann (un appel API, au plus une fois par intervalle de mise à jour). La carte échoue tant que la valeur est inconnue ou si ce n'est pas un nombre.",
+        "sv": "Valfritt tal som enheten rapporterar, under sitt Viessmann-namn. Värden som uppdateras regelbundet kommer från den senaste uppdateringen; andra hämtas från Viessmann (ett API-anrop, högst en gång per uppdateringsintervall). Kortet misslyckas så länge värdet är okänt eller om det inte är ett tal."
+      }
     }
   ],
   "actions": [

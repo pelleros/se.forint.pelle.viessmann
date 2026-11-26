@@ -14,6 +14,7 @@ jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth
 const ViessmannDriver = require('../driver');
 const ViessmannDevice = require('../device');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
+const { polledFixtureDevice } = require('../../../test/helpers/polledFixtureDevice');
 const {
   CONDITIONS, TRIGGERS, ACTIONS, AUTOCOMPLETE, checkCondition, fireValueTriggers, runAction,
 } = require('../flowHandlers');
@@ -76,7 +77,7 @@ test('every card kind in flowCards.js has its handler, and every handler a card'
   expect([...new Set(kinds(FLOW_CONDITIONS))].sort()).toEqual(Object.keys(CONDITIONS).sort());
   expect([...new Set(kinds(FLOW_TRIGGERS))].sort()).toEqual(Object.keys(TRIGGERS).sort());
   expect([...new Set(kinds(FLOW_ACTIONS))].sort()).toEqual(Object.keys(ACTIONS).sort());
-  for (const kind of Object.keys(AUTOCOMPLETE)) expect(ACTIONS[kind]).toBeDefined();
+  for (const kind of Object.keys(AUTOCOMPLETE)) expect(ACTIONS[kind] || CONDITIONS[kind]).toBeDefined();
 });
 
 describe('registration', () => {
@@ -92,6 +93,7 @@ describe('registration', () => {
     expect(cards['action/read-feature-number'].autocomplete.arg).toBe('feature');
     expect(cards['action/read-feature-text'].autocomplete.arg).toBe('feature');
     expect(cards['action/run-feature-command'].autocomplete.arg).toBe('command');
+    expect(cards['condition/feature-value-is'].autocomplete.arg).toBe('feature');
     for (const { id } of Object.values(FLOW_TRIGGERS)) expect(cards[`trigger/${id}`]).toBeDefined();
     expect(driver.getValueTriggers('measure_pump_active.circuit0').map(({ mapping }) => mapping.id))
       .toEqual(['circulation-pump-started', 'circulation-pump-stopped']);
@@ -257,4 +259,31 @@ describe('conditions', () => {
 test('a kind without a handler is refused', async () => {
   await expect(runAction({ device: {} }, { id: 'x', kind: 'nope' })).rejects.toThrow('Unknown Flow card kind: nope (x)');
   expect(() => checkCondition({ device: {} }, { id: 'y', kind: 'nope' })).toThrow('Unknown Flow card kind: nope (y)');
+});
+
+describe('the generic condition on any numeric value', () => {
+  const { FEATURE_VALUE_IS } = FLOW_CONDITIONS;
+  const outside = { name: 'heating.sensors.temperature.outside', path: 'heating.sensors.temperature.outside', property: 'value' };
+
+  test('compares the value (Vitocal 222: outside -3.2 °C) without an API call for a polled value', async () => {
+    const { device } = await polledFixtureDevice();
+    await expect(checkCondition({
+      device, feature: outside, comparison: 'above', value: -5,
+    }, FEATURE_VALUE_IS)).resolves.toBe(true);
+    await expect(checkCondition({
+      device, feature: outside, comparison: 'below', value: -5,
+    }, FEATURE_VALUE_IS)).resolves.toBe(false);
+    expect(device.oAuth2Client.getFeatures).not.toHaveBeenCalled();
+  });
+
+  test('fails when the value is not a number, and offers numbers only', async () => {
+    const { device } = await polledFixtureDevice();
+    const pump = { name: 'pump', path: 'heating.circuits.0.circulation.pump', property: 'status' };
+    await expect(checkCondition({
+      device, feature: pump, comparison: 'above', value: 0,
+    }, FEATURE_VALUE_IS)).rejects.toThrow('is not a number');
+    // The outside sensor reports its value (a number) and its status (text): only the number
+    const choices = await AUTOCOMPLETE.compareFeature.choices(device, 'sensors temperature outside');
+    expect(choices.map((choice) => choice.name)).toEqual(['heating.sensors.temperature.outside']);
+  });
 });

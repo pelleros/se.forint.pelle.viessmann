@@ -2,8 +2,8 @@ Hol deine Viessmann-Heizung in Homey. Ob Wärmepumpe, Gasheizung oder Brennstoff
 
 Viessmann verlangt, dass jeder Nutzer eine eigene, kostenlose Client ID anlegt. Die Einrichtung dauert etwa fünf Minuten:
 1. Installiere die App und öffne ihre Einstellungen in Homey. Dort findest du einen Link zum Viessmann-Entwicklerportal und die Redirect URI zum Kopieren.
-2. Melde dich im Entwicklerportal mit deinem ViCare-Konto an und lege einen neuen Client an. Nenne ihn Homey, schalte Google reCAPTCHA aus und füge die Redirect URI genau so ein, wie sie angezeigt wird.
-3. Kopiere die neue Client ID in die App-Einstellungen und speichere sie.
+2. Melde dich im Entwicklerportal mit deinem ViCare-Konto an und lege einen neuen Client an. Nenne ihn Homey, schalte Google reCAPTCHA aus und füge die Redirect URI genau so ein, wie sie angezeigt wird. Viessmann erlaubt nur einen Client pro Konto: Hast du schon einen (zum Beispiel für Home Assistant), nimm diesen und füge ihm die Redirect URI hinzu.
+3. Kopiere die Client ID in die App-Einstellungen und speichere sie.
 4. Füge ein neues Gerät hinzu, wähle Viessmann ViCare und melde dich mit deinem ViCare-Konto an.
 
 Falls etwas nicht klappt:

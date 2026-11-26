@@ -2,7 +2,7 @@
 
 'use strict';
 
-// The error states (paid API package, used-up quota, offline gateway) and a response with odd
+// The error states (access refused, used-up quota, offline gateway) and a response with odd
 // values, for a few devices from PyViCare (test/fixtures/pyvicare/) after the update from
 // 1.0.14: the device says what is wrong, polls again when it should, keeps its capabilities and
 // values, and recovers with the next good response.
@@ -26,10 +26,10 @@ const NOW = Date.parse('2026-01-15T12:00:00Z');
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 const ERROR_STATES = [
-  ['a paid API package is required (HTTP 402)',
+  ['Viessmann refuses access (HTTP 402)',
     () => apiError({ status: 402, body: { errorType: 'PACKAGE_NOT_PAID_FOR', message: 'User does not have access to the given feature.' } }),
-    'Viessmann requires a paid API package for this account, so no data can be read. The app cannot change this; please contact Viessmann.',
-    6 * HOUR],
+    "Viessmann is refusing access to this account's data. This is often a temporary problem at Viessmann; the app tries again every hour. If it lasts, contact Viessmann's developer support.",
+    HOUR],
   ['the quota is used up (HTTP 429)',
     () => apiError({ status: 429, headers: { get: (name) => (name.toLowerCase() === 'retry-after' ? '3600' : null) } }),
     'Viessmann API limit reached, updates resume at 14:02.',

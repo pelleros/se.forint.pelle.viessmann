@@ -5,7 +5,7 @@
     "bodytext": "Mit dem kostenlosen API-Tarif von Viessmann braucht jeder Nutzer eine eigene Client ID. Das dauert etwa fünf Minuten:",
     "steps": {
       "portal": "Öffne das Viessmann-Entwicklerportal und melde dich mit deinem ViCare-Konto an (dieselbe E-Mail-Adresse und dasselbe Passwort wie in der ViCare-App):",
-      "client": "Lege einen neuen Client an und gib ihm einen Namen, zum Beispiel Homey.",
+      "client": "Lege einen neuen Client an und gib ihm einen Namen, zum Beispiel Homey. Viessmann erlaubt nur einen Client pro Konto: Hast du schon einen (zum Beispiel für Home Assistant), nimm diesen und füge ihm die Redirect URI aus Schritt 4 hinzu.",
       "recaptcha": "Schalte Google reCAPTCHA für den Client aus. Solange es eingeschaltet ist, funktioniert die Anmeldung aus Homey nicht.",
       "redirect": "Trage als Redirect URI genau diese Adresse ein, ohne zusätzliche oder fehlende Zeichen:",
       "copy": "Kopieren",
@@ -65,10 +65,11 @@
   },
   "pair": {
     "no_client_id": "Es ist noch keine Viessmann Client ID gespeichert. Öffne die Einstellungen der App Viessmann ViCare, lege dort wie beschrieben eine Client ID an, speichere sie und füge das Gerät dann erneut hinzu.",
-    "api_limit": "Das Limit der Viessmann-API ist erreicht. Versuche es nach __time__ Uhr erneut."
+    "api_limit": "Das Limit der Viessmann-API ist erreicht. Versuche es nach __time__ Uhr erneut.",
+    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; versuche es später erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann."
   },
   "errors": {
-    "package_not_paid": "Viessmann verlangt für dieses Konto ein kostenpflichtiges API-Paket, daher können keine Daten gelesen werden. Die App kann das nicht ändern; bitte wende dich an Viessmann.",
+    "package_not_paid": "Viessmann verweigert den Zugriff auf die Daten dieses Kontos. Das ist oft ein vorübergehendes Problem bei Viessmann; die App versucht es jede Stunde erneut. Hält es an, wende dich an den Entwickler-Support von Viessmann.",
     "gateway_offline": "Das Viessmann-Gateway ist offline. Prüfe, ob es Strom und eine Internetverbindung hat.",
     "api_limit": "Limit der Viessmann-API erreicht, ab __time__ Uhr wird wieder aktualisiert."
   },

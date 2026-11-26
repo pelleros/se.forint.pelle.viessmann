@@ -2,8 +2,8 @@ Koppla din Viessmann-värme till Homey. Oavsett om du har värmepump, gaspanna e
 
 Viessmann kräver att varje användare skapar ett eget, kostnadsfritt Client ID, så det tar ungefär fem minuter att komma igång:
 1. Installera appen och öppna dess inställningar i Homey. Där finns en länk till Viessmanns utvecklarportal och redirect URI:n, klar att kopiera.
-2. Logga in på utvecklarportalen med ditt ViCare-konto och lägg till en ny klient. Döp den till Homey, stäng av Google reCAPTCHA och klistra in redirect URI:n exakt som den visas.
-3. Kopiera det nya Client ID:t till appens inställningar och spara.
+2. Logga in på utvecklarportalen med ditt ViCare-konto och lägg till en ny klient. Döp den till Homey, stäng av Google reCAPTCHA och klistra in redirect URI:n exakt som den visas. Viessmann tillåter bara en klient per konto: har du redan en (till exempel för Home Assistant), använd den och lägg till redirect URI:n i den.
+3. Kopiera Client ID:t till appens inställningar och spara.
 4. Lägg till en ny enhet, välj Viessmann ViCare och logga in med ditt ViCare-konto.
 
 Om något inte fungerar:

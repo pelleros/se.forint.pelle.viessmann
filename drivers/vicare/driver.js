@@ -31,10 +31,11 @@ const {
 } = require('../../lib/apiError');
 const { apiStateMessage } = require('../../lib/errorMessages');
 
-// Least time between polls while one of these states lasts. A paid package does not appear
-// by itself; a gateway is often back within minutes, and a successful poll clears the state.
+// Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
+// is often a temporary fault on its side that is fixed within hours; a gateway is often back
+// within minutes, and a successful poll clears the state.
 const STATE_RETRY_DELAYS = {
-  [API_STATES.PACKAGE_NOT_PAID]: 6 * 60 * 60 * 1000,
+  [API_STATES.PACKAGE_NOT_PAID]: 60 * 60 * 1000,
   [API_STATES.GATEWAY_OFFLINE]: 5 * 60 * 1000,
 };
 
@@ -188,7 +189,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
         this.error(`Error polling device ${deviceKey}:`, error);
-        // Say right away what the user should know: a paid API package is required, the quota
+        // Say right away what the user should know: Viessmann refuses access, the quota
         // is used up (when its reset is known), the gateway is offline, or only a new login
         // helps. Everything else is retried with backoff.
         const stateMessage = apiStateMessage(this.homey, error, {

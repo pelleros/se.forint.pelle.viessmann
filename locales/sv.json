@@ -5,7 +5,7 @@
     "bodytext": "Med Viessmanns kostnadsfria API-abonnemang behöver varje användare ett eget Client ID. Det tar ungefär fem minuter:",
     "steps": {
       "portal": "Öppna Viessmanns utvecklarportal och logga in med ditt ViCare-konto (samma e-postadress och lösenord som i ViCare-appen):",
-      "client": "Lägg till en ny klient och ge den ett namn, till exempel Homey.",
+      "client": "Lägg till en ny klient och ge den ett namn, till exempel Homey. Viessmann tillåter bara en klient per konto: har du redan en (till exempel för Home Assistant), använd den och lägg till redirect URI:n från steg 4 i den.",
       "recaptcha": "Stäng av Google reCAPTCHA för klienten. Inloggningen från Homey fungerar inte så länge det är påslaget.",
       "redirect": "Ange exakt den här adressen som redirect URI, utan extra eller saknade tecken:",
       "copy": "Kopiera",
@@ -65,10 +65,11 @@
   },
   "pair": {
     "no_client_id": "Inget Viessmann Client ID är sparat ännu. Öppna inställningarna för appen Viessmann ViCare, skapa och spara ett Client ID enligt stegen där och lägg sedan till enheten igen.",
-    "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__."
+    "api_limit": "Viessmanns API-gräns är nådd. Försök igen efter kl. __time__.",
+    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; försök igen senare. Om det håller i sig, kontakta Viessmanns utvecklarsupport."
   },
   "errors": {
-    "package_not_paid": "Viessmann kräver ett betalt API-paket för det här kontot, så inga data kan läsas. Appen kan inte ändra det; kontakta Viessmann.",
+    "package_not_paid": "Viessmann nekar åtkomst till det här kontots data. Det är ofta ett tillfälligt problem hos Viessmann; appen försöker igen varje timme. Om det håller i sig, kontakta Viessmanns utvecklarsupport.",
     "gateway_offline": "Viessmann-gatewayen är offline. Kontrollera att den har ström och internetanslutning.",
     "api_limit": "Viessmanns API-gräns är nådd, uppdateringarna fortsätter kl. __time__."
   },

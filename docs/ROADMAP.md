@@ -26,7 +26,7 @@ What's planned for the Viessmann ViCare app for Homey. This is a hobby project m
 - A setting for how often the app updates.
 - Several heating circuits as separate Homey devices, each in its own zone.
 
-From 1.1.0 the app will require Homey 13.5 or later. Homeys on older versions keep the app version they already have.
+From 2.0.0 the app will require Homey 13.5 or later. Homeys on older versions keep the app version they already have.
 
 ## Under consideration
 

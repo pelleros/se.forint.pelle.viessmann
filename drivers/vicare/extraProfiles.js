@@ -26,8 +26,9 @@
 // a Viessmann device as a device of its own, for Google Home, voice assistants, the Matter bridge
 // and zones of their own:
 //   circuit   a heating circuit as a thermostat: its set point, its room temperature (only from
-//             a real room sensor) and Homey's standard mode (heat, off; cool and auto only where
-//             the circuit can cool)
+//             a real room sensor), Homey's standard mode (heat, off; cool and auto only where
+//             the circuit can cool), and, as on the ViCare device, every operating mode the
+//             circuit has (forced normal and reduced too) and its program
 //   hotWater  hot water as a thermostat: its set point, the cylinder temperature, and heat/off
 //             where the hot water can be switched off
 //   room      a room of ViCare Smart Climate, read-only: temperature, humidity and set point
@@ -38,7 +39,11 @@
 
 const { PATHS } = require('./config');
 const { STANDARD_MODES, standardModesFor } = require('./config/modes');
-const { featureMapper, readPropertyValue, isConnected } = require('./featureMapper');
+const { PROGRAMS, programsFor } = require('./config/program');
+const {
+  featureMapper, readPropertyValue, isConnected, mergeOperatingModes,
+} = require('./featureMapper');
+const { withModeTitles } = require('./capabilitySetup');
 const { resolveCircuitPath, normalizeCircuitFeatures, featureEntries } = require('./heatingCircuit');
 
 /** @typedef {'circuit' | 'hotWater' | 'room'} ExtraKind */
@@ -59,8 +64,9 @@ const { resolveCircuitPath, normalizeCircuitFeatures, featureEntries } = require
  * A value of an extra device and where it comes from.
  * @typedef {object} ExtraCapability
  * @property {string} name the capability on the extra device
- * @property {string[]} paths the feature paths that feed it (circuit-normalized; a room's with its
- *   index): one of them stored or reported gives the device the capability
+ * @property {string[]} paths the feature paths that feed it or that its writes go to
+ *   (circuit-normalized; a room's with its index), each stored and polled: one of them stored or
+ *   reported gives the device the capability, and every response keeps their commands current
  * @property {string} [source] the configured capability (config/) whose value it shows and
  *   through which it is written
  * @property {(value: any) => any} [fromSource] the value it shows for the source's value
@@ -107,6 +113,9 @@ const TITLES = {
   thermostatMode: {
     en: 'Thermostat mode', de: 'Thermostatmodus', nl: 'Thermostaatmodus', fr: 'Mode du thermostat', sv: 'Termostatläge',
   },
+  operatingMode: {
+    en: 'Operating mode', de: 'Betriebsart', nl: 'Bedrijfsmodus', fr: 'Mode de fonctionnement', sv: 'Driftläge',
+  },
   humidity: {
     en: 'Humidity', de: 'Luftfeuchtigkeit', nl: 'Luchtvochtigheid', fr: 'Humidité', sv: 'Luftfuktighet',
   },
@@ -151,6 +160,18 @@ function limitsOf(source, context) {
   return { min, max, step };
 }
 
+/**
+ * The operating modes the circuit's picker offers, as the ViCare device's: the configured modes
+ * the circuit has, in their order, then its other modes (forced normal, forced reduced, ...),
+ * titled where the app knows them. Without known modes, the configured ones.
+ * @param {ExtraContext} context
+ */
+function operatingModeValues(context) {
+  const configured = featureMapper.configuredOptions('thermostat_mode.heating').values;
+  const circuitModes = withModeTitles(context.operatingModes);
+  return circuitModes.length === 0 ? configured : mergeOperatingModes(configured, circuitModes);
+}
+
 /** @type {Record<'circuit' | 'hotWater', ExtraCapability[]>} */
 const CONFIGURED = {
   circuit: [
@@ -176,8 +197,32 @@ const CONFIGURED = {
       options: (context) => ({
         title: TITLES.thermostatMode,
         values: standardModesFor(context.operatingModes).map(({ id, title }) => ({ id, title })),
+        // Not shown on the device, as on the ViCare device: the operating mode below offers every
+        // mode of the circuit. Google Home, voice assistants, the Matter bridge and Flows use it
+        uiComponent: null,
         preventInsights: true,
       }),
+    },
+    {
+      // Every mode of the circuit, as the ViCare device's operating mode
+      name: 'thermostat_mode.heating',
+      source: 'thermostat_mode.heating',
+      paths: [PATHS.HEATING_CIRCUIT_0_MODE],
+      writable: true,
+      options: (context) => ({
+        ...featureMapper.configuredOptions('thermostat_mode.heating'), title: TITLES.operatingMode, values: operatingModeValues(context),
+      }),
+    },
+    {
+      // The ViCare device's program picker, with the circuit's own programs: the active program,
+      // and each program's own feature, which a switch writes to. They are polled with the rest
+      // (no extra call): which of a program's commands can run depends on the program running
+      name: 'thermostat_mode.heatingProgram',
+      source: 'thermostat_mode.heatingProgram',
+      paths: [PATHS.HEATING_CIRCUIT_0_PROGRAM, ...PROGRAMS.flatMap((program) => program.paths)],
+      writable: true,
+      available: (context) => (context.features || []).includes(PATHS.HEATING_CIRCUIT_0_PROGRAM) && programsFor(context.features).length > 0,
+      options: (context) => sourceOptions('thermostat_mode.heatingProgram', context),
     },
   ],
   hotWater: [

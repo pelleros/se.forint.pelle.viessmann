@@ -27,7 +27,9 @@
 // Pairing: a view that says who needs the device (`intro`), the Client ID when none is saved,
 // the Viessmann login (skipped when the app already has one: the devices share it) and the
 // device list (extraPairing.js), which lists only what the account has. Polling is the ViCare
-// driver's (driver.js), which each device joins.
+// driver's (driver.js), which each device joins. A kind with Flow cards of its own (flowCards.js
+// → EXTRA_FLOW_CARDS: the heating circuit's operating mode and program) has them registered here,
+// with the ViCare driver's handlers (flowHandlers.js).
 
 const { OAuth2Driver } = require('homey-oauth2app');
 const { translate } = require('../../lib/errorMessages');
@@ -36,6 +38,8 @@ const {
 } = require('./pairSession');
 const { sourceDevices, extraEntries, withUniqueNames } = require('./extraPairing');
 const { POLL_DRIVER } = require('./extraDevice');
+const { EXTRA_FLOW_CARDS } = require('./flowCards');
+const { registerFlowCards, valueTriggerCards } = require('./flowHandlers');
 
 class ExtraDriver extends OAuth2Driver {
 
@@ -52,6 +56,26 @@ class ExtraDriver extends OAuth2Driver {
 
   /** @type {(key: string, tags?: Record<string, unknown>) => string} */
   t = (key, tags) => translate(this.homey, key, tags);
+
+  /** @type {Map<string, { card: any, mapping: any }[]>} trigger cards with a kind, per capability */
+  _valueTriggers = new Map();
+
+  // The kind's own Flow cards; a card that cannot be registered is logged, the others work
+  async onOAuth2Init() {
+    const cards = EXTRA_FLOW_CARDS[this.kind];
+    if (!cards) return;
+    try {
+      this._valueTriggers = valueTriggerCards(this.homey, Object.values(cards.triggers));
+    } catch (error) {
+      this.error('Could not register the trigger cards:', error);
+    }
+    registerFlowCards(this, { conditions: Object.values(cards.conditions), actions: Object.values(cards.actions) });
+  }
+
+  // The trigger cards with a kind for a capability, as { card, mapping } (flowHandlers.js)
+  getValueTriggers(capabilityName) {
+    return this._valueTriggers.get(capabilityName) || [];
+  }
 
   /** @returns {any} the ViCare driver (driver.js) */
   pollHost() {

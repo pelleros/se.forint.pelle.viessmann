@@ -6,9 +6,9 @@ Get it set up:
 * Now add your new Viessmann device in Homey and log in with your ViCare app user when asked to.
 
 
-Heating circuits: the app uses heating circuit 1, or the first enabled circuit when the installation has no circuit 1. You can choose another circuit in the device's advanced settings. One Homey device controls one heating circuit. Circuits are counted from 1, as in the ViCare app.
+Heating circuits: the app uses heating circuit 1, or the first enabled circuit when the installation has no circuit 1. You can choose another circuit in the device's advanced settings. One ViCare device controls one heating circuit; to control each circuit separately, add a *Heating circuit (thermostat)* device for each (see below). Circuits are counted from 1, as in the ViCare app.
 
-Optional extra devices: in "Add device" the app also offers *Heating circuit (thermostat)*, *Hot water (thermostat)* and *Smart Climate room*. Add them only if you need them: a heating circuit as a thermostat of its own (another zone, Google Home, voice), hot water you want to control with Google Home or by voice, or the rooms of ViCare Smart Climate (read-only). They use the same Viessmann login and share the updates of the ViCare device, so heating circuits and hot water cost no extra API calls; rooms are read every 15 minutes. See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md#optional-extra-devices).
+Optional extra devices: in "Add device" the app also offers *Heating circuit (thermostat)*, *Hot water (thermostat)* and *Smart Climate room*. Add them only if you need them: a heating circuit as a thermostat of its own (another zone, Google Home, voice, or its own operating mode and program, forced modes included), hot water you want to control with Google Home or by voice, or the rooms of ViCare Smart Climate (read-only). They use the same Viessmann login and share the updates of the ViCare device, so heating circuits and hot water cost no extra API calls; rooms are read every 15 minutes. See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md#optional-extra-devices).
 
 ## Development
 

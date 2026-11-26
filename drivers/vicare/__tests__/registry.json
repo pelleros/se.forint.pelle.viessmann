@@ -1,7 +1,7 @@
 {
   "_comment": [
     "Every user-facing identifier this app ships. registry.test.js fails if config.js (capabilities)",
-    "or driver.flow.compose.json (flow cards) no longer provides one of them: renaming or removing a",
+    "or a driver.flow.compose.json (flow cards, app-wide ids) no longer provides one of them: renaming or removing a",
     "capability deletes the user's Insights history and breaks Flows, and changing a flow card id,",
     "argument, dropdown value or token breaks saved Flows. Device settings (driver.compose.json) are",
     "guarded the same way: renaming one, changing its type or removing a dropdown value resets the value",
@@ -191,6 +191,20 @@
       },
       "holiday-is-active": {
         "args": {}
+      },
+      "circuit-operating-mode-is": {
+        "args": {
+          "mode": {
+            "type": "autocomplete"
+          }
+        }
+      },
+      "circuit-program-is": {
+        "args": {
+          "program": {
+            "type": "autocomplete"
+          }
+        }
       }
     },
     "actions": {
@@ -375,6 +389,20 @@
             "type": "number"
           }
         }
+      },
+      "set-circuit-operating-mode": {
+        "args": {
+          "mode": {
+            "type": "autocomplete"
+          }
+        }
+      },
+      "set-circuit-program": {
+        "args": {
+          "program": {
+            "type": "autocomplete"
+          }
+        }
       }
     },
     "triggers": {
@@ -468,6 +496,18 @@
         "tokens": {
           "program": "string"
         }
+      },
+      "circuit-operating-mode-changed": {
+        "args": {},
+        "tokens": {
+          "mode": "string"
+        }
+      },
+      "circuit-program-changed": {
+        "args": {},
+        "tokens": {
+          "program": "string"
+        }
       }
     }
   },
@@ -492,7 +532,7 @@
     "heating-circuit": {
       "class": "thermostat",
       "dataId": "<installationId>-<gatewaySerial>-<deviceId>-circuit-<part>",
-      "capabilities": ["target_temperature", "measure_temperature", "thermostat_mode"],
+      "capabilities": ["target_temperature", "measure_temperature", "thermostat_mode", "thermostat_mode.heating", "thermostat_mode.heatingProgram"],
       "store": ["installationId", "gatewaySerial", "deviceId", "roles", "heatingCircuitId", "features", "constraints", "commandMetadata", "operatingModes", "version"]
     },
     "hot-water": {

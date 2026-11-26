@@ -2,27 +2,54 @@
 
 'use strict';
 
-// driver.flow.compose.json is edited by hand (there is no generator). These checks replace the
-// old "generated file is up to date" check: every card is complete, its texts are in app
-// languages only, its formatted title uses its arguments, and its $filter offers it only on
-// devices that have the capability the card works on (see flowCards.js).
+// The drivers' driver.flow.compose.json files are edited by hand (there is no generator): the
+// ViCare driver's, and the heating circuit's. These checks replace the old "generated file is up
+// to date" check: every card is complete, its texts are in app languages only, its formatted
+// title uses its arguments, and its $filter offers it only on devices of its driver that have
+// the capability the card works on (see flowCards.js).
+
+// The extra devices' profiles reach homey-oauth2app through capabilitySetup.js
+// eslint-disable-next-line global-require
+jest.mock('homey-oauth2app', () => require('../../../test/helpers/fakeHomeyOAuth2App'));
 
 const fs = require('fs');
 const path = require('path');
-const flowCompose = require('../driver.flow.compose.json');
 const { FEATURES, DERIVED } = require('../config');
-const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('../flowCards');
+const {
+  FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS, EXTRA_FLOW_CARDS,
+} = require('../flowCards');
+const { profileOf } = require('../extraProfiles');
+const { EXTRA_DRIVERS } = require('../extraPairing');
 
+const DRIVERS_DIR = path.join(__dirname, '../..');
 const LANGUAGES = fs.readdirSync(path.join(__dirname, '../../../locales'))
   .filter((file) => file.endsWith('.json'))
   .map((file) => path.basename(file, '.json'));
-const RUNTIME = { conditions: FLOW_CONDITIONS, actions: FLOW_ACTIONS, triggers: FLOW_TRIGGERS };
-const producedCapabilities = new Set([...Object.values(FEATURES)
-  .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)),
-...DERIVED.map((capability) => capability.capabilityName)]);
+const GROUPS = ['conditions', 'actions', 'triggers'];
 
-const cards = Object.entries(RUNTIME).flatMap(([group]) => (flowCompose[group] || [])
-  .map((card) => [`${group}/${card.id}`, group, card]));
+// Per driver with Flow cards: its compose file, the runtime mapping of its cards and the
+// capabilities its devices can have
+const DRIVERS = {
+  vicare: {
+    runtime: { conditions: FLOW_CONDITIONS, actions: FLOW_ACTIONS, triggers: FLOW_TRIGGERS },
+    capabilities: new Set([...Object.values(FEATURES)
+      .flatMap((feature) => feature.capabilities.map((capability) => capability.capabilityName)),
+    ...DERIVED.map((capability) => capability.capabilityName)]),
+  },
+  ...Object.fromEntries(Object.entries(EXTRA_DRIVERS).map(([kind, id]) => [id, {
+    runtime: EXTRA_FLOW_CARDS[kind] || {},
+    capabilities: new Set(profileOf(/** @type {any} */ (kind), { roomId: '0' }).map((capability) => capability.name)),
+  }])),
+};
+const composeOf = (driver) => {
+  const file = path.join(DRIVERS_DIR, driver, 'driver.flow.compose.json');
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  return fs.existsSync(file) ? require(file) : undefined;
+};
+const composes = Object.keys(DRIVERS).map((driver) => [driver, composeOf(driver)]).filter(([, compose]) => compose);
+
+const cards = composes.flatMap(([driver, compose]) => GROUPS.flatMap((group) => (compose[group] || [])
+  .map((card) => [`${driver} ${group}/${card.id}`, driver, group, card])));
 
 // Every translated text of a card: titles, hints, argument titles, dropdown values, tokens
 function texts(card) {
@@ -45,12 +72,18 @@ function texts(card) {
   return found;
 }
 
-test('the compose file has only conditions, actions and triggers', () => {
-  expect(Object.keys(flowCompose).sort()).toEqual(['actions', 'conditions', 'triggers']);
-  expect(cards.length).toBeGreaterThan(0);
+test.each(composes)('the compose file of %s has only conditions, actions and triggers', (driver, compose) => {
+  expect(GROUPS).toEqual(expect.arrayContaining(Object.keys(compose)));
+  expect(Object.values(compose).flat().length).toBeGreaterThan(0);
 });
 
-describe.each(cards)('%s', (name, group, card) => {
+test('the ViCare driver and the heating circuit have Flow cards of their own', () => {
+  expect(composes.map(([driver]) => driver).sort()).toEqual(['heating-circuit', 'vicare']);
+});
+
+describe.each(cards)('%s', (name, driver, group, card) => {
+  const { runtime, capabilities: driverCapabilities } = DRIVERS[driver];
+
   test('every text is in English and only in app languages', () => {
     for (const [where, text] of texts(card)) {
       expect({ where, languages: Object.keys(text) }).toEqual({ where, languages: expect.arrayContaining(['en']) });
@@ -72,7 +105,7 @@ describe.each(cards)('%s', (name, group, card) => {
   });
 
   test('$filter offers the card only on devices with the capability it works on', () => {
-    const mapping = Object.values(RUNTIME[group]).find((runtime) => runtime.id === card.id);
+    const mapping = Object.values(runtime[group]).find((candidate) => candidate.id === card.id);
     expect(mapping).toBeDefined();
     const capabilities = mapping.anyCapability || (mapping.capability ? [mapping.capability] : []);
     if (capabilities.length === 0) {
@@ -82,11 +115,11 @@ describe.each(cards)('%s', (name, group, card) => {
       return;
     }
     expect(card.$filter).toBe(`capabilities=${capabilities.join('|')}`);
-    for (const capability of capabilities) expect(producedCapabilities.has(capability)).toBe(true);
+    for (const capability of capabilities) expect({ capability, produced: driverCapabilities.has(capability) }).toEqual({ capability, produced: true });
   });
 
   test('new cards have their texts in every app language', () => {
-    const mapping = Object.values(RUNTIME[group]).find((runtime) => runtime.id === card.id);
+    const mapping = Object.values(runtime[group]).find((candidate) => candidate.id === card.id);
     // The cards of 1.0.16 and before are translated later; every card with a kind is new
     if (!mapping?.kind) return;
     for (const [where, text] of texts(card)) {

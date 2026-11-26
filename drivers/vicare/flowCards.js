@@ -23,9 +23,11 @@
 'use strict';
 
 // Runtime mapping of the Flow cards: which capability each card reads, writes or fires for.
-// The cards themselves (titles in every language, arguments, $filter) are defined in
-// driver.flow.compose.json, which is edited by hand. registry.test.js checks that both list
-// the same cards and flowCompose.test.js that each card's $filter is its capability.
+// The cards themselves (titles in every language, arguments, $filter) are defined in each
+// driver's driver.flow.compose.json, which is edited by hand: the ViCare device's below, and the
+// extra devices' (EXTRA_FLOW_CARDS, per kind). registry.test.js checks that both list the same
+// cards and flowCompose.test.js that each card's $filter is its capability. Card ids are
+// app-wide and frozen once released: an extra device's cards have ids of their own.
 
 const { PATHS, getCapability } = require('./config');
 
@@ -325,4 +327,42 @@ const FLOW_TRIGGERS = {
   },
 };
 
-module.exports = { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS };
+// The heating circuit devices' cards (drivers/heating-circuit/driver.flow.compose.json): the
+// circuit's own operating mode and program, each a choice of the circuit's own values
+const OPERATING_MODE = 'thermostat_mode.heating';
+const PROGRAM = 'thermostat_mode.heatingProgram';
+/** @type {{ conditions: Record<string, FlowCardMapping>, actions: Record<string, FlowCardMapping>, triggers: Record<string, FlowCardMapping> }} */
+const CIRCUIT_FLOW_CARDS = {
+  conditions: {
+    OPERATING_MODE_IS: {
+      id: 'circuit-operating-mode-is', capability: OPERATING_MODE, kind: 'chooseValue', argument: 'mode',
+    },
+    PROGRAM_IS: {
+      id: 'circuit-program-is', capability: PROGRAM, kind: 'chooseValue', argument: 'program',
+    },
+  },
+  actions: {
+    SET_OPERATING_MODE: {
+      id: 'set-circuit-operating-mode', capability: OPERATING_MODE, kind: 'chooseValue', argument: 'mode',
+    },
+    SET_PROGRAM: {
+      id: 'set-circuit-program', capability: PROGRAM, kind: 'chooseValue', argument: 'program',
+    },
+  },
+  triggers: {
+    OPERATING_MODE_CHANGED: {
+      id: 'circuit-operating-mode-changed', capability: OPERATING_MODE, kind: 'valueChanged', token: 'mode',
+    },
+    PROGRAM_CHANGED: {
+      id: 'circuit-program-changed', capability: PROGRAM, kind: 'valueChanged', token: 'program',
+    },
+  },
+};
+
+// The cards of each kind of extra device (extraProfiles.js); kinds without cards have none
+/** @type {Partial<Record<import('./extraProfiles').ExtraKind, typeof CIRCUIT_FLOW_CARDS>>} */
+const EXTRA_FLOW_CARDS = { circuit: CIRCUIT_FLOW_CARDS };
+
+module.exports = {
+  FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS, EXTRA_FLOW_CARDS,
+};

@@ -77,9 +77,17 @@ describe('the shared poll', () => {
       'heating.circuits.1.operating.programs.normalHeating',
       'heating.circuits.1.sensors.temperature.room',
       'heating.circuits.1.operating.modes.active',
+      'heating.circuits.1.operating.programs.active',
+      'heating.circuits.1.operating.programs.reduced',
+      'heating.circuits.1.operating.programs.reducedHeating',
+      'heating.circuits.1.operating.programs.comfort',
+      'heating.circuits.1.operating.programs.comfortHeating',
+      'heating.circuits.1.operating.programs.eco',
     ]]);
     expect(client.getFeatures.mock.calls[0][0]).toMatchObject(IDS);
-    expect(values(device)).toEqual({ target_temperature: expect.any(Number), thermostat_mode: 'heat' });
+    expect(values(device)).toEqual({
+      target_temperature: expect.any(Number), thermostat_mode: 'heat', 'thermostat_mode.heating': 'heating', 'thermostat_mode.heatingProgram': 'normal',
+    });
     expect(setup.vicare._groupInterval(KEY)).toBe(2 * MINUTE);
     expect(setup.vicare.plannedCallsPerDay('session-1')).toBe(720);
     expect(setup.extra.circuit.plannedCallsPerDay('session-1')).toBe(720);

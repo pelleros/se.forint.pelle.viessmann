@@ -79,7 +79,7 @@ function sourceDevices(kind, installations) {
 
 /**
  * Only what the extra device needs of the Viessmann device's metadata: its features, limits and
- * commands on the paths of its values.
+ * commands on the paths of its values and of their writes (each program of the circuit).
  * @param {ExtraKind} kind
  * @param {ExtraContext} context
  * @returns {ExtraContext}

@@ -30,7 +30,7 @@ Homey treats the twin as a separate app. It has its own app settings (its own Cl
 | `npm run homey:twin -- install [--ref <ref>]` | Build, then `homey app install` after confirmation. The twin stays installed, and installing again over it is an upgrade: devices and settings are kept. |
 | `npm run homey:twin -- run [--ref <ref>] [-- --remote]` | Build, then `homey app run` after confirmation, with live logs. **When `run` stops (Ctrl+C), the Homey CLI uninstalls the twin, and the devices paired to it go with it.** Use it only for throwaway pairings, never for the upgrade test. Without `--remote` it needs Docker on your computer. |
 
-Options: `--ref <commit|branch|tag>`, `--poll-minutes <n>` (default 10; never shorter than the ref's own interval), `--keep`, `--allow-default-poll`. Arguments after a second `--` go to the Homey CLI. Don't pass `--clean` to `install` during an upgrade test: it deletes the twin's devices and settings first.
+Options: `--ref <commit|branch|tag>`, `--poll-minutes <n>` (default 10; never shorter than the ref's own interval), `--keep`, `--allow-default-poll`, `--fixture <name>` (see [Fixture mode](#fixture-mode)). Arguments after a second `--` go to the Homey CLI. Don't pass `--clean` to `install` during an upgrade test: it deletes the twin's devices and settings first.
 
 ## API quota
 
@@ -87,8 +87,29 @@ Checks that a new user can pair with the release candidate.
 3. Check that the device gets capabilities that match its type (heat pump, boiler, fuel cell), that values arrive after the first poll, that the operating modes are the device's own, that commands and Flow cards work and that Repair works, as in the upgrade test.
 4. Also try the errors a new user meets: pairing without a Client ID in the twin's settings, and with a wrong one.
 
+## Fixture mode
+
+With `--fixture <name>` the script builds the **fixture twin** instead: the same code, answering from one of the fixtures in `test/fixtures/` instead of the Viessmann API. It needs no Viessmann account, no Client ID and no API quota, so you can see how a gas boiler, a fuel cell, an E3 device or an installation with two heating circuits looks on a real Homey: the device tile, Climate, Insights, the Flow cards it offers and how commands behave.
+
+| | Dev twin | Fixture twin |
+| --- | --- | --- |
+| App ID | `se.forint.pelle.viessmann.dev` | `se.forint.pelle.viessmann.fixture` |
+| Name | ViCare (dev) | ViCare (fixture) |
+| Data | Your Viessmann installation | One fixture, bundled into the twin |
+
+```bash
+npm run homey:twin -- install --fixture vitodens_200_e3
+```
+
+- **Names:** our fixtures by their file name without `_features.json` (`vitocal_222`, `vitodens_200_e3`, `vitovalor_pt2`, …) and PyViCare's as `pyvicare/<file name>` (`pyvicare/Vitocal250A_TwoCircuits`). An unknown name lists them all; the capability matrix (`drivers/vicare/__tests__/capabilityMatrix.json`) shows what each one gets.
+- **Pairing and Repair** ask for a user name and password instead of the Viessmann login: anything works. The twin lists the fixture's installation (PyViCare responses get a made-up one with one heating device).
+- **Polls** return the fixture's features, with fresh timestamps. **Commands** (from the device, Flows or voice) change the fixture's values in the twin, so the next poll shows them; a command the fixture does not offer is refused. Values do not change otherwise. Restarting the twin starts again from the fixture.
+- The fixture and the fixture client come from this checkout (`test/fixtures/`, `scripts/fixtureTwin/`), the app code from `--ref`. That also works for older refs: install `--ref <old version> --fixture <name>`, pair, then install the release candidate with the same `--fixture` to test the upgrade of an installation type you don't have.
+- To try another fixture, remove the fixture twin's devices (or the fixture twin) first: devices keep the identity of the installation they were paired from.
+- How it works: the script copies `scripts/fixtureTwin/FixtureOAuth2Client.js` and the fixture into the twin's `fixtureMode/`, renames `app.js` to `app.store.js` and writes an `app.js` that uses the fixture client, and switches the pairing and Repair views to `login_credentials`. None of this can reach the App Store package: `scripts/checkPackage.js` fails on `fixtureMode/`, `app.store.js`, fixture files and the fixture mode marker.
+
 ## Removing the twin
 
-Uninstall *ViCare (dev)* on the Homey (*More* > *Apps* > *ViCare (dev)* > *Uninstall*). Its devices, their Insights, its app settings and the Flow cards that used them go with it; Flows that used them show the cards as missing. The App Store app, its devices and its Flows are untouched. Optionally delete the twin's client in the Viessmann developer portal.
+Uninstall *ViCare (dev)* (or *ViCare (fixture)*) on the Homey (*More* > *Apps* > *ViCare (dev)* > *Uninstall*). Its devices, their Insights, its app settings and the Flow cards that used them go with it; Flows that used them show the cards as missing. The App Store app, its devices and its Flows are untouched. Optionally delete the twin's client in the Viessmann developer portal.
 
 Build directories are removed after each run unless you passed `--keep` (or the run failed); kept ones are under `$TMPDIR/vicare-dev-twin-*`.

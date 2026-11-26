@@ -13,3 +13,6 @@ documentation/
 
 # Private maintainer notes for Claude Code (never committed)
 /CLAUDE.md
+
+# Coverage reports (npm run test:coverage)
+/coverage/

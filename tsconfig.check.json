@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "checkJs": false,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node", "homey"],
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["app.js", "api.js", "lib/**/*.js", "drivers/**/*.js", "scripts/fixtureTwin/*.js", "types/**/*.d.ts"],
+  "exclude": ["node_modules", ".homeybuild", "**/__tests__/**"]
+}

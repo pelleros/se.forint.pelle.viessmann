@@ -9,6 +9,14 @@
 
 class OAuth2Error extends Error {}
 
+class OAuth2Token {
+
+  constructor(body) {
+    Object.assign(this, body);
+  }
+
+}
+
 class FakeOAuth2Device {
 
   constructor() {
@@ -28,6 +36,7 @@ class FakeOAuth2Device {
     this.setUnavailable = jest.fn(async () => {
       this.__available = false;
     });
+    this.setLastSeenAt = jest.fn(async () => {});
     this.addCapability = jest.fn(async (id) => {
       if (!this.__values.has(id)) this.__values.set(id, null);
     });
@@ -114,4 +123,5 @@ module.exports = {
   OAuth2Device: FakeOAuth2Device,
   OAuth2Driver: FakeOAuth2Driver,
   OAuth2Error,
+  OAuth2Token,
 };

@@ -206,3 +206,42 @@ describe('adding a device whose response has odd entries', () => {
     expect(detectHeatingCircuit(data)).toBe(expected);
   });
 });
+
+describe('last seen', () => {
+  const pairedDevice = () => {
+    const device = new ViessmannDevice();
+    device._features = new ViessmannDriver()._readDeviceMetadata(clone(HEAT_PUMP)).features;
+    device._roles = HEAT_PUMP_ROLES;
+    device._heatingCircuitId = '0';
+    device.driver = { getTriggerCard: jest.fn(() => ({ trigger: jest.fn(async () => {}) })) };
+    return device;
+  };
+
+  test('every successful update tells Homey the device was seen', async () => {
+    const device = pairedDevice();
+
+    await device.onFeaturesUpdated(clone(HEAT_PUMP), false);
+    await device.onFeaturesUpdated(clone(HEAT_PUMP), false);
+
+    expect(device.setLastSeenAt).toHaveBeenCalledTimes(2);
+  });
+
+  test('a response that is no feature list does not', async () => {
+    const device = pairedDevice();
+
+    await device.onFeaturesUpdated({ error: 'garbage' }, false);
+
+    expect(device.setUnavailable).toHaveBeenCalled();
+    expect(device.setLastSeenAt).not.toHaveBeenCalled();
+  });
+
+  test('a rejected setLastSeenAt is logged, and the device stays available', async () => {
+    const device = pairedDevice();
+    device.setLastSeenAt.mockRejectedValue(new Error('device_not_found'));
+
+    await device.onFeaturesUpdated(clone(HEAT_PUMP), false);
+
+    expect(device.error).toHaveBeenCalledWith('Could not set the last seen time:', expect.any(Error));
+    expect(device.setUnavailable).not.toHaveBeenCalled();
+  });
+});

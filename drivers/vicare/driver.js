@@ -24,12 +24,14 @@ const { OAuth2Driver } = require('homey-oauth2app');
 const DevicePoller = require('../../lib/DevicePoller');
 const { FEATURES, PATHS } = require('./config');
 const { detectHeatingCircuit, normalizeCircuitFeatures } = require('./heatingCircuit');
+const { featureMapper } = require('./featureMapper');
 const { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS } = require('./flowCards');
 
 const {
   isAuthenticationFailure, apiErrorState, API_STATES, REPAIR_MESSAGE,
 } = require('../../lib/apiError');
 const { apiStateMessage } = require('../../lib/errorMessages');
+const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
 
 // Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
 // is often a temporary fault on its side that is fixed within hours; a gateway is often back
@@ -126,17 +128,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         flowCard.registerRunListener(async (args, state) => {
           const { device, ...actionArgs } = args;
 
-          // Find the path and capability in FEATURES
-          for (const [path, feature] of Object.entries(FEATURES)) {
-            const capability = feature.capabilities?.find((cap) => cap.capabilityName === action.capability);
-            if (capability) {
-              // Use executeCommand with the path and capability
-              const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
-              return device.executeCommand(path, capability, value);
-            }
-          }
-
-          throw new Error(`No matching capability found for action: ${action.id}`);
+          // The feature path and capability the card writes through
+          const target = featureMapper.commandTarget(action.capability);
+          if (!target) throw new Error(`No matching capability found for action: ${action.id}`);
+          const value = actionArgs[Object.keys(actionArgs)[0]]; // Get the value from the first argument
+          return device.executeCommand(target.path, target.capability, value);
         });
       } catch (error) {
         this.error(`Failed to register action ${action.id}:`, error);
@@ -188,7 +184,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       },
       retryDelay: (error) => Math.max(error?.retryAfterMs || 0, STATE_RETRY_DELAYS[apiErrorState(error)] || 0),
       onError: async (error, consecutiveErrors, { nextPollAt } = {}) => {
-        this.error(`Error polling device ${deviceKey}:`, error);
+        this.error(`Error polling device ${maskDeviceKey(deviceKey)}:`, error);
         // Say right away what the user should know: Viessmann refuses access, the quota
         // is used up (when its reset is known), the gateway is offline, or only a new login
         // helps. Everything else is retried with backoff.
@@ -209,14 +205,14 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     // Registered before the first poll, so that _stopPolling (e.g. when the device is
     // deleted) also stops a poll that is still in progress
     this._devicePollers.set(deviceKey, poller);
-    this.log(`Performing initial poll for device: ${deviceKey}`);
+    this.log(`Performing initial poll for device: ${maskDeviceKey(deviceKey)}`);
     await poller.start();
   }
 
   async _stopPolling(deviceKey) {
     const poller = this._devicePollers.get(deviceKey);
     if (!poller) return;
-    this.log(`Stopping polling for device: ${deviceKey}`);
+    this.log(`Stopping polling for device: ${maskDeviceKey(deviceKey)}`);
     this._devicePollers.delete(deviceKey);
     await poller.stop();
   }
@@ -243,7 +239,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
         await device.setUnavailable(message);
       }
     } catch (error) {
-      this.error(`Could not mark device ${deviceKey} as ${available ? 'available' : 'unavailable'}:`, error);
+      this.error(`Could not mark device ${maskDeviceKey(deviceKey)} as ${available ? 'available' : 'unavailable'}:`, error);
     }
   }
 
@@ -269,8 +265,8 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
           for (const device of gateway.devices) {
             if (device.deviceType === 'heating') {
               if (process.env.DEBUG) {
-                this.log('[ViessmannDriver::onPairListDevices] installationId:', gateway.installationId);
-                this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', gateway.serial);
+                this.log('[ViessmannDriver::onPairListDevices] installationId:', maskId(gateway.installationId));
+                this.log('[ViessmannDriver::onPairListDevices] gatewaySerial:', maskId(gateway.serial));
                 this.log('[ViessmannDriver::onPairListDevices] deviceId:', device.id);
               }
 
@@ -337,56 +333,9 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
   // What a device stores from an unfiltered features response, for the selected circuit
   _readDeviceMetadata(rawResponse, selectedCircuit = 'auto') {
     const heatingCircuitId = detectHeatingCircuit(rawResponse.data, selectedCircuit);
-    const response = normalizeCircuitFeatures(rawResponse, heatingCircuitId);
-    const features = [];
-    const constraints = {};
-    const commandMetadata = {};
-
-    for (const feature of response.data) {
-      if (feature.isEnabled && feature.properties?.status?.value !== 'notConnected') {
-        features.push(feature.feature);
-
-        // Save constraints separately
-        if (feature.commands && typeof feature.commands === 'object') {
-          commandMetadata[feature.feature] = feature.commands;
-          constraints[feature.feature] = {};
-          Object.values(feature.commands).forEach((command) => {
-            Object.entries(command?.params || {}).forEach(([paramName, param]) => {
-              if (param?.constraints) {
-                constraints[feature.feature][paramName] = param.constraints;
-              }
-            });
-          });
-        }
-      }
-    }
-
-    // Get operating modes
-    const operatingModes = [];
-    try {
-      const mainOpMode = response.data.find((item) => item.feature === PATHS.HEATING_CIRCUIT_0_MODE);
-
-      if (mainOpMode?.isEnabled) {
-        const formatString = (str) => {
-          return str.replace(/([A-Z])/g, ' $1')
-            .replace(/^./, (char) => char.toUpperCase())
-            .replace(/Dhw/g, 'DHW')
-            .trim();
-        };
-
-        for (const mode of mainOpMode.commands.setMode.params.mode.constraints.enum) {
-          operatingModes.push({
-            id: mode,
-            title: { en: formatString(mode) },
-          });
-        }
-      }
-    } catch (err) {
-      // not critical, just log
-      if (process.env.DEBUG) {
-        this.log('Error parsing operating modes:', err);
-      }
-    }
+    const {
+      features, constraints, operatingModes, commandMetadata,
+    } = featureMapper.deviceMetadata(normalizeCircuitFeatures(rawResponse, heatingCircuitId));
     return {
       features,
       constraints,
@@ -409,11 +358,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       this.log('Pairing process completed');
 
       // When a new device is added, start polling for it
-      this.once('device_add', async (device) => {
+      this.once('device_add', (device) => {
         this.log('New device added, starting polling');
         const { installationId, gatewaySerial, deviceId } = device.getStore();
         const deviceKey = `${installationId}-${gatewaySerial}-${deviceId}`;
-        await this._startPolling(device, deviceKey);
+        this._startPolling(device, deviceKey).catch((error) => this.error('Could not start polling:', error));
       });
 
       return result;

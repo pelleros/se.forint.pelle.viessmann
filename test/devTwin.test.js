@@ -9,9 +9,11 @@ const path = require('path');
 const vm = require('vm');
 
 const {
-  APP_ID, TWIN_ID, TWIN_NAME, DEFAULT_POLL_MINUTES, UsageError,
+  APP_ID, TWIN_ID, TWIN_NAME, FIXTURE_TWIN_ID, FIXTURE_TWIN_NAME, FIXTURE_DIR, FIXTURE_MARKER, DEFAULT_POLL_MINUTES, UsageError,
   parseArgs, patchPollInterval, patchPollIntervals, patchManifest, isTwinManifest, isInside, readActiveHomey,
+  installFixtureMode, patchLoginViews,
 } = require('../scripts/devTwin');
+const { findFixtureDevice } = require('./helpers/fixtureDevices');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const V1_0_14_REF = '874e0df';
@@ -190,6 +192,66 @@ describe('patchManifest', () => {
     const compose = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, '.homeycompose', 'app.json'), 'utf8'));
     expect(isTwinManifest(patchManifest(compose))).toBe(true);
   });
+
+  it('gives the fixture twin its own id and name, apart from the twin', () => {
+    const identity = { id: FIXTURE_TWIN_ID, name: FIXTURE_TWIN_NAME };
+    const patched = patchManifest(manifest, identity);
+
+    expect(patched.id).toBe('se.forint.pelle.viessmann.fixture');
+    expect(Object.values(patched.name)).toEqual(Array(5).fill(FIXTURE_TWIN_NAME));
+    expect(isTwinManifest(patched, identity)).toBe(true);
+    expect(isTwinManifest(patched)).toBe(false);
+    expect(isTwinManifest(patchManifest(manifest), identity)).toBe(false);
+  });
+});
+
+describe('fixture mode', () => {
+  // The files of this checkout that fixture mode changes, in a temporary app directory
+  function exportedApp() {
+    const dir = makeTempDir();
+    for (const file of ['app.js', 'lib/ViessmannOAuth2Client.js', 'drivers/vicare/driver.compose.json']) {
+      writeFile(dir, file, fs.readFileSync(path.join(REPO_ROOT, file)));
+    }
+    return dir;
+  }
+
+  it('bundles the client and the fixture, wraps app.js and switches to the credentials login', () => {
+    const dir = exportedApp();
+    const originalApp = fs.readFileSync(path.join(dir, 'app.js'), 'utf8');
+    const fixture = findFixtureDevice('vitodens_200_e3');
+
+    expect(installFixtureMode(dir, fixture)).toEqual({ fixture: 'vitodens_200_e3', features: fixture.features.data.length });
+
+    expect(fs.readFileSync(path.join(dir, 'app.store.js'), 'utf8')).toBe(originalApp);
+    const appJs = fs.readFileSync(path.join(dir, 'app.js'), 'utf8');
+    expect(appJs).toContain(FIXTURE_MARKER);
+    expect(appJs).toContain("require('./app.store')");
+    expect(compiles(appJs)).toBe(true);
+    expect(fs.readFileSync(path.join(dir, FIXTURE_DIR, 'FixtureOAuth2Client.js'), 'utf8')).toContain(FIXTURE_MARKER);
+    const bundled = JSON.parse(fs.readFileSync(path.join(dir, FIXTURE_DIR, 'fixture.json'), 'utf8'));
+    expect(bundled).toEqual({ name: 'vitodens_200_e3', installations: fixture.installations, features: fixture.features });
+    const driverCompose = JSON.parse(fs.readFileSync(path.join(dir, 'drivers/vicare/driver.compose.json'), 'utf8'));
+    expect(driverCompose.pair[0]).toEqual({ id: 'login_credentials', template: 'login_credentials' });
+    expect(driverCompose.repair).toEqual([{ id: 'login_credentials', template: 'login_credentials' }]);
+    expect(driverCompose.pair.slice(1).map((view) => view.id)).toEqual(['list_devices', 'add_devices']);
+  });
+
+  it('refuses a ref whose app does not use ViessmannOAuth2Client', () => {
+    const dir = exportedApp();
+    writeFile(dir, 'app.js', 'module.exports = class {};\n');
+    expect(() => installFixtureMode(dir, findFixtureDevice('vitodens_200_e3'))).toThrow(/OAUTH2_CLIENT/);
+  });
+
+  it('keeps views other than the OAuth login', () => {
+    expect(patchLoginViews({ pair: [{ id: 'list_devices', template: 'list_devices' }] }))
+      .toEqual({ pair: [{ id: 'list_devices', template: 'list_devices' }], repair: [] });
+  });
+
+  it('finds fixtures by name and lists them for an unknown one', () => {
+    expect(findFixtureDevice('pyvicare/Vitocal250A_TwoCircuits.json').name).toBe('pyvicare/Vitocal250A_TwoCircuits');
+    expect(findFixtureDevice('VITODENS_200_E3').name).toBe('vitodens_200_e3');
+    expect(() => findFixtureDevice('no-such-fixture')).toThrow(/Known fixtures:[\s\S]*vitocal_222/);
+  });
 });
 
 describe('parseArgs', () => {
@@ -200,9 +262,16 @@ describe('parseArgs', () => {
       pollMinutes: 10,
       keep: false,
       allowDefaultPoll: false,
+      fixture: null,
       help: false,
       homeyArgs: [],
     });
+  });
+
+  it('reads --fixture', () => {
+    expect(parseArgs(['install', '--fixture', 'vitodens_200_e3']).fixture).toBe('vitodens_200_e3');
+    expect(parseArgs(['build', '--fixture=pyvicare/Vitocal250A_TwoCircuits']).fixture).toBe('pyvicare/Vitocal250A_TwoCircuits');
+    expect(() => parseArgs(['build', '--fixture'])).toThrow(/--fixture needs a value/);
   });
 
   it('reads every option, in both --flag value and --flag=value form', () => {

@@ -8,6 +8,7 @@
       "titleFormatted": {
         "en": "Compressor is !{{running|not running}}"
       },
+      "$filter": "capabilities=measure_compressor_active",
       "args": [],
       "hint": {
         "en": "Checking last known state, i.e. could return incorrect value if not recently synced."
@@ -21,6 +22,7 @@
       "titleFormatted": {
         "en": "Burner is !{{running|not running}}"
       },
+      "$filter": "capabilities=measure_burner_active",
       "args": [],
       "hint": {
         "en": "Checking last known state, i.e. could return incorrect value if not recently synced."
@@ -36,6 +38,7 @@
       "titleFormatted": {
         "en": "Set operating mode to [[mode]]"
       },
+      "$filter": "capabilities=thermostat_mode.heating",
       "args": [
         {
           "name": "mode",
@@ -92,6 +95,7 @@
       "titleFormatted": {
         "en": "Set heating target temperature to [[temperature]] °C"
       },
+      "$filter": "capabilities=target_temperature.heating",
       "args": [
         {
           "name": "temperature",
@@ -113,6 +117,7 @@
       "titleFormatted": {
         "en": "Set hot water Normal target temperature to [[temperature]] °C"
       },
+      "$filter": "capabilities=target_temperature.hotWater",
       "args": [
         {
           "name": "temperature",
@@ -134,6 +139,7 @@
       "titleFormatted": {
         "en": "Set one time hot water charge to [[active]]"
       },
+      "$filter": "capabilities=thermostat_mode.hotWaterOneTimeCharge",
       "args": [
         {
           "name": "active",
@@ -163,6 +169,7 @@
       "titleFormatted": {
         "en": "Set hot water Temp 2 target temperature to [[temperature]] °C"
       },
+      "$filter": "capabilities=target_temperature.hotWater2",
       "args": [
         {
           "name": "temperature",
@@ -184,6 +191,7 @@
       "titleFormatted": {
         "en": "Set fuel cell mode to [[mode]]"
       },
+      "$filter": "capabilities=thermostat_mode.fuelCell",
       "args": [
         {
           "name": "mode",
@@ -230,6 +238,7 @@
       "title": {
         "en": "Operating mode changed"
       },
+      "$filter": "capabilities=thermostat_mode.heating",
       "args": [],
       "tokens": [
         {

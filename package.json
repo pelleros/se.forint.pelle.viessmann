@@ -4,14 +4,16 @@
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
+    "typecheck": "tsc -p tsconfig.check.json",
     "test": "jest --config jest.config.js",
-    "generate": "node scripts/generateFlowCompose.js",
-    "homey:run": "npm run generate && homey app run",
-    "homey:install": "npm run generate && homey app install",
-    "homey:validate": "npm run generate && homey app validate --level publish",
-    "homey:publish": "npm run generate && homey app publish",
+    "test:coverage": "jest --config jest.config.js --coverage --coverageReporters=text-summary",
+    "homey:run": "homey app run",
+    "homey:install": "homey app install",
+    "homey:validate": "homey app validate --level publish",
+    "homey:publish": "homey app publish",
     "homey:twin": "node scripts/devTwin.js",
-    "fixtures": "node scripts/generateFixtures.js"
+    "fixtures": "node scripts/generateFixtures.js",
+    "matrix": "node scripts/updateCapabilityMatrix.js"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",

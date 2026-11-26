@@ -61,6 +61,24 @@
         "select": "Choisissez un appareil...",
         "refresh": "Actualiser les appareils"
       }
+    },
+    "health": {
+      "title": "État",
+      "description": "Les appels API utilisés aujourd'hui par l'application pour chaque compte Viessmann, et la dernière mise à jour de chaque appareil. Viessmann autorise environ 1 450 appels par jour et par compte, partagés avec les autres applications qui utilisent le même compte, et recommence à compter à minuit UTC.",
+      "refresh": "Actualiser",
+      "account": "Compte Viessmann __account__ : __used__ appels API aujourd'hui sur environ __limit__ (nouveau décompte à __time__), environ __planned__ par jour prévus pour les mises à jour.",
+      "device": "__name__ (compte __account__) : mise à jour toutes les __minutes__ minutes.",
+      "last_update": "Dernière mise à jour : __time__",
+      "no_update": "Aucune mise à jour réussie depuis le démarrage de l'application.",
+      "last_error": "Dernière erreur (__time__) : __message__",
+      "no_devices": "Aucun appareil ajouté pour l'instant."
+    },
+    "report": {
+      "title": "Rapport pour le développeur",
+      "description": "Votre appareil est introuvable ou des valeurs manquent ? Ceci rassemble en une étape, anonymisé, ce que Viessmann indique pour votre installation et ses appareils. Cela utilise quelques appels API. Rien n'est envoyé tant que vous ne l'envoyez pas vous-même.",
+      "prepare": "Préparer le rapport",
+      "copy": "Copier dans le presse-papiers",
+      "how_to_send": "Le rapport est prêt. Pour l'envoyer, ouvrez l'application Viessmann ViCare dans l'application Homey (Plus > Apps), choisissez Envoyer un rapport de diagnostic et indiquez dans le message qu'il s'agit de valeurs manquantes (les __lines__ lignes du résumé y figurent), ou copiez-le et envoyez-le au développeur, par exemple dans un ticket GitHub."
     }
   },
   "pair": {
@@ -75,7 +93,8 @@
     "command_refused": "Viessmann a refusé la modification (__detail__). Il s'agit parfois d'une panne temporaire chez Viessmann ; réessayez plus tard."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__."
+    "heating_circuit_not_available": "Le circuit __circuit__ n'existe pas dans cette installation. Circuits disponibles : __available__.",
+    "too_many_calls": "Avec ce réglage, ce compte Viessmann aurait besoin d'environ __calls__ appels API par jour pour les mises à jour. Viessmann en autorise environ 1 450 par jour et l'application en réserve quelques-uns pour d'autres requêtes, donc __limit__ au maximum sont possibles. Choisissez un intervalle plus long ici ou sur un autre appareil, ou désactivez le journal des événements."
   },
   "status": {
     "fault": "Le chauffage signale le défaut __codes__. La notice de votre chauffage explique le code.",

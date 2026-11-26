@@ -30,6 +30,7 @@ const { maskId } = require('../../lib/logPrivacy');
 const { runMigrations, versionBefore } = require('./migrations');
 const { DeviceMonitor } = require('./deviceMonitor');
 const { translate } = require('../../lib/errorMessages');
+const { PLANNED_LIMIT } = require('../../lib/apiQuota');
 
 module.exports = class ViessmannDevice extends OAuth2Device {
 
@@ -83,6 +84,7 @@ module.exports = class ViessmannDevice extends OAuth2Device {
     // Deleted or unloaded while initialising: never start a poller that nothing would stop
     if (this._uninitialized) return;
     await this.driver._startPolling(this, this.getPollingKey());
+    this.getMonitor().scheduleEventLog();
   }
 
   async onInit() {
@@ -508,7 +510,36 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   }
 
   async onSettings({ newSettings, changedKeys }) {
-    if (!changedKeys.includes('heatingCircuit')) return;
+    const pollSettingsChanged = changedKeys.includes('pollInterval') || changedKeys.includes('eventLog');
+    // Refused before anything changes
+    if (pollSettingsChanged) this.checkPollSettings(newSettings);
+    if (changedKeys.includes('heatingCircuit')) await this.changeHeatingCircuit(newSettings);
+    if (pollSettingsChanged) await this.applyPollSettings(newSettings);
+  }
+
+  // The update interval and event log settings (pollSettings during a change, before Homey saves it)
+  getPollSetting(key) {
+    return this._pollSettings?.[key] ?? this.getSetting?.(key);
+  }
+
+  // Refuses settings that would need more API calls a day than the account can spare (see apiQuota.js)
+  checkPollSettings(newSettings) {
+    const settings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
+    const planned = this.driver.plannedCallsPerDay(this.getStoreValue('OAuth2SessionId'), { device: this, settings });
+    if (planned > PLANNED_LIMIT) {
+      throw new Error(translate(this.homey, 'device_settings.too_many_calls', { calls: planned, limit: PLANNED_LIMIT }));
+    }
+  }
+
+  async applyPollSettings(newSettings) {
+    this._pollSettings = { pollInterval: newSettings.pollInterval, eventLog: newSettings.eventLog };
+    if (this._uninitialized) return;
+    // Reschedules the next poll with the new interval, without an extra poll
+    await this.driver._startPolling(this, this.getPollingKey());
+    this.getMonitor().scheduleEventLog();
+  }
+
+  async changeHeatingCircuit(newSettings) {
     const selectedCircuit = String(newSettings.heatingCircuit).trim();
     if (selectedCircuit !== 'auto' && !/^\d+$/.test(selectedCircuit)) {
       throw new Error(`Unknown heating circuit setting: ${selectedCircuit}`);
@@ -601,12 +632,14 @@ module.exports = class ViessmannDevice extends OAuth2Device {
   async onOAuth2Uninit() {
     // Stop polling for this device
     this._uninitialized = true;
+    this._monitor?.stopEventLog();
     await this.driver._stopPolling(this.getPollingKey());
   }
 
   async onOAuth2Deleted() {
     // Stop polling right away: a poll that runs after deletion fails with device_not_found
     this._uninitialized = true;
+    this._monitor?.stopEventLog();
     await this.driver._stopPolling(this.getPollingKey());
   }
 

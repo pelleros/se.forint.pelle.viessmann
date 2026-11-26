@@ -30,6 +30,8 @@
  */
 
 const { Anonymizer, anonymizeDumps, TROUBLESHOOTING_STYLE } = require('./lib/anonymize');
+const { ApiQuota, DAILY_LIMIT } = require('./lib/apiQuota');
+const { collectReport, summarizeReport } = require('./lib/report');
 
 const anonymizers = new WeakMap();
 
@@ -48,7 +50,67 @@ function anonymizedDeviceId(anonymizer, device) {
   ].join('-');
 }
 
+// The next 00:00 UTC, when Viessmann's daily count starts again
+function nextUtcMidnight(now = Date.now()) {
+  const next = new Date(now);
+  next.setUTCHours(24, 0, 0, 0);
+  return next.toISOString();
+}
+
 module.exports = {
+  /*
+    Health for the settings page: per Viessmann login the API calls the app used today and plans
+    per day, per device its update interval, last successful update and last error. Nothing here
+    calls the API.
+  */
+  async getHealth({ homey }) {
+    const driver = homey.drivers.getDriver('vicare');
+    const devices = driver.getDevices();
+    const quota = ApiQuota.for(homey);
+    const sessions = Object.keys(homey.app.getSavedOAuth2Sessions?.() || {});
+    for (const device of devices) {
+      const sessionId = device.getStoreValue('OAuth2SessionId');
+      if (sessionId && !sessions.includes(sessionId)) sessions.push(sessionId);
+    }
+    const accountOf = (device) => sessions.indexOf(device.getStoreValue('OAuth2SessionId')) + 1;
+    return {
+      limit: DAILY_LIMIT,
+      resetsAt: nextUtcMidnight(),
+      accounts: sessions.map((sessionId, index) => ({
+        account: index + 1,
+        usedToday: quota.usedToday(sessionId),
+        plannedPerDay: driver.plannedCallsPerDay(sessionId),
+        devices: devices.filter((device) => device.getStoreValue('OAuth2SessionId') === sessionId).length,
+      })),
+      devices: devices.map((device) => ({
+        name: device.getName(),
+        account: accountOf(device),
+        available: device.getAvailable(),
+        intervalMinutes: Math.round(driver._calculatePollInterval(device) / 60000),
+        eventLogMinutes: Number(device.getPollSetting?.('eventLog')) || 0,
+        ...device.getMonitor().health,
+      })),
+    };
+  },
+
+  /*
+    One-step report for the developer: the installations and every device's features of the
+    first login, anonymized. The compact summary goes to the app's log, so that a diagnostic
+    report the user sends from the Homey app carries it; the full report is returned for copying.
+  */
+  async getReport({ homey }) {
+    try {
+      const oAuth2Client = homey.app.getFirstSavedOAuth2Client();
+      const report = await collectReport(oAuth2Client, { appVersion: homey.manifest?.version, anonymizer: anonymizerFor(homey) });
+      const summary = summarizeReport(report);
+      for (const line of summary) homey.app.log(line);
+      return { report, summaryLines: summary.length };
+    } catch (error) {
+      homey.error('Error in getReport API:', error);
+      throw error;
+    }
+  },
+
   async getInstallations({ homey }) {
     try {
       const oAuth2Client = homey.app.getFirstSavedOAuth2Client();

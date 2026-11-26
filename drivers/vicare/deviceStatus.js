@@ -59,11 +59,22 @@ const FAULT_PATHS = [PATHS.DEVICE_ERRORS, PATHS.FUEL_CELL_ERRORS];
  */
 
 /**
+ * An entry of the installation's event log.
+ * @typedef {object} LoggedEvent
+ * @property {string} code an error or status code, or the event type
+ * @property {string} description
+ * @property {string} type e.g. device-error
+ * @property {boolean} active
+ * @property {number} time epoch milliseconds
+ */
+
+/**
  * What the device remembers between starts (store key `knownMessages`): the faults it has
- * reported and the newest logbook entries it has seen.
+ * reported, the newest logbook entries it has seen and how far it has read the event log.
  * @typedef {object} KnownMessages
  * @property {string[]} faults
  * @property {{ timestamp: string, keys: string[] } | null} logbook
+ * @property {{ time: number, keys: string[] } | null} [events]
  */
 
 /**
@@ -152,8 +163,44 @@ function knownMessagesFrom(stored) {
     faults: Array.isArray(stored?.faults) ? stored.faults.filter((code) => typeof code === 'string') : [],
     logbook: stored?.logbook && typeof stored.logbook.timestamp === 'string' && Array.isArray(stored.logbook.keys)
       ? { timestamp: stored.logbook.timestamp, keys: stored.logbook.keys } : null,
+    events: stored?.events && Number.isFinite(stored.events.time) && Array.isArray(stored.events.keys)
+      ? { time: stored.events.time, keys: stored.events.keys } : null,
   };
 }
+
+/**
+ * The events of an event log response for one device (events of other devices on the same
+ * gateway are left out), oldest first.
+ * @param {any} response
+ * @param {string | undefined} deviceId
+ * @returns {LoggedEvent[]}
+ */
+function readEvents(response, deviceId) {
+  let items = [];
+  if (Array.isArray(response?.data)) items = response.data;
+  else if (Array.isArray(response)) items = response;
+  /** @type {LoggedEvent[]} */
+  const events = [];
+  for (const item of items) {
+    if (!item || typeof item !== 'object') continue;
+    const body = item.body && typeof item.body === 'object' ? item.body : {};
+    if (body.deviceId !== undefined && deviceId !== undefined && String(body.deviceId) !== String(deviceId)) continue;
+    const time = Date.parse(item.eventTimestamp || item.createdAt || item.timestamp);
+    const type = text(item.eventType) || '';
+    const code = text(body.errorCode) || text(body.statusCode) || text(body.code) || type;
+    if (!Number.isFinite(time) || !code) continue;
+    events.push({
+      code,
+      description: text(body.errorDescription) || text(body.description) || '',
+      type,
+      active: typeof body.active === 'boolean' ? body.active : true,
+      time,
+    });
+  }
+  return events.sort((a, b) => a.time - b.time);
+}
+
+const eventKey = (/** @type {LoggedEvent} */ event) => `${event.time}|${event.type}|${event.code}|${event.active}`;
 
 class StatusTracker {
 
@@ -232,6 +279,38 @@ class StatusTracker {
   }
 
   /**
+   * The new events of an event log response, and whether the read position changed. Events
+   * older than `since` are skipped (e.g. those from while the app was not running); the first
+   * read only sets the position.
+   * @param {any} response
+   * @param {string | undefined} deviceId
+   * @param {number} since
+   * @returns {{ events: LoggedEvent[], knownChanged: boolean }}
+   */
+  readEventLog(response, deviceId, since) {
+    const all = readEvents(response, deviceId);
+    const seen = this.known.events;
+    const fresh = all.filter((event) => !seen || event.time > seen.time || (event.time === seen.time && !seen.keys.includes(eventKey(event))));
+    if (fresh.length === 0) return { events: [], knownChanged: false };
+    const newest = fresh[fresh.length - 1].time;
+    const keys = fresh.filter((event) => event.time === newest).map(eventKey);
+    this.known.events = { time: newest, keys: seen && seen.time === newest ? [...new Set([...seen.keys, ...keys])] : keys };
+    return { events: seen ? fresh.filter((event) => event.time >= since) : [], knownChanged: true };
+  }
+
+  /**
+   * Starts reading the event log from a moment on (when it is turned on), unless a position is
+   * known already.
+   * @param {number} time
+   * @returns {boolean} true when the position changed
+   */
+  startEventLog(time) {
+    if (this.known.events) return false;
+    this.known.events = { time, keys: [] };
+    return true;
+  }
+
+  /**
    * Remembers a value written to a capability, to check it on a later poll.
    * @param {string} capabilityName
    * @param {any} value
@@ -275,6 +354,7 @@ module.exports = {
   readLogbook,
   newestTimestamp,
   knownMessagesFrom,
+  readEvents,
   FROZEN_AFTER,
   WRITE_CHECK_AFTER,
   WRITE_CHECK_EXPIRY,

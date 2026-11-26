@@ -38,7 +38,7 @@ function fakeDevice({ store = {}, data = {}, refreshFails = false } = {}) {
 const step = (version) => MIGRATIONS.find((migration) => migration.version === version);
 // The steps up to 1.0.16, which replaced the ad-hoc checks of checkUpgradeSpecifics
 const MIGRATIONS_1016 = MIGRATIONS.filter((migration) => versionBefore(migration.version, '1.0.17'));
-const STORE_2_0_0 = { dailyCounters: {}, knownMessages: { faults: [], logbook: null } };
+const STORE_2_0_0 = { dailyCounters: {}, knownMessages: { faults: [], logbook: null, events: null } };
 
 // checkUpgradeSpecifics as it was in 1.0.16, before the registry
 async function checkUpgradeSpecifics1016(device) {

@@ -55,6 +55,14 @@
       "method": "GET",
       "path": "/devices",
       "oauth2": true
+    },
+    "getHealth": {
+      "method": "GET",
+      "path": "/health"
+    },
+    "getReport": {
+      "method": "POST",
+      "path": "/report"
     }
   }
 }

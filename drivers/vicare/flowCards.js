@@ -99,6 +99,17 @@ const FLOW_TRIGGERS = {
     capability: capabilityOf(PATHS.DEVICE_ERRORS),
     event: true,
   },
+  EVENT_LOGGED: {
+    id: 'event-logged',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
+  // Fires for the event code in its `code` argument (see driver.js)
+  EVENT_CODE_LOGGED: {
+    id: 'event-code-logged',
+    capability: capabilityOf(PATHS.DEVICE_ERRORS),
+    event: true,
+  },
 };
 
 module.exports = { FLOW_CONDITIONS, FLOW_ACTIONS, FLOW_TRIGGERS };

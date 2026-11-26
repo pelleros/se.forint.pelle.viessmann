@@ -90,7 +90,7 @@ describe('faults', () => {
     expect(device.setWarning).toHaveBeenCalledWith(expect.stringContaining('F.160'));
     expect(events).toEqual([['fault-reported', { code: 'F.160', priority: 'error' }]]);
     expect(device.homey.notifications.createNotification).toHaveBeenCalledTimes(1);
-    expect(device.getStoreValue('knownMessages')).toEqual({ faults: ['F.160'], logbook: null });
+    expect(device.getStoreValue('knownMessages')).toEqual({ faults: ['F.160'], logbook: null, events: null });
 
     await device.onFeaturesUpdated({ data: [temperature(45), errors()] });
     expect(device.getCapabilityValue('alarm_problem')).toBe(false);

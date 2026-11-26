@@ -378,6 +378,168 @@
           }
         }
       ]
+    },
+    {
+      "id": "event-logged",
+      "title": {
+        "en": "An event was logged",
+        "de": "Ein Ereignis wurde protokolliert",
+        "nl": "Er is een gebeurtenis gelogd",
+        "fr": "Un événement a été enregistré",
+        "sv": "En händelse loggades"
+      },
+      "hint": {
+        "en": "Needs the event log, which is off by default: turn it on in the device's settings under Updates and API calls.",
+        "de": "Braucht das Ereignisprotokoll, das standardmäßig aus ist: Schalte es in den Geräteeinstellungen unter Aktualisierung und API-Aufrufe ein.",
+        "nl": "Heeft het gebeurtenissenlogboek nodig, dat standaard uit staat: zet het aan in de apparaatinstellingen onder Updates en API-aanroepen.",
+        "fr": "Nécessite le journal des événements, désactivé par défaut : activez-le dans les réglages de l'appareil, sous Mises à jour et appels API.",
+        "sv": "Kräver händelseloggen, som är av som standard: slå på den i enhetens inställningar under Uppdateringar och API-anrop."
+      },
+      "$filter": "capabilities=alarm_problem",
+      "args": [],
+      "tokens": [
+        {
+          "name": "code",
+          "type": "string",
+          "title": {
+            "en": "Code",
+            "de": "Code",
+            "nl": "Code",
+            "fr": "Code",
+            "sv": "Kod"
+          },
+          "example": {
+            "en": "F.160"
+          }
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "title": {
+            "en": "Description",
+            "de": "Beschreibung",
+            "nl": "Omschrijving",
+            "fr": "Description",
+            "sv": "Beskrivning"
+          },
+          "example": {
+            "en": "Burner fault"
+          }
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "title": {
+            "en": "Type",
+            "de": "Typ",
+            "nl": "Type",
+            "fr": "Type",
+            "sv": "Typ"
+          },
+          "example": {
+            "en": "device-error"
+          }
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "de": "Aktiv",
+            "nl": "Actief",
+            "fr": "Actif",
+            "sv": "Aktiv"
+          },
+          "example": {
+            "en": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "event-code-logged",
+      "title": {
+        "en": "An event with a code was logged",
+        "de": "Ein Ereignis mit einem Code wurde protokolliert",
+        "nl": "Er is een gebeurtenis met een code gelogd",
+        "fr": "Un événement avec un code a été enregistré",
+        "sv": "En händelse med en kod loggades"
+      },
+      "titleFormatted": {
+        "en": "Event [[code]] was logged",
+        "de": "Ereignis [[code]] wurde protokolliert",
+        "nl": "Gebeurtenis [[code]] is gelogd",
+        "fr": "L'événement [[code]] a été enregistré",
+        "sv": "Händelsen [[code]] loggades"
+      },
+      "hint": {
+        "en": "Needs the event log, which is off by default: turn it on in the device's settings under Updates and API calls.",
+        "de": "Braucht das Ereignisprotokoll, das standardmäßig aus ist: Schalte es in den Geräteeinstellungen unter Aktualisierung und API-Aufrufe ein.",
+        "nl": "Heeft het gebeurtenissenlogboek nodig, dat standaard uit staat: zet het aan in de apparaatinstellingen onder Updates en API-aanroepen.",
+        "fr": "Nécessite le journal des événements, désactivé par défaut : activez-le dans les réglages de l'appareil, sous Mises à jour et appels API.",
+        "sv": "Kräver händelseloggen, som är av som standard: slå på den i enhetens inställningar under Uppdateringar och API-anrop."
+      },
+      "$filter": "capabilities=alarm_problem",
+      "args": [
+        {
+          "name": "code",
+          "type": "text",
+          "title": {
+            "en": "Code",
+            "de": "Code",
+            "nl": "Code",
+            "fr": "Code",
+            "sv": "Kod"
+          },
+          "placeholder": {
+            "en": "F.160"
+          }
+        }
+      ],
+      "tokens": [
+        {
+          "name": "description",
+          "type": "string",
+          "title": {
+            "en": "Description",
+            "de": "Beschreibung",
+            "nl": "Omschrijving",
+            "fr": "Description",
+            "sv": "Beskrivning"
+          },
+          "example": {
+            "en": "Burner fault"
+          }
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "title": {
+            "en": "Type",
+            "de": "Typ",
+            "nl": "Type",
+            "fr": "Type",
+            "sv": "Typ"
+          },
+          "example": {
+            "en": "device-error"
+          }
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "title": {
+            "en": "Active",
+            "de": "Aktiv",
+            "nl": "Actief",
+            "fr": "Actif",
+            "sv": "Aktiv"
+          },
+          "example": {
+            "en": "true"
+          }
+        }
+      ]
     }
   ]
 }

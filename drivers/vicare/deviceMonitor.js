@@ -31,6 +31,7 @@ const { StatusTracker } = require('./deviceStatus');
 const { featureMapper } = require('./featureMapper');
 const { FEATURES } = require('./config');
 const { translate } = require('../../lib/errorMessages');
+const { maskText } = require('../../lib/logPrivacy');
 
 const PROBLEM_CAPABILITY = 'alarm_problem';
 const REFRESH_CAPABILITY = 'button.refreshFeatures';
@@ -38,6 +39,10 @@ const REFRESH_CAPABILITY = 'button.refreshFeatures';
 const REFRESH_INTERVAL = 10 * 60 * 1000;
 // A message about a write that did not take stays this long, unless a poll shows the value took
 const WRITE_MESSAGE_DURATION = 6 * 60 * 60 * 1000;
+// Events older than this many event log intervals are not triggered (e.g. from while the app was off)
+const EVENT_TRIGGER_WINDOW = 2;
+// At most this many event triggers per read
+const MAX_EVENT_TRIGGERS = 20;
 
 /**
  * A date and time in Homey's time zone, e.g. "26 Nov, 14:05".
@@ -125,7 +130,8 @@ class DeviceMonitor {
   // A failed poll, for the settings page
   onPollError(error) {
     const message = error instanceof Error ? error.message : String(error);
-    this.health.lastError = { message: message.slice(0, 300), at: Date.now() };
+    // Network errors can carry request URLs with ids: masked like in the log
+    this.health.lastError = { message: maskText(message).slice(0, 300), at: Date.now() };
   }
 
   /**
@@ -273,6 +279,57 @@ class DeviceMonitor {
 
   async notify(excerpt) {
     await this.safely('notification', () => this.homey?.notifications?.createNotification?.({ excerpt }));
+  }
+
+  // The event log interval in minutes, or 0 when it is off (device setting `eventLog`)
+  eventLogMinutes() {
+    const minutes = Number(this.device.getPollSetting?.('eventLog'));
+    return Number.isFinite(minutes) && minutes > 0 ? minutes : 0;
+  }
+
+  // (Re)starts reading the event log at its interval, or stops it when it is off
+  scheduleEventLog() {
+    this.stopEventLog();
+    const minutes = this.eventLogMinutes();
+    if (!minutes || this.device._uninitialized || !this.homey?.setTimeout) return;
+    if (this.status.startEventLog(Date.now())) {
+      // safely() logs a failure and never rejects
+      this.safely('event log position', () => this.device.setStoreValue('knownMessages', this.status.known)).catch(() => {});
+    }
+    this.eventTimer = this.homey.setTimeout(() => {
+      this.eventTimer = null;
+      this.readEventLog().then(() => this.scheduleEventLog(), () => this.scheduleEventLog());
+    }, minutes * 60 * 1000);
+  }
+
+  stopEventLog() {
+    if (this.eventTimer) this.homey?.clearTimeout?.(this.eventTimer);
+    this.eventTimer = null;
+  }
+
+  // Reads the new entries of the installation's event log and fires their triggers
+  async readEventLog() {
+    await this.safely('event log', async () => {
+      const minutes = this.eventLogMinutes();
+      if (!minutes) return;
+      const now = Date.now();
+      const from = this.status.known.events?.time ?? now - minutes * 60 * 1000;
+      const response = await this.device.oAuth2Client.getEventsHistory({
+        installationId: this.device._installationId,
+        gatewaySerial: this.device._gatewaySerial,
+        start: new Date(from).toISOString(),
+      });
+      const { events, knownChanged } = this.status.readEventLog(response, this.device._deviceId, now - EVENT_TRIGGER_WINDOW * minutes * 60 * 1000);
+      if (knownChanged) await this.device.setStoreValue('knownMessages', this.status.known);
+      for (const event of events.slice(-MAX_EVENT_TRIGGERS)) {
+        const tokens = {
+          code: event.code, description: event.description, type: event.type, active: event.active,
+        };
+        await this.trigger('event-logged', tokens);
+        const { code, ...codeTokens } = tokens;
+        await this.safely('trigger event-code-logged', () => this.device.driver?.triggerEvent?.('event-code-logged', this.device, codeTokens, { code }));
+      }
+    });
   }
 
   /**

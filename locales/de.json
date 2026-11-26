@@ -61,6 +61,24 @@
         "select": "Gerät auswählen...",
         "refresh": "Geräte aktualisieren"
       }
+    },
+    "health": {
+      "title": "Status",
+      "description": "Die API-Aufrufe, die die App heute pro Viessmann-Konto verbraucht hat, und die letzte Aktualisierung jedes Geräts. Viessmann erlaubt etwa 1.450 Aufrufe pro Tag und Konto, gemeinsam mit anderen Apps, die dasselbe Konto nutzen, und zählt um Mitternacht UTC neu.",
+      "refresh": "Aktualisieren",
+      "account": "Viessmann-Konto __account__: heute __used__ von etwa __limit__ API-Aufrufen (neue Zählung ab __time__), etwa __planned__ pro Tag für Aktualisierungen geplant.",
+      "device": "__name__ (Konto __account__): Aktualisierung alle __minutes__ Minuten.",
+      "last_update": "Letzte Aktualisierung: __time__",
+      "no_update": "Seit dem Start der App keine erfolgreiche Aktualisierung.",
+      "last_error": "Letzter Fehler (__time__): __message__",
+      "no_devices": "Noch keine Geräte hinzugefügt."
+    },
+    "report": {
+      "title": "Bericht für den Entwickler",
+      "description": "Dein Gerät fehlt oder es fehlen Werte? Das sammelt in einem Schritt und anonymisiert, was Viessmann für deine Anlage und ihre Geräte meldet. Es verbraucht einige API-Aufrufe. Es wird nichts gesendet, bis du es selbst sendest.",
+      "prepare": "Bericht erstellen",
+      "copy": "In die Zwischenablage kopieren",
+      "how_to_send": "Der Bericht ist fertig. Zum Senden öffne entweder die Viessmann-ViCare-App in der Homey-App (Mehr > Apps), wähle Diagnosebericht senden und schreib in die Nachricht, dass es um fehlende Werte geht (die __lines__ Zeilen der Zusammenfassung sind darin), oder kopiere ihn und sende ihn dem Entwickler, zum Beispiel in einem GitHub-Issue."
     }
   },
   "pair": {
@@ -75,7 +93,8 @@
     "command_refused": "Viessmann hat die Änderung abgelehnt (__detail__). Das ist manchmal ein vorübergehender Fehler bei Viessmann; versuche es später erneut."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__."
+    "heating_circuit_not_available": "Heizkreis __circuit__ ist in dieser Anlage nicht vorhanden. Vorhandene Heizkreise: __available__.",
+    "too_many_calls": "Mit dieser Einstellung bräuchte dieses Viessmann-Konto etwa __calls__ API-Aufrufe pro Tag für Aktualisierungen. Viessmann erlaubt etwa 1.450 pro Tag, und die App hält einige für andere Anfragen frei, also sind höchstens __limit__ möglich. Wähle hier oder bei einem anderen Gerät ein längeres Intervall, oder schalte das Ereignisprotokoll aus."
   },
   "status": {
     "fault": "Die Heizung meldet die Störung __codes__. Die Anleitung deiner Heizung erklärt den Code.",

@@ -61,6 +61,24 @@
         "select": "Välj en enhet...",
         "refresh": "Uppdatera enheter"
       }
+    },
+    "health": {
+      "title": "Status",
+      "description": "API-anrop som appen har använt i dag per Viessmann-konto, och varje enhets senaste uppdatering. Viessmann tillåter ungefär 1 450 anrop per dag och konto, delat med andra appar som använder samma konto, och börjar räkna om vid midnatt UTC.",
+      "refresh": "Uppdatera",
+      "account": "Viessmann-konto __account__: __used__ av ungefär __limit__ API-anrop i dag (ny räkning från __time__), ungefär __planned__ per dag planerade för uppdateringar.",
+      "device": "__name__ (konto __account__): uppdateras var __minutes__:e minut.",
+      "last_update": "Senaste uppdatering: __time__",
+      "no_update": "Ingen lyckad uppdatering sedan appen startade.",
+      "last_error": "Senaste fel (__time__): __message__",
+      "no_devices": "Inga enheter tillagda än."
+    },
+    "report": {
+      "title": "Rapport till utvecklaren",
+      "description": "Hittar du inte din enhet, eller saknas värden? Det här samlar i ett steg, anonymiserat, det som Viessmann rapporterar för din anläggning och dess enheter. Det använder några API-anrop. Inget skickas förrän du själv skickar det.",
+      "prepare": "Förbered rapport",
+      "copy": "Kopiera till urklipp",
+      "how_to_send": "Rapporten är klar. Skicka den genom att öppna Viessmann ViCare-appen i Homey-appen (Mer > Appar), välja Skicka diagnostikrapport och skriva i meddelandet att det gäller saknade värden (rapportens __lines__ sammanfattningsrader finns med), eller kopiera den och skicka den till utvecklaren, till exempel i ett GitHub-ärende."
     }
   },
   "pair": {
@@ -75,7 +93,8 @@
     "command_refused": "Viessmann avvisade ändringen (__detail__). Det är ibland ett tillfälligt fel hos Viessmann; försök igen senare."
   },
   "device_settings": {
-    "heating_circuit_not_available": "Krets __circuit__ finns inte i den här anläggningen. Tillgängliga kretsar: __available__."
+    "heating_circuit_not_available": "Krets __circuit__ finns inte i den här anläggningen. Tillgängliga kretsar: __available__.",
+    "too_many_calls": "Med den här inställningen skulle Viessmann-kontot behöva ungefär __calls__ API-anrop per dag för uppdateringar. Viessmann tillåter ungefär 1 450 per dag och appen sparar några till andra anrop, så högst __limit__ är möjliga. Välj ett längre intervall här eller på en annan enhet, eller stäng av händelseloggen."
   },
   "status": {
     "fault": "Värmesystemet rapporterar felet __codes__. Värmesystemets manual förklarar koden.",

@@ -53,6 +53,19 @@
         font-weight: 600;
         margin: 0 0 4px;
       }
+      .health-list {
+        margin: 0 0 12px;
+        padding-left: 0;
+        list-style: none;
+      }
+      .health-list li {
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .health-error {
+        color: #c0392b;
+        word-break: break-word;
+      }
     </style>
   </head>
   <body>
@@ -93,6 +106,20 @@
     <!-- Separator -->
     <div class="homey-form-group-separator"></div>
 
+    <!-- Health: API calls per Viessmann login, last update and last error per device -->
+    <fieldset class="homey-form-fieldset">
+      <legend class="homey-form-legend" data-i18n="settings.health.title"></legend>
+      <p class="homey-form-hint" data-i18n="settings.health.description"></p>
+      <ul class="health-list" id="healthAccounts"></ul>
+      <ul class="health-list" id="healthDevices"></ul>
+      <div class="homey-form-buttons">
+        <button id="refreshHealth" class="homey-button-secondary" data-i18n="settings.health.refresh"></button>
+      </div>
+    </fieldset>
+
+    <!-- Separator -->
+    <div class="homey-form-group-separator"></div>
+
     <!-- Common problems -->
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.problems.title"></legend>
@@ -122,6 +149,18 @@
     <fieldset class="homey-form-fieldset">
       <legend class="homey-form-legend" data-i18n="settings.troubleshooting.title"></legend>
       <p class="homey-form-hint" data-i18n="settings.troubleshooting.description"></p>
+
+      <!-- Report for the developer: installations and every device's features in one step -->
+      <div class="homey-form-group">
+        <label class="homey-form-label" for="report" data-i18n="settings.report.title"></label>
+        <p class="homey-form-hint" data-i18n="settings.report.description"></p>
+        <div class="homey-form-buttons">
+          <button id="prepareReport" class="homey-button-primary" data-i18n="settings.report.prepare"></button>
+          <button id="copyReport" class="homey-button-secondary" data-i18n="settings.report.copy"></button>
+        </div>
+        <p class="homey-form-hint" id="reportHowToSend" style="display: none;"></p>
+        <textarea class="homey-form-textarea" id="report" rows="10" readonly></textarea>
+      </div>
 
       <!-- Installations -->
       <div class="homey-form-group">
@@ -174,6 +213,90 @@
         var featuresElement = document.getElementById("features");
         var deviceSelectElement = document.getElementById("deviceSelect");
         var refreshDevicesElement = document.getElementById("refreshDevices");
+
+        var healthAccountsElement = document.getElementById("healthAccounts");
+        var healthDevicesElement = document.getElementById("healthDevices");
+        var refreshHealthElement = document.getElementById("refreshHealth");
+        var prepareReportElement = document.getElementById("prepareReport");
+        var copyReportElement = document.getElementById("copyReport");
+        var reportElement = document.getElementById("report");
+        var reportHowToSendElement = document.getElementById("reportHowToSend");
+
+        // A translated text with __tag__ placeholders filled in
+        function t(key, tags) {
+          var text = Homey.__(key) || key;
+          Object.keys(tags || {}).forEach(function (tag) {
+            text = text.split("__" + tag + "__").join(String(tags[tag]));
+          });
+          return text;
+        }
+
+        function timeText(value) {
+          return value ? new Date(value).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "";
+        }
+
+        function addItem(list, text, className) {
+          var item = document.createElement("li");
+          item.textContent = text;
+          if (className) item.className = className;
+          list.appendChild(item);
+          return item;
+        }
+
+        function showHealth(health) {
+          healthAccountsElement.textContent = "";
+          healthDevicesElement.textContent = "";
+          var resetsAt = new Date(health.resetsAt).toLocaleTimeString([], { timeStyle: "short" });
+          health.accounts.forEach(function (account) {
+            addItem(healthAccountsElement, t("settings.health.account", {
+              account: account.account, used: account.usedToday, limit: health.limit, planned: account.plannedPerDay, time: resetsAt,
+            }));
+          });
+          if (health.devices.length === 0) addItem(healthDevicesElement, t("settings.health.no_devices"));
+          health.devices.forEach(function (device) {
+            var item = addItem(healthDevicesElement, t("settings.health.device", {
+              name: device.name, minutes: device.intervalMinutes, account: device.account,
+            }));
+            var update = device.lastUpdateAt
+              ? t("settings.health.last_update", { time: timeText(device.lastUpdateAt) })
+              : t("settings.health.no_update");
+            item.appendChild(document.createElement("br"));
+            item.appendChild(document.createTextNode(update));
+            if (device.lastError) {
+              var error = document.createElement("span");
+              error.className = "health-error";
+              error.textContent = t("settings.health.last_error", { time: timeText(device.lastError.at), message: device.lastError.message });
+              item.appendChild(document.createElement("br"));
+              item.appendChild(error);
+            }
+          });
+        }
+
+        function loadHealth() {
+          Homey.api("GET", "/health", null, function (err, result) {
+            if (err) return Homey.alert(err);
+            showHealth(result);
+          });
+        }
+
+        refreshHealthElement.addEventListener("click", loadHealth);
+        loadHealth();
+
+        prepareReportElement.addEventListener("click", function (e) {
+          prepareReportElement.disabled = true;
+          Homey.api("POST", "/report", {}, function (err, result) {
+            prepareReportElement.disabled = false;
+            if (err) return Homey.alert(err);
+            reportElement.value = JSON.stringify(result.report, null, 2);
+            reportHowToSendElement.textContent = t("settings.report.how_to_send", { lines: result.summaryLines });
+            reportHowToSendElement.style.display = "block";
+          });
+        });
+
+        copyReportElement.addEventListener("click", function (e) {
+          reportElement.select();
+          document.execCommand("copy");
+        });
 
         Homey.get("clientId", function (err, clientId) {
           if (err) return Homey.alert(err);

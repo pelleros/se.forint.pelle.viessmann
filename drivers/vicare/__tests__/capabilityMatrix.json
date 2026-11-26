@@ -97,7 +97,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "vitocal_222": {
@@ -141,7 +143,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "vitodens_200_2016": {
@@ -186,7 +190,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "vitodens_200_dh": {
@@ -229,7 +235,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "vitodens_200_e3": {
@@ -273,7 +281,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "vitovalor_pt2": {
@@ -325,7 +335,9 @@
         "action/set-fuelcell-mode",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Ecotronic": {
@@ -358,7 +370,9 @@
         "action/set-heating-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/RoomControl": {
@@ -370,7 +384,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/RoomControlOne": {
@@ -382,7 +398,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Solar": {
@@ -423,7 +441,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/TCU300_ethernet": {
@@ -435,7 +455,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitoairFs300E": {
@@ -447,7 +469,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal111S": {
@@ -488,7 +512,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal151A": {
@@ -525,7 +551,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200": {
@@ -565,7 +593,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200A_OutdoorUnit": {
@@ -588,7 +618,9 @@
       "flowCards": [
         "condition/compressor-is-running",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200A_SystemController": {
@@ -616,7 +648,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200S-with-Vitovent300W": {
@@ -657,7 +691,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200S": {
@@ -696,7 +732,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200S_AWB-M-E-AC-201.D10": {
@@ -733,7 +771,9 @@
         "action/set-heating-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal200S_E8NEV": {
@@ -770,7 +810,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal222S-with-Vitovent": {
@@ -810,7 +852,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal222S": {
@@ -849,7 +893,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal250A": {
@@ -890,7 +936,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal250A_NoiseReduction": {
@@ -931,7 +979,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal250A_TwoCircuits": {
@@ -972,7 +1022,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal252": {
@@ -1011,7 +1063,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal252A": {
@@ -1051,7 +1105,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal262A_T2H-R290": {
@@ -1080,7 +1136,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal300G_CU401B": {
@@ -1126,7 +1184,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal333G-with-Vitovent300F": {
@@ -1171,7 +1231,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocal333G": {
@@ -1212,7 +1274,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocaldens222F": {
@@ -1259,7 +1323,9 @@
         "action/set-hot-water-thermostat2",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocharge03": {
@@ -1271,7 +1337,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitocharge05": {
@@ -1283,7 +1351,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitochargeEvolution08": {
@@ -1295,7 +1365,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitoconnectOpto1": {
@@ -1307,7 +1379,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitoconnectOpto2": {
@@ -1319,7 +1393,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens050W": {
@@ -1355,7 +1431,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens100NA": {
@@ -1389,7 +1467,9 @@
         "action/set-hot-water-thermostat",
         "action/do-one-time-hot-water-charge",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens100W": {
@@ -1424,7 +1504,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens100W_B1HC-26": {
@@ -1458,7 +1540,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens111W": {
@@ -1492,7 +1576,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens200W": {
@@ -1533,7 +1619,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens200W_2": {
@@ -1576,7 +1664,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens200W_B2HA": {
@@ -1610,7 +1700,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens200W_B2HF": {
@@ -1654,7 +1746,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens222W": {
@@ -1695,7 +1789,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens300W": {
@@ -1735,7 +1831,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens300W_B3HF-19": {
@@ -1779,7 +1877,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens333F": {
@@ -1819,7 +1919,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens343F_B3UF": {
@@ -1861,7 +1963,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitodens_100_BHC_0421": {
@@ -1896,7 +2000,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitolaUniferral": {
@@ -1930,7 +2036,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitoladens300-C_J3RA": {
@@ -1965,7 +2073,9 @@
         "action/set-hot-water-thermostat",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/Vitopure350": {
@@ -1977,7 +2087,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitosetAqua": {
@@ -1989,7 +2101,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/VitovalorPT2": {
@@ -2040,7 +2154,9 @@
         "action/do-one-time-hot-water-charge",
         "trigger/heating-mode-changed",
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/zigbee_zk03838_fht_channel": {
@@ -2052,7 +2168,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/zigbee_zk03838_fht_main": {
@@ -2064,7 +2182,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/zigbee_zk03839_cs": {
@@ -2076,7 +2196,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/zigbee_zk03840_trv": {
@@ -2088,7 +2210,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     },
     "pyvicare/zigbee_zk05390_repeater": {
@@ -2100,7 +2224,9 @@
       "options": {},
       "flowCards": [
         "trigger/fault-reported",
-        "trigger/logbook-entry-added"
+        "trigger/logbook-entry-added",
+        "trigger/event-logged",
+        "trigger/event-code-logged"
       ]
     }
   }

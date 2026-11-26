@@ -61,10 +61,29 @@
           "select": "Select a device...",
           "refresh": "Refresh Devices"
         }
+      },
+      "health": {
+        "title": "Status",
+        "description": "API calls the app used today per Viessmann account, and the last update of each device. Viessmann allows about 1,450 calls a day per account, shared with other apps that use the same account, and starts counting again at midnight UTC.",
+        "refresh": "Refresh",
+        "account": "Viessmann account __account__: __used__ API calls today of about __limit__ (counting starts again at __time__), about __planned__ a day planned for updates.",
+        "device": "__name__ (account __account__): updates every __minutes__ minutes.",
+        "last_update": "Last update: __time__",
+        "no_update": "No successful update since the app started.",
+        "last_error": "Last error (__time__): __message__",
+        "no_devices": "No devices added yet."
+      },
+      "report": {
+        "title": "Report for the developer",
+        "description": "Can't find your device, or are values missing? This collects what Viessmann reports for your installation and its devices in one step, anonymized. It uses a few API calls. Nothing is sent until you send it yourself.",
+        "prepare": "Prepare report",
+        "copy": "Copy to clipboard",
+        "how_to_send": "The report is ready. To send it, either open the Viessmann ViCare app in the Homey app (More > Apps), choose Send diagnostic report and say in the message that it is about missing values (the report's __lines__ summary lines are in it), or copy it and send it to the developer, for example in a GitHub issue."
       }
     },
     "device_settings": {
-      "heating_circuit_not_available": "Heating circuit __circuit__ is not available on this installation. Available circuits: __available__."
+      "heating_circuit_not_available": "Heating circuit __circuit__ is not available on this installation. Available circuits: __available__.",
+      "too_many_calls": "With this setting, this Viessmann account would need about __calls__ API calls a day for updates. Viessmann allows about 1,450 a day and the app keeps a few for other requests, so at most __limit__ are possible. Choose a longer interval here or on another device, or turn the event log off."
     },
     "pair": {
       "no_client_id": "No Viessmann Client ID has been saved yet. Open the settings of the Viessmann ViCare app, follow the steps there to create and save a Client ID, then add the device again.",

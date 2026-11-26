@@ -146,6 +146,27 @@
           "status": "number",
           "circuit": "string"
         }
+      },
+      "event-logged": {
+        "args": {},
+        "tokens": {
+          "code": "string",
+          "description": "string",
+          "type": "string",
+          "active": "boolean"
+        }
+      },
+      "event-code-logged": {
+        "args": {
+          "code": {
+            "type": "text"
+          }
+        },
+        "tokens": {
+          "description": "string",
+          "type": "string",
+          "active": "boolean"
+        }
       }
     }
   },
@@ -153,6 +174,14 @@
     "heatingCircuit": {
       "type": "dropdown",
       "values": ["auto", "0", "1", "2", "3"]
+    },
+    "pollInterval": {
+      "type": "dropdown",
+      "values": ["auto", "2", "3", "5", "10", "15", "30", "60"]
+    },
+    "eventLog": {
+      "type": "dropdown",
+      "values": ["off", "15", "30", "60"]
     }
   }
 }

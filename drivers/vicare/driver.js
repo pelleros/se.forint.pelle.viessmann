@@ -32,6 +32,7 @@ const {
 } = require('../../lib/apiError');
 const { apiStateMessage } = require('../../lib/errorMessages');
 const { maskId, maskDeviceKey } = require('../../lib/logPrivacy');
+const { callsPerDay } = require('../../lib/apiQuota');
 
 // Least time between polls while one of these states lasts. Viessmann refusing access (HTTP 402)
 // is often a temporary fault on its side that is fixed within hours; a gateway is often back
@@ -94,6 +95,11 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
       const triggerCard = this.homey.flow.getDeviceTriggerCard(trigger.id);
       if (trigger.event) {
         this._eventTriggerCards.set(trigger.id, triggerCard);
+        // A card with a code argument fires only for that code
+        if (trigger.id === 'event-code-logged' && typeof triggerCard.registerRunListener === 'function') {
+          triggerCard.registerRunListener(async (args, state) => typeof args?.code === 'string'
+            && args.code.trim().toLowerCase() === String(state?.code ?? '').toLowerCase());
+        }
         continue;
       }
       this._triggerCards.set(trigger.capability, triggerCard);
@@ -155,9 +161,32 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     this.log('Finished registering flow cards');
   }
 
-  _calculatePollInterval() {
+  // A device's poll interval: its setting in minutes, or automatic (2 minutes × the number of
+  // devices, about 720 calls a day for all devices together)
+  _calculatePollInterval(device) {
+    const minutes = Number(device?.getPollSetting?.('pollInterval'));
+    if (Number.isFinite(minutes) && minutes * 60 * 1000 >= this.MIN_POLL_INTERVAL) return minutes * 60 * 1000;
     const deviceCount = this.getDevices().length;
     return this.MIN_POLL_INTERVAL * Math.max(1, deviceCount);
+  }
+
+  /**
+   * The API calls a day the devices of a Viessmann login (OAuth session) plan to make: polls and
+   * event log reads. `changed` replaces the settings of one device (a change being saved).
+   */
+  plannedCallsPerDay(sessionId, changed = {}) {
+    let calls = 0;
+    for (const device of this.getDevices()) {
+      if (device.getStoreValue?.('OAuth2SessionId') !== sessionId) continue;
+      const settings = device === changed.device ? changed.settings : {};
+      const setting = (key) => settings[key] ?? device.getPollSetting?.(key);
+      const minutes = Number(setting('pollInterval'));
+      const interval = Number.isFinite(minutes) && minutes >= 2 ? minutes * 60 * 1000 : this._calculatePollInterval();
+      calls += callsPerDay(interval / 60000);
+      const events = Number(setting('eventLog'));
+      if (Number.isFinite(events)) calls += callsPerDay(events);
+    }
+    return calls;
   }
 
   async _updateAllPollingIntervals() {
@@ -183,7 +212,7 @@ module.exports = class ViessmannDriver extends OAuth2Driver {
     }
     const poller = new DevicePoller({
       homey: this.homey,
-      getInterval: () => this._calculatePollInterval(),
+      getInterval: () => this._calculatePollInterval(device),
       poll: async (isStopped) => {
         // get features with extended response every 30th poll (statistically)
         const extendedRequest = Math.random() < 0.03;
